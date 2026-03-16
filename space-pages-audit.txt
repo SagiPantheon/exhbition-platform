@@ -1,0 +1,80 @@
+=== EN SPACE PAGES ===
+--- src/app/space/beresheet/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+5:const slug = "beresheet";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/space/mcs/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+5:const slug = "mcs";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/space/opsat-3000/page.tsx ---
+
+--- src/app/space/opsat3000/page.tsx ---
+
+--- src/app/space/opstar-3000/page.tsx ---
+
+--- src/app/space/opstar3000/page.tsx ---
+
+--- src/app/space/optsar-550/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+5:const slug = "optsar-550";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/space/optsat-3000/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+5:const slug = "optsat-3000";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/space/optsat-500/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+5:const slug = "optsat-500";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/space/shavit/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+5:const slug = "shavit";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/space/tecsar/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+5:const slug = "tecsar";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+=== HE SPACE PAGES ===
+--- src/app/he/space/beresheet/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../../data/spaceAssets";
+5:const slug = "beresheet";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/he/space/mcs/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../../data/spaceAssets";
+5:const slug = "mcs";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/he/space/optsar-550/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../../data/spaceAssets";
+5:const slug = "optsar-550";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/he/space/optsat-3000/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../../data/spaceAssets";
+5:const slug = "optsat-3000";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/he/space/optsat-500/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../../data/spaceAssets";
+5:const slug = "optsat-500";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/he/space/shavit/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../../data/spaceAssets";
+5:const slug = "shavit";
+8:  const asset = getSpaceAssetBySlug(slug);
+
+--- src/app/he/space/tecsar/page.tsx ---
+3:import { getSpaceAssetBySlug } from "../../../../data/spaceAssets";
+5:const slug = "tecsar";
+8:  const asset = getSpaceAssetBySlug(slug);
+
