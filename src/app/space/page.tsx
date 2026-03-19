@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { spaceAssets } from "../../data/spaceAssets";
+import { uiText } from "../../data/uiText";
 
 export default function SpacePage() {
   return (
@@ -62,24 +63,24 @@ export default function SpacePage() {
             >
               <div className="border-b border-cyan-300/15 bg-[#081226] p-5">
                 <div className="relative overflow-hidden rounded-[24px] border border-cyan-300/20 bg-black/20 p-3">
-                  <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-2 text-[11px] font-semibold">
-                    <span className="rounded-full border border-lime-300/30 bg-lime-400/20 px-3 py-1 text-lime-100">
-                      {asset.status.en}
-                    </span>
-                    <span className="rounded-full border border-cyan-300/30 bg-cyan-400/20 px-3 py-1 text-cyan-100">
-                      {asset.config.en}
-                    </span>
-                    <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-white">
-                      {asset.scale}
-                    </span>
-                  </div>
 
                   <img
                     src={asset.image}
                     alt={`${asset.title.en} showcase`}
-                    className="h-[390px] w-full rounded-[18px] object-cover object-center transition duration-300 group-hover:scale-[1.02]"
+                    className="h-[360px] w-full rounded-[18px] object-contain object-center p-4 transition duration-300 group-hover:scale-[1.01]"
                   />
                 </div>
+              <div className="mt-3 flex flex-wrap justify-end gap-2 px-2 pb-1">
+                <span className="inline-flex rounded-full border border-[rgba(92,214,126,0.35)] bg-[rgba(92,214,126,0.14)] px-2.5 py-1 text-[11px] text-[#9df0b2]">
+                  {asset.status.en}
+                </span>
+                <span className="inline-flex rounded-full border border-[rgba(93,214,255,0.35)] bg-[rgba(93,214,255,0.14)] px-2.5 py-1 text-[11px] text-[#8fe7ff]">
+                  {asset.config.en}
+                </span>
+                <span className="inline-flex rounded-full border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] px-2.5 py-1 text-[11px] text-[#e7ecff]">
+                  {asset.scale}
+                </span>
+              </div>
               </div>
 
               <div className="flex flex-1 flex-col gap-4 p-6">
@@ -108,7 +109,7 @@ export default function SpacePage() {
                 </p>
 
                 <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm text-slate-300">
-                  <span>Open Asset Page</span>
+                  <span>{uiText.actions.openAssetPage.en}</span>
                   <span className="font-semibold text-white">
                     /space/{asset.slug}
                   </span>

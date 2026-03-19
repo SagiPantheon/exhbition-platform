@@ -238,7 +238,7 @@ export const spaceAssets: SpaceAsset[] = [
     },
     status: { en: "Approved", he: "מאושר" },
     config: { en: "Mock-up", he: "דגם" },
-    scale: "1:2",
+    scale: "1:3",
     specs: {
       height: "3.4 m",
       width: "0.55 m",
@@ -255,8 +255,67 @@ export const spaceAssets: SpaceAsset[] = [
       visualLanguage: { en: "Launcher panel", he: "פאנל משגר" },
     },
   },
+
+,
+{
+  slug: "test-asset",
+  code: "SP-TEST",
+  image: "/images/shavit.png",
+  title: {
+    en: "Test Asset",
+    he: "מוצג בדיקה",
+  },
+  subtitle: {
+    en: "Temporary asset for validating the unified data architecture",
+    he: "מוצג זמני לבדיקת ארכיטקטורת הנתונים האחידה",
+  },
+  description: {
+    en: "This is a temporary test asset used to verify that a new exhibition item can be added through a single entry in spaceAssets.ts and automatically appear in the catalog and dynamic route.",
+    he: "זהו מוצג בדיקה זמני שנועד לוודא שניתן להוסיף פריט תערוכה חדש באמצעות רשומה אחת בלבד בקובץ spaceAssets.ts, ושהוא יופיע אוטומטית בקטלוג ובדף הדינמי.",
+  },
+  status: {
+    en: "Approved",
+    he: "מאושר",
+  },
+  config: {
+    en: "Mock-up",
+    he: "דגם",
+  },
+  scale: "1:2",
+  specs: {
+    height: "1.80 m",
+    width: "0.60 m",
+    length: "0.60 m",
+    weight: "45 kg",
+    standDiameter: "0.80 m",
+    standWeight: "20 kg",
+  },
+  readiness: {
+    environment: {
+      en: "Indoor only",
+      he: "פנים בלבד",
+    },
+    displayMethod: {
+      en: "Pedestal display",
+      he: "תצוגת פדסטל",
+    },
+    support: {
+      en: "Standard support",
+      he: "תמיכה סטנדרטית",
+    },
+    presentationLevel: {
+      en: "Approved showcase",
+      he: "תצוגה מאושרת",
+    },
+    visualLanguage: {
+      en: "Unified test layout",
+      he: "שפת תצוגה אחידה לבדיקה",
+    },
+  },
+}
+
 ];
 
 export function getSpaceAssetBySlug(slug: string) {
-  return spaceAssets.find((asset) => asset.slug === slug);
+  return spaceAssets.find((asset) => asset?.slug === slug);
 }

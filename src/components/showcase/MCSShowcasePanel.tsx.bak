@@ -137,6 +137,9 @@ export default function MCSShowcasePanel({
                   flexShrink: 0,
                 }}
               >
+                <Badge text={status} tone="success" />
+                <Badge text={assetForm} tone="info" />
+                <Badge text={scale} tone="neutral" />
               </div>
             </div>
 
@@ -248,8 +251,9 @@ function ActionButton({
   );
 }
 
-function Badge() {
-  return null;
+function Badge({
+  text,
+  tone,
 }: {
   text: string;
   tone: "success" | "info" | "neutral";

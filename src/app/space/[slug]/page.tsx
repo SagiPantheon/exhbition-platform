@@ -2,13 +2,14 @@ import { notFound } from "next/navigation";
 import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
-export default function SpaceAssetPage({ params }: PageProps) {
-  const asset = getSpaceAssetBySlug(params.slug);
+export default async function SpaceAssetPage({ params }: PageProps) {
+  const { slug } = await params;
+  const asset = getSpaceAssetBySlug(slug);
 
   if (!asset) {
     notFound();
@@ -61,10 +62,6 @@ export default function SpaceAssetPage({ params }: PageProps) {
                   <span className="text-neutral-500">Scale</span>
                   <span className="font-medium">{asset.scale}</span>
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
-                  <span className="text-neutral-500">Readiness</span>
-                  <span className="font-medium">{asset.readiness.en}</span>
-                </div>
               </div>
             </div>
 
@@ -72,16 +69,54 @@ export default function SpaceAssetPage({ params }: PageProps) {
               <h2 className="text-xl font-semibold">Specifications</h2>
               <div className="mt-4 space-y-3 text-sm text-neutral-700">
                 <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
-                  <span className="text-neutral-500">Dimensions</span>
-                  <span className="font-medium">{asset.specs.en.dimensions}</span>
+                  <span className="text-neutral-500">Height</span>
+                  <span className="font-medium">{asset.specs.height}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
+                  <span className="text-neutral-500">Width</span>
+                  <span className="font-medium">{asset.specs.width}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
+                  <span className="text-neutral-500">Length</span>
+                  <span className="font-medium">{asset.specs.length}</span>
                 </div>
                 <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
                   <span className="text-neutral-500">Weight</span>
-                  <span className="font-medium">{asset.specs.en.weight}</span>
+                  <span className="font-medium">{asset.specs.weight}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
+                  <span className="text-neutral-500">Stand Diameter</span>
+                  <span className="font-medium">{asset.specs.standDiameter}</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-neutral-500">Display</span>
-                  <span className="font-medium">{asset.specs.en.display}</span>
+                  <span className="text-neutral-500">Stand Weight</span>
+                  <span className="font-medium">{asset.specs.standWeight}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm">
+              <h2 className="text-xl font-semibold">Operational Readiness</h2>
+              <div className="mt-4 space-y-3 text-sm text-neutral-700">
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
+                  <span className="text-neutral-500">Environment</span>
+                  <span className="font-medium">{asset.readiness.environment.en}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
+                  <span className="text-neutral-500">Display Method</span>
+                  <span className="font-medium">{asset.readiness.displayMethod.en}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
+                  <span className="text-neutral-500">Support</span>
+                  <span className="font-medium">{asset.readiness.support.en}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-3">
+                  <span className="text-neutral-500">Presentation Level</span>
+                  <span className="font-medium">{asset.readiness.presentationLevel.en}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-neutral-500">Visual Language</span>
+                  <span className="font-medium">{asset.readiness.visualLanguage.en}</span>
                 </div>
               </div>
             </div>

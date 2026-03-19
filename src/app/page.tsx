@@ -1,26 +1,27 @@
 import Link from "next/link";
+import { uiText } from "../data/uiText";
 
 const sections = [
   {
-    title: "Space",
+    title: uiText.domains.space.en,
     href: "/space",
     description:
       "Explore satellites, launchers, and visual asset pages prepared for exhibition planning.",
   },
   {
-    title: "Air",
+    title: uiText.domains.air.en,
     href: "/air",
     description:
       "Browse aviation-related assets, future display items, and air exhibition material.",
   },
   {
-    title: "Land",
+    title: uiText.domains.land.en,
     href: "/land",
     description:
       "Review land systems, display concepts, and future ground-platform assets.",
   },
   {
-    title: "Water",
+    title: uiText.domains.naval.en,
     href: "/water",
     description:
       "Access naval and maritime exhibition content, assets, and presentation directions.",
