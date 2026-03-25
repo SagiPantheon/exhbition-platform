@@ -3,3 +3,8 @@ node_modules
 .next 2
 .env
 .DS_Store
+
+# local backup and archive files
+*.bak
+*backup*
+archive/

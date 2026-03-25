@@ -7,6 +7,7 @@ export type SpaceAsset = {
   slug: string;
   code: string;
   image: string;
+  model3d?: string;
   title: LocalizedText;
   subtitle: LocalizedText;
   description: LocalizedText;
@@ -34,7 +35,8 @@ export const spaceAssets: SpaceAsset[] = [
   {
     slug: "mcs",
     code: "SP-004",
-    image: "/images/mcs-showcase.png",
+    image: "/images/space/mcs-showcase.png",
+    model3d: "/models/space/mcs-showcase-3d.glb",
     title: { en: "MCS", he: "MCS" },
     subtitle: {
       en: "Premium technical showcase panel for the current MCS exhibition mock-up.",
@@ -66,7 +68,8 @@ export const spaceAssets: SpaceAsset[] = [
   {
     slug: "optsat-500",
     code: "SP-001",
-    image: "/images/optsat-500-showcase.png",
+    image: "/images/space/optsat-500-showcase.png",
+    model3d: "/models/space/optsat-500-showcase-3d.glb",
     title: { en: "OPTSAT-500", he: "OPTSAT-500" },
     subtitle: {
       en: "Electro-optical observation satellite mock-up for indoor exhibition showcase.",
@@ -98,7 +101,8 @@ export const spaceAssets: SpaceAsset[] = [
   {
     slug: "optsar-550",
     code: "SP-002",
-    image: "/images/optsar-550-showcase.png",
+    image: "/images/space/optsar-550-showcase.png",
+    model3d: "/models/space/optsar-550-showcase-3d.glb",
     title: { en: "OPTSAR-550", he: "OPTSAR-550" },
     subtitle: {
       en: "Advanced reconnaissance platform mock-up for premium indoor exhibition presentation.",
@@ -130,7 +134,8 @@ export const spaceAssets: SpaceAsset[] = [
   {
     slug: "optsat-3000",
     code: "SP-003",
-    image: "/images/optsat-3000-showcase.png",
+    image: "/images/space/optsat-3000-showcase.png",
+    model3d: "/models/space/optsat-3000-showcase-3d.glb",
     title: { en: "OPTSAT 3000", he: "OPTSAT 3000" },
     subtitle: {
       en: "High-capacity electro-optical satellite mock-up for exhibition display and logistics planning.",
@@ -162,7 +167,8 @@ export const spaceAssets: SpaceAsset[] = [
   {
     slug: "tecsar",
     code: "SP-005",
-    image: "/images/tecsar-showcase.png",
+    image: "/images/space/tecsar-showcase.png",
+    model3d: "/models/space/tecsar-showcase-3d.glb",
     title: { en: "TECSAR", he: "TECSAR" },
     subtitle: {
       en: "Synthetic aperture radar satellite mock-up for exhibition presentation and technical storytelling.",
@@ -194,7 +200,8 @@ export const spaceAssets: SpaceAsset[] = [
   {
     slug: "beresheet",
     code: "SP-006",
-    image: "/images/beresheet-showcase.png",
+    image: "/images/space/beresheet-showcase.png",
+    model3d: "/models/space/beresheet-showcase-3d.glb",
     title: { en: "Beresheet", he: "בראשית" },
     subtitle: {
       en: "Lunar lander mock-up for premium mission-story exhibition display.",
@@ -226,7 +233,8 @@ export const spaceAssets: SpaceAsset[] = [
   {
     slug: "shavit",
     code: "SP-007",
-    image: "/images/shavit-showcase.png",
+    image: "/images/space/shavit-showcase.png",
+    model3d: "/models/space/shavit-showcase-3d.glb",
     title: { en: "Shavit", he: "שביט" },
     subtitle: {
       en: "Launcher mock-up for vertical premium exhibition presentation.",
@@ -260,7 +268,7 @@ export const spaceAssets: SpaceAsset[] = [
 {
   slug: "test-asset",
   code: "SP-TEST",
-  image: "/images/shavit.png",
+  image: "/images/space/shavit.png",
   title: {
     en: "Test Asset",
     he: "מוצג בדיקה",
@@ -318,4 +326,8 @@ export const spaceAssets: SpaceAsset[] = [
 
 export function getSpaceAssetBySlug(slug: string) {
   return spaceAssets.find((asset) => asset?.slug === slug);
+}
+
+export function getAllSpaceAssetSlugs() {
+  return spaceAssets.map((asset) => asset.slug);
 }

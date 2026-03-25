@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { SpaceAsset } from "../data/spaceAssets";
+import ModelViewer from "./viewer/ModelViewer";
 
 type Props = {
   asset: SpaceAsset;
@@ -149,12 +150,52 @@ export default function SpaceAssetPageTemplate({ asset, locale }: Props) {
           </div>
 
           <div className="rounded-[30px] border border-cyan-300/20 bg-[#081226] p-4 shadow-[0_0_40px_rgba(24,119,242,0.14)]">
-            <div className="overflow-hidden rounded-[24px] border border-cyan-300/20 bg-black/20 p-3">
-              <img
-                src={asset.image}
+            <div className="relative">
+              <ModelViewer
+                src={asset.model3d ?? asset.image}
                 alt={asset.title[locale]}
-                className="h-[640px] w-full rounded-[18px] object-contain object-center bg-[#09111f]"
               />
+
+              {asset.slug === "optsat-3000" && (
+                <>
+                  <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute left-10 top-[118px] h-[320px] w-px bg-cyan-300/80">
+                      <div className="absolute -top-[1px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-l-2 border-t-2 border-cyan-300/90" />
+                      <div className="absolute -bottom-[1px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b-2 border-r-2 border-cyan-300/90" />
+
+                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <span className="block -rotate-90 whitespace-nowrap rounded-full border border-cyan-300/30 bg-[#081226]/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_16px_rgba(93,214,255,0.10)]">
+                          Height {asset.specs.height}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="absolute bottom-[58px] left-1/2 h-px w-[300px] -translate-x-1/2 bg-cyan-300/80">
+                      <div className="absolute -top-[1px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-l-2 border-t-2 border-cyan-300/90" />
+                      <div className="absolute -bottom-[1px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b-2 border-r-2 border-cyan-300/90" />
+
+                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <span className="whitespace-nowrap rounded-full border border-cyan-300/30 bg-[#081226]/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_16px_rgba(93,214,255,0.10)]">
+                          Width {asset.specs.width}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="absolute right-[112px] top-[318px] h-[178px] w-px bg-cyan-300/80">
+                      <div className="absolute -left-[1px] top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 border-b-2 border-l-2 border-cyan-300/90" />
+                      <div className="absolute -right-[1px] top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 border-r-2 border-t-2 border-cyan-300/90" />
+
+                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <span className="block -rotate-90 whitespace-nowrap rounded-full border border-cyan-300/30 bg-[#081226]/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_16px_rgba(93,214,255,0.10)]">
+                          Base {asset.specs.width}
+                        </span>
+                      </div>
+                    </div>
+
+                    </div>
+
+                </>
+              )}
             </div>
           </div>
         </section>

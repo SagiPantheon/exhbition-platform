@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+import ClassificationBadge from "../../../components/common/ClassificationBadge";
 
 type PageProps = {
   params: Promise<{
@@ -123,6 +124,7 @@ export default async function SpaceAssetPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+      <ClassificationBadge label="Unclassified" />
     </main>
   );
 }

@@ -1,5 +1,5 @@
 import { assets } from "../data/assets";
-import { Domain } from "../types/asset";
+import { Domain } from "../types/assets";
 
 export function getAssetsByDomain(domain: Domain) {
   return assets.filter((asset) => asset.domain === domain);
