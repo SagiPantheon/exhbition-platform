@@ -30,7 +30,8 @@ const exhibitions = [
     startDate: "2026-04-30",
     endDate: "2026-04-30",
     mainTheme: "חלל / חינוך / תלמידים / גמר תוכניות קרן רמון",
-    brochure: "TBD",
+    brochure: "פוסטר מצורף",
+    brochurePath: "/images/exhibitions/ramon-poster.jpg",
     pavilionStatus: "קיים ביתן",
     supplier: "זאורוס",
     prepStatus: "ביתן בפיתוח",
@@ -49,8 +50,8 @@ const exhibitions = [
     vipHosting: "אסטרטגיה / מט״ח",
     photoVideo: "לא הוזמן",
     finalApproval: "עמוס הכהן",
-    mainBlocker: "ברושור טרם צורף",
-    blockers: "ברושור טרם צורף",
+    mainBlocker: "סגירת רשימת המוצגים והשלמת תיאומים תפעוליים",
+    blockers: "סגירת רשימת המוצגים, אישורים ותיאומים תפעוליים",
     notes:
       "אירוע גמר בתאריך 30.04.2026 בבנייני האומה בירושלים. יש ביתן. הספק הזוכה: זאורוס.",
   },
@@ -61,7 +62,7 @@ const exhibitions = [
     startDate: "2026-05-11",
     endDate: "2026-05-14",
     mainTheme: "ביטחון / הגנה / טכנולוגיה ימית",
-    brochure: "TBD",
+    brochure: "פוסטר מצורף",
     pavilionStatus: "ללא ביתן",
     supplier: "בני מורן",
     prepStatus: "TBD",
@@ -271,7 +272,33 @@ export default function IsraelExhibitionsPage() {
                     </div>
                     <div style={boxStyle}>
                       <div style={labelStyle}>ברושור / קובץ מצורף</div>
-                      <div style={valueStyle}>{exhibition.brochure}</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div style={valueStyle}>{exhibition.brochure}</div>
+                        {"brochurePath" in exhibition && exhibition.brochurePath ? (
+                          <a
+                            href={exhibition.brochurePath}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              minHeight: "38px",
+                              padding: "0 14px",
+                              borderRadius: "12px",
+                              border: "1px solid rgba(125,211,252,0.35)",
+                              background: "rgba(14, 22, 38, 0.72)",
+                              color: "white",
+                              textDecoration: "none",
+                              fontSize: "13px",
+                              fontWeight: 700,
+                              width: "fit-content",
+                            }}
+                          >
+                            פתח פוסטר
+                          </a>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
 
