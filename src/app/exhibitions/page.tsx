@@ -1,306 +1,178 @@
 import Link from "next/link";
 
-export default function ExhibitionsPage() {
-  const exhibitions = [
-    {
-      id: "exh-001",
-      name: "Aero India 2027",
-      country: "India",
-      city: "Bengaluru",
-      status: "Planning",
-      requestor: "Marketing",
-      assetsCount: 3,
-    },
-    {
-      id: "exh-002",
-      name: "ILA Berlin 2026",
-      country: "Germany",
-      city: "Berlin",
-      status: "Draft",
-      requestor: "Marketing",
-      assetsCount: 2,
-    },
-    {
-      id: "exh-003",
-      name: "Singapore Airshow 2028",
-      country: "Singapore",
-      city: "Singapore",
-      status: "Review",
-      requestor: "Business Development",
-      assetsCount: 4,
-    },
-  ];
+const cardStyle = {
+  borderRadius: "26px",
+  border: "1px solid rgba(125,211,252,0.18)",
+  background: "rgba(8, 15, 28, 0.34)",
+  padding: "24px",
+  textDecoration: "none",
+  color: "white",
+  display: "block",
+} as const;
 
+const navButtonStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "44px",
+  padding: "0 16px",
+  borderRadius: "14px",
+  border: "1px solid rgba(125,211,252,0.35)",
+  background: "rgba(14, 22, 38, 0.72)",
+  color: "white",
+  textDecoration: "none",
+  fontSize: "14px",
+  fontWeight: 600,
+} as const;
+
+export default function ExhibitionsPage() {
   return (
     <main
       style={{
         minHeight: "100vh",
-        padding: "40px",
-        fontFamily: "Arial, sans-serif",
         background:
-          "radial-gradient(circle at top, #0d5ca0 0%, #083b72 28%, #04101f 78%, #020814 100%)",
-        color: "#f5f7fb",
+          "radial-gradient(circle at top, rgba(44,92,160,0.18), transparent 32%), linear-gradient(180deg, #07111f 0%, #0a1628 45%, #0b1320 100%)",
+        color: "white",
+        padding: "24px 24px 64px",
+        fontFamily: "Arial, sans-serif",
       }}
     >
-      <section
-        style={{
-          maxWidth: "1280px",
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: "18px",
-            flexWrap: "wrap",
-            marginBottom: "18px",
-            fontSize: "0.9rem",
-          }}
-        >
-          <Link
-            href="/space"
-            style={{
-              color: "rgba(245,247,251,0.82)",
-              textDecoration: "none",
-            }}
-          >
-            ← Back to Space Assets / חזרה למוצגי חלל
-          </Link>
-
-          <Link
-            href="/"
-            style={{
-              color: "rgba(245,247,251,0.82)",
-              textDecoration: "none",
-            }}
-          >
-            ← Back to Domains / חזרה לתחומים
+      <div style={{ maxWidth: "1560px", margin: "0 auto" }}>
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "22px" }}>
+          <Link href="/" style={navButtonStyle}>
+            ← Back to Main
           </Link>
         </div>
 
-        <div
+        <section
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: "20px",
-            marginBottom: "28px",
-            flexWrap: "wrap",
+            border: "1px solid rgba(125,211,252,0.18)",
+            borderRadius: "28px",
+            padding: "26px 24px 30px",
+            background: "rgba(8, 15, 28, 0.34)",
+            marginBottom: "26px",
           }}
         >
-          <div>
+          <div
+            style={{
+              fontSize: "13px",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "#7dd3fc",
+              marginBottom: "10px",
+            }}
+          >
+            Exhibitions Center
+          </div>
+
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "64px",
+              lineHeight: 1.02,
+              fontWeight: 800,
+              letterSpacing: "-0.04em",
+            }}
+          >
+            Exhibitions
+          </h1>
+
+          <p
+            style={{
+              marginTop: "14px",
+              maxWidth: "980px",
+              fontSize: "19px",
+              lineHeight: 1.7,
+              color: "rgba(255,255,255,0.80)",
+            }}
+          >
+            Main operational center for exhibition planning, data tracking,
+            suppliers, brochures, pavilion status, and preparation workflow.
+          </p>
+        </section>
+
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 0.8fr",
+            gap: "24px",
+          }}
+        >
+          <Link href="/exhibitions/israel" style={cardStyle}>
             <div
               style={{
-                fontSize: "0.82rem",
-                letterSpacing: "0.16em",
+                fontSize: "13px",
+                letterSpacing: "0.18em",
                 textTransform: "uppercase",
-                color: "rgba(180,210,255,0.76)",
+                color: "#7dd3fc",
                 marginBottom: "10px",
               }}
             >
-              Exhibition Projects
+              Main operational page
             </div>
 
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "2.4rem",
-                lineHeight: 1.08,
-              }}
-            >
-              Exhibition Management Layer
-            </h1>
+            <h2 style={{ margin: 0, fontSize: "42px", lineHeight: 1.05, fontWeight: 800 }}>
+              כנסים ותערוכות בארץ
+            </h2>
 
             <p
               style={{
                 marginTop: "14px",
-                maxWidth: "760px",
+                fontSize: "18px",
                 lineHeight: 1.7,
-                color: "rgba(245,247,251,0.86)",
+                color: "rgba(255,255,255,0.82)",
+                maxWidth: "760px",
               }}
             >
-              Create, review, and manage marketing exhibition projects. This
-              layer connects selected assets to a specific event, request, or
-              exhibition structure.
+              The primary working page for domestic exhibitions in Israel:
+              exhibition name, location, start and end dates, brochure upload,
+              main theme, pavilion status, supplier, preparation tracking, and notes.
             </p>
-          </div>
+          </Link>
 
-          <button
-            type="button"
-            style={{
-              padding: "12px 18px",
-              borderRadius: "14px",
-              fontSize: "0.95rem",
-              fontWeight: 700,
-              border: "1px solid rgba(120, 190, 255, 0.4)",
-              background:
-                "linear-gradient(180deg, rgba(78,145,255,0.28) 0%, rgba(41,92,180,0.18) 100%)",
-              color: "#f5f7fb",
-              cursor: "pointer",
-              boxShadow: "0 10px 24px rgba(35, 96, 190, 0.22)",
-            }}
-          >
-            Create New Exhibition
-          </button>
-        </div>
+          <Link href="/exhibitions/abroad" style={cardStyle}>
+            <div
+              style={{
+                fontSize: "13px",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "#7dd3fc",
+                marginBottom: "10px",
+              }}
+            >
+              Secondary page
+            </div>
+
+            <h2 style={{ margin: 0, fontSize: "34px", lineHeight: 1.08, fontWeight: 800 }}>
+              Exhibitions Abroad
+            </h2>
+
+            <p
+              style={{
+                marginTop: "14px",
+                fontSize: "17px",
+                lineHeight: 1.7,
+                color: "rgba(255,255,255,0.82)",
+              }}
+            >
+              Separate tracking page for international exhibitions, examples, and future overseas planning.
+            </p>
+          </Link>
+        </section>
 
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "20px",
+            marginTop: "22px",
+            textAlign: "center",
+            fontSize: "12px",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.56)",
           }}
         >
-          {exhibitions.map((exhibition) => (
-            <article
-              key={exhibition.id}
-              style={{
-                borderRadius: "22px",
-                padding: "22px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background:
-                  "linear-gradient(180deg, rgba(18,26,48,0.92) 0%, rgba(10,14,28,0.95) 100%)",
-                boxShadow: "0 14px 34px rgba(0,0,0,0.22)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  gap: "12px",
-                  marginBottom: "16px",
-                }}
-              >
-                <div>
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontSize: "1.25rem",
-                    }}
-                  >
-                    {exhibition.name}
-                  </h2>
-                  <div
-                    style={{
-                      marginTop: "8px",
-                      color: "rgba(245,247,251,0.72)",
-                      fontSize: "0.92rem",
-                    }}
-                  >
-                    {exhibition.city}, {exhibition.country}
-                  </div>
-                </div>
-
-                <span
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: "999px",
-                    fontSize: "0.76rem",
-                    fontWeight: 700,
-                    background: "rgba(120, 190, 255, 0.14)",
-                    border: "1px solid rgba(120, 190, 255, 0.35)",
-                    color: "#9fd3ff",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {exhibition.status}
-                </span>
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                  gap: "12px",
-                  marginBottom: "18px",
-                }}
-              >
-                <MiniBox label="Requestor" value={exhibition.requestor} />
-                <MiniBox
-                  label="Assets"
-                  value={`${exhibition.assetsCount} selected`}
-                />
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <ActionButton label="Open Exhibition" primary />
-                <ActionButton label="Add Asset" />
-              </div>
-            </article>
-          ))}
+          Unclassified
         </div>
-      </section>
+      </div>
     </main>
-  );
-}
-
-function MiniBox({ label, value }: { label: string; value: string }) {
-  return (
-    <div
-      style={{
-        borderRadius: "16px",
-        padding: "14px",
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.06)",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "0.74rem",
-          textTransform: "uppercase",
-          letterSpacing: "0.12em",
-          color: "rgba(180,210,255,0.7)",
-          marginBottom: "8px",
-        }}
-      >
-        {label}
-      </div>
-      <div
-        style={{
-          fontSize: "0.98rem",
-          fontWeight: 600,
-          color: "#f5f7fb",
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function ActionButton({
-  label,
-  primary = false,
-}: {
-  label: string;
-  primary?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      style={{
-        padding: "10px 14px",
-        borderRadius: "12px",
-        fontSize: "0.88rem",
-        fontWeight: 700,
-        cursor: "pointer",
-        border: primary
-          ? "1px solid rgba(120, 190, 255, 0.45)"
-          : "1px solid rgba(255,255,255,0.14)",
-        background: primary
-          ? "linear-gradient(180deg, rgba(78,145,255,0.28) 0%, rgba(41,92,180,0.18) 100%)"
-          : "rgba(255,255,255,0.05)",
-        color: "#f5f7fb",
-      }}
-    >
-      {label}
-    </button>
   );
 }
