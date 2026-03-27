@@ -25,67 +25,76 @@ const boxStyle = {
 const exhibitions = [
   {
     id: "israel-001",
-    name: "כנס חלל - ירושלים",
-    location: "Jerusalem",
+    name: "כנס חלל - גמר תוכניות קרן רמון",
+    location: "בנייני האומה, ירושלים",
     startDate: "2026-04-30",
     endDate: "2026-04-30",
-    mainTheme: "Space / students / education / exposure",
-    brochure: "To be attached",
-    pavilionStatus: "ללא ביתן / השתתפות בלבד",
-    supplier: "TBD",
-    prepStatus: "In preparation",
-    internalOwner: "TBD",
-    boothSize: "TBD",
-    designerStatus: "Open",
-    logisticsStatus: "Open",
-    plannedAssets: "TBD",
-    approvalsStatus: "Pending",
-    brandingStatus: "Pending",
-    vipHosting: "Gifts / refreshments / hosting review required",
-    photoVideo: "Restrictions TBD",
-    finalApproval: "Not approved yet",
-    blockers: "Brochure, supplier, and final approvals still missing",
+    mainTheme: "חלל / חינוך / תלמידים / גמר תוכניות קרן רמון",
+    brochure: "TBD",
+    pavilionStatus: "קיים ביתן",
+    supplier: "זאורוס",
+    prepStatus: "ביתן בפיתוח",
+    overallStatus: "בתהליך",
+    internalOwner: "שגיא עמיאל",
+    boothSize: "6×3 מטר",
+    designerStatus: "שגיא דקל / זאורוס",
+    logisticsStatus: "קובי אלגזר",
+    plannedAssets: [
+      "רקטת שביט",
+      "דגם מוקטן של בראשית על פודיום",
+      "לוויין טקסאר",
+    ],
+    approvalsStatus: "שרי מגדל",
+    brandingStatus: "זאורוס",
+    vipHosting: "אסטרטגיה / מט״ח",
+    photoVideo: "לא הוזמן",
+    finalApproval: "עמוס הכהן",
+    mainBlocker: "ברושור טרם צורף",
+    blockers: "ברושור טרם צורף",
     notes:
-      "Domestic operational example. Can later connect brochure file, assets, approvals, supplier, and final preparation flow.",
+      "אירוע גמר בתאריך 30.04.2026 בבנייני האומה בירושלים. יש ביתן. הספק הזוכה: זאורוס.",
   },
   {
     id: "israel-002",
-    name: "IACAS",
-    location: "Panorama, Tel Aviv",
-    startDate: "TBD",
-    endDate: "TBD",
-    mainTheme: "Defense / industry / conference",
-    brochure: "Awaiting file",
-    pavilionStatus: "קיים ביתן / TBD",
-    supplier: "TBD",
-    prepStatus: "Open",
-    internalOwner: "TBD",
-    boothSize: "TBD",
-    designerStatus: "Open",
-    logisticsStatus: "Open",
-    plannedAssets: "TBD",
-    approvalsStatus: "Open",
-    brandingStatus: "Open",
-    vipHosting: "To be defined",
-    photoVideo: "To be checked",
-    finalApproval: "Open",
-    blockers: "Main supplier and final scope still not closed",
+    name: "MARE MED Athens",
+    location: "אתונה, יוון",
+    startDate: "2026-05-11",
+    endDate: "2026-05-14",
+    mainTheme: "ביטחון / הגנה / טכנולוגיה ימית",
+    brochure: "TBD",
+    pavilionStatus: "ללא ביתן",
+    supplier: "בני מורן",
+    prepStatus: "TBD",
+    overallStatus: "פתוח",
+    internalOwner: "שגיא עמיאל",
+    boothSize: "אין שטח ביתן",
+    designerStatus: "TBD",
+    logisticsStatus: "TBD",
+    plannedAssets: ["ללא מוצגים"],
+    approvalsStatus: "שרי מגדל",
+    brandingStatus: "TBD",
+    vipHosting: "TBD",
+    photoVideo: "TBD",
+    finalApproval: "ששי חודדה",
+    mainBlocker: "TBD",
+    blockers: "TBD",
     notes:
-      "Can later expand into a fully managed domestic exhibition worksheet with assets, branding, supplier, and hosting logic.",
+      "המשלחת יוצאת בתאריך 11.05.2026 וחוזרת בתאריך 14.05.2026. יום הכנס המרכזי הוא 12.05.2026 באתונה וכולל הרצאות, פאנלים מקצועיים, נטוורקינג וקוקטייל ערב. בתאריך 13.05.2026 יתקיימו סיורים מקצועיים ממוקדים בתחום הנמלים.",
   },
 ];
 
 export default function IsraelExhibitionsPage() {
   const summary = {
     total: exhibitions.length,
-    approvalsPending: exhibitions.filter((e) => e.approvalsStatus !== "Approved").length,
-    missingBrochure: exhibitions.filter((e) => e.brochure.includes("Awaiting") || e.brochure.includes("attached")).length,
-    missingSupplier: exhibitions.filter((e) => e.supplier === "TBD").length,
-    openPrep: exhibitions.filter((e) => e.prepStatus !== "Completed").length,
+    approvalsPending: exhibitions.filter((e) => e.approvalsStatus !== "אושר").length,
+    missingBrochure: exhibitions.filter((e) => e.brochure === "TBD" || e.brochure.includes("טרם")).length,
+    missingSupplier: exhibitions.filter((e) => e.supplier === "TBD" || e.supplier === "טרם נקבע").length,
+    openPrep: exhibitions.filter((e) => e.prepStatus !== "הושלם").length,
   };
 
   return (
     <main
+      dir="rtl"
       style={{
         minHeight: "100vh",
         background:
@@ -98,10 +107,10 @@ export default function IsraelExhibitionsPage() {
       <div style={{ maxWidth: "1560px", margin: "0 auto" }}>
         <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "22px" }}>
           <Link href="/exhibitions" style={navButtonStyle}>
-            ← Back to Exhibitions
+            חזרה לתערוכות
           </Link>
           <Link href="/" style={navButtonStyle}>
-            Back to Main
+            חזרה לראשי
           </Link>
         </div>
 
@@ -117,13 +126,13 @@ export default function IsraelExhibitionsPage() {
           <div
             style={{
               fontSize: "13px",
-              letterSpacing: "0.18em",
+              letterSpacing: "0.12em",
               textTransform: "uppercase",
               color: "#7dd3fc",
               marginBottom: "10px",
             }}
           >
-            Main operational worksheet
+            גיליון עבודה תפעולי ראשי
           </div>
 
           <h1
@@ -147,9 +156,9 @@ export default function IsraelExhibitionsPage() {
               color: "rgba(255,255,255,0.80)",
             }}
           >
-            Primary domestic exhibition worksheet for real operational work in Israel:
-            core exhibition data, pavilion logic, supplier flow, brochure status,
-            planned assets, approvals, branding, hosting, restrictions, blockers, and final approval.
+            גיליון העבודה המרכזי לניהול כנסים ותערוכות: נתוני בסיס, היגיון ביתן,
+            זרימת ספקים, מצב ברושור, מוצגים מתוכננים, אישורים, מיתוג, אירוח, מגבלות,
+            חסמים ואישור סופי.
           </p>
         </section>
 
@@ -162,23 +171,23 @@ export default function IsraelExhibitionsPage() {
           }}
         >
           <div style={boxStyle}>
-            <div style={labelStyle}>Total exhibitions</div>
+            <div style={labelStyle}>סה״כ תערוכות</div>
             <div style={valueStyle}>{summary.total}</div>
           </div>
           <div style={boxStyle}>
-            <div style={labelStyle}>Approvals pending</div>
+            <div style={labelStyle}>אישורים ממתינים</div>
             <div style={valueStyle}>{summary.approvalsPending}</div>
           </div>
           <div style={boxStyle}>
-            <div style={labelStyle}>Missing brochure</div>
+            <div style={labelStyle}>ללא ברושור</div>
             <div style={valueStyle}>{summary.missingBrochure}</div>
           </div>
           <div style={boxStyle}>
-            <div style={labelStyle}>Missing supplier</div>
+            <div style={labelStyle}>ללא ספק</div>
             <div style={valueStyle}>{summary.missingSupplier}</div>
           </div>
           <div style={boxStyle}>
-            <div style={labelStyle}>Open preparation</div>
+            <div style={labelStyle}>הכנה פתוחה</div>
             <div style={valueStyle}>{summary.openPrep}</div>
           </div>
         </section>
@@ -194,13 +203,13 @@ export default function IsraelExhibitionsPage() {
           <div
             style={{
               fontSize: "13px",
-              letterSpacing: "0.18em",
+              letterSpacing: "0.12em",
               textTransform: "uppercase",
               color: "#7dd3fc",
               marginBottom: "18px",
             }}
           >
-            Exhibition worksheets
+            גיליונות עבודה לתערוכות
           </div>
 
           <div style={{ display: "grid", gap: "22px" }}>
@@ -223,101 +232,114 @@ export default function IsraelExhibitionsPage() {
                   }}
                 >
                   <div>
-                    <div style={labelStyle}>Exhibition name</div>
+                    <div style={labelStyle}>שם התערוכה</div>
                     <div style={heroValueStyle}>{exhibition.name}</div>
 
                     <div style={{ marginTop: "18px" }}>
-                      <div style={labelStyle}>Main theme</div>
+                      <div style={labelStyle}>נושא מרכזי</div>
                       <div style={valueStyle}>{exhibition.mainTheme}</div>
                     </div>
 
                     <div style={{ marginTop: "18px" }}>
-                      <div style={labelStyle}>Notes</div>
+                      <div style={labelStyle}>הערות</div>
                       <div style={valueStyle}>{exhibition.notes}</div>
                     </div>
 
                     <div style={{ marginTop: "18px" }}>
-                      <div style={labelStyle}>Blockers / missing items</div>
+                      <div style={labelStyle}>חסם מרכזי</div>
+                      <div style={valueStyle}>{exhibition.mainBlocker}</div>
+                    </div>
+
+                    <div style={{ marginTop: "18px" }}>
+                      <div style={labelStyle}>חסמים / פריטים חסרים</div>
                       <div style={valueStyle}>{exhibition.blockers}</div>
                     </div>
                   </div>
 
                   <div style={{ display: "grid", gap: "14px" }}>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Location</div>
+                      <div style={labelStyle}>מיקום</div>
                       <div style={valueStyle}>{exhibition.location}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Start date</div>
+                      <div style={labelStyle}>תאריך התחלה</div>
                       <div style={valueStyle}>{exhibition.startDate}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>End date</div>
+                      <div style={labelStyle}>תאריך סיום</div>
                       <div style={valueStyle}>{exhibition.endDate}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Brochure / attachment</div>
+                      <div style={labelStyle}>ברושור / קובץ מצורף</div>
                       <div style={valueStyle}>{exhibition.brochure}</div>
                     </div>
                   </div>
 
                   <div style={{ display: "grid", gap: "14px" }}>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Pavilion status</div>
+                      <div style={labelStyle}>סטטוס ביתן</div>
                       <div style={valueStyle}>{exhibition.pavilionStatus}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Supplier / ספק</div>
+                      <div style={labelStyle}>ספק</div>
                       <div style={valueStyle}>{exhibition.supplier}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Preparation status</div>
+                      <div style={labelStyle}>סטטוס הכנה</div>
                       <div style={valueStyle}>{exhibition.prepStatus}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Planned assets</div>
-                      <div style={valueStyle}>{exhibition.plannedAssets}</div>
+                      <div style={labelStyle}>סטטוס כללי</div>
+                      <div style={valueStyle}>{exhibition.overallStatus}</div>
                     </div>
                   </div>
 
                   <div style={{ display: "grid", gap: "14px" }}>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Internal owner</div>
+                      <div style={labelStyle}>אחראי פנימי</div>
                       <div style={valueStyle}>{exhibition.internalOwner}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Booth size / area</div>
+                      <div style={labelStyle}>גודל ביתן / שטח</div>
                       <div style={valueStyle}>{exhibition.boothSize}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Designer / layout</div>
+                      <div style={labelStyle}>מעצב / סטטוס פריסה</div>
                       <div style={valueStyle}>{exhibition.designerStatus}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Logistics / installation</div>
+                      <div style={labelStyle}>לוגיסטיקה / התקנה</div>
                       <div style={valueStyle}>{exhibition.logisticsStatus}</div>
                     </div>
                   </div>
 
                   <div style={{ display: "grid", gap: "14px" }}>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Approvals</div>
+                      <div style={labelStyle}>מוצגים מתוכננים</div>
+                      <div style={{ ...valueStyle, whiteSpace: "pre-line" }}>
+                        {Array.isArray(exhibition.plannedAssets)
+                          ? exhibition.plannedAssets.map((asset, index) => `• ${asset}`).join("\n")
+                          : exhibition.plannedAssets}
+                      </div>
+                    </div>
+                    <div style={boxStyle}>
+                      <div style={labelStyle}>אישורים</div>
                       <div style={valueStyle}>{exhibition.approvalsStatus}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Branding</div>
+                      <div style={labelStyle}>מיתוג</div>
                       <div style={valueStyle}>{exhibition.brandingStatus}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>VIP / hosting</div>
+                      <div style={labelStyle}>VIP / אירוח</div>
                       <div style={valueStyle}>{exhibition.vipHosting}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Photo / video restrictions</div>
+                      <div style={labelStyle}>מגבלות צילום / וידאו</div>
                       <div style={valueStyle}>{exhibition.photoVideo}</div>
                     </div>
                     <div style={boxStyle}>
-                      <div style={labelStyle}>Final approval</div>
+                      <div style={labelStyle}>אישור סופי</div>
                       <div style={valueStyle}>{exhibition.finalApproval}</div>
                     </div>
                   </div>
@@ -337,7 +359,7 @@ export default function IsraelExhibitionsPage() {
             color: "rgba(255,255,255,0.56)",
           }}
         >
-          Unclassified
+          בלתי מסווג
         </div>
       </div>
     </main>
@@ -346,7 +368,7 @@ export default function IsraelExhibitionsPage() {
 
 const labelStyle = {
   fontSize: "12px",
-  letterSpacing: "0.12em",
+  letterSpacing: "0.08em",
   textTransform: "uppercase",
   color: "rgba(255,255,255,0.70)",
   marginBottom: "8px",
