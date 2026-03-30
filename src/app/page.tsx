@@ -41,6 +41,20 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#06111f] text-white">
       <div className="mx-auto flex min-h-screen w-full max-w-[1700px] flex-col gap-4 px-4 py-4">
+        <div className="flex items-center justify-end">
+          <div className="inline-flex overflow-hidden rounded-[14px] border border-cyan-300/24 bg-[#08131f]/92 shadow-[0_0_0_1px_rgba(103,232,249,0.08),0_0_18px_rgba(34,211,238,0.10)]">
+            <span className="bg-cyan-400/12 px-4 py-2 text-[13px] font-medium uppercase tracking-[0.18em] text-white">
+              EN
+            </span>
+            <Link
+              href="/he"
+              aria-label="Switch to Hebrew"
+              className="px-4 py-2 text-[13px] font-medium uppercase tracking-[0.18em] text-cyan-200 transition duration-300 hover:bg-cyan-400/10 hover:text-white"
+            >
+              HE
+            </Link>
+          </div>
+        </div>
         <section className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[#08131f] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
           <div className="relative h-[56vh] min-h-[420px] max-h-[760px] w-full">
             <img

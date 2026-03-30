@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/model-viewer": "^4.2.0",
     "@tailwindcss/postcss": "^4.2.1",
     "next": "^16.1.6",
     "postcss": "^8.5.8",
