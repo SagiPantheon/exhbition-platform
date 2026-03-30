@@ -1,130 +1,90 @@
 import Link from "next/link";
-import { uiText } from "../data/uiText";
 
-const sections = [
-  {
-    title: uiText.domains.space.en,
-    href: "/space",
-    description:
-      "Explore satellites, launchers, and visual asset pages prepared for exhibition planning.",
-  },
-  {
-    title: uiText.domains.air.en,
-    href: "/air",
-    description:
-      "Browse aviation-related assets, future display items, and air exhibition material.",
-  },
-  {
-    title: uiText.domains.land.en,
-    href: "/land",
-    description:
-      "Review land systems, display concepts, and future ground-platform assets.",
-  },
-  {
-    title: uiText.domains.naval.en,
-    href: "/water",
-    description:
-      "Access naval and maritime exhibition content, assets, and presentation directions.",
-  },
-  {
-    title: "Exhibitions",
-    href: "/exhibitions",
-    description:
-      "Move into exhibition planning, coordination, approvals, and event preparation.",
-  },
+const topCards = [
+  { title: "Space", href: "/space", image: "/images/home/space-cover.png" },
+  { title: "Air", href: "/air", image: "/images/home/air-cover.png" },
+  { title: "Land", href: "/land", image: "/images/home/land-cover.png" },
 ];
+
+const bottomCards = [
+  { title: "Naval", href: "/water", image: "/images/home/naval-cover.png" },
+  { title: "Exhibitions", href: "/exhibitions", image: "/images/home/exhibitions-home-cover.png" },
+];
+
+function Card({
+  title,
+  href,
+  image,
+}: {
+  title: string;
+  href: string;
+  image: string;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={`Open ${title}`}
+      className="group block overflow-hidden rounded-[16px] border border-white/10 bg-[#08131f] shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 cursor-pointer"
+    >
+      <div className="relative aspect-[16/7.2] w-full">
+        <img
+          src={image}
+          alt={title}
+          className="absolute inset-0 h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.02]"
+        />
+      </div>
+    </Link>
+  );
+}
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
-      <div className="mx-auto flex max-w-[1700px] flex-col gap-8">
-        <section className="rounded-[34px] border border-cyan-300/20 bg-[radial-gradient(circle_at_top,rgba(45,110,220,0.28),rgba(11,18,39,1)_58%)] p-8 shadow-[0_0_60px_rgba(24,119,242,0.14)] md:p-10">
-          <div className="flex flex-wrap items-start justify-between gap-6">
-            <div className="max-w-4xl">
-              <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">
+    <main className="min-h-screen bg-[#06111f] text-white">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1700px] flex-col gap-4 px-4 py-4">
+        <section className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[#08131f] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+          <div className="relative h-[56vh] min-h-[420px] max-h-[760px] w-full">
+            <img
+              src="/images/home/home-hero-bg.png"
+              alt="Exhibition Platform Hero Background"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-r from-[#06111f]/88 via-[#06111f]/38 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#06111f] to-transparent" />
+
+            <div className="absolute left-[5%] top-[14%] z-10 max-w-[520px]">
+              <p className="mb-3 text-[clamp(14px,1.2vw,20px)] font-medium uppercase tracking-[0.22em] text-cyan-300">
                 Exhibition Platform
               </p>
 
-              <h1 className="mt-4 text-4xl font-extrabold md:text-6xl">
+              <h1 className="mb-4 text-[clamp(56px,7vw,120px)] font-semibold leading-[0.92] tracking-[-0.04em] text-white">
                 Welcome
               </h1>
 
-              <p className="mt-4 text-sm leading-7 text-slate-300 md:text-base">
-                A clearer, friendlier way to review exhibition assets, navigate
-                categories, and move between planning areas. Start with Space,
-                continue into exhibitions, and build a better overview of the
-                full showcase ecosystem.
+              <div className="mb-6 h-[3px] w-40 rounded-full bg-cyan-400/90 shadow-[0_0_18px_rgba(34,211,238,0.55)]" />
+
+              <p className="max-w-[460px] text-[clamp(16px,1.35vw,22px)] leading-[1.55] text-white/90">
+                A clearer, friendlier way to review exhibition assets,
+                navigate categories, and move between planning areas.
+                Start with Space, continue into exhibitions, and build a
+                better overview of the full showcase ecosystem.
               </p>
-
-              <div className="mt-7 flex flex-wrap gap-3">
-                <Link
-                  href="/space"
-                  className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/20"
-                >
-                  Explore Space Assets
-                </Link>
-
-                <Link
-                  href="/exhibitions"
-                  className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/20"
-                >
-                  Open Exhibitions
-                </Link>
-
-                <Link
-                  href="/he"
-                  className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  עברית
-                </Link>
-              </div>
-            </div>
-
-            <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
-              <QuickPill label="Main Route" value="/space" />
-              <QuickPill label="Planning Route" value="/exhibitions" />
-              <QuickPill label="Current Focus" value="Space Assets" />
-              <QuickPill label="Status" value="Ready to Use" />
             </div>
           </div>
         </section>
 
-        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {sections.map((section) => (
-            <Link
-              key={section.href}
-              href={section.href}
-              className="group flex min-h-[250px] flex-col justify-between rounded-[30px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.08)] transition duration-200 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_0_60px_rgba(24,119,242,0.16)]"
-            >
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-300">
-                  Platform Area
-                </p>
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {topCards.map((card) => (
+            <Card key={card.title} {...card} />
+          ))}
+        </section>
 
-                <h2 className="mt-3 text-3xl font-extrabold">{section.title}</h2>
-
-                <p className="mt-4 text-sm leading-7 text-slate-300">
-                  {section.description}
-                </p>
-              </div>
-
-              <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 text-sm">
-                <span className="text-slate-400">Open Section</span>
-                <span className="font-semibold text-white">{section.href}</span>
-              </div>
-            </Link>
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:px-[16.66%]">
+          {bottomCards.map((card) => (
+            <Card key={card.title} {...card} />
           ))}
         </section>
       </div>
     </main>
-  );
-}
-
-function QuickPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-cyan-300/15 bg-white/[0.04] p-4">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">{label}</p>
-      <p className="mt-2 text-lg font-bold text-white">{value}</p>
-    </div>
   );
 }

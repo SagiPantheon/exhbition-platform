@@ -17,7 +17,10 @@ export default function AirPage() {
   const filteredAssets = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
 
-    return airAssets.filter((asset) => {
+    const airOrder = ["arrow-2", "arrow-3-missile", "lora", "arrow-3"];
+
+  return airAssets
+    .filter((asset) => {
       const matchesMission = asset.missionType === activeMission;
       const matchesCategory =
         activeCategory === "all" ? true : asset.assetCategory === activeCategory;
@@ -36,6 +39,15 @@ export default function AirPage() {
       const matchesSearch = query.length === 0 ? true : haystack.includes(query);
 
       return matchesMission && matchesCategory && matchesSearch;
+      })
+    .sort((a, b) => {
+      const ai = airOrder.indexOf(a.slug);
+      const bi = airOrder.indexOf(b.slug);
+
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
     });
   }, [activeMission, activeCategory, searchTerm]);
 

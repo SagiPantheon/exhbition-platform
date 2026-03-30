@@ -24,10 +24,10 @@ const cardStyle = {
 
 const exhibitions = [
   {
-    name: "Athens Strategy Conference",
-    location: "Athens",
+    name: "Germany Exhibition",
+    location: "Germany",
     timing: "TBD",
-    notes: "International exhibition example for abroad section.",
+    notes: "Primary abroad placeholder for the Germany exhibition. Exact title and dates will be added later.",
   },
   {
     name: "DSEI",
@@ -107,7 +107,7 @@ export default function AbroadExhibitionsPage() {
               color: "rgba(255,255,255,0.80)",
             }}
           >
-            Separate page for international exhibitions outside Israel. This section can remain simpler for now and expand later.
+            Separate page for international exhibitions outside Israel. These are working examples that can be replaced with real data later.
           </p>
         </section>
 

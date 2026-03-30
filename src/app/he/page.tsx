@@ -87,7 +87,23 @@ export default function HebrewHomePage() {
             <Link
               key={section.href}
               href={section.href}
-              className="group flex min-h-[250px] flex-col justify-between rounded-[30px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.08)] transition duration-200 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_0_60px_rgba(24,119,242,0.16)]"
+              className="overflow-hidden group flex min-h-[250px] flex-col justify-between rounded-[30px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.08)] transition duration-200 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_0_60px_rgba(24,119,242,0.16)]"
+            style={{
+              backgroundImage: section.href.includes("space")
+                ? "linear-gradient(to top, rgba(2,6,23,0.88), rgba(2,6,23,0.34)), url('/covers/space_cover.png')"
+                : section.href.includes("air")
+                ? "linear-gradient(to top, rgba(2,6,23,0.82), rgba(2,6,23,0.24)), url('/covers/air_cover.png')"
+                : section.href.includes("land")
+                ? "linear-gradient(to top, rgba(2,6,23,0.84), rgba(2,6,23,0.24)), url('/covers/land_cover.png')"
+                : section.href.includes("naval") || section.href.includes("water")
+                ? "linear-gradient(to top, rgba(2,6,23,0.86), rgba(2,6,23,0.28)), url('/covers/naval_cover.png')"
+                : section.href.includes("exhibitions")
+                ? "linear-gradient(to top, rgba(2,6,23,0.90), rgba(2,6,23,0.30)), url('/covers/exhibitions_cover.png')"
+                : "linear-gradient(to top, rgba(2,6,23,0.92), rgba(2,6,23,0.55))",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
             >
               <div>
                 <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-300">

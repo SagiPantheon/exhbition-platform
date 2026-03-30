@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 const navButtonStyle = {
   display: "inline-flex",
@@ -22,6 +25,31 @@ const boxStyle = {
   border: "1px solid rgba(255,255,255,0.12)",
 } as const;
 
+const pillButtonStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "38px",
+  padding: "0 14px",
+  borderRadius: "12px",
+  border: "1px solid rgba(125,211,252,0.35)",
+  background: "rgba(14, 22, 38, 0.72)",
+  color: "white",
+  textDecoration: "none",
+  fontSize: "13px",
+  fontWeight: 700,
+  width: "fit-content",
+  cursor: "pointer",
+} as const;
+
+const detailPanelStyle = {
+  marginTop: "10px",
+  padding: "12px 14px",
+  borderRadius: "14px",
+  border: "1px solid rgba(125,211,252,0.22)",
+  background: "rgba(9, 16, 30, 0.82)",
+} as const;
+
 const exhibitions = [
   {
     id: "israel-001",
@@ -37,13 +65,13 @@ const exhibitions = [
     prepStatus: "ביתן בפיתוח",
     overallStatus: "בתהליך",
     internalOwner: "שגיא עמיאל",
-    boothSize: "6×3 מטר",
+    boothSize: "3×6 מטר",
     designerStatus: "שגיא דקל / זאורוס",
     logisticsStatus: "קובי אלגזר",
     plannedAssets: [
-      "רקטת שביט",
-      "דגם מוקטן של בראשית על פודיום",
-      "לוויין טקסאר",
+      { label: "רקטת שביט", href: "/space/shavit" },
+      { label: "דגם מוקטן של בראשית על פודיום", href: "/space/beresheet" },
+      { label: "לוויין טקסאר", href: "/space/tecsar" },
     ],
     approvalsStatus: "שרי מגדל",
     brandingStatus: "זאורוס",
@@ -62,7 +90,7 @@ const exhibitions = [
     startDate: "2026-05-11",
     endDate: "2026-05-14",
     mainTheme: "ביטחון / הגנה / טכנולוגיה ימית",
-    brochure: "פוסטר מצורף",
+    brochure: "TBD",
     pavilionStatus: "ללא ביתן",
     supplier: "בני מורן",
     prepStatus: "TBD",
@@ -84,7 +112,72 @@ const exhibitions = [
   },
 ];
 
+function ExternalActionButton({
+  label,
+  href,
+}: {
+  label: string;
+  href?: string;
+}) {
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" style={pillButtonStyle}>
+        {label}
+      </a>
+    );
+  }
+
+  return (
+    <button type="button" style={pillButtonStyle}>
+      {label}
+    </button>
+  );
+}
+
+function ToggleActionButton({
+  label,
+  isOpen,
+  onClick,
+}: {
+  label: string;
+  isOpen: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        ...pillButtonStyle,
+        background: isOpen ? "rgba(27, 57, 99, 0.95)" : pillButtonStyle.background,
+        border: isOpen ? "1px solid rgba(125,211,252,0.65)" : pillButtonStyle.border,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "10px", marginTop: "8px" }}>
+      <div style={{ color: "rgba(255,255,255,0.72)", fontSize: "12px", fontWeight: 700 }}>{label}</div>
+      <div style={{ color: "white", fontSize: "14px", fontWeight: 600 }}>{value}</div>
+    </div>
+  );
+}
+
 export default function IsraelExhibitionsPage() {
+  const [openPanels, setOpenPanels] = useState<Record<string, boolean>>({
+    supplier: false,
+    approvals: false,
+    final: false,
+  });
+
+  const togglePanel = (key: "supplier" | "approvals" | "final") => {
+    setOpenPanels((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const summary = {
     total: exhibitions.length,
     approvalsPending: exhibitions.filter((e) => e.approvalsStatus !== "אושר").length,
@@ -275,28 +368,7 @@ export default function IsraelExhibitionsPage() {
                       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                         <div style={valueStyle}>{exhibition.brochure}</div>
                         {"brochurePath" in exhibition && exhibition.brochurePath ? (
-                          <a
-                            href={exhibition.brochurePath}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              minHeight: "38px",
-                              padding: "0 14px",
-                              borderRadius: "12px",
-                              border: "1px solid rgba(125,211,252,0.35)",
-                              background: "rgba(14, 22, 38, 0.72)",
-                              color: "white",
-                              textDecoration: "none",
-                              fontSize: "13px",
-                              fontWeight: 700,
-                              width: "fit-content",
-                            }}
-                          >
-                            פתח פוסטר
-                          </a>
+                          <ExternalActionButton label="פתח פוסטר" href={exhibition.brochurePath} />
                         ) : null}
                       </div>
                     </div>
@@ -309,7 +381,26 @@ export default function IsraelExhibitionsPage() {
                     </div>
                     <div style={boxStyle}>
                       <div style={labelStyle}>ספק</div>
-                      <div style={valueStyle}>{exhibition.supplier}</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div style={valueStyle}>{exhibition.supplier}</div>
+                        {exhibition.id === "israel-001" ? (
+                          <>
+                            <ToggleActionButton
+                              label="ספק פעיל"
+                              isOpen={openPanels.supplier}
+                              onClick={() => togglePanel("supplier")}
+                            />
+                            {openPanels.supplier ? (
+                              <div style={detailPanelStyle}>
+                                <DetailRow label="ספק" value="זאורוס" />
+                                <DetailRow label="סטטוס" value="פעיל" />
+                                <DetailRow label="מעצב" value="שגיא דקל / זאורוס" />
+                                <DetailRow label="הערה" value="עבודה שוטפת מול הספק הזוכה" />
+                              </div>
+                            ) : null}
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                     <div style={boxStyle}>
                       <div style={labelStyle}>סטטוס הכנה</div>
@@ -343,15 +434,44 @@ export default function IsraelExhibitionsPage() {
                   <div style={{ display: "grid", gap: "14px" }}>
                     <div style={boxStyle}>
                       <div style={labelStyle}>מוצגים מתוכננים</div>
-                      <div style={{ ...valueStyle, whiteSpace: "pre-line" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                         {Array.isArray(exhibition.plannedAssets)
-                          ? exhibition.plannedAssets.map((asset, index) => `• ${asset}`).join("\n")
-                          : exhibition.plannedAssets}
+                          ? exhibition.plannedAssets.map((asset, index) =>
+                              typeof asset === "string" ? (
+                                <div key={index} style={valueStyle}>
+                                  • {asset}
+                                </div>
+                              ) : (
+                                <Link key={index} href={asset.href} style={pillButtonStyle}>
+                                  {asset.label}
+                                </Link>
+                              )
+                            )
+                          : <div style={valueStyle}>{exhibition.plannedAssets}</div>}
                       </div>
                     </div>
                     <div style={boxStyle}>
                       <div style={labelStyle}>אישורים</div>
-                      <div style={valueStyle}>{exhibition.approvalsStatus}</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div style={valueStyle}>{exhibition.approvalsStatus}</div>
+                        {exhibition.id === "israel-001" ? (
+                          <>
+                            <ToggleActionButton
+                              label="אישורים"
+                              isOpen={openPanels.approvals}
+                              onClick={() => togglePanel("approvals")}
+                            />
+                            {openPanels.approvals ? (
+                              <div style={detailPanelStyle}>
+                                <DetailRow label="אחראית" value="שרי מגדל" />
+                                <DetailRow label="סטטוס" value="בטיפול" />
+                                <DetailRow label="נושא" value="אישורי תצוגה והשתתפות" />
+                                <DetailRow label="הערה" value="המשך מעקב עד סגירה מלאה" />
+                              </div>
+                            ) : null}
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                     <div style={boxStyle}>
                       <div style={labelStyle}>מיתוג</div>
@@ -367,7 +487,26 @@ export default function IsraelExhibitionsPage() {
                     </div>
                     <div style={boxStyle}>
                       <div style={labelStyle}>אישור סופי</div>
-                      <div style={valueStyle}>{exhibition.finalApproval}</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div style={valueStyle}>{exhibition.finalApproval}</div>
+                        {exhibition.id === "israel-001" ? (
+                          <>
+                            <ToggleActionButton
+                              label="אישור סופי"
+                              isOpen={openPanels.final}
+                              onClick={() => togglePanel("final")}
+                            />
+                            {openPanels.final ? (
+                              <div style={detailPanelStyle}>
+                                <DetailRow label="מאשר" value="עמוס הכהן" />
+                                <DetailRow label="סטטוס" value="ממתין לסגירה" />
+                                <DetailRow label="תלות" value="רשימת מוצגים ותיאומים אחרונים" />
+                                <DetailRow label="הערה" value="לאחר סגירה ניתן להעביר לאישור סופי" />
+                              </div>
+                            ) : null}
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -181,7 +181,7 @@ export default function LandPage() {
                   style={{
                     display: "block",
                     position: "relative",
-                    minHeight: "250px",
+                    minHeight: "282px",
                     borderBottom: "1px solid rgba(125,211,252,0.14)",
                     background:
                       "linear-gradient(180deg, rgba(13,23,42,1) 0%, rgba(7,14,26,1) 100%)",
@@ -200,7 +200,7 @@ export default function LandPage() {
                   <div
                     style={{
                       position: "absolute",
-                      inset: "18px",
+                      inset: "12px",
                       borderRadius: "18px",
                       overflow: "hidden",
                       border: "1px solid rgba(125,211,252,0.18)",

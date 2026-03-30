@@ -278,6 +278,124 @@ export const airAssets: AirAsset[] = [
       },
     },
   },
+  {
+    slug: "heron",
+    code: "AR-005",
+    image: "/images/air/heron-showcase.png",
+    model3d: "/models/air/heron-showcase-3d.glb",
+    missionType: "defense",
+    assetCategory: "uav",
+    title: {
+      en: "Heron",
+      he: "הרון",
+    },
+    subtitle: {
+      en: "Long-endurance UAV mock-up for premium exhibition presentation.",
+      he: "דגם כטב״ם להרצאת תצוגה פרימיום בתערוכה.",
+    },
+    description: {
+      en: "Prepared for premium exhibition display, ISR storytelling, and future presentation planning in the unmanned systems category.",
+      he: "מוכן לתצוגת פרימיום בתערוכה, להצגת יכולות מודיעין, סיור ואיסוף, ולתכנון עתידי בקטגוריית המערכות הבלתי מאוישות.",
+    },
+    status: {
+      en: "Approved",
+      he: "מאושר",
+    },
+    config: {
+      en: "UAV display",
+      he: "תצוגת כטב״ם",
+    },
+    scale: "1:1",
+    specs: {
+      length: "TBD",
+      width: "TBD",
+      height: "TBD",
+      weight: "TBD",
+      standDiameter: "N/A",
+      standWeight: "N/A",
+    },
+    readiness: {
+      environment: {
+        en: "Indoor / outdoor",
+        he: "פנים / חוץ",
+      },
+      displayMethod: {
+        en: "Static UAV display",
+        he: "תצוגת כטב״ם סטטית",
+      },
+      support: {
+        en: "Integrated support base",
+        he: "בסיס תמיכה משולב",
+      },
+      presentationLevel: {
+        en: "Premium",
+        he: "פרימיום",
+      },
+      visualLanguage: {
+        en: "Unmanned systems showcase",
+        he: "שפת תצוגה של מערכות בלתי מאוישות",
+      },
+    },
+  },
+  {
+    slug: "wanderb",
+    code: "AR-006",
+    image: "/images/air/wanderb-showcase.png",
+    model3d: "/models/air/wanderb-showcase-3d.glb",
+    missionType: "defense",
+    assetCategory: "uav",
+    title: {
+      en: "WanderB",
+      he: "וונדר בי",
+    },
+    subtitle: {
+      en: "Compact UAV mock-up for premium exhibition presentation.",
+      he: "דגם כטב״ם קומפקטי לתצוגת פרימיום בתערוכה.",
+    },
+    description: {
+      en: "Prepared for premium exhibition display, tactical unmanned systems storytelling, and future presentation planning in the UAV category.",
+      he: "מוכן לתצוגת פרימיום בתערוכה, להצגת יכולות טקטיות של מערכות בלתי מאוישות, ולתכנון עתידי בקטגוריית הכטב״מים.",
+    },
+    status: {
+      en: "Approved",
+      he: "מאושר",
+    },
+    config: {
+      en: "UAV display",
+      he: "תצוגת כטב״ם",
+    },
+    scale: "1:1",
+    specs: {
+      length: "TBD",
+      width: "TBD",
+      height: "TBD",
+      weight: "TBD",
+      standDiameter: "N/A",
+      standWeight: "N/A",
+    },
+    readiness: {
+      environment: {
+        en: "Indoor / outdoor",
+        he: "פנים / חוץ",
+      },
+      displayMethod: {
+        en: "Static UAV display",
+        he: "תצוגת כטב״ם סטטית",
+      },
+      support: {
+        en: "Integrated support base",
+        he: "בסיס תמיכה משולב",
+      },
+      presentationLevel: {
+        en: "Premium",
+        he: "פרימיום",
+      },
+      visualLanguage: {
+        en: "Compact UAV showcase",
+        he: "שפת תצוגה של כטב״ם קומפקטי",
+      },
+    },
+  },
 ];
 
 export function getAirAssetBySlug(slug: string) {
