@@ -1,0 +1,54 @@
+{
+  "slug": "arrow-3-launcher",
+  "code": "AR-AUTO-001",
+  "titleEn": "Arrow 3 Launcher",
+  "titleHe": "Arrow 3 Launcher",
+  "subtitleEn": "Launcher display for premium exhibition presentation.",
+  "subtitleHe": "משגר לתצוגת תערוכה פרימיום.",
+  "descriptionEn": "Prepared for premium launcher exhibition display and operational storytelling.",
+  "descriptionHe": "מוכן לתצוגת משגר פרימיום ולסיפור תצוגה מבצעי.",
+  "statusEn": "Approved",
+  "statusHe": "מאושר",
+  "configEn": "Launcher display",
+  "configHe": "תצוגת משגר",
+  "missionType": "defense",
+  "assetCategory": "launcher",
+  "scale": "1:1",
+  "specs": {
+    "length": "TBD",
+    "width": "TBD",
+    "height": "TBD",
+    "weight": "TBD",
+    "standDiameter": "N/A",
+    "standWeight": "N/A"
+  },
+  "readiness": {
+    "environment": {
+      "en": "Indoor / Outdoor",
+      "he": "פנים / חוץ"
+    },
+    "displayMethod": {
+      "en": "Static display",
+      "he": "תצוגה סטטית"
+    },
+    "support": {
+      "en": "Self-standing",
+      "he": "עצמאי"
+    },
+    "presentationLevel": {
+      "en": "Premium",
+      "he": "פרימיום"
+    },
+    "visualLanguage": {
+      "en": "Exhibition-ready",
+      "he": "מוכן לתערוכה"
+    },
+    "platform": {
+      "en": "Self-standing",
+      "he": "עצמאי"
+    }
+  },
+  "image": "/images/air/arrow-3-launcher-showcase.png",
+  "use3d": false,
+  "model3d": "/models/air/arrow-3-launcher.glb"
+}

@@ -1,3 +1,4 @@
+import { autoAirAssets } from "./airAutoAssets";
 export type LocalizedText = {
   en: string;
   he: string;
@@ -34,73 +35,7 @@ export type AirAsset = {
 };
 
 export const airAssets: AirAsset[] = [
-  {
-    slug: "arrow-3",
-    code: "AR-001",
-    image: "/images/air/arrow-3-launcher-showcase.png",
-    model3d: "/models/air/arrow-3-showcase-3d.glb",
-    missionType: "defense",
-    assetCategory: "launcher",
-
-    title: {
-      en: "Arrow-3 Launcher",
-      he: "משגר חץ 3",
-    },
-
-    subtitle: {
-      en: "Premium Arrow-3 launcher display for air-defense exhibition presentation.",
-      he: "משגר חץ 3 לתצוגת פרימיום של הגנה אווירית בתערוכה.",
-    },
-
-    description: {
-      en: "Mobile Arrow-3 launcher platform presented as a premium air-defense exhibition asset with strong visual impact and VIP presentation value.",
-      he: "פלטפורמת משגר חץ 3 ניידת המוצגת כנכס תערוכתי פרימיום בתחום ההגנה האווירית עם נוכחות חזקה וערך גבוה להצגת VIP.",
-    },
-
-    status: {
-      en: "Approved",
-      he: "מאושר",
-    },
-
-    config: {
-      en: "Arrow-3 launcher display",
-      he: "תצוגת משגר חץ 3",
-    },
-
-    scale: "1:1",
-
-    specs: {
-      height: "3.6 m",
-      width: "2.5 m",
-      length: "12.2 m",
-      weight: "TBD",
-      standDiameter: "N/A",
-      standWeight: "N/A",
-    },
-
-    readiness: {
-      environment: {
-        en: "Indoor / Outdoor",
-        he: "פנים / חוץ",
-      },
-      displayMethod: {
-        en: "Mobile platform",
-        he: "פלטפורמה ניידת",
-      },
-      support: {
-        en: "Stability-rated",
-        he: "מיועד ליציבות",
-      },
-      presentationLevel: {
-        en: "Premium",
-        he: "פרימיום",
-      },
-      visualLanguage: {
-        en: "Operational air-defense showcase",
-        he: "שפת תצוגה מבצעית של הגנה אווירית",
-      },
-    },
-  },
+  
   {
     slug: "lora",
     code: "AR-002",
@@ -398,10 +333,18 @@ export const airAssets: AirAsset[] = [
   },
 ];
 
+
+export const allAirAssets = [
+  ...airAssets,
+  ...autoAirAssets.filter(
+    (autoAsset) => !airAssets.some((manualAsset) => manualAsset.slug === autoAsset.slug)
+  ),
+];
+
 export function getAirAssetBySlug(slug: string) {
-  return airAssets.find((asset) => asset.slug === slug);
+  return allAirAssets.find((asset) => asset.slug === slug);
 }
 
 export function getAllAirAssetSlugs() {
-  return airAssets.map((asset) => asset.slug);
+  return allAirAssets.map((asset) => asset.slug);
 }

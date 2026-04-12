@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "sync-assets": "node scripts/sync-air-assets.mjs"
   },
   "keywords": [],
   "author": "",

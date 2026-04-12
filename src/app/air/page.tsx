@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import AirAssetCard from "../../components/cards/AirAssetCard";
-import { airAssets } from "../../data/airAssets";
+import { allAirAssets } from "../../data/airAssets";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 
 type MissionFilter = "defense" | "strike";
@@ -17,9 +17,9 @@ export default function AirPage() {
   const filteredAssets = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
 
-    const airOrder = ["arrow-2", "arrow-3-missile", "lora", "arrow-3"];
+    const airOrder = ["arrow-2", "arrow-3-launcher", "lora", "mmr", "wanderb2"];
 
-  return airAssets
+  return allAirAssets
     .filter((asset) => {
       const matchesMission = asset.missionType === activeMission;
       const matchesCategory =
