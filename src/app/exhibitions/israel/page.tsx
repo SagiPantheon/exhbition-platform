@@ -1,556 +1,737 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useState } from "react";
+import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
 
-const navButtonStyle = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: "44px",
-  padding: "0 16px",
-  borderRadius: "14px",
-  border: "1px solid rgba(125,211,252,0.35)",
-  background: "rgba(14, 22, 38, 0.72)",
-  color: "white",
-  textDecoration: "none",
-  fontSize: "14px",
-  fontWeight: 600,
-} as const;
+type BoothType = 'with-booth' | 'without-booth' | 'digital-only'
+type ExhibitStatus = 'approved' | 'pending' | 'planned'
 
-const boxStyle = {
-  padding: "18px",
-  borderRadius: "20px",
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.12)",
-} as const;
+type CatalogAsset = {
+  id: string
+  titleHe: string
+  titleEn: string
+  category: 'space' | 'air' | 'land' | 'water'
+  href: string
+}
 
-const pillButtonStyle = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: "38px",
-  padding: "0 14px",
-  borderRadius: "12px",
-  border: "1px solid rgba(125,211,252,0.35)",
-  background: "rgba(14, 22, 38, 0.72)",
-  color: "white",
-  textDecoration: "none",
-  fontSize: "13px",
-  fontWeight: 700,
-  width: "fit-content",
-  cursor: "pointer",
-} as const;
+type ExhibitionAssetRef = {
+  id: string
+  assetId: string
+  quantity: number
+  status: ExhibitStatus
+  notes: string
+}
 
-const detailPanelStyle = {
-  marginTop: "10px",
-  padding: "12px 14px",
-  borderRadius: "14px",
-  border: "1px solid rgba(125,211,252,0.22)",
-  background: "rgba(9, 16, 30, 0.82)",
-} as const;
+type IsraelExhibition = {
+  id: string
+  nameHe: string
+  nameEn: string
+  location: string
+  startDate: string
+  endDate: string
+  theme: string
+  supplier: string
+  brochure: string
+  boothType: BoothType
+  notes: string
+  exhibits: ExhibitionAssetRef[]
+}
 
-const exhibitions = [
+const STORAGE_KEY = 'israel-exhibitions-board-v4'
+
+const assetCatalog: CatalogAsset[] = [
+  { id: 'space-tecsar', titleHe: 'טקסאר', titleEn: 'Tecsar', category: 'space', href: '/space/tecsar' },
+  { id: 'space-beresheet', titleHe: 'בראשית', titleEn: 'Beresheet', category: 'space', href: '/space/beresheet' },
+  { id: 'space-shavit', titleHe: 'שביט', titleEn: 'Shavit', category: 'space', href: '/space/shavit' },
+  { id: 'space-optsat-500', titleHe: 'OPTSAT 500', titleEn: 'OPTSAT 500', category: 'space', href: '/space/optsat-500' },
+  { id: 'space-optsar-550', titleHe: 'OptSar 550', titleEn: 'OptSar 550', category: 'space', href: '/space/optsar-550' },
+  { id: 'space-opsat-3000', titleHe: 'OPSAT 3000', titleEn: 'OPSAT 3000', category: 'space', href: '/space/opsat-3000' },
+  { id: 'space-mcs', titleHe: 'MCS', titleEn: 'MCS', category: 'space', href: '/space/mcs' },
+
+  { id: 'air-arrow-3-launcher', titleHe: 'משגר חץ 3', titleEn: 'Arrow 3 Launcher', category: 'air', href: '/air/arrow-3-launcher' },
+  { id: 'air-heron', titleHe: 'הרון', titleEn: 'Heron', category: 'air', href: '/air' },
+  { id: 'air-wonderb', titleHe: 'וונדר בי', titleEn: 'WonderB', category: 'air', href: '/air' },
+  { id: 'air-super-heron', titleHe: 'סופר הרון', titleEn: 'Super Heron', category: 'air', href: '/air' },
+
+  { id: 'land-asset-01', titleHe: 'מוצג יבשתי 1', titleEn: 'Land Asset 1', category: 'land', href: '/land' },
+  { id: 'land-asset-02', titleHe: 'מוצג יבשתי 2', titleEn: 'Land Asset 2', category: 'land', href: '/land' },
+  { id: 'land-asset-03', titleHe: 'מוצג יבשתי 3', titleEn: 'Land Asset 3', category: 'land', href: '/land' },
+
+  { id: 'naval-asset-01', titleHe: 'מוצג ימי 1', titleEn: 'Naval Asset 1', category: 'water', href: '/water' },
+  { id: 'naval-asset-02', titleHe: 'מוצג ימי 2', titleEn: 'Naval Asset 2', category: 'water', href: '/water' },
+  { id: 'naval-asset-03', titleHe: 'מוצג ימי 3', titleEn: 'Naval Asset 3', category: 'water', href: '/water' },
+]
+
+const initialExhibitions: IsraelExhibition[] = [
   {
-    id: "israel-001",
-    name: "כנס חלל - גמר תוכניות קרן רמון",
-    location: "בנייני האומה, ירושלים",
-    startDate: "2026-04-30",
-    endDate: "2026-04-30",
-    mainTheme: "חלל / חינוך / תלמידים / גמר תוכניות קרן רמון",
-    brochure: "פוסטר מצורף",
-    brochurePath: "/images/exhibitions/ramon-poster.jpg",
-    pavilionStatus: "קיים ביתן",
-    supplier: "זאורוס",
-    prepStatus: "ביתן בפיתוח",
-    overallStatus: "בתהליך",
-    internalOwner: "שגיא עמיאל",
-    boothSize: "3×6 מטר",
-    designerStatus: "שגיא דקל / זאורוס",
-    logisticsStatus: "קובי אלגזר",
-    plannedAssets: [
-      { label: "רקטת שביט", href: "/space/shavit" },
-      { label: "דגם מוקטן של בראשית על פודיום", href: "/space/beresheet" },
-      { label: "לוויין טקסאר", href: "/space/tecsar" },
+    id: 'jerusalem-space-conf',
+    nameHe: 'כנס חלל ירושלים',
+    nameEn: 'Jerusalem Space Conference',
+    location: 'ירושלים',
+    startDate: '2026-04-30',
+    endDate: '2026-04-30',
+    theme: 'חלל, חדשנות וחינוך',
+    supplier: 'זאורוס',
+    brochure: '',
+    boothType: 'with-booth',
+    notes: '',
+    exhibits: [
+      { id: 'ref-1', assetId: 'space-beresheet', quantity: 1, status: 'approved', notes: '' },
+      { id: 'ref-2', assetId: 'space-tecsar', quantity: 1, status: 'pending', notes: '' },
     ],
-    approvalsStatus: "שרי מגדל",
-    brandingStatus: "זאורוס",
-    vipHosting: "אסטרטגיה / מט״ח",
-    photoVideo: "לא הוזמן",
-    finalApproval: "עמוס הכהן",
-    mainBlocker: "סגירת רשימת המוצגים והשלמת תיאומים תפעוליים",
-    blockers: "סגירת רשימת המוצגים, אישורים ותיאומים תפעוליים",
-    notes:
-      "אירוע גמר בתאריך 30.04.2026 בבנייני האומה בירושלים. יש ביתן. הספק הזוכה: זאורוס.",
   },
   {
-    id: "israel-002",
-    name: "MARE MED Athens",
-    location: "אתונה, יוון",
-    startDate: "2026-05-11",
-    endDate: "2026-05-14",
-    mainTheme: "ביטחון / הגנה / טכנולוגיה ימית",
-    brochure: "TBD",
-    pavilionStatus: "ללא ביתן",
-    supplier: "בני מורן",
-    prepStatus: "TBD",
-    overallStatus: "פתוח",
-    internalOwner: "שגיא עמיאל",
-    boothSize: "אין שטח ביתן",
-    designerStatus: "TBD",
-    logisticsStatus: "TBD",
-    plannedAssets: ["ללא מוצגים"],
-    approvalsStatus: "שרי מגדל",
-    brandingStatus: "TBD",
-    vipHosting: "TBD",
-    photoVideo: "TBD",
-    finalApproval: "ששי חודדה",
-    mainBlocker: "TBD",
-    blockers: "TBD",
-    notes:
-      "המשלחת יוצאת בתאריך 11.05.2026 וחוזרת בתאריך 14.05.2026. יום הכנס המרכזי הוא 12.05.2026 באתונה וכולל הרצאות, פאנלים מקצועיים, נטוורקינג וקוקטייל ערב. בתאריך 13.05.2026 יתקיימו סיורים מקצועיים ממוקדים בתחום הנמלים.",
+    id: 'iacas-panorama',
+    nameHe: 'IACAS',
+    nameEn: 'IACAS',
+    location: 'תל אביב',
+    startDate: '2026-05-08',
+    endDate: '2026-05-08',
+    theme: 'כנס מקצועי',
+    supplier: 'זאורוס',
+    brochure: '',
+    boothType: 'with-booth',
+    notes: '',
+    exhibits: [],
   },
-];
+]
 
-function ExternalActionButton({
-  label,
-  href,
-}: {
-  label: string;
-  href?: string;
-}) {
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noreferrer" style={pillButtonStyle}>
-        {label}
-      </a>
-    );
+function makeId(prefix: string) {
+  return `${prefix}-${Math.random().toString(36).slice(2, 9)}`
+}
+
+function normalizeExhibition(item: Partial<IsraelExhibition>): IsraelExhibition {
+  return {
+    id: item.id || makeId('exh'),
+    nameHe: item.nameHe || '',
+    nameEn: item.nameEn || '',
+    location: item.location || '',
+    startDate: item.startDate || '',
+    endDate: item.endDate || '',
+    theme: item.theme || '',
+    supplier: item.supplier || '',
+    brochure: item.brochure || '',
+    boothType:
+      item.boothType === 'without-booth' || item.boothType === 'digital-only'
+        ? item.boothType
+        : 'with-booth',
+    notes: item.notes || '',
+    exhibits: Array.isArray(item.exhibits)
+      ? item.exhibits.map((ex) => ({
+          id: ex.id || makeId('ref'),
+          assetId: ex.assetId || '',
+          quantity: typeof ex.quantity === 'number' && ex.quantity > 0 ? ex.quantity : 1,
+          status:
+            ex.status === 'approved' || ex.status === 'pending' || ex.status === 'planned'
+              ? ex.status
+              : 'planned',
+          notes: ex.notes || '',
+        }))
+      : [],
   }
-
-  return (
-    <button type="button" style={pillButtonStyle}>
-      {label}
-    </button>
-  );
 }
 
-function ToggleActionButton({
-  label,
-  isOpen,
-  onClick,
-}: {
-  label: string;
-  isOpen: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        ...pillButtonStyle,
-        background: isOpen ? "rgba(27, 57, 99, 0.95)" : pillButtonStyle.background,
-        border: isOpen ? "1px solid rgba(125,211,252,0.65)" : pillButtonStyle.border,
-      }}
-    >
-      {label}
-    </button>
-  );
+function sortByDate(items: IsraelExhibition[]) {
+  return [...items].sort((a, b) => {
+    const aTime = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER
+    const bTime = b.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER
+    return aTime - bTime
+  })
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "10px", marginTop: "8px" }}>
-      <div style={{ color: "rgba(255,255,255,0.72)", fontSize: "12px", fontWeight: 700 }}>{label}</div>
-      <div style={{ color: "white", fontSize: "14px", fontWeight: 600 }}>{value}</div>
-    </div>
-  );
+function boothLabel(value: BoothType) {
+  if (value === 'with-booth') return 'קיים ביתן'
+  if (value === 'without-booth') return 'ללא ביתן'
+  return 'דיגיטלי בלבד'
+}
+
+function statusLabel(value: ExhibitStatus) {
+  if (value === 'approved') return 'מאושר'
+  if (value === 'pending') return 'ממתין'
+  return 'מתוכנן'
+}
+
+function formatDateHe(value: string) {
+  if (!value) return '—'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return value
+  return new Intl.DateTimeFormat('he-IL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(d)
+}
+
+function getAsset(assetId: string) {
+  return assetCatalog.find((item) => item.id === assetId) || null
+}
+
+function countTotalUnits(exhibits: ExhibitionAssetRef[]) {
+  return exhibits.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)
 }
 
 export default function IsraelExhibitionsPage() {
-  const [openPanels, setOpenPanels] = useState<Record<string, boolean>>({
-    supplier: false,
-    approvals: false,
-    final: false,
-  });
+  const [exhibitions, setExhibitions] = useState<IsraelExhibition[]>([])
+  const [selectedId, setSelectedId] = useState('')
+  const [draft, setDraft] = useState<IsraelExhibition | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [newAssetId, setNewAssetId] = useState(assetCatalog[0]?.id || '')
 
-  const togglePanel = (key: "supplier" | "approvals" | "final") => {
-    setOpenPanels((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  useEffect(() => {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
 
-  const summary = {
-    total: exhibitions.length,
-    approvalsPending: exhibitions.filter((e) => e.approvalsStatus !== "אושר").length,
-    missingBrochure: exhibitions.filter((e) => e.brochure === "TBD" || e.brochure.includes("טרם")).length,
-    missingSupplier: exhibitions.filter((e) => e.supplier === "TBD" || e.supplier === "טרם נקבע").length,
-    openPrep: exhibitions.filter((e) => e.prepStatus !== "הושלם").length,
-  };
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Partial<IsraelExhibition>[]
+        const normalized = parsed.map(normalizeExhibition)
+        const sorted = sortByDate(normalized)
+        setExhibitions(sorted)
+        setSelectedId(sorted[0]?.id ?? '')
+        return
+      } catch {}
+    }
+
+    const sorted = sortByDate(initialExhibitions)
+    setExhibitions(sorted)
+    setSelectedId(sorted[0]?.id ?? '')
+  }, [])
+
+  useEffect(() => {
+    if (!exhibitions.length) return
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(exhibitions))
+  }, [exhibitions])
+
+  const selectedExhibition = useMemo(
+    () => exhibitions.find((item) => item.id === selectedId) ?? null,
+    [exhibitions, selectedId]
+  )
+
+  useEffect(() => {
+    if (selectedExhibition && !isEditing) {
+      setDraft(selectedExhibition)
+    }
+  }, [selectedExhibition, isEditing])
+
+  function handleCreateExhibition() {
+    const nameHe = window.prompt('שם התערוכה בעברית:')
+    if (!nameHe) return
+
+    const nameEn = window.prompt('שם התערוכה באנגלית:') || ''
+    const location = window.prompt('מיקום:') || ''
+    const startDate = window.prompt('תאריך התחלה (YYYY-MM-DD):') || ''
+    const endDate = window.prompt('תאריך סיום (YYYY-MM-DD):') || ''
+    const theme = window.prompt('נושא מרכזי:') || ''
+    const supplier = window.prompt('ספק / זכיין:') || ''
+    const brochure = window.prompt('קישור / שם ברושור:') || ''
+    const boothRaw =
+      window.prompt('סוג השתתפות: with-booth / without-booth / digital-only') || 'with-booth'
+    const notes = window.prompt('הערות:') || ''
+
+    const boothType: BoothType =
+      boothRaw === 'without-booth' || boothRaw === 'digital-only' ? boothRaw : 'with-booth'
+
+    const newItem: IsraelExhibition = {
+      id: makeId('exh'),
+      nameHe,
+      nameEn,
+      location,
+      startDate,
+      endDate,
+      theme,
+      supplier,
+      brochure,
+      boothType,
+      notes,
+      exhibits: [],
+    }
+
+    const next = sortByDate([...exhibitions, newItem])
+    setExhibitions(next)
+    setSelectedId(newItem.id)
+    setDraft(newItem)
+    setIsEditing(false)
+  }
+
+  function handleSelect(id: string) {
+    setSelectedId(id)
+    setIsEditing(false)
+  }
+
+  function handleEditStart() {
+    if (!selectedExhibition) return
+    setDraft(JSON.parse(JSON.stringify(selectedExhibition)))
+    setIsEditing(true)
+  }
+
+  function handleCancelEdit() {
+    setDraft(selectedExhibition)
+    setIsEditing(false)
+  }
+
+  function handleSaveEdit() {
+    if (!draft) return
+    const next = sortByDate(exhibitions.map((item) => (item.id === draft.id ? draft : item)))
+    setExhibitions(next)
+    setSelectedId(draft.id)
+    setIsEditing(false)
+  }
+
+  function updateDraft<K extends keyof IsraelExhibition>(key: K, value: IsraelExhibition[K]) {
+    setDraft((prev) => {
+      if (!prev) return prev
+      return { ...prev, [key]: value }
+    })
+  }
+
+  function addCatalogAsset() {
+    if (!newAssetId) return
+    setDraft((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        exhibits: [
+          ...prev.exhibits,
+          {
+            id: makeId('ref'),
+            assetId: newAssetId,
+            quantity: 1,
+            status: 'planned',
+            notes: '',
+          },
+        ],
+      }
+    })
+  }
+
+  function removeAssetRef(id: string) {
+    setDraft((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        exhibits: prev.exhibits.filter((item) => item.id !== id),
+      }
+    })
+  }
+
+  function updateAssetRef(id: string, patch: Partial<ExhibitionAssetRef>) {
+    setDraft((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        exhibits: prev.exhibits.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+      }
+    })
+  }
 
   return (
-    <main
-      dir="rtl"
-      style={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, rgba(44,92,160,0.18), transparent 32%), linear-gradient(180deg, #07111f 0%, #0a1628 45%, #0b1320 100%)",
-        color: "white",
-        padding: "24px 24px 64px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div style={{ maxWidth: "1560px", margin: "0 auto" }}>
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "22px" }}>
-          <Link href="/exhibitions" style={navButtonStyle}>
-            חזרה לתערוכות
-          </Link>
-          <Link href="/" style={navButtonStyle}>
-            חזרה לראשי
-          </Link>
+    <main className="min-h-screen bg-[#07111f] text-white" dir="rtl">
+      <div className="mx-auto max-w-[1680px] px-6 py-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">כנסים ותערוכות בארץ</h1>
+            <p className="mt-2 text-sm text-white/70">
+              קישור תערוכות לקטלוג מוצגים אמיתי עם מעבר ישיר לעמוד המוצג
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/"
+              className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
+            >
+              חזרה לראשי
+            </Link>
+
+            <button
+              onClick={handleCreateExhibition}
+              className="rounded-2xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-3 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/20"
+            >
+              צור תערוכה חדשה
+            </button>
+          </div>
         </div>
 
-        <section
-          style={{
-            border: "1px solid rgba(125,211,252,0.18)",
-            borderRadius: "28px",
-            padding: "26px 24px 30px",
-            background: "rgba(8, 15, 28, 0.34)",
-            marginBottom: "26px",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "13px",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "#7dd3fc",
-              marginBottom: "10px",
-            }}
-          >
-            גיליון עבודה תפעולי ראשי
-          </div>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+          <section className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">רשימת תערוכות</h2>
+              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/60">
+                {exhibitions.length} פריטים
+              </span>
+            </div>
 
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "56px",
-              lineHeight: 1.02,
-              fontWeight: 800,
-              letterSpacing: "-0.04em",
-            }}
-          >
-            כנסים ותערוכות בארץ
-          </h1>
+            <div className="space-y-3">
+              {exhibitions.map((item) => {
+                const isActive = item.id === selectedId
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelect(item.id)}
+                    className={[
+                      'w-full rounded-2xl border p-4 text-right transition',
+                      isActive
+                        ? 'border-cyan-400/50 bg-cyan-400/10'
+                        : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]',
+                    ].join(' ')}
+                  >
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-base font-semibold">{item.nameHe}</div>
+                        <div className="text-xs text-white/50">{item.nameEn || '—'}</div>
+                      </div>
+                      <span className="rounded-full border border-white/10 px-2 py-1 text-[11px] text-white/60">
+                        {boothLabel(item.boothType)}
+                      </span>
+                    </div>
 
-          <p
-            style={{
-              marginTop: "14px",
-              maxWidth: "1080px",
-              fontSize: "19px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.80)",
-            }}
-          >
-            גיליון העבודה המרכזי לניהול כנסים ותערוכות: נתוני בסיס, היגיון ביתן,
-            זרימת ספקים, מצב ברושור, מוצגים מתוכננים, אישורים, מיתוג, אירוח, מגבלות,
-            חסמים ואישור סופי.
-          </p>
-        </section>
+                    <div className="space-y-1 text-xs text-white/65">
+                      <div>מיקום: {item.location || '—'}</div>
+                      <div>תאריך: {formatDateHe(item.startDate)} {item.endDate ? `← ${formatDateHe(item.endDate)}` : ''}</div>
+                      <div>מוצגים: {item.exhibits.length}</div>
+                      <div>כמות יחידות: {countTotalUnits(item.exhibits)}</div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
 
-        <section
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-            gap: "16px",
-            marginBottom: "24px",
-          }}
-        >
-          <div style={boxStyle}>
-            <div style={labelStyle}>סה״כ תערוכות</div>
-            <div style={valueStyle}>{summary.total}</div>
-          </div>
-          <div style={boxStyle}>
-            <div style={labelStyle}>אישורים ממתינים</div>
-            <div style={valueStyle}>{summary.approvalsPending}</div>
-          </div>
-          <div style={boxStyle}>
-            <div style={labelStyle}>ללא ברושור</div>
-            <div style={valueStyle}>{summary.missingBrochure}</div>
-          </div>
-          <div style={boxStyle}>
-            <div style={labelStyle}>ללא ספק</div>
-            <div style={valueStyle}>{summary.missingSupplier}</div>
-          </div>
-          <div style={boxStyle}>
-            <div style={labelStyle}>הכנה פתוחה</div>
-            <div style={valueStyle}>{summary.openPrep}</div>
-          </div>
-        </section>
-
-        <section
-          style={{
-            border: "1px solid rgba(125,211,252,0.18)",
-            borderRadius: "28px",
-            padding: "24px",
-            background: "rgba(8, 15, 28, 0.34)",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "13px",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "#7dd3fc",
-              marginBottom: "18px",
-            }}
-          >
-            גיליונות עבודה לתערוכות
-          </div>
-
-          <div style={{ display: "grid", gap: "22px" }}>
-            {exhibitions.map((exhibition) => (
-              <article
-                key={exhibition.id}
-                style={{
-                  borderRadius: "24px",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  background: "rgba(255,255,255,0.04)",
-                  padding: "22px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1.1fr 0.9fr 0.9fr 0.9fr 0.9fr",
-                    gap: "16px",
-                    alignItems: "start",
-                  }}
-                >
+          <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20">
+            {!draft ? (
+              <div className="flex min-h-[500px] items-center justify-center text-white/50">
+                בחר תערוכה כדי לראות ולערוך את הנתונים
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                   <div>
-                    <div style={labelStyle}>שם התערוכה</div>
-                    <div style={heroValueStyle}>{exhibition.name}</div>
-
-                    <div style={{ marginTop: "18px" }}>
-                      <div style={labelStyle}>נושא מרכזי</div>
-                      <div style={valueStyle}>{exhibition.mainTheme}</div>
-                    </div>
-
-                    <div style={{ marginTop: "18px" }}>
-                      <div style={labelStyle}>הערות</div>
-                      <div style={valueStyle}>{exhibition.notes}</div>
-                    </div>
-
-                    <div style={{ marginTop: "18px" }}>
-                      <div style={labelStyle}>חסם מרכזי</div>
-                      <div style={valueStyle}>{exhibition.mainBlocker}</div>
-                    </div>
-
-                    <div style={{ marginTop: "18px" }}>
-                      <div style={labelStyle}>חסמים / פריטים חסרים</div>
-                      <div style={valueStyle}>{exhibition.blockers}</div>
-                    </div>
+                    <h2 className="text-2xl font-bold">{draft.nameHe || 'ללא שם'}</h2>
+                    <p className="mt-1 text-sm text-white/60">
+                      {isEditing ? 'מצב עריכה פעיל' : 'תצוגת פרטים'}
+                    </p>
                   </div>
 
-                  <div style={{ display: "grid", gap: "14px" }}>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>מיקום</div>
-                      <div style={valueStyle}>{exhibition.location}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>תאריך התחלה</div>
-                      <div style={valueStyle}>{exhibition.startDate}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>תאריך סיום</div>
-                      <div style={valueStyle}>{exhibition.endDate}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>ברושור / קובץ מצורף</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        <div style={valueStyle}>{exhibition.brochure}</div>
-                        {"brochurePath" in exhibition && exhibition.brochurePath ? (
-                          <ExternalActionButton label="פתח פוסטר" href={exhibition.brochurePath} />
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-xs text-cyan-200">
+                      מוצגים: {draft.exhibits.length}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
+                      סה״כ יחידות: {countTotalUnits(draft.exhibits)}
+                    </span>
 
-                  <div style={{ display: "grid", gap: "14px" }}>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>סטטוס ביתן</div>
-                      <div style={valueStyle}>{exhibition.pavilionStatus}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>ספק</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        <div style={valueStyle}>{exhibition.supplier}</div>
-                        {exhibition.id === "israel-001" ? (
-                          <>
-                            <ToggleActionButton
-                              label="ספק פעיל"
-                              isOpen={openPanels.supplier}
-                              onClick={() => togglePanel("supplier")}
-                            />
-                            {openPanels.supplier ? (
-                              <div style={detailPanelStyle}>
-                                <DetailRow label="ספק" value="זאורוס" />
-                                <DetailRow label="סטטוס" value="פעיל" />
-                                <DetailRow label="מעצב" value="שגיא דקל / זאורוס" />
-                                <DetailRow label="הערה" value="עבודה שוטפת מול הספק הזוכה" />
-                              </div>
-                            ) : null}
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>סטטוס הכנה</div>
-                      <div style={valueStyle}>{exhibition.prepStatus}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>סטטוס כללי</div>
-                      <div style={valueStyle}>{exhibition.overallStatus}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: "grid", gap: "14px" }}>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>אחראי פנימי</div>
-                      <div style={valueStyle}>{exhibition.internalOwner}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>גודל ביתן / שטח</div>
-                      <div style={valueStyle}>{exhibition.boothSize}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>מעצב / סטטוס פריסה</div>
-                      <div style={valueStyle}>{exhibition.designerStatus}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>לוגיסטיקה / התקנה</div>
-                      <div style={valueStyle}>{exhibition.logisticsStatus}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: "grid", gap: "14px" }}>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>מוצגים מתוכננים</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        {Array.isArray(exhibition.plannedAssets)
-                          ? exhibition.plannedAssets.map((asset, index) =>
-                              typeof asset === "string" ? (
-                                <div key={index} style={valueStyle}>
-                                  • {asset}
-                                </div>
-                              ) : (
-                                <Link key={index} href={asset.href} style={pillButtonStyle}>
-                                  {asset.label}
-                                </Link>
-                              )
-                            )
-                          : <div style={valueStyle}>{exhibition.plannedAssets}</div>}
-                      </div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>אישורים</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        <div style={valueStyle}>{exhibition.approvalsStatus}</div>
-                        {exhibition.id === "israel-001" ? (
-                          <>
-                            <ToggleActionButton
-                              label="אישורים"
-                              isOpen={openPanels.approvals}
-                              onClick={() => togglePanel("approvals")}
-                            />
-                            {openPanels.approvals ? (
-                              <div style={detailPanelStyle}>
-                                <DetailRow label="אחראית" value="שרי מגדל" />
-                                <DetailRow label="סטטוס" value="בטיפול" />
-                                <DetailRow label="נושא" value="אישורי תצוגה והשתתפות" />
-                                <DetailRow label="הערה" value="המשך מעקב עד סגירה מלאה" />
-                              </div>
-                            ) : null}
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>מיתוג</div>
-                      <div style={valueStyle}>{exhibition.brandingStatus}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>VIP / אירוח</div>
-                      <div style={valueStyle}>{exhibition.vipHosting}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>מגבלות צילום / וידאו</div>
-                      <div style={valueStyle}>{exhibition.photoVideo}</div>
-                    </div>
-                    <div style={boxStyle}>
-                      <div style={labelStyle}>אישור סופי</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        <div style={valueStyle}>{exhibition.finalApproval}</div>
-                        {exhibition.id === "israel-001" ? (
-                          <>
-                            <ToggleActionButton
-                              label="אישור סופי"
-                              isOpen={openPanels.final}
-                              onClick={() => togglePanel("final")}
-                            />
-                            {openPanels.final ? (
-                              <div style={detailPanelStyle}>
-                                <DetailRow label="מאשר" value="עמוס הכהן" />
-                                <DetailRow label="סטטוס" value="ממתין לסגירה" />
-                                <DetailRow label="תלות" value="רשימת מוצגים ותיאומים אחרונים" />
-                                <DetailRow label="הערה" value="לאחר סגירה ניתן להעביר לאישור סופי" />
-                              </div>
-                            ) : null}
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
+                    {!isEditing ? (
+                      <button
+                        onClick={handleEditStart}
+                        className="rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm text-amber-100 transition hover:bg-amber-300/20"
+                      >
+                        ערוך
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleSaveEdit}
+                          className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm text-emerald-200 transition hover:bg-emerald-400/20"
+                        >
+                          שמור
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10"
+                        >
+                          בטל
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
-              </article>
-            ))}
-          </div>
-        </section>
 
-        <div
-          style={{
-            marginTop: "22px",
-            textAlign: "center",
-            fontSize: "12px",
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.56)",
-          }}
-        >
-          בלתי מסווג
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Field label="שם התערוכה בעברית">
+                    <input
+                      value={draft.nameHe}
+                      onChange={(e) => updateDraft('nameHe', e.target.value)}
+                      disabled={!isEditing}
+                      className={inputClass(isEditing)}
+                    />
+                  </Field>
+
+                  <Field label="שם התערוכה באנגלית">
+                    <input
+                      value={draft.nameEn}
+                      onChange={(e) => updateDraft('nameEn', e.target.value)}
+                      disabled={!isEditing}
+                      className={inputClass(isEditing)}
+                    />
+                  </Field>
+
+                  <Field label="מיקום">
+                    <input
+                      value={draft.location}
+                      onChange={(e) => updateDraft('location', e.target.value)}
+                      disabled={!isEditing}
+                      className={inputClass(isEditing)}
+                    />
+                  </Field>
+
+                  <Field label="נושא מרכזי">
+                    <input
+                      value={draft.theme}
+                      onChange={(e) => updateDraft('theme', e.target.value)}
+                      disabled={!isEditing}
+                      className={inputClass(isEditing)}
+                    />
+                  </Field>
+
+                  <Field label="תאריך התחלה">
+                    <div className="space-y-2">
+                      <input
+                        type="date"
+                        value={draft.startDate}
+                        onChange={(e) => updateDraft('startDate', e.target.value)}
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                      />
+                      <div className="text-xs text-white/50">תצוגה: {formatDateHe(draft.startDate)}</div>
+                    </div>
+                  </Field>
+
+                  <Field label="תאריך סיום">
+                    <div className="space-y-2">
+                      <input
+                        type="date"
+                        value={draft.endDate}
+                        onChange={(e) => updateDraft('endDate', e.target.value)}
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                      />
+                      <div className="text-xs text-white/50">תצוגה: {formatDateHe(draft.endDate)}</div>
+                    </div>
+                  </Field>
+
+                  <Field label="ספק / זכיין">
+                    <input
+                      value={draft.supplier}
+                      onChange={(e) => updateDraft('supplier', e.target.value)}
+                      disabled={!isEditing}
+                      className={inputClass(isEditing)}
+                    />
+                  </Field>
+
+                  <Field label="קיים ביתן / ללא ביתן">
+                    <select
+                      value={draft.boothType}
+                      onChange={(e) => updateDraft('boothType', e.target.value as BoothType)}
+                      disabled={!isEditing}
+                      className={inputClass(isEditing)}
+                    >
+                      <option value="with-booth">קיים ביתן</option>
+                      <option value="without-booth">ללא ביתן</option>
+                      <option value="digital-only">דיגיטלי בלבד</option>
+                    </select>
+                  </Field>
+
+                  <Field label="ברושור / קישור">
+                    <input
+                      value={draft.brochure}
+                      onChange={(e) => updateDraft('brochure', e.target.value)}
+                      disabled={!isEditing}
+                      className={inputClass(isEditing)}
+                    />
+                  </Field>
+
+                  <Field label="הערות כלליות">
+                    <textarea
+                      value={draft.notes}
+                      onChange={(e) => updateDraft('notes', e.target.value)}
+                      disabled={!isEditing}
+                      rows={4}
+                      className={inputClass(isEditing)}
+                    />
+                  </Field>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-[#091425] p-5">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-semibold">מוצגים בתערוכה</h3>
+                      <p className="mt-1 text-sm text-white/60">
+                        רשימה קומפקטית עם קישור ישיר לעמוד המוצג בקטלוג
+                      </p>
+                    </div>
+                  </div>
+
+                  {isEditing && (
+                    <div className="mb-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4">
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
+                        <Field label="בחר מוצג מהקטלוג">
+                          <select
+                            value={newAssetId}
+                            onChange={(e) => setNewAssetId(e.target.value)}
+                            className={inputClass(true)}
+                          >
+                            {assetCatalog.map((asset) => (
+                              <option key={asset.id} value={asset.id}>
+                                {asset.titleHe} — {asset.category}
+                              </option>
+                            ))}
+                          </select>
+                        </Field>
+
+                        <div className="flex items-end">
+                          <button
+                            onClick={addCatalogAsset}
+                            className="w-full rounded-2xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-3 text-sm text-cyan-200 transition hover:bg-cyan-400/20"
+                          >
+                            הוסף מוצג
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!draft.exhibits.length ? (
+                    <div className="rounded-2xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-white/45">
+                      עדיין אין מוצגים בתערוכה הזו
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {draft.exhibits.map((item, index) => {
+                        const asset = getAsset(item.assetId)
+                        return (
+                          <div
+                            key={item.id}
+                            className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                          >
+                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_130px_150px_180px]">
+                              <div>
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/70">
+                                    מוצג {index + 1}
+                                  </span>
+                                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/70">
+                                    {asset?.category || '—'}
+                                  </span>
+                                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/70">
+                                    {statusLabel(item.status)}
+                                  </span>
+                                </div>
+
+                                <div className="text-base font-semibold">
+                                  {asset?.titleHe || 'מוצג לא נמצא בקטלוג'}
+                                </div>
+                                <div className="mt-1 text-xs text-white/50">
+                                  {asset?.titleEn || item.assetId}
+                                </div>
+
+                                {isEditing && (
+                                  <div className="mt-3">
+                                    <Field label="הערת השתתפות בתערוכה">
+                                      <textarea
+                                        value={item.notes}
+                                        onChange={(e) => updateAssetRef(item.id, { notes: e.target.value })}
+                                        rows={2}
+                                        className={inputClass(true)}
+                                      />
+                                    </Field>
+                                  </div>
+                                )}
+
+                                {!isEditing && item.notes ? (
+                                  <div className="mt-3 rounded-xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-white/70">
+                                    {item.notes}
+                                  </div>
+                                ) : null}
+                              </div>
+
+                              <Field label="כמות">
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={item.quantity}
+                                  onChange={(e) =>
+                                    updateAssetRef(item.id, {
+                                      quantity: Math.max(1, Number(e.target.value) || 1),
+                                    })
+                                  }
+                                  disabled={!isEditing}
+                                  className={inputClass(isEditing)}
+                                />
+                              </Field>
+
+                              <Field label="סטטוס">
+                                <select
+                                  value={item.status}
+                                  onChange={(e) =>
+                                    updateAssetRef(item.id, { status: e.target.value as ExhibitStatus })
+                                  }
+                                  disabled={!isEditing}
+                                  className={inputClass(isEditing)}
+                                >
+                                  <option value="planned">מתוכנן</option>
+                                  <option value="pending">ממתין</option>
+                                  <option value="approved">מאושר</option>
+                                </select>
+                              </Field>
+
+                              <div className="flex flex-col justify-end gap-2">
+                                {asset?.href ? (
+                                  <Link
+                                    href={asset.href}
+                                    className="rounded-2xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-3 text-center text-sm text-cyan-200 transition hover:bg-cyan-400/20"
+                                  >
+                                    פתח מוצג
+                                  </Link>
+                                ) : (
+                                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center text-sm text-white/40">
+                                    אין עמוד
+                                  </div>
+                                )}
+
+                                {isEditing && (
+                                  <button
+                                    onClick={() => removeAssetRef(item.id)}
+                                    className="rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200 transition hover:bg-red-400/20"
+                                  >
+                                    הסר
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </main>
-  );
+  )
 }
 
-const labelStyle = {
-  fontSize: "12px",
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
-  color: "rgba(255,255,255,0.70)",
-  marginBottom: "8px",
-  fontWeight: 700,
-} as const;
+function Field({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <label className="block">
+      <div className="mb-2 text-sm text-white/70">{label}</div>
+      {children}
+    </label>
+  )
+}
 
-const valueStyle = {
-  fontSize: "16px",
-  lineHeight: 1.65,
-  color: "white",
-  fontWeight: 600,
-} as const;
-
-const heroValueStyle = {
-  fontSize: "30px",
-  lineHeight: 1.1,
-  color: "white",
-  fontWeight: 800,
-} as const;
+function inputClass(isEditing: boolean) {
+  return [
+    'w-full rounded-2xl border px-4 py-3 text-sm outline-none transition',
+    isEditing
+      ? 'border-cyan-400/30 bg-[#0b1728] text-white focus:border-cyan-300'
+      : 'border-white/10 bg-white/[0.03] text-white/75',
+  ].join(' ')
+}
