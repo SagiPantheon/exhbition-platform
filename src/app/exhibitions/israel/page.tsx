@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { initialIsraelExhibitions } from '../../../data/israelExhibitions'
 
 type BoothType = 'with-booth' | 'without-booth' | 'digital-only'
 type ExhibitStatus = 'approved' | 'pending' | 'planned'
+type LayoutStatus = 'not-started' | 'in-progress' | 'ready'
 
 type CatalogAsset = {
   id: string
@@ -35,9 +37,12 @@ type IsraelExhibition = {
   boothType: BoothType
   notes: string
   exhibits: ExhibitionAssetRef[]
+  tentTemplate: '' | 'tent-25x10' | 'tent-30x20'
+  layoutStatus: LayoutStatus
+  planningItemsCount: number
 }
 
-const STORAGE_KEY = 'israel-exhibitions-board-v4'
+const STORAGE_KEY = 'israel-exhibitions-board-v5'
 
 const assetCatalog: CatalogAsset[] = [
   { id: 'space-tecsar', titleHe: 'טקסאר', titleEn: 'Tecsar', category: 'space', href: '/space/tecsar' },
@@ -62,39 +67,7 @@ const assetCatalog: CatalogAsset[] = [
   { id: 'naval-asset-03', titleHe: 'מוצג ימי 3', titleEn: 'Naval Asset 3', category: 'water', href: '/water' },
 ]
 
-const initialExhibitions: IsraelExhibition[] = [
-  {
-    id: 'jerusalem-space-conf',
-    nameHe: 'כנס חלל ירושלים',
-    nameEn: 'Jerusalem Space Conference',
-    location: 'ירושלים',
-    startDate: '2026-04-30',
-    endDate: '2026-04-30',
-    theme: 'חלל, חדשנות וחינוך',
-    supplier: 'זאורוס',
-    brochure: '',
-    boothType: 'with-booth',
-    notes: '',
-    exhibits: [
-      { id: 'ref-1', assetId: 'space-beresheet', quantity: 1, status: 'approved', notes: '' },
-      { id: 'ref-2', assetId: 'space-tecsar', quantity: 1, status: 'pending', notes: '' },
-    ],
-  },
-  {
-    id: 'iacas-panorama',
-    nameHe: 'IACAS',
-    nameEn: 'IACAS',
-    location: 'תל אביב',
-    startDate: '2026-05-08',
-    endDate: '2026-05-08',
-    theme: 'כנס מקצועי',
-    supplier: 'זאורוס',
-    brochure: '',
-    boothType: 'with-booth',
-    notes: '',
-    exhibits: [],
-  },
-]
+const initialExhibitions: IsraelExhibition[] = initialIsraelExhibitions
 
 function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`
@@ -116,6 +89,18 @@ function normalizeExhibition(item: Partial<IsraelExhibition>): IsraelExhibition 
         ? item.boothType
         : 'with-booth',
     notes: item.notes || '',
+    tentTemplate:
+      item.tentTemplate === 'tent-25x10' || item.tentTemplate === 'tent-30x20'
+        ? item.tentTemplate
+        : '',
+    layoutStatus:
+      item.layoutStatus === 'in-progress' || item.layoutStatus === 'ready'
+        ? item.layoutStatus
+        : 'not-started',
+    planningItemsCount:
+      typeof item.planningItemsCount === 'number' && item.planningItemsCount >= 0
+        ? item.planningItemsCount
+        : 0,
     exhibits: Array.isArray(item.exhibits)
       ? item.exhibits.map((ex) => ({
           id: ex.id || makeId('ref'),
@@ -168,6 +153,23 @@ function getAsset(assetId: string) {
 
 function countTotalUnits(exhibits: ExhibitionAssetRef[]) {
   return exhibits.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)
+}
+
+function layoutStatusLabel(value: LayoutStatus) {
+  if (value === 'in-progress') return 'בתהליך'
+  if (value === 'ready') return 'מוכן'
+  return 'לא התחיל'
+}
+
+function tentTemplateLabel(value: IsraelExhibition['tentTemplate']) {
+  if (value === 'tent-25x10') return '25x10'
+  if (value === 'tent-30x20') return '30x20'
+  return 'לא נבחר'
+}
+
+function planningHref(value: IsraelExhibition['tentTemplate']) {
+  if (!value) return null
+  return `/layout-planning/${value}`
 }
 
 export default function IsraelExhibitionsPage() {
@@ -243,6 +245,9 @@ export default function IsraelExhibitionsPage() {
       boothType,
       notes,
       exhibits: [],
+      tentTemplate: '',
+      layoutStatus: 'not-started',
+      planningItemsCount: 0,
     }
 
     const next = sortByDate([...exhibitions, newItem])
@@ -389,6 +394,9 @@ export default function IsraelExhibitionsPage() {
                       <div>תאריך: {formatDateHe(item.startDate)} {item.endDate ? `← ${formatDateHe(item.endDate)}` : ''}</div>
                       <div>מוצגים: {item.exhibits.length}</div>
                       <div>כמות יחידות: {countTotalUnits(item.exhibits)}</div>
+                      <div>Template: {tentTemplateLabel(item.tentTemplate)}</div>
+                      <div>Status: {layoutStatusLabel(item.layoutStatus)}</div>
+                      <div>Planning Items: {item.planningItemsCount}</div>
                     </div>
                   </button>
                 )
@@ -548,6 +556,79 @@ export default function IsraelExhibitionsPage() {
                       className={inputClass(isEditing)}
                     />
                   </Field>
+                </div>
+
+                <div className="rounded-3xl border border-cyan-400/15 bg-[#091425] p-5">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-semibold">Layout / Tent Planning</h3>
+                      <p className="mt-1 text-sm text-white/60">
+                        קישור התערוכה לתבנית אוהל וללוח תכנון ייעודי
+                      </p>
+                    </div>
+
+                    {draft.tentTemplate ? (
+                      <Link
+                        href={planningHref(draft.tentTemplate) || '/layout-planning'}
+                        className="rounded-2xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200 transition hover:bg-cyan-400/20"
+                      >
+                        Open Planning Board
+                      </Link>
+                    ) : (
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/45">
+                        Tent template not selected
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <Field label="Tent Template">
+                      <select
+                        value={draft.tentTemplate}
+                        onChange={(e) =>
+                          updateDraft('tentTemplate', e.target.value as IsraelExhibition['tentTemplate'])
+                        }
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                      >
+                        <option value="">לא נבחר</option>
+                        <option value="tent-25x10">Tent 25x10</option>
+                        <option value="tent-30x20">Tent 30x20</option>
+                      </select>
+                    </Field>
+
+                    <Field label="Layout Status">
+                      <select
+                        value={draft.layoutStatus}
+                        onChange={(e) => updateDraft('layoutStatus', e.target.value as LayoutStatus)}
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                      >
+                        <option value="not-started">לא התחיל</option>
+                        <option value="in-progress">בתהליך</option>
+                        <option value="ready">מוכן</option>
+                      </select>
+                    </Field>
+
+                    <Field label="Planning Items Count">
+                      <input
+                        type="number"
+                        min={0}
+                        value={draft.planningItemsCount}
+                        onChange={(e) =>
+                          updateDraft('planningItemsCount', Math.max(0, Number(e.target.value) || 0))
+                        }
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                      />
+                    </Field>
+
+                    <Field label="Current Board Link">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/75">
+                        {draft.tentTemplate ? planningHref(draft.tentTemplate) : '—'}
+                      </div>
+                    </Field>
+                  </div>
                 </div>
 
                 <div className="rounded-3xl border border-white/10 bg-[#091425] p-5">
