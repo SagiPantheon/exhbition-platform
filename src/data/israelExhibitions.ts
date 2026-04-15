@@ -37,6 +37,7 @@ type IsraelExhibition = {
   tentTemplate: '' | 'tent-25x10' | 'tent-30x20'
   layoutStatus: LayoutStatus
   planningItemsCount: number
+  inventoryItemIds: string[]
 }
 
 export const initialIsraelExhibitions: IsraelExhibition[] = [
@@ -55,6 +56,8 @@ export const initialIsraelExhibitions: IsraelExhibition[] = [
     tentTemplate: 'tent-25x10',
     layoutStatus: 'in-progress',
     planningItemsCount: 4,
+    inventoryItemIds: [],
+    inventoryItemIds: [],
     exhibits: [
       { id: 'ref-1', assetId: 'space-beresheet', quantity: 1, status: 'approved', notes: '' },
       { id: 'ref-2', assetId: 'space-tecsar', quantity: 1, status: 'pending', notes: '' },
@@ -75,6 +78,12 @@ export const initialIsraelExhibitions: IsraelExhibition[] = [
     tentTemplate: 'tent-30x20',
     layoutStatus: 'not-started',
     planningItemsCount: 0,
+    inventoryItemIds: [
+      'podium-square-100x100x90-01',
+      'flag-pair-iai-israel-01',
+      'table-cover-iai-blue-01',
+      'sign-stand-silver-a4-01'
+    ],
     exhibits: [],
   },
 ]

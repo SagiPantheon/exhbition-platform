@@ -1,4 +1,6 @@
-'use client'
+"use client"
+
+import { inventoryItems } from "../../../data/inventoryItems"
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
@@ -42,7 +44,7 @@ type IsraelExhibition = {
   planningItemsCount: number
 }
 
-const STORAGE_KEY = 'israel-exhibitions-board-v5'
+const STORAGE_KEY = 'israel-exhibitions-board-v5-v2'
 
 const assetCatalog: CatalogAsset[] = [
   { id: 'space-tecsar', titleHe: 'טקסאר', titleEn: 'Tecsar', category: 'space', href: '/space/tecsar' },
@@ -172,12 +174,15 @@ function planningHref(value: IsraelExhibition['tentTemplate']) {
   return `/layout-planning/${value}`
 }
 
+const inventoryMap = new Map(inventoryItems.map((item) => [item.id, item]))
+
 export default function IsraelExhibitionsPage() {
   const [exhibitions, setExhibitions] = useState<IsraelExhibition[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [draft, setDraft] = useState<IsraelExhibition | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [newAssetId, setNewAssetId] = useState(assetCatalog[0]?.id || '')
+  const [newInventoryId, setNewInventoryId] = useState("")
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY)
@@ -248,6 +253,7 @@ export default function IsraelExhibitionsPage() {
       tentTemplate: '',
       layoutStatus: 'not-started',
       planningItemsCount: 0,
+      inventoryItemIds: [],
     }
 
     const next = sortByDate([...exhibitions, newItem])
@@ -308,7 +314,32 @@ export default function IsraelExhibitionsPage() {
     })
   }
 
-  function removeAssetRef(id: string) {
+  
+function addInventoryItem() {
+    if (!newInventoryId) return
+    setDraft((prev) => {
+      if (!prev) return prev
+      const existing = prev.inventoryItemIds ?? []
+      if (existing.includes(newInventoryId)) return prev
+      return {
+        ...prev,
+        inventoryItemIds: [...existing, newInventoryId],
+      }
+    })
+    setNewInventoryId("")
+  }
+
+  function removeInventoryItem(id: string) {
+    setDraft((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        inventoryItemIds: (prev.inventoryItemIds ?? []).filter((itemId) => itemId !== id),
+      }
+    })
+  }
+
+function removeAssetRef(id: string) {
     setDraft((prev) => {
       if (!prev) return prev
       return {
@@ -628,6 +659,72 @@ export default function IsraelExhibitionsPage() {
                         {draft.tentTemplate ? planningHref(draft.tentTemplate) : '—'}
                       </div>
                     </Field>
+
+              <Field label="Inventory">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div className="text-sm text-white/70">
+                      Linked inventory items: {draft.inventoryItemIds?.length ?? 0}
+                    </div>
+                  </div>
+
+                  <div className="mb-4 flex items-stretch gap-2">
+                    <select
+                      value={newInventoryId}
+                      onChange={(e) => setNewInventoryId(e.target.value)}
+                      disabled={!isEditing}
+                      className={`min-w-0 flex-1 ${inputClass(isEditing)}`}
+                    >
+                      <option value="">Select inventory item</option>
+                      {inventoryItems.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name.en}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      type="button"
+                      onClick={addInventoryItem}
+                      disabled={!isEditing || !newInventoryId}
+                      className="shrink-0 rounded-2xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {draft.inventoryItemIds && draft.inventoryItemIds.length > 0 ? (
+                    <div className="grid gap-2">
+                      {draft.inventoryItemIds.map((inventoryId) => {
+                        const linkedItem = inventoryMap.get(inventoryId)
+                        return (
+                          <div
+                            key={inventoryId}
+                            className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white"
+                          >
+                            <span className="min-w-0 flex-1 truncate">
+                              {linkedItem ? linkedItem.name.en : inventoryId}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => removeInventoryItem(inventoryId)}
+                              disabled={!isEditing}
+                              className="shrink-0 rounded-xl border border-red-300/30 bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-100 transition hover:bg-red-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-white/10 px-3 py-4 text-sm text-white/45">
+                      No inventory linked yet
+                    </div>
+                  )}
+                </div>
+              </Field>
                   </div>
                 </div>
 
