@@ -38,7 +38,6 @@ type IsraelExhibition = {
   layoutStatus: LayoutStatus
   planningItemsCount: number
   inventoryItemIds: string[]
-  inventoryReservations?: InventoryReservation[]
 }
 
 export const initialIsraelExhibitions: IsraelExhibition[] = [
@@ -84,12 +83,6 @@ export const initialIsraelExhibitions: IsraelExhibition[] = [
       'flag-pair-iai-israel-01',
       'table-cover-iai-blue-01',
       'sign-stand-silver-a4-01'
-    ],
-    inventoryReservations: [
-      { inventoryId: 'podium-square-100x100x90-01', quantity: 1 },
-      { inventoryId: 'flag-pair-iai-israel-01', quantity: 1 },
-      { inventoryId: 'table-cover-iai-blue-01', quantity: 1 },
-      { inventoryId: 'sign-stand-silver-a4-01', quantity: 1 }
     ],
     exhibits: [],
   },

@@ -702,9 +702,16 @@ function removeAssetRef(id: string) {
                             key={inventoryId}
                             className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white"
                           >
-                            <span className="min-w-0 flex-1 truncate text-sm font-medium text-white/90">
-                              {linkedItem ? (linkedItem.name.he ?? linkedItem.name.en) : inventoryId}
-                            </span>
+                            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium text-white/90">
+                {linkedItem ? (linkedItem.name.he ?? linkedItem.name.en) : inventoryId}
+              </div>
+              <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-white/55">
+                <span className="rounded-full border border-white/10 px-2 py-0.5">
+                  מלאי: {linkedItem?.quantity ?? 0}
+                </span>
+              </div>
+            </div>
 
                             <button
                               type="button"

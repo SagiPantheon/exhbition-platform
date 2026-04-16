@@ -663,12 +663,12 @@ function removeAssetRef(id: string) {
               <Field label="Inventory">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <div className="mb-3 flex items-center justify-between gap-3">
-                    <div className="text-sm font-semibold text-white/85">
-                      פריטי מלאי מקושרים: {draft.inventoryItemIds?.length ?? 0}
+                    <div className="text-sm text-white/70">
+                      Linked inventory items: {draft.inventoryItemIds?.length ?? 0}
                     </div>
                   </div>
 
-                  <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+                  <div className="mb-4 flex items-stretch gap-2">
                     <select
                       value={newInventoryId}
                       onChange={(e) => setNewInventoryId(e.target.value)}
@@ -678,7 +678,7 @@ function removeAssetRef(id: string) {
                       <option value="">בחר פריט מלאי</option>
                       {inventoryItems.map((item) => (
                         <option key={item.id} value={item.id}>
-                          {item.name.he ?? item.name.en}
+                          {item.name.en}
                         </option>
                       ))}
                     </select>
@@ -689,8 +689,8 @@ function removeAssetRef(id: string) {
                       disabled={!isEditing || !newInventoryId}
                       className="shrink-0 rounded-2xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40"
                     >
-              הוסף
-            </button>
+                      Add
+                    </button>
                   </div>
 
                   {draft.inventoryItemIds && draft.inventoryItemIds.length > 0 ? (
@@ -703,7 +703,7 @@ function removeAssetRef(id: string) {
                             className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white"
                           >
                             <span className="min-w-0 flex-1 truncate text-sm font-medium text-white/90">
-                              {linkedItem ? (linkedItem.name.he ?? linkedItem.name.en) : inventoryId}
+                              {linkedItem ? linkedItem.name.en : inventoryId}
                             </span>
 
                             <button
@@ -712,8 +712,8 @@ function removeAssetRef(id: string) {
                               disabled={!isEditing}
                               className="shrink-0 rounded-xl border border-red-300/30 bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-100 transition hover:bg-red-400/15 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-              הסר
-            </button>
+                              Remove
+                            </button>
                           </div>
                         )
                       })}
