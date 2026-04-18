@@ -1,39 +1,275 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { inventoryItems, type InventoryCategory } from "../../data/inventoryItems";
+const CUSTOM_ITEMS_KEY = "inventory-custom-items";
+
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import InventoryAddPanel from "../../components/inventory/InventoryAddPanel";
+import {
+  inventoryItems,
+  type InventoryCategory,
+} from "../../data/inventoryItems";
+import {
+  initialIsraelExhibitions as initialExhibitions,
+  type IsraelExhibition,
+} from "../../data/israelExhibitions";
+import { buildInventoryUsageMap } from "../../lib/inventory-reservations";
+
+const STORAGE_KEY = "inventory-quantities-v1";
+const ACTIVE_CATEGORY_KEY = "inventory-active-category-v1";
+const SEARCH_QUERY_KEY = "inventory-search-query-v1";
 
 const categoryLabels: Record<InventoryCategory | "all", string> = {
-  all: "All",
-  podiums: "Podiums",
-  flags: "Flags",
-  stanchions: "Stanchions",
-  signs: "Signs",
-  chairs: "Chairs",
-  lecterns: "Lecterns",
-  cables: "Cables",
-  branding: "Branding",
-  table_covers: "Table Covers",
+  all: "הכל",
+  podiums: "פודיומים",
+  flags: "דגלים",
+  stanchions: "עמודי חבלול",
+  signs: "שילוט",
+  table_covers: "כיסויי שולחן",
+  chairs: "כיסאות",
+  cables: "כבלים",
+  branding: "מיתוג",
+  lecterns: "דוכנים",
+  lightboxes: "לייטבוקסים",
+  backdrops: "קירות רקע",
+  tents: "אוהלים",
 };
 
 const conditionLabels = {
-  excellent: "Excellent",
-  good: "Good",
-  fair: "Fair",
-  needs_attention: "Needs attention",
+  excellent: "מעולה",
+  good: "תקין",
+  fair: "בינוני",
+  needs_attention: "דורש טיפול",
 };
 
-export default function InventoryPage() {
-  const [activeCategory, setActiveCategory] = useState<InventoryCategory | "all">("all");
+function findStoredExhibitions(): IsraelExhibition[] | null {
+  if (typeof window === "undefined") return null;
 
-  const filteredItems = useMemo(() => {
-    if (activeCategory === "all") return inventoryItems;
-    return inventoryItems.filter((item) => item.category === activeCategory);
+  let bestMatch: IsraelExhibition[] | null = null;
+  let bestScore = -1;
+
+  for (const key of Object.keys(window.localStorage)) {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const parsed = JSON.parse(raw);
+
+      if (!Array.isArray(parsed)) continue;
+
+      const looksRelevant = parsed.filter(
+        (item) =>
+          item &&
+          typeof item === "object" &&
+          ("inventoryItemIds" in item || "inventoryReservations" in item || "exhibits" in item)
+      );
+
+      if (!looksRelevant.length) continue;
+
+      const score =
+        looksRelevant.length * 10 +
+        parsed.filter((item) => Array.isArray(item?.inventoryItemIds)).length +
+        parsed.filter((item) => Array.isArray(item?.inventoryReservations)).length * 2;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = parsed as IsraelExhibition[];
+      }
+    } catch {
+      // ignore unrelated localStorage entries
+    }
+  }
+
+  return bestMatch;
+}
+
+type QuantityMap = Record<string, number>;
+
+
+function getItemTitleHe(item: any) {
+  if (typeof item?.name === "object" && item?.name?.he) return item.name.he;
+  if (typeof item?.nameHe === "string" && item.nameHe.trim()) return item.nameHe.trim();
+  if (typeof item?.name === "string" && item.name.trim()) return item.name.trim();
+  if (typeof item?.nameEn === "string" && item.nameEn.trim()) return item.nameEn.trim();
+  return "פריט";
+}
+
+function getItemTitleEn(item: any) {
+  if (typeof item?.name === "object" && item?.name?.en) return item.name.en;
+  if (typeof item?.nameEn === "string" && item.nameEn.trim()) return item.nameEn.trim();
+  if (typeof item?.name === "string" && item.name.trim()) return item.name.trim();
+  if (typeof item?.nameHe === "string" && item.nameHe.trim()) return item.nameHe.trim();
+  return "";
+}
+
+export default function InventoryPage() {
+    const [activeCategory, setActiveCategory] = useState<InventoryCategory | "all">("all");
+  const [exhibitions, setExhibitions] = useState<IsraelExhibition[]>(initialExhibitions);
+  const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [panelMode, setPanelMode] = useState<"create" | "edit">("create");
+  const [isHydrated, setIsHydrated] = useState(false);
+
+    const [customItems, setCustomItems] = useState<any[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = window.localStorage.getItem(CUSTOM_ITEMS_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [quantityMap, setQuantityMap] = useState<QuantityMap>(() => {
+    if (typeof window === "undefined") return {};
+
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw) as QuantityMap;
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  });
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const storedExhibitions = findStoredExhibitions();
+    if (storedExhibitions?.length) {
+      setExhibitions(storedExhibitions);
+    }
+
+    try {
+      const savedCategory = window.localStorage.getItem(ACTIVE_CATEGORY_KEY);
+      if (savedCategory && savedCategory in categoryLabels) {
+        setActiveCategory(savedCategory as InventoryCategory | "all");
+      }
+
+      const savedSearchQuery = window.localStorage.getItem(SEARCH_QUERY_KEY);
+      if (typeof savedSearchQuery === "string") {
+        setSearchQuery(savedSearchQuery);
+      }
+
+      // quantityMap now loads via lazy state init
+    } catch {
+      // ignore bad local storage
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(quantityMap));
+  }, [quantityMap]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(CUSTOM_ITEMS_KEY, JSON.stringify(customItems));
+  }, [customItems]);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(ACTIVE_CATEGORY_KEY, activeCategory);
   }, [activeCategory]);
 
-  const totalItems = inventoryItems.length;
-  const totalQuantity = inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
-  const categoriesCount = new Set(inventoryItems.map((item) => item.category)).size;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(SEARCH_QUERY_KEY, searchQuery);
+  }, [searchQuery]);
+
+  const liveItems = useMemo(() => {
+    const mergedItems = [...inventoryItems, ...customItems];
+    return mergedItems.map((item) => ({
+      ...item,
+      quantity:
+        typeof quantityMap[item.id] === "number" && quantityMap[item.id] >= 0
+          ? quantityMap[item.id]
+          : item.quantity,
+    }));
+  }, [quantityMap, customItems]);
+
+  const filteredItems = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    const byCategory =
+      activeCategory === "all"
+        ? liveItems
+        : liveItems.filter((item) => item.category === activeCategory);
+
+    if (!normalizedQuery) return byCategory;
+
+    return byCategory.filter((item) =>
+      JSON.stringify(item).toLowerCase().includes(normalizedQuery)
+    );
+  }, [activeCategory, liveItems, searchQuery]);
+
+  const usageMap = useMemo(
+    () => buildInventoryUsageMap(liveItems, exhibitions),
+    [liveItems, exhibitions]
+  );
+
+  function handleAddCustomItem(item: any) {
+    setCustomItems((prev) => [item, ...prev]);
+    setQuantityMap((prev) => ({ ...prev, [item.id]: item.quantity }));
+  }
+
+  function handleAddCustomItem(item: any) {
+    setCustomItems((prev) => [item, ...prev]);
+    setQuantityMap((prev) => ({ ...prev, [item.id]: item.quantity }));
+  }
+
+  function handleEditItemSave(item: any) {
+    const baseItems = inventoryItems;
+    const existsInBase = baseItems.some((baseItem) => baseItem.id === item.id);
+
+    if (existsInBase) {
+      setQuantityMap((prev) => ({ ...prev, [item.id]: item.quantity }));
+    } else {
+      setCustomItems((prev) =>
+        prev.map((entry) => (entry.id === item.id ? { ...entry, ...item } : entry))
+      );
+      setQuantityMap((prev) => ({ ...prev, [item.id]: item.quantity }));
+    }
+
+    setEditingItem(null);
+    setPanelMode("create");
+    setIsAddPanelOpen(false);
+  }
+
+  function openCreatePanel() {
+    setEditingItem(null);
+    setPanelMode("create");
+    setIsAddPanelOpen(true);
+  }
+
+  function openEditPanel(item: any) {
+    setEditingItem(item);
+    setPanelMode("edit");
+    setIsAddPanelOpen(true);
+  }
+
+  const totalItems = liveItems.length;
+  const totalQuantity = liveItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalReserved = Array.from(usageMap.values()).reduce((sum, item) => sum + item.reserved, 0);
+  const totalAvailable = Array.from(usageMap.values()).reduce((sum, item) => sum + item.available, 0);
+  const categoriesCount = new Set(liveItems.map((item) => item.category)).size;
+
+  function updateQuantity(inventoryId: string, rawValue: string) {
+    const nextValue = Math.max(0, Number(rawValue) || 0);
+    setQuantityMap((prev) => ({
+      ...prev,
+      [inventoryId]: nextValue,
+    }));
+  }
+
+  
+  if (!isHydrated) return null;
 
   return (
     <main
@@ -45,6 +281,30 @@ export default function InventoryPage() {
         padding: "32px 24px 64px",
       }}
     >
+      <div
+        style={{
+          maxWidth: "1440px",
+          margin: "0 auto 18px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "12px",
+        }}
+      >
+        <Link
+          href="/exhibitions/israel"
+          style={navButtonStyle}
+        >
+          חזרה לתערוכות בארץ
+        </Link>
+
+        <Link
+          href="/"
+          style={navButtonStyle}
+        >
+          חזרה לראשי
+        </Link>
+      </div>
+
       <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
         <header style={{ marginBottom: "28px" }}>
           <div
@@ -61,7 +321,7 @@ export default function InventoryPage() {
               marginBottom: "16px",
             }}
           >
-            Exhibition Support Inventory
+            מחסן תצוגה ותמיכה
           </div>
 
           <h1
@@ -73,7 +333,7 @@ export default function InventoryPage() {
               letterSpacing: "-0.03em",
             }}
           >
-            Inventory Board
+            מחסן / ארכיון מלאי
           </h1>
 
           <p
@@ -81,33 +341,109 @@ export default function InventoryPage() {
               margin: 0,
               color: "rgba(255,255,255,0.70)",
               fontSize: "16px",
-              maxWidth: "840px",
+              maxWidth: "900px",
             }}
           >
-            Auxiliary exhibition tools, podiums, flags, signage, branding elements and support
-            items prepared for future planning-board integration.
+            כלל פריטי המחסן והתמיכה לתערוכות: פודיומים, דגלים, שילוט, מיתוג, כבלים,
+            כיסאות, דוכנים וציוד עזר נוסף, כולל מצב מלאי, פריטים שמורים וזמינות בפועל.
           </p>
         </header>
+
+        <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
+          <button
+            type="button"
+            onClick={openCreatePanel}
+            style={{
+              borderRadius: "16px",
+              border: "1px solid rgba(96,165,250,0.28)",
+              background: "rgba(59,130,246,0.14)",
+              color: "white",
+              padding: "12px 18px",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            הוסף פריט חדש
+          </button>
+        </div>
+
+        <section
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "18px",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "460px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="חיפוש בפריטי inventory / חיפוש חופשי..."
+                style={{
+                  flex: 1,
+                  minHeight: "46px",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "white",
+                  padding: "0 16px",
+                  fontSize: "14px",
+                  outline: "none",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+                }}
+              />
+              <button
+                onClick={() => setSearchQuery("")}
+                style={{
+                  appearance: "none",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "rgba(255,255,255,0.82)",
+                  borderRadius: "16px",
+                  minHeight: "46px",
+                  padding: "0 14px",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                נקה חיפוש
+              </button>
+            </div>
+
+            <div
+              style={{
+                fontSize: "13px",
+                color: "rgba(255,255,255,0.55)",
+                textAlign: "right",
+              }}
+            >
+              נמצאו {filteredItems.length} פריטים
+            </div>
+          </div>
+        </section>
 
         <section
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: "16px",
-            marginBottom: "26px",
-          }}
-        >
-          <StatCard label="Catalog Items" value={String(totalItems)} />
-          <StatCard label="Total Quantity" value={String(totalQuantity)} />
-          <StatCard label="Categories" value={String(categoriesCount)} />
-          <StatCard label="Current View" value={categoryLabels[activeCategory]} />
-        </section>
-
-        <section
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "10px",
             marginBottom: "26px",
           }}
         >
@@ -135,6 +471,7 @@ export default function InventoryPage() {
               </button>
             );
           })}
+
         </section>
 
         <section
@@ -144,150 +481,258 @@ export default function InventoryPage() {
             gap: "20px",
           }}
         >
-          {filteredItems.map((item) => (
-            <article
-              key={item.id}
-              style={{
-                background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035))",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: "22px",
-                overflow: "hidden",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
-              }}
-            >
-              <div
+          {filteredItems.map((item) => {
+            const usage = usageMap.get(item.id) ?? {
+              inventoryId: item.id,
+              total: item.quantity,
+              reserved: 0,
+              available: item.quantity,
+            };
+
+            return (
+              <article
+                key={item.id}
                 style={{
-                  background: "linear-gradient(180deg, #f8fbff, #eaf1f8)",
-                  padding: "18px",
-                  aspectRatio: "4 / 3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035))",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "22px",
+                  overflow: "hidden",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
                 }}
               >
-                <img
-                  src={item.image}
-                  alt={item.name.en}
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    objectFit: "contain",
-                    filter: "drop-shadow(0 16px 28px rgba(0,0,0,0.12))",
-                  }}
-                />
-              </div>
-
-              <div style={{ padding: "18px" }}>
                 <div
                   style={{
+                    background: "linear-gradient(180deg, #f8fbff, #eaf1f8)",
+                    padding: "18px",
+                    aspectRatio: "4 / 3",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "12px",
-                    marginBottom: "12px",
+                    justifyContent: "center",
                   }}
                 >
-                  <span
+                  <img
+                    src={item.image}
+                    alt={getItemTitleHe(item)}
                     style={{
-                      display: "inline-block",
-                      fontSize: "12px",
-                      padding: "8px 10px",
-                      borderRadius: "999px",
-                      background: "rgba(96,165,250,0.14)",
-                      color: "#93c5fd",
-                      textTransform: "capitalize",
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                      filter: "drop-shadow(0 16px 28px rgba(0,0,0,0.12))",
                     }}
-                  >
-                    {item.category.replace("_", " ")}
-                  </span>
-
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      padding: "8px 10px",
-                      borderRadius: "999px",
-                      background: "rgba(255,255,255,0.06)",
-                      color: "rgba(255,255,255,0.72)",
-                    }}
-                  >
-                    {conditionLabels[item.condition]}
-                  </span>
-                </div>
-
-                <h2
-                  style={{
-                    fontSize: "20px",
-                    lineHeight: 1.15,
-                    fontWeight: 700,
-                    margin: "0 0 6px",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  {item.name.en}
-                </h2>
-
-                <div
-                  style={{
-                    fontSize: "14px",
-                    color: "rgba(255,255,255,0.58)",
-                    marginBottom: "14px",
-                  }}
-                >
-                  {item.name.he}
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                    gap: "10px",
-                    marginBottom: "14px",
-                  }}
-                >
-                  <InfoBox label="Quantity" value={String(item.quantity)} />
-                  <InfoBox
-                    label="Size"
-                    value={
-                      item.dimensionsCm
-                        ? `${item.dimensionsCm.width ?? "-"} × ${item.dimensionsCm.depth ?? "-"} × ${item.dimensionsCm.height ?? "-"}`
-                        : "—"
-                    }
                   />
                 </div>
 
-                {item.notes ? (
+                <div style={{ padding: "18px" }}>
                   <div
                     style={{
-                      fontSize: "13px",
-                      color: "rgba(255,255,255,0.72)",
-                      padding: "12px 12px",
-                      borderRadius: "14px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
                       marginBottom: "12px",
                     }}
                   >
-                    {item.notes}
-                  </div>
-                ) : null}
+                    <span
+                      style={{
+                        display: "inline-block",
+                        fontSize: "12px",
+                        padding: "8px 10px",
+                        borderRadius: "999px",
+                        background: "rgba(96,165,250,0.14)",
+                        color: "#93c5fd",
+                      }}
+                    >
+                      {categoryLabels[item.category]}
+                    </span>
 
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "rgba(255,255,255,0.42)",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {item.fileName}
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        padding: "8px 10px",
+                        borderRadius: "999px",
+                        background: "rgba(255,255,255,0.06)",
+                        color: "rgba(255,255,255,0.72)",
+                      }}
+                    >
+                      {conditionLabels[item.condition]}
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => openEditPanel(item)}
+                      style={{
+                        borderRadius: "12px",
+                        border: "1px solid rgba(96,165,250,0.28)",
+                        background: "rgba(59,130,246,0.12)",
+                        color: "white",
+                        padding: "8px 12px",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      ערוך
+                    </button>
+                  </div>
+
+                  <h2
+                    style={{
+                      fontSize: "20px",
+                      lineHeight: 1.15,
+                      fontWeight: 700,
+                      margin: "0 0 6px",
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {getItemTitleHe(item)}
+                  </h2>
+
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      color: "rgba(255,255,255,0.58)",
+                      marginBottom: "14px",
+                    }}
+                  >
+                    {item.name.he}
+                  </div>
+
+                  <div
+                    style={{
+                      marginBottom: "14px",
+                      borderRadius: "14px",
+                      padding: "12px",
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "11px",
+                        color: "rgba(255,255,255,0.48)",
+                        marginBottom: "6px",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      כמות במלאי
+                    </div>
+                    <input
+                      type="number"
+                      min={0}
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(item.id, e.target.value)}
+                      style={{
+                        width: "100%",
+                        borderRadius: "12px",
+                        padding: "10px 12px",
+                        background: "rgba(11,23,40,0.9)",
+                        border: "1px solid rgba(96,165,250,0.22)",
+                        color: "white",
+                        fontSize: "15px",
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                      gap: "10px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <InfoBox label="כמות" value={String(item.quantity)} />
+                    <InfoBox
+                      label="מידות"
+                      value={
+                        item.dimensionsCm
+                          ? `${item.dimensionsCm.width ?? "-"} × ${item.dimensionsCm.depth ?? "-"} × ${item.dimensionsCm.height ?? "-"}`
+                          : "—"
+                      }
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                      gap: "10px",
+                      marginBottom: "14px",
+                    }}
+                  >
+                    <InfoBox label="שמור" value={String(usage.reserved)} />
+                    <InfoBox label="זמין" value={String(usage.available)} />
+                  </div>
+
+                  {item.notes ? (
+                    <div
+                      style={{
+                        fontSize: "13px",
+                        color: "rgba(255,255,255,0.72)",
+                        padding: "12px 12px",
+                        borderRadius: "14px",
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      {item.notes}
+                    </div>
+                  ) : null}
+
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "rgba(255,255,255,0.42)",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {item.fileName}
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </section>
       </div>
+
+      <InventoryAddPanel
+        open={isAddPanelOpen}
+        onClose={() => {
+          setIsAddPanelOpen(false);
+          setEditingItem(null);
+          setPanelMode("create");
+        }}
+        onSave={panelMode === "edit" ? handleEditItemSave : handleAddCustomItem}
+        initialItem={editingItem}
+        mode={panelMode}
+      />
     </main>
   );
 }
+
+const navButtonStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "12px 16px",
+  borderRadius: "16px",
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.04)",
+  color: "rgba(255,255,255,0.88)",
+  textDecoration: "none",
+  fontSize: "14px",
+  fontWeight: 600,
+};
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
@@ -337,8 +782,7 @@ function InfoBox({ label, value }: { label: string; value: string }) {
           fontSize: "11px",
           color: "rgba(255,255,255,0.48)",
           marginBottom: "6px",
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
+          letterSpacing: "0.02em",
         }}
       >
         {label}

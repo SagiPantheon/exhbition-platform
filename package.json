@@ -14,12 +14,15 @@
   "license": "ISC",
   "dependencies": {
     "@google/model-viewer": "^4.2.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
     "@tailwindcss/postcss": "^4.2.1",
     "next": "^16.1.6",
     "postcss": "^8.5.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "tailwindcss": "^4.2.1"
+    "tailwindcss": "^4.2.1",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/node": "25.4.0",

@@ -1,0 +1,357 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { inventoryItems, type InventoryCategory } from "../../data/inventoryItems";
+
+const categoryLabels: Record<InventoryCategory | "all", string> = {
+  all: "הכל",
+  podiums: "פודיומים",
+  flags: "דגלים",
+  stanchions: "עמודי חבלול",
+  signs: "שילוט",
+  chairs: "Chairs",
+  lecterns: "Lecterns",
+  cables: "Cables",
+  branding: "Branding",
+  table_covers: "כיסויי שולחן",
+};
+
+const conditionLabels = {
+  excellent: "Excellent",
+  good: "תקין",
+  fair: "Fair",
+  needs_attention: "Needs attention",
+};
+
+export default function InventoryPage() {
+  const [activeCategory, setActiveCategory] = useState<InventoryCategory | "all">("all");
+
+  const filteredItems = useMemo(() => {
+    if (activeCategory === "all") return inventoryItems;
+    return inventoryItems.filter((item) => item.category === activeCategory);
+  }, [activeCategory]);
+
+  const totalItems = inventoryItems.length;
+  const totalQuantity = inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
+  const categoriesCount = new Set(inventoryItems.map((item) => item.category)).size;
+
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at top, rgba(37,99,235,0.18), transparent 30%), #07111f",
+        color: "white",
+        padding: "32px 24px 64px",
+      }}
+    >
+      <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
+        <header style={{ marginBottom: "28px" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "8px 12px",
+              borderRadius: "999px",
+              background: "rgba(59,130,246,0.14)",
+              border: "1px solid rgba(96,165,250,0.22)",
+              color: "#93c5fd",
+              fontSize: "13px",
+              marginBottom: "16px",
+            }}
+          >
+            מלאי תצוגה ותמיכה
+          </div>
+
+          <h1
+            style={{
+              fontSize: "44px",
+              lineHeight: 1.05,
+              fontWeight: 800,
+              margin: "0 0 10px",
+              letterSpacing: "-0.03em",
+            }}
+          >
+            לוח מלאי
+          </h1>
+
+          <p
+            style={{
+              margin: 0,
+              color: "rgba(255,255,255,0.70)",
+              fontSize: "16px",
+              maxWidth: "840px",
+            }}
+          >
+            Auxiliary exhibition tools, podiums, flags, signage, branding elements and support
+            items prepared for future planning-board integration.
+          </p>
+        </header>
+
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "16px",
+            marginBottom: "26px",
+          }}
+        >
+          <StatCard label="Catalog Items" value={String(totalItems)} />
+          <StatCard label="Total Quantity" value={String(totalQuantity)} />
+          <StatCard label="Categories" value={String(categoriesCount)} />
+          <StatCard label="תצוגה נוכחית" value={categoryLabels[activeCategory]} />
+        </section>
+
+        <section
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "10px",
+            marginBottom: "26px",
+          }}
+        >
+          {(Object.keys(categoryLabels) as Array<InventoryCategory | "all">).map((categoryKey) => {
+            const active = activeCategory === categoryKey;
+
+            return (
+              <button
+                key={categoryKey}
+                onClick={() => setActiveCategory(categoryKey)}
+                style={{
+                  appearance: "none",
+                  border: active
+                    ? "1px solid rgba(96,165,250,0.45)"
+                    : "1px solid rgba(255,255,255,0.10)",
+                  background: active ? "rgba(37,99,235,0.22)" : "rgba(255,255,255,0.04)",
+                  color: active ? "#dbeafe" : "rgba(255,255,255,0.76)",
+                  padding: "10px 14px",
+                  borderRadius: "999px",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                }}
+              >
+                {categoryLabels[categoryKey]}
+              </button>
+            );
+          })}
+        </section>
+
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: "20px",
+          }}
+        >
+          {filteredItems.map((item) => (
+            <article
+              key={item.id}
+              style={{
+                background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035))",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "22px",
+                overflow: "hidden",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
+              }}
+            >
+              <div
+                style={{
+                  background: "linear-gradient(180deg, #f8fbff, #eaf1f8)",
+                  padding: "18px",
+                  aspectRatio: "4 / 3",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  src={item.image}
+                  alt={item.name.en}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 16px 28px rgba(0,0,0,0.12))",
+                  }}
+                />
+              </div>
+
+              <div style={{ padding: "18px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "inline-block",
+                      fontSize: "12px",
+                      padding: "8px 10px",
+                      borderRadius: "999px",
+                      background: "rgba(96,165,250,0.14)",
+                      color: "#93c5fd",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {item.category.replace("_", " ")}
+                  </span>
+
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      padding: "8px 10px",
+                      borderRadius: "999px",
+                      background: "rgba(255,255,255,0.06)",
+                      color: "rgba(255,255,255,0.72)",
+                    }}
+                  >
+                    {conditionLabels[item.condition]}
+                  </span>
+                </div>
+
+                <h2
+                  style={{
+                    fontSize: "20px",
+                    lineHeight: 1.15,
+                    fontWeight: 700,
+                    margin: "0 0 6px",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {item.name.en}
+                </h2>
+
+                <div
+                  style={{
+                    fontSize: "14px",
+                    color: "rgba(255,255,255,0.58)",
+                    marginBottom: "14px",
+                  }}
+                >
+                  {item.name.he}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gap: "10px",
+                    marginBottom: "14px",
+                  }}
+                >
+                  <InfoBox label="Quantity" value={String(item.quantity)} />
+                  <InfoBox
+                    label="Size"
+                    value={
+                      item.dimensionsCm
+                        ? `${item.dimensionsCm.width ?? "-"} × ${item.dimensionsCm.depth ?? "-"} × ${item.dimensionsCm.height ?? "-"}`
+                        : "—"
+                    }
+                  />
+                </div>
+
+                {item.notes ? (
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      color: "rgba(255,255,255,0.72)",
+                      padding: "12px 12px",
+                      borderRadius: "14px",
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    {item.notes}
+                  </div>
+                ) : null}
+
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "rgba(255,255,255,0.42)",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {item.fileName}
+                </div>
+              </div>
+            </article>
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        borderRadius: "20px",
+        padding: "18px 18px",
+        background: "rgba(255,255,255,0.045)",
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "13px",
+          color: "rgba(255,255,255,0.60)",
+          marginBottom: "8px",
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: "30px",
+          fontWeight: 800,
+          lineHeight: 1,
+          letterSpacing: "-0.03em",
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function InfoBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        borderRadius: "14px",
+        padding: "12px",
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "11px",
+          color: "rgba(255,255,255,0.48)",
+          marginBottom: "6px",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: "14px",
+          color: "rgba(255,255,255,0.88)",
+          fontWeight: 600,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}

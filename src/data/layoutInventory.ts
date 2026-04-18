@@ -1,128 +1,186 @@
-export type LayoutItemCategory =
-  | 'tent'
-  | 'podium'
-  | 'banner'
-  | 'crowd_control'
-  | 'flag'
-  | 'support'
+export type LayoutInventoryCategory =
+  | "branding"
+  | "display"
+  | "furniture"
+  | "lighting"
+  | "flags"
+  | "screens"
+  | "structures";
+
+export type LayoutInventoryType =
+  | "logo"
+  | "podium"
+  | "lectern"
+  | "chair"
+  | "flag"
+  | "flagpair"
+  | "lightbox"
+  | "backwall"
+  | "table"
+  | "signage"
+  | "signstand"
+  | "barrier"
+  | "screen"
+  | "screenstand"
+  | "inflatableTentSmall";
 
 export type LayoutInventoryItem = {
-  id: string
-  nameHe: string
-  nameEn: string
-  category: LayoutItemCategory
-  widthM: number
-  depthM: number
-  heightM: number
-  quantity: number
-  usage: 'indoor' | 'outdoor' | 'both'
-  notes?: string
-}
+  id: string;
+  type: LayoutInventoryType;
+  label: string;
+  category: LayoutInventoryCategory;
+  color?: string;
+  width?: number;
+  depth?: number;
+  height?: number;
+  defaultScale?: number;
+  model3d?: string;
+  image?: string;
+};
 
 export const layoutInventory: LayoutInventoryItem[] = [
   {
-    id: 'tent-25x10',
-    nameHe: 'אוהל תצוגה 25x10',
-    nameEn: 'Exhibition Tent 25x10',
-    category: 'tent',
-    widthM: 25,
-    depthM: 10,
-    heightM: 4,
-    quantity: 1,
-    usage: 'outdoor',
-    notes: 'מבנה בסיס לתערוכות חוץ גדולות',
+    id: "iai-logo-blue",
+    type: "logo",
+    label: "לוגו IAI",
+    category: "branding",
+    model3d: "/models/inventor/blue+logo+3d+model.glb",
+    defaultScale: 1,
   },
   {
-    id: 'tent-30x20',
-    nameHe: 'אוהל תצוגה 30x20',
-    nameEn: 'Exhibition Tent 30x20',
-    category: 'tent',
-    widthM: 30,
-    depthM: 20,
-    heightM: 4.5,
-    quantity: 1,
-    usage: 'outdoor',
-    notes: 'מבנה גדול לאירועים ותערוכות מרכזיות',
+    id: "podium-standard",
+    type: "podium",
+    label: "פודיום",
+    category: "display",
+    width: 0.7,
+    depth: 0.7,
+    height: 0.9,
+    defaultScale: 1,
   },
   {
-    id: 'podium-small',
-    nameHe: 'פודיום קטן',
-    nameEn: 'Small Podium',
-    category: 'podium',
-    widthM: 0.48,
-    depthM: 0.48,
-    heightM: 0.9,
-    quantity: 20,
-    usage: 'both',
-    notes: 'מתאים למוצגים קטנים',
+    id: "lectern-standard",
+    type: "lectern",
+    label: "פודיום נואם",
+    category: "display",
+    width: 0.55,
+    depth: 0.42,
+    height: 1.15,
+    defaultScale: 1,
   },
   {
-    id: 'podium-medium',
-    nameHe: 'פודיום בינוני',
-    nameEn: 'Medium Podium',
-    category: 'podium',
-    widthM: 0.9,
-    depthM: 0.9,
-    heightM: 0.9,
-    quantity: 12,
-    usage: 'both',
-    notes: 'מתאים למוצגים בינוניים',
+    id: "chair-folding-white",
+    type: "chair",
+    label: "כיסא",
+    category: "furniture",
+    width: 0.52,
+    depth: 0.52,
+    height: 0.9,
+    defaultScale: 1,
   },
   {
-    id: 'banner-directional',
-    nameHe: 'באנר הכוונה',
-    nameEn: 'Directional Banner',
-    category: 'banner',
-    widthM: 0.8,
-    depthM: 0.4,
-    heightM: 2.2,
-    quantity: 10,
-    usage: 'both',
-    notes: 'לניווט והכוונת קהל',
+    id: "flag-single",
+    type: "flag",
+    label: "דגל",
+    category: "flags",
+    height: 1.8,
+    defaultScale: 1,
   },
   {
-    id: 'stanchion-belt',
-    nameHe: 'עמוד עם חגורה נשלפת',
-    nameEn: 'Stanchion with Retractable Belt',
-    category: 'crowd_control',
-    widthM: 0.35,
-    depthM: 0.35,
-    heightM: 1.0,
-    quantity: 40,
-    usage: 'both',
-    notes: 'ליצירת תורים והפרדות קהל',
+    id: "flag-pair",
+    type: "flagpair",
+    label: "זוג דגלים",
+    category: "flags",
+    height: 1.8,
+    defaultScale: 1,
   },
   {
-    id: 'flag-standard',
-    nameHe: 'דגל עומד',
-    nameEn: 'Standing Flag',
-    category: 'flag',
-    widthM: 0.8,
-    depthM: 0.8,
-    heightM: 2.5,
-    quantity: 12,
-    usage: 'both',
-    notes: 'דגלי מיתוג / מדינה / חברה',
+    id: "lightbox-standard",
+    type: "lightbox",
+    label: "לייטבוקס",
+    category: "lighting",
+    width: 1,
+    depth: 0.28,
+    height: 1.7,
+    defaultScale: 1,
   },
   {
-    id: 'storage-support-kit',
-    nameHe: 'ערכת ציוד עזר',
-    nameEn: 'Support Equipment Kit',
-    category: 'support',
-    widthM: 1.2,
-    depthM: 0.8,
-    heightM: 1.2,
-    quantity: 6,
-    usage: 'both',
-    notes: 'ציוד אחסון ותמיכה להקמה',
+    id: "backwall-standard",
+    type: "backwall",
+    label: "קיר רקע",
+    category: "branding",
+    width: 3,
+    depth: 0.12,
+    height: 2.8,
+    defaultScale: 1,
   },
-]
-
-export const layoutCategoryLabels: Record<LayoutItemCategory, string> = {
-  tent: 'Tent Structures',
-  podium: 'Podiums',
-  banner: 'Banners & Signage',
-  crowd_control: 'Crowd Control',
-  flag: 'Flags',
-  support: 'Support Items',
-}
+  {
+    id: "table-standard",
+    type: "table",
+    label: "שולחן",
+    category: "furniture",
+    width: 1.8,
+    depth: 0.75,
+    height: 0.75,
+    defaultScale: 1,
+  },
+  {
+    id: "signage-standard",
+    type: "signage",
+    label: "שילוט",
+    category: "branding",
+    width: 0.5,
+    depth: 0.05,
+    height: 0.8,
+    defaultScale: 1,
+  },
+  {
+    id: "signstand-standard",
+    type: "signstand",
+    label: "מעמד שילוט",
+    category: "branding",
+    width: 0.42,
+    depth: 0.04,
+    height: 1.2,
+    defaultScale: 1,
+  },
+  {
+    id: "barrier-standard",
+    type: "barrier",
+    label: "מחסום",
+    category: "structures",
+    width: 1.2,
+    depth: 0.18,
+    height: 0.55,
+    defaultScale: 1,
+  },
+  {
+    id: "screen-standard",
+    type: "screen",
+    label: "מסך",
+    category: "screens",
+    width: 1.7,
+    depth: 0.08,
+    height: 1.05,
+    defaultScale: 1,
+  },
+  {
+    id: "screen-stand-standard",
+    type: "screenstand",
+    label: "מעמד מסכים",
+    category: "screens",
+    width: 1.2,
+    depth: 0.6,
+    height: 1.8,
+    defaultScale: 1,
+  },
+  {
+    id: "inflatable-tent-small",
+    type: "inflatableTentSmall",
+    label: "אוהל מתנפח קטן",
+    category: "structures",
+    width: 4,
+    depth: 4,
+    height: 3,
+    defaultScale: 1,
+  },
+];

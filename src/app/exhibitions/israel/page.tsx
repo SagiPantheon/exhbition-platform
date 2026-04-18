@@ -45,6 +45,9 @@ type IsraelExhibition = {
 }
 
 const STORAGE_KEY = 'israel-exhibitions-board-v5-v2'
+const SELECTED_ID_KEY = 'israel-exhibitions-board-selected-id-v1'
+const DRAFT_KEY = 'israel-exhibitions-board-draft-v1'
+const IS_EDITING_KEY = 'israel-exhibitions-board-is-editing-v1'
 
 const assetCatalog: CatalogAsset[] = [
   { id: 'space-tecsar', titleHe: 'טקסאר', titleEn: 'Tecsar', category: 'space', href: '/space/tecsar' },
@@ -186,6 +189,9 @@ export default function IsraelExhibitionsPage() {
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY)
+    const savedSelectedId = window.localStorage.getItem(SELECTED_ID_KEY) || ''
+    const savedDraftRaw = window.localStorage.getItem(DRAFT_KEY)
+    const savedIsEditing = window.localStorage.getItem(IS_EDITING_KEY) === 'true'
 
     if (raw) {
       try {
@@ -193,20 +199,69 @@ export default function IsraelExhibitionsPage() {
         const normalized = parsed.map(normalizeExhibition)
         const sorted = sortByDate(normalized)
         setExhibitions(sorted)
-        setSelectedId(sorted[0]?.id ?? '')
+
+        const hasSavedSelected = sorted.some((item) => item.id === savedSelectedId)
+        const effectiveSelectedId = hasSavedSelected ? savedSelectedId : (sorted[0]?.id ?? '')
+        setSelectedId(effectiveSelectedId)
+
+        if (savedDraftRaw) {
+          try {
+            const parsedDraft = normalizeExhibition(JSON.parse(savedDraftRaw))
+            setDraft(parsedDraft)
+            setIsEditing(savedIsEditing)
+            return
+          } catch {}
+        }
+
+        const selectedItem = sorted.find((item) => item.id === effectiveSelectedId) ?? null
+        setDraft(selectedItem)
+        setIsEditing(false)
         return
       } catch {}
     }
 
     const sorted = sortByDate(initialExhibitions)
     setExhibitions(sorted)
-    setSelectedId(sorted[0]?.id ?? '')
+
+    const hasSavedSelected = sorted.some((item) => item.id === savedSelectedId)
+    const effectiveSelectedId = hasSavedSelected ? savedSelectedId : (sorted[0]?.id ?? '')
+    setSelectedId(effectiveSelectedId)
+
+    if (savedDraftRaw) {
+      try {
+        const parsedDraft = normalizeExhibition(JSON.parse(savedDraftRaw))
+        setDraft(parsedDraft)
+        setIsEditing(savedIsEditing)
+        return
+      } catch {}
+    }
+
+    const selectedItem = sorted.find((item) => item.id === effectiveSelectedId) ?? null
+    setDraft(selectedItem)
+    setIsEditing(false)
   }, [])
 
   useEffect(() => {
     if (!exhibitions.length) return
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(exhibitions))
   }, [exhibitions])
+
+  useEffect(() => {
+    if (!selectedId) return
+    window.localStorage.setItem(SELECTED_ID_KEY, selectedId)
+  }, [selectedId])
+
+  useEffect(() => {
+    if (!draft) {
+      window.localStorage.removeItem(DRAFT_KEY)
+      return
+    }
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+  }, [draft])
+
+  useEffect(() => {
+    window.localStorage.setItem(IS_EDITING_KEY, isEditing ? 'true' : 'false')
+  }, [isEditing])
 
   const selectedExhibition = useMemo(
     () => exhibitions.find((item) => item.id === selectedId) ?? null,
@@ -372,6 +427,20 @@ function removeAssetRef(id: string) {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
+              href="/inventory"
+              className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
+            >
+              מחסן / ארכיון מלאי
+            </Link>
+
+            <Link
+              href="/layout-planning"
+              className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
+            >
+              הדמיית אוהל / פריסה
+            </Link>
+
+            <Link
               href="/"
               className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
             >
@@ -387,7 +456,7 @@ function removeAssetRef(id: string) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
           <section className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/20">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold">רשימת תערוכות</h2>
@@ -425,9 +494,9 @@ function removeAssetRef(id: string) {
                       <div>תאריך: {formatDateHe(item.startDate)} {item.endDate ? `← ${formatDateHe(item.endDate)}` : ''}</div>
                       <div>מוצגים: {item.exhibits.length}</div>
                       <div>כמות יחידות: {countTotalUnits(item.exhibits)}</div>
-                      <div>Template: {tentTemplateLabel(item.tentTemplate)}</div>
-                      <div>Status: {layoutStatusLabel(item.layoutStatus)}</div>
-                      <div>Planning Items: {item.planningItemsCount}</div>
+                      <div>אוהל: {tentTemplateLabel(item.tentTemplate)}</div>
+                      <div>סטטוס: {layoutStatusLabel(item.layoutStatus)}</div>
+                      <div>פריטי תכנון: {item.planningItemsCount}</div>
                     </div>
                   </button>
                 )
@@ -484,7 +553,15 @@ function removeAssetRef(id: string) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-[#091425] p-5">
+                  <div className="mb-5">
+                    <h3 className="text-lg font-semibold">פרטי תערוכה</h3>
+                    <p className="mt-1 text-sm text-white/60">
+                      פרטים מרכזיים, סטטוס השתתפות, ספק ונתוני בסיס לעבודה שוטפת
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field label="שם התערוכה בעברית">
                     <input
                       value={draft.nameHe}
@@ -587,14 +664,15 @@ function removeAssetRef(id: string) {
                       className={inputClass(isEditing)}
                     />
                   </Field>
+                  </div>
                 </div>
 
                 <div className="rounded-3xl border border-cyan-400/15 bg-[#091425] p-5">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-lg font-semibold">Layout / Tent Planning</h3>
+                      <h3 className="text-lg font-semibold">תכנון והקמה</h3>
                       <p className="mt-1 text-sm text-white/60">
-                        קישור התערוכה לתבנית אוהל וללוח תכנון ייעודי
+                        חיבור התערוכה לתבנית אוהל, לוח תכנון ופריטי מלאי תומכים
                       </p>
                     </div>
 
@@ -603,17 +681,17 @@ function removeAssetRef(id: string) {
                         href={planningHref(draft.tentTemplate) || '/layout-planning'}
                         className="rounded-2xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200 transition hover:bg-cyan-400/20"
                       >
-                        Open Planning Board
+                        פתח לוח תכנון
                       </Link>
                     ) : (
                       <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/45">
-                        Tent template not selected
+                        לא נבחרה תבנית אוהל
                       </div>
                     )}
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <Field label="Tent Template">
+                    <Field label="תבנית אוהל">
                       <select
                         value={draft.tentTemplate}
                         onChange={(e) =>
@@ -623,12 +701,12 @@ function removeAssetRef(id: string) {
                         className={inputClass(isEditing)}
                       >
                         <option value="">לא נבחר</option>
-                        <option value="tent-25x10">Tent 25x10</option>
-                        <option value="tent-30x20">Tent 30x20</option>
+                        <option value="tent-25x10">אוהל 25x10</option>
+                        <option value="tent-30x20">אוהל 30x20</option>
                       </select>
                     </Field>
 
-                    <Field label="Layout Status">
+                    <Field label="סטטוס תכנון">
                       <select
                         value={draft.layoutStatus}
                         onChange={(e) => updateDraft('layoutStatus', e.target.value as LayoutStatus)}
@@ -641,7 +719,7 @@ function removeAssetRef(id: string) {
                       </select>
                     </Field>
 
-                    <Field label="Planning Items Count">
+                    <Field label="כמות פריטי תכנון">
                       <input
                         type="number"
                         min={0}
@@ -654,17 +732,22 @@ function removeAssetRef(id: string) {
                       />
                     </Field>
 
-                    <Field label="Current Board Link">
+                    <Field label="קישור ללוח">
                       <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/75">
                         {draft.tentTemplate ? planningHref(draft.tentTemplate) : '—'}
                       </div>
                     </Field>
 
-              <Field label="Inventory">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+              <Field label="פריטי מלאי">
+                <div className="rounded-[26px] border border-white/10 bg-white/[0.04] px-4 py-4">
                   <div className="mb-3 flex items-center justify-between gap-3">
-                    <div className="text-sm font-semibold text-white/85">
-                      פריטי מלאי מקושרים: {draft.inventoryItemIds?.length ?? 0}
+                    <div>
+                      <div className="text-sm font-semibold text-white/85">
+                        פריטי מלאי מקושרים
+                      </div>
+                      <div className="mt-1 text-xs text-white/55">
+                        סה״כ: {draft.inventoryItemIds?.length ?? 0}
+                      </div>
                     </div>
                   </div>
 
@@ -700,7 +783,7 @@ function removeAssetRef(id: string) {
                         return (
                           <div
                             key={inventoryId}
-                            className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white"
+                            className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3.5 text-sm text-white shadow-[0_10px_30px_rgba(0,0,0,0.12)]"
                           >
                             <span className="min-w-0 flex-1 truncate text-sm font-medium text-white/90">
                               {linkedItem ? (linkedItem.name.he ?? linkedItem.name.en) : inventoryId}
@@ -733,7 +816,7 @@ function removeAssetRef(id: string) {
                     <div>
                       <h3 className="text-lg font-semibold">מוצגים בתערוכה</h3>
                       <p className="mt-1 text-sm text-white/60">
-                        רשימה קומפקטית עם קישור ישיר לעמוד המוצג בקטלוג
+                        מוצגים נבחרים לתערוכה זו בלבד, עם כמות, סטטוס וקישור ישיר לקטלוג
                       </p>
                     </div>
                   </div>

@@ -1,0 +1,826 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+
+type TentTemplate = {
+  id: string;
+  titleHe: string;
+  titleEn: string;
+  image: string;
+  width: number;
+  depth: number;
+  height: number;
+  area: number;
+  badge: string;
+  note: string;
+};
+
+const templates: TentTemplate[] = [
+  {
+    id: "tent-25x15",
+    titleHe: "25x15 אוהל תצוגה",
+    titleEn: "Exhibition Tent 25x15",
+    image: "/inventory/tent-25x15-white-01.png",
+    width: 25,
+    depth: 15,
+    height: 4,
+    area: 375,
+    badge: "Outdoor Exhibition Base",
+    note: "מתאים לתצוגה בינונית-גדולה עם זרימת קהל קדמית וצידית",
+  },
+  {
+    id: "tent-30x20",
+    titleHe: "30x20 אוהל תצוגה",
+    titleEn: "Exhibition Tent 30x20",
+    image: "/inventory/tent-30x20-white-01.png",
+    width: 30,
+    depth: 20,
+    height: 4.5,
+    area: 600,
+    badge: "Large Event / Main Pavilion",
+    note: "מתאים למערך גדול עם אזורי VIP, קהל רחב ופריסת מוצגים משמעותית",
+  },
+];
+
+export default function LayoutPlanningPage() {
+  const searchParams = useSearchParams();
+  const selectedId = searchParams.get("t");
+
+  const activeTemplate = useMemo(() => {
+    return templates.find((template) => template.id === selectedId) ?? null;
+  }, [selectedId]);
+
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at top, rgba(37,99,235,0.16), transparent 28%), #07111f",
+        color: "white",
+        padding: "28px 24px 64px",
+      }}
+    >
+      <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "12px",
+            marginBottom: "18px",
+          }}
+        >
+          <Link href="/exhibitions/israel" style={navButtonStyle}>
+            חזרה לתערוכות בארץ
+          </Link>
+          <Link href="/inventory" style={navButtonStyle}>
+            למחסן / ארכיון מלאי
+          </Link>
+          <Link href="/" style={navButtonStyle}>
+            חזרה לראשי
+          </Link>
+        </div>
+
+        <section style={heroSectionStyle}>
+          <div style={eyebrowStyle}>LAYOUT PLANNING / INVENTORY BASE</div>
+          <h1 style={heroTitleStyle}>Layout Planning Base</h1>
+          <p style={heroTextStyle}>
+            בסיס ראשוני לתכנון תצוגות, אוהלים וציוד מחסן, כולל תבניות שטח אמיתיות להמשך בנייה.
+          </p>
+        </section>
+
+        <section style={activeSectionStyle}>
+          {activeTemplate ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "320px 1fr",
+                gap: "18px",
+                alignItems: "center",
+              }}
+            >
+              <div style={activeImageWrapStyle}>
+                <img
+                  src={activeTemplate.image}
+                  alt={activeTemplate.titleEn}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
+              </div>
+
+              <div>
+                <div style={eyebrowStyle}>ACTIVE TEMPLATE</div>
+                <h2
+                  style={{
+                    margin: "0 0 8px",
+                    fontSize: "30px",
+                    fontWeight: 800,
+                    lineHeight: 1.05,
+                  }}
+                >
+                  {activeTemplate.titleHe}
+                </h2>
+
+                <div
+                  style={{
+                    color: "rgba(255,255,255,0.78)",
+                    fontSize: "16px",
+                    marginBottom: "14px",
+                  }}
+                >
+                  {activeTemplate.titleEn}
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "10px",
+                    marginBottom: "14px",
+                  }}
+                >
+                  <MiniPill text={`רוחב ${activeTemplate.width} m`} />
+                  <MiniPill text={`עומק ${activeTemplate.depth} m`} />
+                  <MiniPill text={`גובה ${activeTemplate.height} m`} />
+                  <MiniPill text={`שטח ${activeTemplate.area} m²`} />
+                </div>
+
+                <div
+                  style={{
+                    color: "rgba(255,255,255,0.88)",
+                    fontSize: "15px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {activeTemplate.note}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={eyebrowStyle}>ACTIVE TEMPLATE</div>
+              <h2
+                style={{
+                  margin: "0 0 8px",
+                  fontSize: "26px",
+                  fontWeight: 800,
+                }}
+              >
+                עדיין לא נבחרה תבנית
+              </h2>
+              <div
+                style={{
+                  color: "rgba(255,255,255,0.72)",
+                  fontSize: "15px",
+                }}
+              >
+                לחץ על Start Planning באחת משתי התבניות למטה כדי לפתוח אזור עבודה.
+              </div>
+            </div>
+          )}
+        </section>
+
+        {activeTemplate ? (
+          <section style={workspaceSectionStyle}>
+            <div style={{ ...eyebrowStyle, marginBottom: "8px" }}>WORKING ZONE</div>
+            <h2
+              style={{
+                margin: "0 0 10px",
+                fontSize: "32px",
+                fontWeight: 800,
+                lineHeight: 1.05,
+              }}
+            >
+              אזור עבודה — {activeTemplate.titleHe}
+            </h2>
+            <p
+              style={{
+                margin: "0 0 22px",
+                color: "rgba(255,255,255,0.72)",
+                fontSize: "15px",
+              }}
+            >
+              זהו בסיס העבודה הראשוני. כאן נמקם בהמשך שטיח, מוצגים, פודיומים, דגלים, לייטבוקסים וקירות רקע.
+            </p>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "320px 1fr",
+                gap: "18px",
+                alignItems: "start",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gap: "12px",
+                }}
+              >
+                <MetricBox label="Template" value={activeTemplate.titleHe} />
+                <MetricBox label="Width" value={`${activeTemplate.width} m`} />
+                <MetricBox label="Depth" value={`${activeTemplate.depth} m`} />
+                <MetricBox label="Height" value={`${activeTemplate.height} m`} />
+                <MetricBox label="Area" value={`${activeTemplate.area} m²`} />
+              </div>
+
+              <WorkingZone template={activeTemplate} />
+            </div>
+          </section>
+        ) : null}
+
+        <section
+          style={{
+            borderRadius: "28px",
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(255,255,255,0.04)",
+            padding: "26px 28px",
+          }}
+        >
+          <div style={eyebrowStyle}>TENT TEMPLATES</div>
+
+          <h2
+            style={{
+              fontSize: "36px",
+              lineHeight: 1.05,
+              margin: "0 0 10px",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Base Pavilion Structures
+          </h2>
+
+          <p
+            style={{
+              margin: "0 0 26px",
+              color: "rgba(255,255,255,0.70)",
+              fontSize: "15px",
+            }}
+          >
+            תבניות בסיס לשלב הראשוני של פריסת שטח ותכנון סביבת מוצגים.
+          </p>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(460px, 1fr))",
+              gap: "18px",
+            }}
+          >
+            {templates.map((template) => (
+              <article key={template.id} style={templateCardStyle}>
+                <div style={{ padding: "20px 20px 0" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          color: "#9cecff",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          marginBottom: "8px",
+                        }}
+                      >
+                        Template Structure
+                      </div>
+                      <h3
+                        style={{
+                          fontSize: "22px",
+                          lineHeight: 1.1,
+                          margin: "0 0 6px",
+                          fontWeight: 800,
+                        }}
+                      >
+                        {template.titleHe}
+                      </h3>
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.82)",
+                          fontSize: "15px",
+                        }}
+                      >
+                        {template.titleEn}
+                      </div>
+                    </div>
+
+                    <div style={areaBadgeStyle}>{template.area} m²</div>
+                  </div>
+                </div>
+
+                <div style={{ padding: "0 20px 20px" }}>
+                  <div style={templateImageFrameStyle}>
+                    <img
+                      src={template.image}
+                      alt={template.titleEn}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.14))",
+                      }}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                      gap: "12px",
+                      marginBottom: "14px",
+                    }}
+                  >
+                    <MetricBox label="Width" value={`${template.width} m`} />
+                    <MetricBox label="Depth" value={`${template.depth} m`} />
+                    <MetricBox label="Height" value={`${template.height} m`} />
+                    <MetricBox label="Area" value={`${template.area} m²`} />
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "220px 1fr",
+                      gap: "12px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <div style={templateBadgeStyle}>{template.badge}</div>
+                    <div style={templateNoteStyle}>{template.note}</div>
+                  </div>
+
+                  <Link
+                    href={`/layout-planning?t=${template.id}`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "1px solid rgba(110,231,255,0.4)",
+                      background: "rgba(110,231,255,0.12)",
+                      color: "white",
+                      borderRadius: "16px",
+                      padding: "12px 18px",
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Start Planning
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function WorkingZone({ template }: { template: TentTemplate }) {
+  const ratio = template.width / template.depth;
+  const zoneWidth = 860;
+  const zoneHeight = Math.round(zoneWidth / ratio);
+
+  const frontZoneWidth = template.id === "tent-25x15" ? "22%" : "20%";
+  const centerZoneWidth = template.id === "tent-25x15" ? "56%" : "60%";
+  const rearZoneWidth = template.id === "tent-25x15" ? "22%" : "20%";
+
+  return (
+    <div
+      style={{
+        borderRadius: "24px",
+        border: "1px solid rgba(96,165,250,0.18)",
+        background: "linear-gradient(180deg, rgba(59,130,246,0.14), rgba(2,6,23,0.58))",
+        padding: "18px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "14px",
+          color: "rgba(255,255,255,0.80)",
+          fontSize: "14px",
+          fontWeight: 600,
+        }}
+      >
+        <span>Front / כניסה</span>
+        <span>{template.width}m × {template.depth}m</span>
+        <span>Rear / אחורי</span>
+      </div>
+
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: `${zoneWidth}px`,
+          height: `${zoneHeight}px`,
+          margin: "0 auto",
+          borderRadius: "28px",
+          border: "2px solid rgba(110,231,255,0.42)",
+          background:
+            "linear-gradient(180deg, rgba(8,47,73,0.9), rgba(4,14,32,0.96))",
+          overflow: "hidden",
+          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.04), 0 20px 50px rgba(0,0,0,0.22)",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: "16px",
+            border: "1px dashed rgba(191,219,254,0.20)",
+            borderRadius: "22px",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: frontZoneWidth,
+            width: "1px",
+            background: "rgba(110,231,255,0.26)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            right: rearZoneWidth,
+            width: "1px",
+            background: "rgba(110,231,255,0.26)",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            bottom: 0,
+            width: "1px",
+            transform: "translateX(-50%)",
+            background: "rgba(255,255,255,0.16)",
+          }}
+        />
+
+        <ZoneLabel
+          title="כניסה / קבלת קהל"
+          subtitle="Reception / Entry"
+          left="2%"
+          top="8%"
+          width={frontZoneWidth}
+          height="84%"
+        />
+        <ZoneLabel
+          title="אזור מוצגים מרכזי"
+          subtitle="Main Exhibition Zone"
+          left={frontZoneWidth}
+          top="8%"
+          width={centerZoneWidth}
+          height="84%"
+          highlight
+        />
+        <ZoneLabel
+          title="אזור אחורי / תפעול"
+          subtitle="Back / Support"
+          left={`calc(100% - ${rearZoneWidth})`}
+          top="8%"
+          width={rearZoneWidth}
+          height="84%"
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            left: "6%",
+            right: "6%",
+            bottom: "12%",
+            height: "18%",
+            borderRadius: "18px",
+            border: "1px dashed rgba(96,165,250,0.28)",
+            background: "rgba(37,99,235,0.10)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "rgba(219,234,254,0.78)",
+            fontSize: "14px",
+            fontWeight: 700,
+          }}
+        >
+          שטיח / Carpet zone
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            left: "8%",
+            top: "6%",
+            color: "#bdf6ff",
+            fontSize: "12px",
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+          }}
+        >
+          FRONT
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            right: "8%",
+            top: "6%",
+            color: "rgba(255,255,255,0.68)",
+            fontSize: "12px",
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+          }}
+        >
+          REAR
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          gap: "12px",
+          marginTop: "14px",
+        }}
+      >
+        <MetricBox label="Suggested Front Zone" value="Entry / Branding" />
+        <MetricBox label="Suggested Center Zone" value="Main Assets" />
+        <MetricBox label="Suggested Rear Zone" value="Support / Storage" />
+      </div>
+    </div>
+  );
+}
+
+function ZoneLabel({
+  title,
+  subtitle,
+  left,
+  top,
+  width,
+  height,
+  highlight = false,
+}: {
+  title: string;
+  subtitle: string;
+  left: string;
+  top: string;
+  width: string;
+  height: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left,
+        top,
+        width,
+        height,
+        padding: "18px 14px",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: "20px",
+          border: highlight
+            ? "1px solid rgba(110,231,255,0.34)"
+            : "1px solid rgba(255,255,255,0.10)",
+          background: highlight
+            ? "rgba(110,231,255,0.10)"
+            : "rgba(255,255,255,0.03)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "16px 14px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontSize: "16px",
+              fontWeight: 800,
+              color: "white",
+              marginBottom: "6px",
+              lineHeight: 1.15,
+            }}
+          >
+            {title}
+          </div>
+          <div
+            style={{
+              fontSize: "12px",
+              color: "rgba(255,255,255,0.66)",
+              lineHeight: 1.4,
+            }}
+          >
+            {subtitle}
+          </div>
+        </div>
+
+        <div
+          style={{
+            fontSize: "11px",
+            color: highlight ? "#bdf6ff" : "rgba(255,255,255,0.56)",
+            fontWeight: 700,
+            letterSpacing: "0.03em",
+          }}
+        >
+          BASE ZONE
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const navButtonStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "12px 16px",
+  borderRadius: "16px",
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.04)",
+  color: "rgba(255,255,255,0.88)",
+  textDecoration: "none",
+  fontSize: "14px",
+  fontWeight: 600,
+};
+
+const heroSectionStyle: React.CSSProperties = {
+  borderRadius: "28px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.04)",
+  padding: "26px 28px",
+  marginBottom: "24px",
+};
+
+const activeSectionStyle: React.CSSProperties = {
+  borderRadius: "24px",
+  border: "1px solid rgba(96,165,250,0.18)",
+  background: "rgba(255,255,255,0.035)",
+  padding: "22px 24px",
+  marginBottom: "24px",
+};
+
+const workspaceSectionStyle: React.CSSProperties = {
+  borderRadius: "28px",
+  border: "1px solid rgba(96,165,250,0.18)",
+  background: "rgba(255,255,255,0.04)",
+  padding: "26px 28px",
+  marginBottom: "24px",
+};
+
+const heroTitleStyle: React.CSSProperties = {
+  fontSize: "42px",
+  lineHeight: 1.05,
+  margin: "0 0 10px",
+  fontWeight: 800,
+  letterSpacing: "-0.03em",
+};
+
+const heroTextStyle: React.CSSProperties = {
+  margin: 0,
+  color: "rgba(255,255,255,0.70)",
+  fontSize: "16px",
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  color: "#8be9ff",
+  fontSize: "13px",
+  fontWeight: 700,
+};
+
+const activeImageWrapStyle: React.CSSProperties = {
+  height: "220px",
+  borderRadius: "20px",
+  background: "rgba(255,255,255,0.96)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "hidden",
+  padding: "10px",
+};
+
+const templateCardStyle: React.CSSProperties = {
+  borderRadius: "28px",
+  border: "1px solid rgba(96,165,250,0.24)",
+  background:
+    "linear-gradient(180deg, rgba(59,130,246,0.18), rgba(15,23,42,0.50))",
+  overflow: "hidden",
+  boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
+};
+
+const templateImageFrameStyle: React.CSSProperties = {
+  height: "300px",
+  borderRadius: "24px",
+  border: "1px solid rgba(110,231,255,0.22)",
+  background: "rgba(255,255,255,0.96)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "hidden",
+  padding: "10px",
+  marginBottom: "16px",
+};
+
+const areaBadgeStyle: React.CSSProperties = {
+  padding: "10px 14px",
+  borderRadius: "999px",
+  border: "1px solid rgba(110,231,255,0.35)",
+  background: "rgba(110,231,255,0.12)",
+  color: "#b8f5ff",
+  fontSize: "14px",
+  fontWeight: 700,
+  whiteSpace: "nowrap",
+};
+
+const templateBadgeStyle: React.CSSProperties = {
+  borderRadius: "16px",
+  border: "1px solid rgba(110,231,255,0.28)",
+  background: "rgba(110,231,255,0.10)",
+  color: "#bdf6ff",
+  padding: "12px 14px",
+  fontSize: "14px",
+  fontWeight: 700,
+};
+
+const templateNoteStyle: React.CSSProperties = {
+  borderRadius: "16px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.04)",
+  color: "rgba(255,255,255,0.84)",
+  padding: "12px 14px",
+  fontSize: "14px",
+};
+
+function MetricBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        borderRadius: "18px",
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(7,17,31,0.34)",
+        padding: "14px 14px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "13px",
+          color: "rgba(255,255,255,0.70)",
+          marginBottom: "8px",
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: "24px",
+          fontWeight: 800,
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function MiniPill({ text }: { text: string }) {
+  return (
+    <div
+      style={{
+        padding: "9px 12px",
+        borderRadius: "999px",
+        border: "1px solid rgba(110,231,255,0.28)",
+        background: "rgba(110,231,255,0.10)",
+        color: "#bdf6ff",
+        fontSize: "13px",
+        fontWeight: 700,
+      }}
+    >
+      {text}
+    </div>
+  );
+}

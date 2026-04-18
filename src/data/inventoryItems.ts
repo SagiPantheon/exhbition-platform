@@ -9,6 +9,9 @@ export type InventoryCategory =
   | "lecterns"
   | "cables"
   | "branding"
+  | "lightboxes"
+  | "backdrops"
+  | "tents"
   | "table_covers";
 
 export type InventoryCondition = "excellent" | "good" | "fair" | "needs_attention";
@@ -205,6 +208,90 @@ const baseInventoryItems: Omit<InventoryItem, "quantity">[] = [
     name: { en: "IAI Blue Table Cover", he: "כיסוי שולחן IAI כחול" },
     condition: "good",
   },
+
+  {
+    id: "lightbox-vertical-multidomain-01",
+    category: "lightboxes",
+    fileName: "lightbox-vertical-multidomain-01.jpeg",
+    image: "/inventory/lightbox-vertical-multidomain-01.jpeg",
+    name: {
+      en: "Vertical Lightbox Multidomain",
+      he: "לייטבוקס אנכי רב-זרועי",
+    },
+    condition: "good",
+    dimensionsCm: { width: 100, depth: 12, height: 170 },
+    notes: "לייטבוקס אנכי גרפי לתצוגה",
+  },
+  {
+    id: "lightbox-horizontal-multidomain-01",
+    category: "lightboxes",
+    fileName: "lightbox-horizontal-multidomain-01.jpeg",
+    image: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
+    name: {
+      en: "Horizontal Lightbox Multidomain",
+      he: "לייטבוקס אופקי רב-זרועי",
+    },
+    condition: "good",
+    dimensionsCm: { width: 300, depth: 12, height: 280 },
+    notes: "לייטבוקס אופקי גדול לתצוגה",
+  },
+  {
+    id: "lightbox-vertical-globe-01",
+    category: "lightboxes",
+    fileName: "lightbox-vertical-globe-01.png",
+    image: "/inventory/lightbox-vertical-globe-01.png",
+    name: {
+      en: "Vertical Globe Lightbox",
+      he: "לייטבוקס אנכי גלובוס",
+    },
+    condition: "good",
+    dimensionsCm: { width: 100, depth: 12, height: 170 },
+    notes: "לייטבוקס אנכי עם גרפיקת גלובוס",
+  },
+  {
+    id: "backdrop-iai-blue-dots-01",
+    category: "backdrops",
+    fileName: "backdrop-iai-blue-dots-01.jpeg",
+    image: "/inventory/backdrop-iai-blue-dots-01.jpeg",
+    name: {
+      en: "IAI Blue Backdrop Wall",
+      he: "קיר רקע כחול IAI",
+    },
+    condition: "good",
+    dimensionsCm: { width: 300, depth: 8, height: 280 },
+    notes: "קיר רקע גרפי גדול",
+  },
+  {
+    id: "tent-dome-iai-blue-01",
+    category: "tents",
+    fileName: "tent-dome-iai-blue-01.png",
+    image: "/inventory/tent-dome-iai-blue-01.png",
+    name: {
+      en: "IAI Dome Tent",
+      he: "אוהל כיפה IAI",
+    },
+    condition: "good",
+    notes: "אוהל ממותג כחול-לבן לתצוגות חוץ",
+  },
+  {
+    id: "screen-standard",
+    name: "מסך",
+    category: "branding",
+    image: "/inventory/sign-stand-black-a4-01.png",
+    quantity: 2,
+    reserved: 0,
+    notes: "מסך לתצוגה / וידאו",
+  },
+  {
+    id: "screen-stand-standard",
+    name: "מעמד מסכים",
+    category: "branding",
+    image: "/inventory/sign-stand-silver-a4-01.png",
+    quantity: 2,
+    reserved: 0,
+    notes: "מעמד ייעודי למסך",
+  },
+
 ];
 
 export const inventoryItems: InventoryItem[] = baseInventoryItems.map((item) => ({
