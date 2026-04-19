@@ -3,6 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
+import { normalizeLandAssetForCard } from "../../lib/editor/landDraftAdapter";
+import { draftToLandAsset } from "../../lib/editor/landDraftAdapter";
+import type { AssetEditorDraft } from "../../lib/editor/assetEditor";
 
 import { landAssets } from "../../data/landAssets";
 
@@ -39,7 +42,100 @@ function TopButton({
 }
 
 export default function LandPage() {
-  const { assets: liveLandAssets } = useSectionAssets("land", landAssets);
+  const { assets: liveLandAssets, saveAsset } = useSectionAssets("land", landAssets);
+  const cardAssets = liveLandAssets.map(normalizeLandAssetForCard);
+
+  function saveLandDraft(draft: AssetEditorDraft) {
+    saveAsset(draftToLandAsset(draft) as any);
+  }
+
+  function addPilotLandAsset() {
+    saveLandDraft({
+      id: "",
+      slug: "",
+      section: "land",
+      code: "LAND-PILOT-001",
+      title: {
+        en: "Pilot Land Asset",
+        he: "Pilot Land Asset",
+      },
+      subtitle: {
+        en: "Pilot category",
+        he: "Pilot category",
+      },
+      description: {
+        en: "Temporary pilot asset for add/edit flow validation.",
+        he: "Temporary pilot asset for add/edit flow validation.",
+      },
+      image: "/images/land/zmag-showcase.png",
+      model3d: "/models/land/zmag-showcase-3d.glb",
+      assetCategory: "Pilot category",
+      missionType: "",
+      classification: {
+        en: "Unclassified",
+        he: 'בלמ״ס',
+      },
+      dimensions: "",
+      weight: "",
+      status: "ready",
+    });
+  }
+
+  function editPilotLandAsset() {
+    const source = liveLandAssets.find(
+      (item: any) =>
+        item?.id === "LAND-PILOT-001" ||
+        item?.code === "LAND-PILOT-001" ||
+        item?.slug === "pilot-land-asset" ||
+        item?.name === "Pilot Land Asset"
+    );
+
+    if (!source) {
+      window.alert("Pilot asset not found yet. Add it first.");
+      return;
+    }
+
+    const asset = normalizeLandAssetForCard(source as any);
+
+    const nextTitle = window.prompt("English title", asset.name || "");
+    if (nextTitle === null) return;
+
+    const nextCategory = window.prompt("Category", asset.category || "");
+    if (nextCategory === null) return;
+
+    const nextDescription = window.prompt("Description", asset.subtitle || "");
+    if (nextDescription === null) return;
+
+    saveLandDraft({
+      id: source.id || "",
+      slug: source.slug || "",
+      section: "land",
+      code: source.id || source.code || "LAND-PILOT-001",
+      title: {
+        en: nextTitle,
+        he: nextTitle,
+      },
+      subtitle: {
+        en: nextCategory,
+        he: nextCategory,
+      },
+      description: {
+        en: nextDescription,
+        he: nextDescription,
+      },
+      image: source.image || "/images/land/zmag-showcase.png",
+      model3d: source.model3d || "/models/land/zmag-showcase-3d.glb",
+      assetCategory: nextCategory,
+      missionType: "",
+      classification: {
+        en: "Unclassified",
+        he: 'בלמ״ס',
+      },
+      dimensions: "",
+      weight: "",
+      status: "ready",
+    });
+  }
 
   return (
     <main
@@ -64,6 +160,51 @@ export default function LandPage() {
           <TopButton href="/">← Back to Main</TopButton>
           <TopButton href="/air">Go to Air</TopButton>
           <TopButton href="/space">Go to Space</TopButton>
+          <button
+            onClick={addPilotLandAsset}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "44px",
+              padding: "0 16px",
+              borderRadius: "14px",
+              border: "1px solid rgba(74,222,128,0.35)",
+              background: "rgba(12, 28, 20, 0.72)",
+              color: "white",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: 600,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+              backdropFilter: "blur(8px)",
+              cursor: "pointer",
+            }}
+          >
+            Add pilot land asset
+          </button>
+
+          <button
+            onClick={editPilotLandAsset}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "44px",
+              padding: "0 16px",
+              borderRadius: "14px",
+              border: "1px solid rgba(125,211,252,0.35)",
+              background: "rgba(14, 40, 68, 0.72)",
+              color: "#c4f1ff",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: 600,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+              backdropFilter: "blur(8px)",
+              cursor: "pointer",
+            }}
+          >
+            Edit pilot land asset
+          </button>
         </div>
 
         <div
@@ -120,7 +261,7 @@ export default function LandPage() {
               gap: "24px",
             }}
           >
-            {liveLandAssets.map((asset) => (
+            {cardAssets.map((asset) => (
               <article
                 key={asset.id}
                 style={{
