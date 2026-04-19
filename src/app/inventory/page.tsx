@@ -16,6 +16,7 @@ import {
 import { buildInventoryUsageMap } from "../../lib/inventory-reservations";
 
 const STORAGE_KEY = "inventory-quantities-v1";
+const ITEM_OVERRIDES_KEY = "inventory-item-overrides-v1";
 const ACTIVE_CATEGORY_KEY = "inventory-active-category-v1";
 const SEARCH_QUERY_KEY = "inventory-search-query-v1";
 
@@ -84,7 +85,7 @@ function findStoredExhibitions(): IsraelExhibition[] | null {
 }
 
 type QuantityMap = Record<string, number>;
-
+type ItemOverrideMap = Record<string, any>;
 
 function getItemTitleHe(item: any) {
   if (typeof item?.name === "object" && item?.name?.he) return item.name.he;
@@ -134,6 +135,18 @@ export default function InventoryPage() {
       return {};
     }
   });
+  const [itemOverrides, setItemOverrides] = useState<ItemOverrideMap>(() => {
+    if (typeof window === "undefined") return {};
+
+    try {
+      const raw = window.localStorage.getItem(ITEM_OVERRIDES_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw) as ItemOverrideMap;
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  });
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -170,6 +183,11 @@ export default function InventoryPage() {
   }, [customItems]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(ITEM_OVERRIDES_KEY, JSON.stringify(itemOverrides));
+  }, [itemOverrides]);
+
+  useEffect(() => {
     setIsHydrated(true);
   }, []);
 
@@ -185,14 +203,19 @@ export default function InventoryPage() {
 
   const liveItems = useMemo(() => {
     const mergedItems = [...inventoryItems, ...customItems];
-    return mergedItems.map((item) => ({
-      ...item,
-      quantity:
-        typeof quantityMap[item.id] === "number" && quantityMap[item.id] >= 0
-          ? quantityMap[item.id]
-          : item.quantity,
-    }));
-  }, [quantityMap, customItems]);
+    return mergedItems.map((item) => {
+      const override = itemOverrides[item.id] ?? {};
+      const mergedItem = { ...item, ...override };
+
+      return {
+        ...mergedItem,
+        quantity:
+          typeof quantityMap[item.id] === "number" && quantityMap[item.id] >= 0
+            ? quantityMap[item.id]
+            : mergedItem.quantity,
+      };
+    });
+  }, [quantityMap, customItems, itemOverrides]);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -219,16 +242,12 @@ export default function InventoryPage() {
     setQuantityMap((prev) => ({ ...prev, [item.id]: item.quantity }));
   }
 
-  function handleAddCustomItem(item: any) {
-    setCustomItems((prev) => [item, ...prev]);
-    setQuantityMap((prev) => ({ ...prev, [item.id]: item.quantity }));
-  }
-
   function handleEditItemSave(item: any) {
     const baseItems = inventoryItems;
     const existsInBase = baseItems.some((baseItem) => baseItem.id === item.id);
 
     if (existsInBase) {
+      setItemOverrides((prev) => ({ ...prev, [item.id]: { ...item } }));
       setQuantityMap((prev) => ({ ...prev, [item.id]: item.quantity }));
     } else {
       setCustomItems((prev) =>
@@ -654,9 +673,17 @@ export default function InventoryPage() {
                     <InfoBox
                       label="מידות"
                       value={
-                        item.dimensionsCm
-                          ? `${item.dimensionsCm.width ?? "-"} × ${item.dimensionsCm.depth ?? "-"} × ${item.dimensionsCm.height ?? "-"}`
-                          : "—"
+                        typeof item.dimensions === "string" && item.dimensions.trim()
+                          ? item.dimensions.trim()
+                          : [String(item.width ?? "").trim(), String(item.depth ?? "").trim(), String(item.height ?? "").trim()]
+                              .filter(Boolean)
+                              .join(" × ") + (
+                                [String(item.width ?? "").trim(), String(item.depth ?? "").trim(), String(item.height ?? "").trim()]
+                                  .filter(Boolean)
+                                  .length
+                                  ? ` ${String(item.unit ?? 'ס"מ').trim() || 'ס"מ'}`
+                                  : ""
+                              ) || "—"
                       }
                     />
                   </div>

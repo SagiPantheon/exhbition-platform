@@ -1,0 +1,33 @@
+export const navalAssets = [
+  {
+    id: "water-001",
+    slug: "katana",
+    name: "KATANA",
+    category: "Unmanned defense patrol boat",
+    subtitle:
+      "High-speed unmanned naval platform for premium exhibition presentation.",
+    image: "/images/naval/katana.png",
+    model3d: "/models/naval/katana-showcase.glb",
+    status: "Approved",
+    displayType: "Naval display",
+    scale: "1:1",
+    readiness: "Indoor / Outdoor",
+    support: "Self-standing",
+    presentationLevel: "Premium",
+  },
+  {
+    id: "water-002",
+    slug: "naval-placeholder",
+    name: "NAVAL ASSET 02",
+    category: "Future naval platform",
+    subtitle: "Reserved placeholder for the next naval exhibition asset.",
+    image: "/images/naval/katana.png",
+    model3d: "",
+    status: "Coming soon",
+    displayType: "Naval display",
+    scale: "1:1",
+    readiness: "Planned",
+    support: "TBD",
+    presentationLevel: "Concept",
+  },
+];

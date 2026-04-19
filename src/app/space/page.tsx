@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { spaceAssets } from "../../data/spaceAssets";
 import { uiText } from "../../data/uiText";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 import SpaceAssetCard from "../../components/cards/SpaceAssetCard";
+import { useSectionAssets } from "../../hooks/useSectionAssets";
 
 export default function SpacePage() {
+  const { assets: liveSpaceAssets } = useSectionAssets("space", spaceAssets);
+
   return (
     <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
       <div className="mx-auto flex max-w-[1850px] flex-col gap-8">
@@ -49,7 +54,7 @@ export default function SpacePage() {
 
             <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
               <QuickPill label="Category" value="Space" />
-              <QuickPill label="Items" value={`${spaceAssets.length} Assets`} />
+              <QuickPill label="Items" value={`${liveSpaceAssets.length} Assets`} />
               <QuickPill label="Experience" value="Friendly Catalog" />
               <QuickPill label="Status" value="Ready" />
             </div>
@@ -57,7 +62,7 @@ export default function SpacePage() {
         </section>
 
         <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
-          {spaceAssets.map((asset) => (
+          {liveSpaceAssets.map((asset: any) => (
             <SpaceAssetCard
               key={asset.slug}
               asset={asset}

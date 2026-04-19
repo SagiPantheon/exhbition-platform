@@ -10,6 +10,16 @@ type Props = {
   mode?: "create" | "edit";
 };
 
+type ActiveField =
+  | "nameHe"
+  | "nameEn"
+  | "quantity"
+  | "width"
+  | "depth"
+  | "height"
+  | "unit"
+  | "notes";
+
 const heRows = [
   ["ק", "ר", "א", "ט", "ו", "ן", "ם", "פ"],
   ["ש", "ד", "ג", "כ", "ע", "י", "ח", "ל", "ך", "ף"],
@@ -23,6 +33,7 @@ const enRows = [
 ];
 
 const numRow = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+const unitRow = ["ס", "מ", "מ", "\"", "c", "m", "m"];
 
 const categories = [
   { value: "branding", label: "מיתוג" },
@@ -40,8 +51,44 @@ const defaultForm = {
   nameEn: "",
   category: "branding",
   quantity: "1",
+  width: "",
+  depth: "",
+  height: "",
+  unit: 'ס"מ',
   notes: "",
 };
+
+function asDisplayString(value: any): string {
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
+  if (!value || typeof value !== "object") return "";
+
+  if (typeof value.he === "string" && value.he.trim()) return value.he;
+  if (typeof value.en === "string" && value.en.trim()) return value.en;
+  if (typeof value.nameHe === "string" && value.nameHe.trim()) return value.nameHe;
+  if (typeof value.nameEn === "string" && value.nameEn.trim()) return value.nameEn;
+  if (typeof value.name === "string" && value.name.trim()) return value.name;
+
+  return "";
+}
+
+function normalizeNameHe(item: any) {
+  if (typeof item?.nameHe === "string" && item.nameHe.trim()) return item.nameHe;
+  if (typeof item?.name === "string" && item.name.trim()) return item.name;
+  if (typeof item?.name?.he === "string" && item.name.he.trim()) return item.name.he;
+  return "";
+}
+
+function normalizeNameEn(item: any) {
+  if (typeof item?.nameEn === "string" && item.nameEn.trim()) return item.nameEn;
+  if (typeof item?.name?.en === "string" && item.name.en.trim()) return item.name.en;
+  return "";
+}
+
+function normalizeUnit(item: any) {
+  if (typeof item?.unit === "string" && item.unit.trim()) return item.unit;
+  return 'ס"מ';
+}
 
 export default function InventoryAddPanel({
   open,
@@ -51,7 +98,7 @@ export default function InventoryAddPanel({
   mode = "create",
 }: Props) {
   const [lang, setLang] = useState<"he" | "en">("he");
-  const [activeField, setActiveField] = useState<"nameHe" | "nameEn" | "quantity" | "notes">("nameHe");
+  const [activeField, setActiveField] = useState<ActiveField>("nameHe");
   const [form, setForm] = useState(defaultForm);
 
   useEffect(() => {
@@ -60,29 +107,15 @@ export default function InventoryAddPanel({
     if (initialItem) {
       setForm({
         id: initialItem.id ?? "",
-        nameHe: initialItem.nameHe ?? initialItem.name ?? "",
-        nameEn: initialItem.nameEn ?? "",
+        nameHe: normalizeNameHe(initialItem),
+        nameEn: normalizeNameEn(initialItem),
         category: initialItem.category ?? "branding",
         quantity: String(initialItem.quantity ?? 1),
-        notes: initialItem.notes ?? "",
-      });
-      return;
-    }
-
-    setForm(defaultForm);
-  }, [open, initialItem]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    if (initialItem) {
-      setForm({
-        id: initialItem.id ?? "",
-        nameHe: initialItem.nameHe ?? initialItem.name ?? "",
-        nameEn: initialItem.nameEn ?? "",
-        category: initialItem.category ?? "branding",
-        quantity: String(initialItem.quantity ?? 1),
-        notes: initialItem.notes ?? "",
+        width: initialItem.width != null ? String(initialItem.width) : "",
+        depth: initialItem.depth != null ? String(initialItem.depth) : "",
+        height: initialItem.height != null ? String(initialItem.height) : "",
+        unit: normalizeUnit(initialItem),
+        notes: asDisplayString(initialItem.notes),
       });
       return;
     }
@@ -91,7 +124,19 @@ export default function InventoryAddPanel({
   }, [open, initialItem]);
 
   const rows = useMemo(() => {
-    if (activeField === "quantity") return [numRow];
+    if (
+      activeField === "quantity" ||
+      activeField === "width" ||
+      activeField === "depth" ||
+      activeField === "height"
+    ) {
+      return [numRow];
+    }
+
+    if (activeField === "unit") {
+      return [unitRow];
+    }
+
     return lang === "he" ? heRows : enRows;
   }, [lang, activeField]);
 
@@ -115,6 +160,13 @@ export default function InventoryAddPanel({
     patchField("");
   }
 
+  function buildDimensionsLabel() {
+    const parts = [form.width.trim(), form.depth.trim(), form.height.trim()].filter(Boolean);
+    if (!parts.length) return "";
+    const unit = form.unit.trim() || 'ס"מ';
+    return `${parts.join(" × ")} ${unit}`.trim();
+  }
+
   function submit() {
     const name = form.nameHe.trim() || form.nameEn.trim();
     if (!name) return;
@@ -123,6 +175,8 @@ export default function InventoryAddPanel({
       .toLowerCase()
       .replace(/[^a-z0-9\u0590-\u05ff]+/g, "-")
       .replace(/^-+|-+$/g, "");
+
+    const dimensionsLabel = buildDimensionsLabel();
 
     onSave({
       id: mode === "edit" && form.id ? form.id : `custom-${slugBase || "item"}-${Date.now()}`,
@@ -133,6 +187,12 @@ export default function InventoryAddPanel({
       image: initialItem?.image || "/inventory/sign-stand-silver-a4-01.png",
       quantity: Math.max(0, Number(form.quantity || "1")),
       reserved: initialItem?.reserved ?? 0,
+      width: form.width.trim(),
+      depth: form.depth.trim(),
+      height: form.height.trim(),
+      unit: form.unit.trim() || 'ס"מ',
+      dimensions: dimensionsLabel,
+      size: dimensionsLabel,
       notes: form.notes.trim() || "פריט מותאם אישית",
       isCustom: initialItem?.isCustom ?? true,
     });
@@ -240,6 +300,61 @@ export default function InventoryAddPanel({
               active={activeField === "quantity"}
               onClick={() => setActiveField("quantity")}
             />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: "10px",
+                marginBottom: "14px",
+              }}
+            >
+              <Field
+                label="רוחב"
+                value={form.width}
+                active={activeField === "width"}
+                onClick={() => setActiveField("width")}
+              />
+              <Field
+                label="עומק"
+                value={form.depth}
+                active={activeField === "depth"}
+                onClick={() => setActiveField("depth")}
+              />
+              <Field
+                label="גובה"
+                value={form.height}
+                active={activeField === "height"}
+                onClick={() => setActiveField("height")}
+              />
+              <Field
+                label="יחידות"
+                value={form.unit}
+                active={activeField === "unit"}
+                onClick={() => {
+                  setActiveField("unit");
+                  setLang("he");
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "14px" }}>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.56)", marginBottom: "8px" }}>מידות מחושבות</div>
+              <div
+                style={{
+                  minHeight: "50px",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: "14px 16px",
+                  color: "rgba(255,255,255,0.92)",
+                  fontWeight: 600,
+                }}
+              >
+                {buildDimensionsLabel() || "אין מידות עדיין"}
+              </div>
+            </div>
+
             <div style={{ marginBottom: "14px" }}>
               <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.56)", marginBottom: "8px" }}>קטגוריה</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -265,6 +380,7 @@ export default function InventoryAddPanel({
                 })}
               </div>
             </div>
+
             <Field
               label="הערות"
               value={form.notes}
@@ -343,7 +459,7 @@ export default function InventoryAddPanel({
                 <div key={index} style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   {row.map((key) => (
                     <button
-                      key={key}
+                      key={`${index}-${key}`}
                       type="button"
                       onClick={() => appendKey(key)}
                       style={keyButton}
@@ -359,27 +475,26 @@ export default function InventoryAddPanel({
               <button type="button" onClick={() => appendKey(" ")} style={wideButton}>רווח</button>
               <button type="button" onClick={backspace} style={wideButton}>⌫ מחק</button>
               <button type="button" onClick={clearField} style={wideButton}>נקה שדה</button>
-              <button
-                type="button"
-                onClick={() => appendKey(activeField === "quantity" ? "" : "\n")}
-                style={wideButton}
-              >
-                Enter
-              </button>
             </div>
 
             <div
               style={{
                 marginTop: "18px",
+                padding: "14px",
                 borderRadius: "18px",
                 border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)",
-                padding: "14px",
-                color: "rgba(255,255,255,0.72)",
-                lineHeight: 1.6,
+                background: "rgba(2,6,23,0.35)",
               }}
             >
-              שדה פעיל: <strong style={{ color: "white" }}>{fieldLabel(activeField)}</strong>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.56)", marginBottom: "8px" }}>
+                שדה פעיל
+              </div>
+              <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px" }}>
+                {activeField}
+              </div>
+              <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.82)", wordBreak: "break-word" }}>
+                {asDisplayString(form[activeField]) || "—"}
+              </div>
             </div>
           </div>
         </div>
@@ -410,63 +525,59 @@ function Field({
         textAlign: "right",
         marginBottom: "14px",
         borderRadius: "18px",
-        border: active ? "1px solid rgba(96,165,250,0.45)" : "1px solid rgba(255,255,255,0.08)",
-        background: active ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.03)",
+        border: active ? "1px solid rgba(96,165,250,0.5)" : "1px solid rgba(255,255,255,0.08)",
+        background: active ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.02)",
         padding: "14px",
         cursor: "pointer",
-        color: "white",
       }}
     >
-      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.56)", marginBottom: "8px" }}>{label}</div>
+      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.56)", marginBottom: "6px" }}>{label}</div>
       <div
         style={{
+          fontSize: "16px",
           minHeight: multiline ? "72px" : "24px",
-          whiteSpace: "pre-wrap",
-          fontSize: "17px",
-          lineHeight: 1.5,
+          whiteSpace: multiline ? "pre-wrap" : "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          color: "white",
         }}
       >
-        {value || "—"}
+        {asDisplayString(value) || "—"}
       </div>
     </button>
   );
 }
 
-function fieldLabel(field: "nameHe" | "nameEn" | "quantity" | "notes") {
-  if (field === "nameHe") return "שם בעברית";
-  if (field === "nameEn") return "English name";
-  if (field === "quantity") return "כמות";
-  return "הערות";
-}
-
-const keyButton: React.CSSProperties = {
-  minWidth: "52px",
-  height: "48px",
-  borderRadius: "14px",
-  border: "1px solid rgba(255,255,255,0.1)",
-  background: "rgba(255,255,255,0.05)",
-  color: "white",
-  fontSize: "18px",
-  cursor: "pointer",
-};
-
-const wideButton: React.CSSProperties = {
-  minWidth: "120px",
-  height: "46px",
-  borderRadius: "14px",
-  border: "1px solid rgba(255,255,255,0.1)",
-  background: "rgba(255,255,255,0.05)",
-  color: "white",
-  cursor: "pointer",
-};
-
-function langButton(active: boolean): React.CSSProperties {
+function langButton(active: boolean) {
   return {
-    borderRadius: "999px",
-    border: active ? "1px solid rgba(96,165,250,0.45)" : "1px solid rgba(255,255,255,0.12)",
+    borderRadius: "12px",
+    border: active ? "1px solid rgba(96,165,250,0.5)" : "1px solid rgba(255,255,255,0.12)",
     background: active ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)",
     color: "white",
     padding: "8px 12px",
-    cursor: "pointer",
+    cursor: "pointer" as const,
   };
 }
+
+const keyButton = {
+  minWidth: "46px",
+  height: "46px",
+  borderRadius: "12px",
+  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(255,255,255,0.04)",
+  color: "white",
+  cursor: "pointer" as const,
+  fontSize: "16px",
+  fontWeight: 700,
+};
+
+const wideButton = {
+  borderRadius: "12px",
+  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(255,255,255,0.04)",
+  color: "white",
+  cursor: "pointer" as const,
+  fontSize: "14px",
+  fontWeight: 700,
+  padding: "10px 14px",
+};

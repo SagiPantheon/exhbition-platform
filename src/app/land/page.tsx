@@ -1,57 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useSectionAssets } from "../../hooks/useSectionAssets";
 
-const landAssets = [
-  {
-    id: "land-001",
-    slug: "zmag",
-    name: "ZMAG",
-    category: "Light tactical vehicle",
-    subtitle:
-      "Compact tactical ground vehicle for premium land exhibition presentation.",
-    image: "/images/land/zmag-showcase.png",
-    model3d: "/models/land/zmag-showcase-3d.glb",
-    status: "Approved",
-    displayType: "Vehicle display",
-    scale: "1:1",
-    readiness: "Indoor / Outdoor",
-    support: "Self-standing",
-    presentationLevel: "Premium",
-  },
-  {
-    id: "land-002",
-    slug: "3dcapture",
-    name: "3DCAPTURE",
-    category: "Mobile capture platform",
-    subtitle:
-      "Mobile land asset showcase platform with connected 3D presentation support.",
-    image: "/images/land/3dcapture-showcase.png",
-    model3d: "/models/land/3dcapture-showcase-3d.glb",
-    status: "Approved",
-    displayType: "Platform display",
-    scale: "1:1",
-    readiness: "Indoor",
-    support: "Self-standing",
-    presentationLevel: "Premium",
-  },
-
-  {
-    id: "land-003",
-    slug: "panda",
-    name: "PANDA",
-    category: "Armored engineering bulldozer",
-    subtitle:
-      "Heavy armored tracked engineering bulldozer for premium land exhibition presentation.",
-    image: "/images/land/panda-showcase.png",
-    model3d: "/models/land/panda-showcase-3d.glb",
-    status: "Approved",
-    displayType: "Bulldozer display",
-    scale: "1:1",
-    readiness: "Indoor / Outdoor",
-    support: "Self-standing",
-    presentationLevel: "Premium",
-  },
-];
+import { landAssets } from "../../data/landAssets";
 
 function TopButton({
   href,
@@ -86,6 +39,8 @@ function TopButton({
 }
 
 export default function LandPage() {
+  const { assets: liveLandAssets } = useSectionAssets("land", landAssets);
+
   return (
     <main
       style={{
@@ -165,7 +120,7 @@ export default function LandPage() {
               gap: "24px",
             }}
           >
-            {landAssets.map((asset) => (
+            {liveLandAssets.map((asset) => (
               <article
                 key={asset.id}
                 style={{

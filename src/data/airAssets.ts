@@ -158,7 +158,7 @@ export const airAssets: AirAsset[] = [
     slug: "arrow-3-missile",
     code: "AR-004",
     image: "/images/air/arrow-3-showcase.png",
-    model3d: "/models/air/arrow-3.glb",
+    model3d: "/models/air/arrow-3-showcase-3d.glb",
     missionType: "defense",
     assetCategory: "missile",
     title: {
@@ -338,7 +338,68 @@ export const allAirAssets = [
   ...airAssets,
   ...autoAirAssets.filter(
     (autoAsset) => !airAssets.some((manualAsset) => manualAsset.slug === autoAsset.slug)
-  ),
+  ),,
+
+  {
+    slug: "mmr",
+    code: "AR-RDR-001",
+    image: "/images/air/mmr-showcase.png",
+    model3d: "/models/air/mmr.glb",
+    missionType: "defense",
+    assetCategory: "radar",
+    title: {
+      en: "MMR Radar",
+      he: "MMR Radar"
+    },
+    subtitle: {
+      en: "Multi Mission Radar exhibition display",
+      he: "Multi Mission Radar exhibition display"
+    },
+    description: {
+      en: "Exhibition-ready MMR radar showcase for premium air-defense presentation.",
+      he: "Exhibition-ready MMR radar showcase for premium air-defense presentation."
+    },
+    status: {
+      en: "Approved",
+      he: "Approved"
+    },
+    config: {
+      en: "Radar display",
+      he: "Radar display"
+    },
+    scale: "1:1",
+    specs: {
+      length: "TBD",
+      width: "TBD",
+      height: "TBD",
+      weight: "TBD",
+      standDiameter: "—",
+      standWeight: "—"
+    },
+    readiness: {
+      environment: {
+        en: "Indoor/Outdoor",
+        he: "Indoor/Outdoor"
+      },
+      displayMethod: {
+        en: "Radar display",
+        he: "Radar display"
+      },
+      support: {
+        en: "Self-standing",
+        he: "Self-standing"
+      },
+      presentationLevel: {
+        en: "Premium",
+        he: "Premium"
+      },
+      visualLanguage: {
+        en: "MMR mission panel",
+        he: "MMR mission panel"
+      }
+    }
+  }
+
 ];
 
 export function getAirAssetBySlug(slug: string) {

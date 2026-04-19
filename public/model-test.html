@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Model Viewer Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      background: #081226;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      border: 1px solid rgba(120,180,255,0.25);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 24px;
+      background: rgba(255,255,255,0.03);
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+    }
+    .path {
+      font-size: 13px;
+      opacity: 0.75;
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+    model-viewer {
+      width: 100%;
+      height: 70vh;
+      background: radial-gradient(circle at top, rgba(40,80,180,0.20), rgba(8,18,38,0.96));
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Beresheet Test</h1>
+      <div class="path">/models/space/beresheet-showcase-3d.glb</div>
+      <model-viewer
+        src="/models/space/beresheet-showcase-3d.glb"
+        alt="Beresheet"
+        camera-controls
+        auto-rotate
+        shadow-intensity="1"
+        exposure="1"
+        environment-image="neutral">
+      </model-viewer>
+    </div>
+
+    <div class="card">
+      <h2>Arrow-2 Test</h2>
+      <div class="path">/models/air/arrow-2-showcase-3d.glb</div>
+      <model-viewer
+        src="/models/air/arrow-2-showcase-3d.glb"
+        alt="Arrow-2"
+        camera-controls
+        auto-rotate
+        shadow-intensity="1"
+        exposure="1"
+        environment-image="neutral">
+      </model-viewer>
+    </div>
+  </div>
+</body>
+</html>

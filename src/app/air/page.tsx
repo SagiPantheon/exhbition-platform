@@ -5,51 +5,61 @@ import Link from "next/link";
 import AirAssetCard from "../../components/cards/AirAssetCard";
 import { allAirAssets } from "../../data/airAssets";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
+import { useSectionAssets } from "../../hooks/useSectionAssets";
 
 type MissionFilter = "defense" | "strike";
-type CategoryFilter = "all" | "missile" | "launcher" | "uav" | "quadcopter" | "radar" | "communications";
+type CategoryFilter =
+  | "all"
+  | "missile"
+  | "launcher"
+  | "uav"
+  | "quadcopter"
+  | "radar"
+  | "communications";
 
 export default function AirPage() {
   const [activeMission, setActiveMission] = useState<MissionFilter>("defense");
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const { assets: liveAirAssets } = useSectionAssets("air", allAirAssets);
+
   const filteredAssets = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-
     const airOrder = ["arrow-2", "arrow-3-launcher", "lora", "mmr", "wanderb2"];
 
-  return allAirAssets
-    .filter((asset) => {
-      const matchesMission = asset.missionType === activeMission;
-      const matchesCategory =
-        activeCategory === "all" ? true : asset.assetCategory === activeCategory;
+    return liveAirAssets
+      .filter((asset: any) => {
+        const matchesMission = asset.missionType === activeMission;
+        const matchesCategory =
+          activeCategory === "all" ? true : asset.assetCategory === activeCategory;
 
-      const haystack = [
-        asset.title.en,
-        asset.code,
-        asset.subtitle.en,
-        asset.description.en,
-        asset.assetCategory,
-        asset.missionType,
-      ]
-        .join(" ")
-        .toLowerCase();
+        const haystack = [
+          asset.title?.en ?? "",
+          asset.code ?? "",
+          asset.subtitle?.en ?? "",
+          asset.description?.en ?? "",
+          asset.assetCategory ?? "",
+          asset.missionType ?? "",
+          asset.slug ?? "",
+        ]
+          .join(" ")
+          .toLowerCase();
 
-      const matchesSearch = query.length === 0 ? true : haystack.includes(query);
+        const matchesSearch = query.length === 0 ? true : haystack.includes(query);
 
-      return matchesMission && matchesCategory && matchesSearch;
+        return matchesMission && matchesCategory && matchesSearch;
       })
-    .sort((a, b) => {
-      const ai = airOrder.indexOf(a.slug);
-      const bi = airOrder.indexOf(b.slug);
+      .sort((a: any, b: any) => {
+        const ai = airOrder.indexOf(a.slug);
+        const bi = airOrder.indexOf(b.slug);
 
-      if (ai === -1 && bi === -1) return 0;
-      if (ai === -1) return 1;
-      if (bi === -1) return -1;
-      return ai - bi;
-    });
-  }, [activeMission, activeCategory, searchTerm]);
+        if (ai === -1 && bi === -1) return 0;
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      });
+  }, [liveAirAssets, activeMission, activeCategory, searchTerm]);
 
   return (
     <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
@@ -98,7 +108,7 @@ export default function AirPage() {
             <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
               <QuickPill label="Category" value="Air" />
               <QuickPill label="Visible Items" value={`${filteredAssets.length}`} />
-              <QuickPill label="Experience" value="Air Catalog" />
+              <QuickPill label="Total Assets" value={`${liveAirAssets.length}`} />
               <QuickPill label="Status" value="Ready" />
             </div>
           </div>
@@ -119,48 +129,13 @@ export default function AirPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <FilterButton
-              label="All"
-              active={activeCategory === "all"}
-              onClick={() => setActiveCategory("all")}
-              subtle
-            />
-            <FilterButton
-              label="Missiles"
-              active={activeCategory === "missile"}
-              onClick={() => setActiveCategory("missile")}
-              subtle
-            />
-            <FilterButton
-              label="Launchers"
-              active={activeCategory === "launcher"}
-              onClick={() => setActiveCategory("launcher")}
-              subtle
-            />
-            <FilterButton
-              label="UAVs"
-              active={activeCategory === "uav"}
-              onClick={() => setActiveCategory("uav")}
-              subtle
-            />
-            <FilterButton
-              label="Quadcopters"
-              active={activeCategory === "quadcopter"}
-              onClick={() => setActiveCategory("quadcopter")}
-              subtle
-            />
-            <FilterButton
-              label="Radars"
-              active={activeCategory === "radar"}
-              onClick={() => setActiveCategory("radar")}
-              subtle
-            />
-            <FilterButton
-              label="Communications"
-              active={activeCategory === "communications"}
-              onClick={() => setActiveCategory("communications")}
-              subtle
-            />
+            <FilterButton label="All" active={activeCategory === "all"} onClick={() => setActiveCategory("all")} subtle />
+            <FilterButton label="Missiles" active={activeCategory === "missile"} onClick={() => setActiveCategory("missile")} subtle />
+            <FilterButton label="Launchers" active={activeCategory === "launcher"} onClick={() => setActiveCategory("launcher")} subtle />
+            <FilterButton label="UAVs" active={activeCategory === "uav"} onClick={() => setActiveCategory("uav")} subtle />
+            <FilterButton label="Quadcopters" active={activeCategory === "quadcopter"} onClick={() => setActiveCategory("quadcopter")} subtle />
+            <FilterButton label="Radars" active={activeCategory === "radar"} onClick={() => setActiveCategory("radar")} subtle />
+            <FilterButton label="Communications" active={activeCategory === "communications"} onClick={() => setActiveCategory("communications")} subtle />
           </div>
 
           <div className="max-w-[420px]">
@@ -175,7 +150,7 @@ export default function AirPage() {
         </section>
 
         <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
-          {filteredAssets.map((asset) => (
+          {filteredAssets.map((asset: any) => (
             <AirAssetCard
               key={asset.slug}
               asset={asset}
@@ -188,7 +163,7 @@ export default function AirPage() {
           ))}
         </section>
       </div>
-          <ClassificationBadge label="Unclassified" />
+      <ClassificationBadge label="Unclassified" />
     </main>
   );
 }
@@ -212,8 +187,8 @@ function FilterButton({
         active
           ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-100 hover:bg-cyan-400/20"
           : subtle
-          ? "border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.08]"
-          : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+            ? "border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.08]"
+            : "border-white/15 bg-white/5 text-white hover:bg-white/10"
       }`}
     >
       {label}

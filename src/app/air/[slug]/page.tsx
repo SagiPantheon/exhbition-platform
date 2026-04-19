@@ -19,6 +19,15 @@ export default async function AirAssetDetailPage({
     notFound();
   }
 
+  const viewerSrc =
+    asset.slug === "arrow-3-missile"
+      ? "/models/air/arrow-3-launcher.glb"
+      : asset.slug === "arrow-3-launcher"
+        ? "/models/air/arrow-3-showcase-3d.glb"
+        : asset.slug === "mmr"
+          ? "/models/air/mmr.glb"
+          : asset.model3d;
+
   return (
     <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
       <div className="mx-auto flex max-w-[1600px] flex-col gap-8">
@@ -62,9 +71,9 @@ export default async function AirAssetDetailPage({
         <section className="grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
           <div className="rounded-[32px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.10)]">
             <div className="overflow-hidden rounded-[24px] border border-cyan-300/20 bg-black/20 p-4">
-              {asset.model3d ? (
+              {viewerSrc ? (
                 <ModelViewer
-                  src={asset.model3d}
+                  src={viewerSrc}
                   alt={`${asset.title.en} showcase`}
                 />
               ) : (
