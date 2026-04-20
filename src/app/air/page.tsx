@@ -75,11 +75,16 @@ export default function AirPage() {
                 Air Assets
               </h1>
 
-              <p className="mt-4 text-sm leading-7 text-slate-300 md:text-base">
-                Browse the current air asset collection in one clear catalog.
-                Filter by mission, type, and search term to reach the right
-                exhibition asset faster.
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
+                A live operational air-assets catalog built for faster exhibition
+                review, clearer navigation, and stronger presentation of defense,
+                strike, radar, and related systems.
               </p>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <InfoCallout label="3D-ready route" value="Key assets can open in richer presentation flows" />
+                <InfoCallout label="Operational filtering" value="Mission, category, and search-based access" />
+              </div>
 
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
@@ -149,19 +154,37 @@ export default function AirPage() {
           </div>
         </section>
 
-        <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
-          {filteredAssets.map((asset: any) => (
-            <AirAssetCard
-              key={asset.slug}
-              asset={asset}
-              locale="en"
-              basePath="/air"
-              featuredLabel="Featured Asset"
-              viewLabel="View"
-              badgesAlign="end"
-            />
-          ))}
-        </section>
+        {filteredAssets.length === 0 ? (
+          <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-8 text-center">
+            <div className="mx-auto max-w-2xl">
+              <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">
+                No matching assets
+              </p>
+              <h2 className="mt-3 text-2xl font-bold text-white">
+                Adjust the filters to continue the demo
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-slate-300 md:text-base">
+                This catalog supports mission filters, category filters, and free
+                search. For the strongest presentation route, keep the default
+                defense view or search for Arrow, LORA, or MMR.
+              </p>
+            </div>
+          </section>
+        ) : (
+          <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
+            {filteredAssets.map((asset: any) => (
+              <AirAssetCard
+                key={asset.slug}
+                asset={asset}
+                locale="en"
+                basePath="/air"
+                featuredLabel="Featured Asset"
+                viewLabel="View"
+                badgesAlign="end"
+              />
+            ))}
+          </section>
+        )}
       </div>
       <ClassificationBadge label="Unclassified" />
     </main>
@@ -203,6 +226,19 @@ function QuickPill({ label, value }: { label: string; value: string }) {
         {label}
       </p>
       <p className="mt-2 text-lg font-bold text-white">{value}</p>
+    </div>
+  );
+}
+
+function InfoCallout({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.06] px-4 py-3">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300">
+        {label}
+      </p>
+      <p className="mt-1 text-sm leading-6 text-cyan-50/90">
+        {value}
+      </p>
     </div>
   );
 }

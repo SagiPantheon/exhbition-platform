@@ -42,7 +42,7 @@ function TopButton({
 }
 
 export default function LandPage() {
-  const { assets: liveLandAssets, saveAsset } = useSectionAssets("land", landAssets);
+  const { assets: liveLandAssets, saveAsset, removeAsset } = useSectionAssets("land", landAssets);
   const cardAssets = liveLandAssets.map(normalizeLandAssetForCard);
 
   function saveLandDraft(draft: AssetEditorDraft) {
@@ -137,6 +137,26 @@ export default function LandPage() {
     });
   }
 
+  function deletePilotLandAsset() {
+    const source = liveLandAssets.find(
+      (item: any) =>
+        item?.id === "LAND-PILOT-001" ||
+        item?.code === "LAND-PILOT-001" ||
+        item?.slug === "pilot-land-asset" ||
+        item?.name === "Pilot Land Asset"
+    );
+
+    if (!source) {
+      window.alert("Pilot asset not found.");
+      return;
+    }
+
+    const confirmed = window.confirm("Delete Pilot Land Asset?");
+    if (!confirmed) return;
+
+    removeAsset(source.slug || "pilot-land-asset");
+  }
+
   return (
     <main
       style={{
@@ -204,6 +224,29 @@ export default function LandPage() {
             }}
           >
             Edit pilot land asset
+          </button>
+
+          <button
+            onClick={deletePilotLandAsset}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "44px",
+              padding: "0 16px",
+              borderRadius: "14px",
+              border: "1px solid rgba(248,113,113,0.35)",
+              background: "rgba(60, 16, 16, 0.72)",
+              color: "#fecaca",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: 600,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+              backdropFilter: "blur(8px)",
+              cursor: "pointer",
+            }}
+          >
+            Delete pilot land asset
           </button>
         </div>
 

@@ -7,7 +7,7 @@ const topCards = [
 ];
 
 const bottomCards = [
-  { title: "Naval", href: "/water", image: "/images/home/naval-cover.png" },
+  { title: "Naval", href: "/naval", image: "/images/home/naval-cover.png" },
   { title: "Exhibitions", href: "/exhibitions", image: "/images/home/exhibitions-home-cover.png" },
 ];
 
@@ -55,6 +55,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
+
         <section className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[#08131f] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
           <div className="relative h-[56vh] min-h-[420px] max-h-[760px] w-full">
             <img
@@ -66,22 +67,24 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#06111f]/88 via-[#06111f]/38 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#06111f] to-transparent" />
 
-            <div className="absolute left-[5%] top-[14%] z-10 max-w-[520px]">
+            <div className="absolute left-[5%] top-[14%] z-10 max-w-[620px]">
               <p className="mb-3 text-[clamp(14px,1.2vw,20px)] font-medium uppercase tracking-[0.22em] text-cyan-300">
                 Exhibition Platform
               </p>
 
               <h1 className="mb-4 text-[clamp(56px,7vw,120px)] font-semibold leading-[0.92] tracking-[-0.04em] text-white">
-                Welcome
+                Operational
+                <br />
+                Exhibition Hub
               </h1>
 
               <div className="mb-6 h-[3px] w-40 rounded-full bg-cyan-400/90 shadow-[0_0_18px_rgba(34,211,238,0.55)]" />
 
-              <p className="max-w-[460px] text-[clamp(16px,1.35vw,22px)] leading-[1.55] text-white/90">
-                A clearer, friendlier way to review exhibition assets,
-                navigate categories, and move between planning areas.
-                Start with Space, continue into exhibitions, and build a
-                better overview of the full showcase ecosystem.
+              <p className="max-w-[560px] text-[clamp(16px,1.35vw,22px)] leading-[1.55] text-white/90">
+                A working beta platform for managing exhibition assets, reviewing
+                3D presentation items, navigating operational categories, and
+                preparing the foundation for layout planning, inventory, and
+                future exhibition workflows in one structured system.
               </p>
             </div>
           </div>

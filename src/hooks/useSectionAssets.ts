@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   mergeSectionAssets,
   readSectionAssetOverrides,
+  removeSectionAsset,
   upsertSectionAsset,
   writeSectionAssetOverrides,
 } from "../lib/section-asset-overrides";
@@ -40,9 +41,18 @@ export function useSectionAssets<T extends { slug: string }>(
     });
   }
 
+  function removeAsset(slug: string) {
+    setOverrides((prev) => {
+      const next = removeSectionAsset(prev, section, slug);
+      writeSectionAssetOverrides(next);
+      return next;
+    });
+  }
+
   return {
     assets,
     saveAsset,
+    removeAsset,
     overrides: overrides[section] ?? [],
   };
 }

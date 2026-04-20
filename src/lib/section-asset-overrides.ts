@@ -60,6 +60,22 @@ export function upsertSectionAsset(
   };
 }
 
+export function removeSectionAsset(
+  current: SectionAssetOverridesMap,
+  section: SectionKey,
+  slug: string
+): SectionAssetOverridesMap {
+  const cleanSlug = typeof slug === "string" ? slug.trim() : "";
+  if (!cleanSlug) return current;
+
+  const list = Array.isArray(current[section]) ? current[section].filter(hasSlug) : [];
+
+  return {
+    ...current,
+    [section]: list.filter((item) => item.slug !== cleanSlug),
+  };
+}
+
 export function mergeSectionAssets<T extends { slug: string }>(
   baseAssets: T[],
   overrides: EditableSectionAsset[]
