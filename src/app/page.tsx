@@ -67,7 +67,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#06111f]/88 via-[#06111f]/38 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#06111f] to-transparent" />
 
-            <div className="absolute left-[5%] top-[14%] z-10 max-w-[620px]">
+            <div className="absolute left-[5%] top-[18%] z-10 max-w-[620px]">
               <p className="mb-3 text-[clamp(14px,1.2vw,20px)] font-medium uppercase tracking-[0.22em] text-cyan-300">
                 Exhibition Platform
               </p>
@@ -81,10 +81,7 @@ export default function HomePage() {
               <div className="mb-6 h-[3px] w-40 rounded-full bg-cyan-400/90 shadow-[0_0_18px_rgba(34,211,238,0.55)]" />
 
               <p className="max-w-[560px] text-[clamp(16px,1.35vw,22px)] leading-[1.55] text-white/90">
-                A working beta platform for managing exhibition assets, reviewing
-                3D presentation items, navigating operational categories, and
-                preparing the foundation for layout planning, inventory, and
-                future exhibition workflows in one structured system.
+                A digital platform for managing exhibition assets, presenting key systems in 3D, and building a structured foundation for planning, layout, and exhibition operations.
               </p>
             </div>
           </div>

@@ -1,52 +1,19 @@
 {
   "slug": "wanderb2",
   "code": "AR-AUTO-003",
-  "titleEn": "Wanderb2",
-  "titleHe": "Wanderb2",
-  "subtitleEn": "UAV mock-up for premium exhibition presentation.",
-  "subtitleHe": "כטב\"ם לתצוגת תערוכה פרימיום.",
-  "descriptionEn": "Prepared for premium UAV exhibition display and operational presentation.",
-  "descriptionHe": "מוכן לתצוגת כטב\"ם פרימיום ולהצגה מבצעית.",
-  "statusEn": "Approved",
-  "statusHe": "מאושר",
-  "configEn": "UAV display",
-  "configHe": "תצוגת כטב\"ם",
-  "missionType": "surveillance",
+  "image": "/images/air/wanderb2-showcase.png",
+  "missionType": "defense",
   "assetCategory": "uav",
-  "scale": "1:1",
-  "specs": {
-    "length": "TBD",
-    "width": "TBD",
-    "height": "TBD",
-    "weight": "TBD",
-    "standDiameter": "N/A",
-    "standWeight": "N/A"
+  "title": {
+    "en": "Thunder B VTOL",
+    "he": "ת׳אנדר B VTOL"
   },
-  "readiness": {
-    "environment": {
-      "en": "Indoor / Outdoor",
-      "he": "פנים / חוץ"
-    },
-    "displayMethod": {
-      "en": "Static display",
-      "he": "תצוגה סטטית"
-    },
-    "support": {
-      "en": "Self-standing",
-      "he": "עצמאי"
-    },
-    "presentationLevel": {
-      "en": "Premium",
-      "he": "פרימיום"
-    },
-    "visualLanguage": {
-      "en": "Exhibition-ready",
-      "he": "מוכן לתערוכה"
-    },
-    "platform": {
-      "en": "Self-standing",
-      "he": "עצמאי"
-    }
+  "subtitle": {
+    "en": "VTOL UAV mock-up for premium exhibition presentation.",
+    "he": "דגם כטב״ם VTOL לתצוגת פרימיום בתערוכה."
   },
-  "use3d": false
+  "description": {
+    "en": "Prepared for premium VTOL UAV exhibition display and operational presentation.",
+    "he": "מוכן לתצוגת כטב״ם VTOL פרימיום ולהצגה מבצעית."
+  }
 }

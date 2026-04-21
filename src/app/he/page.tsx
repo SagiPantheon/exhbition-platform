@@ -78,11 +78,7 @@ export default function HebrewHomePage() {
 
               <div className="mb-6 mr-auto h-[3px] w-36 rounded-full bg-cyan-400/90 shadow-[0_0_18px_rgba(34,211,238,0.55)]" />
 
-              <p className="text-[clamp(15px,1.05vw,18px)] leading-[1.6] text-white/90">
-                דרך ברורה ונוחה יותר לסקור נכסים לתערוכות, לנווט בין קטגוריות
-                ולעבור בין אזורי התכנון. התחילו בחלל, המשיכו לתערוכות ובנו
-                תמונה רחבה ומדויקת יותר של כל מערכת התצוגה.
-              </p>
+              <p className="text-[clamp(15px,1.05vw,18px)] leading-[1.6] text-white/90">פלטפורמה דיגיטלית לניהול מוצגים לתערוכות, להצגת מערכות מרכזיות ב־3D, ולבניית תשתית מסודרת לתכנון, פריסה ותפעול תערוכות.</p>
             </div>
           </div>
         </section>

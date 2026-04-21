@@ -3,9 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import AirAssetCard from "../../components/cards/AirAssetCard";
-import { allAirAssets } from "../../data/airAssets";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
-import { useSectionAssets } from "../../hooks/useSectionAssets";
+import { getAllAirAssets } from "../../lib/air-utils";
 
 type MissionFilter = "defense" | "strike";
 type CategoryFilter =
@@ -22,7 +21,7 @@ export default function AirPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { assets: liveAirAssets } = useSectionAssets("air", allAirAssets);
+  const liveAirAssets = getAllAirAssets();
 
   const filteredAssets = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();

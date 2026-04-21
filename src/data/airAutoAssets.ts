@@ -54,8 +54,8 @@ export const autoAirAssets = [
         "he": "פרימיום"
       },
       "visualLanguage": {
-        "en": "Exhibition-ready",
-        "he": "מוכן לתערוכה"
+        "en": "Air-defense radar showcase",
+        "he": "תצוגת מכ״ם הגנ״א"
       },
       "platform": {
         "en": "Self-standing",
@@ -67,27 +67,27 @@ export const autoAirAssets = [
     "slug": "mmr",
     "code": "AR-AUTO-002",
     "image": "/images/air/mmr-showcase.png",
-    "missionType": "surveillance",
-    "assetCategory": "uav",
+    "missionType": "defense",
+    "assetCategory": "radar",
     "title": {
-      "en": "Mmr",
-      "he": "Mmr"
+      "en": "MMR",
+      "he": "מכ״ם MMR"
     },
     "subtitle": {
-      "en": "UAV mock-up for premium exhibition presentation.",
-      "he": "כטב\"ם לתצוגת תערוכה פרימיום."
+      "en": "Multi-mission radar display for premium exhibition presentation.",
+      "he": "מכ״ם רב־משימתי לתצוגת פרימיום בתערוכה."
     },
     "description": {
-      "en": "Prepared for premium UAV exhibition display and operational presentation.",
-      "he": "מוכן לתצוגת כטב\"ם פרימיום ולהצגה מבצעית."
+      "en": "Prepared for premium radar exhibition display and operational air-defense presentation.",
+      "he": "מוכן לתצוגת מכ״ם פרימיום ולהצגה מבצעית בתחום ההגנה."
     },
     "status": {
       "en": "Approved",
       "he": "מאושר"
     },
     "config": {
-      "en": "UAV display",
-      "he": "תצוגת כטב\"ם"
+      "en": "Radar display",
+      "he": "תצוגת מכ״ם"
     },
     "scale": "1:1",
     "specs": {
@@ -116,8 +116,8 @@ export const autoAirAssets = [
         "he": "פרימיום"
       },
       "visualLanguage": {
-        "en": "Exhibition-ready",
-        "he": "מוכן לתערוכה"
+        "en": "Air-defense radar showcase",
+        "he": "תצוגת מכ״ם הגנ״א"
       },
       "platform": {
         "en": "Self-standing",
@@ -129,19 +129,19 @@ export const autoAirAssets = [
     "slug": "wanderb2",
     "code": "AR-AUTO-003",
     "image": "/images/air/wanderb2-showcase.png",
-    "missionType": "surveillance",
+    "missionType": "defense",
     "assetCategory": "uav",
     "title": {
-      "en": "Wanderb2",
-      "he": "Wanderb2"
+      "en": "Thunder B VTOL",
+      "he": "ת׳אנדר B VTOL"
     },
     "subtitle": {
-      "en": "UAV mock-up for premium exhibition presentation.",
-      "he": "כטב\"ם לתצוגת תערוכה פרימיום."
+      "en": "VTOL UAV mock-up for premium exhibition presentation.",
+      "he": "דגם כטב״ם VTOL לתצוגת פרימיום בתערוכה."
     },
     "description": {
-      "en": "Prepared for premium UAV exhibition display and operational presentation.",
-      "he": "מוכן לתצוגת כטב\"ם פרימיום ולהצגה מבצעית."
+      "en": "Prepared for premium VTOL UAV exhibition display and operational presentation.",
+      "he": "מוכן לתצוגת כטב״ם VTOL פרימיום ולהצגה מבצעית."
     },
     "status": {
       "en": "Approved",
@@ -149,7 +149,7 @@ export const autoAirAssets = [
     },
     "config": {
       "en": "UAV display",
-      "he": "תצוגת כטב\"ם"
+      "he": "תצוגת כטב״ם"
     },
     "scale": "1:1",
     "specs": {
@@ -178,8 +178,8 @@ export const autoAirAssets = [
         "he": "פרימיום"
       },
       "visualLanguage": {
-        "en": "Exhibition-ready",
-        "he": "מוכן לתערוכה"
+        "en": "VTOL UAV showcase",
+        "he": "תצוגת כטב״ם VTOL"
       },
       "platform": {
         "en": "Self-standing",
