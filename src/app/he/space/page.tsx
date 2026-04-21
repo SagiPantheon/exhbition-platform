@@ -1,11 +1,16 @@
+"use client";
+
 import Link from "next/link";
-import { spaceAssets } from "../../../data/spaceAssets";
+import { spaceAssets, type SpaceAsset } from "../../../data/spaceAssets";
 import ClassificationBadge from "../../../components/common/ClassificationBadge";
 import SpaceAssetCard from "../../../components/cards/SpaceAssetCard";
+import { useSectionAssets } from "../../../hooks/useSectionAssets";
 
 export default function HebrewSpacePage() {
+  const { assets: liveSpaceAssets } = useSectionAssets("space", spaceAssets);
+
   return (
-    <main dir="rtl" className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
+    <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8" dir="rtl">
       <div className="mx-auto flex max-w-[1850px] flex-col gap-8">
         <section className="rounded-[34px] border border-cyan-300/20 bg-[radial-gradient(circle_at_top,rgba(32,80,170,0.28),rgba(11,18,39,1)_55%)] p-8 shadow-[0_0_50px_rgba(24,119,242,0.12)] md:p-10">
           <div className="flex flex-wrap items-start justify-between gap-6">
@@ -17,8 +22,9 @@ export default function HebrewSpacePage() {
                 נכסי חלל
               </h1>
               <p className="mt-4 text-sm leading-7 text-slate-300 md:text-base">
-                עיין בקטלוג החלל הנוכחי במסך אחד ברור ונעים. כל נכס נפתח לעמוד
-                מלא יותר עם ממדים, לוגיקת תצוגה ופרטי מוכנות לתערוכה.
+                עיון בקטלוג נכסי החלל הקיים בתצוגה ברורה אחת.
+                כל עמוד פותח תצוגה מלאה יותר עם מידות, לוגיקת הצבה,
+                ופרטי תצוגה מוכנים לתערוכה.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -26,11 +32,11 @@ export default function HebrewSpacePage() {
                   href="/he"
                   className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  ← חזרה לראשי
+                  חזרה לדף הראשי
                 </Link>
 
                 <Link
-                  href="/he/exhibitions"
+                  href="/exhibitions"
                   className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/20"
                 >
                   מעבר לתערוכות
@@ -47,30 +53,29 @@ export default function HebrewSpacePage() {
 
             <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
               <QuickPill label="קטגוריה" value="חלל" />
-              <QuickPill label="פריטים" value={`${spaceAssets.length} נכסים`} />
-              <QuickPill label="חוויה" value="קטלוג נעים וברור" />
+              <QuickPill label="פריטים" value={`${liveSpaceAssets.length} נכסים`} />
+              <QuickPill label="חוויה" value="קטלוג ידידותי" />
               <QuickPill label="סטטוס" value="מוכן" />
             </div>
           </div>
         </section>
 
         <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
-          {spaceAssets.map((asset) => (
+          {liveSpaceAssets.map((asset: SpaceAsset) => (
             <SpaceAssetCard
               key={asset.slug}
               asset={asset}
               openLabel="פתח עמוד נכס"
               featuredLabel="נכס מוביל"
-              viewLabel="צפייה"
+              viewLabel="צפה"
               locale="he"
               basePath="/he/space"
-              badgesAlign="center"
+              badgesAlign="end"
             />
           ))}
         </section>
       </div>
-      <ClassificationBadge label="בלמ״ס" />
-          <ClassificationBadge label='בלמ״ס' />
+      <ClassificationBadge label='בלמ״ס' />
     </main>
   );
 }
