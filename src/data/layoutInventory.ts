@@ -5,7 +5,8 @@ export type LayoutInventoryCategory =
   | "lighting"
   | "flags"
   | "screens"
-  | "structures";
+  | "structures"
+  | "exhibits";
 
 export type LayoutInventoryType =
   | "logo"
@@ -22,7 +23,8 @@ export type LayoutInventoryType =
   | "barrier"
   | "screen"
   | "screenstand"
-  | "inflatableTentSmall";
+  | "inflatableTentSmall"
+  | "exhibit";
 
 export type LayoutInventoryItem = {
   id: string;
@@ -181,6 +183,62 @@ export const layoutInventory: LayoutInventoryItem[] = [
     width: 4,
     depth: 4,
     height: 3,
+    defaultScale: 1,
+  },
+  {
+    id: "exhibit-optsat-500",
+    type: "exhibit",
+    label: "OPTSAT 500",
+    category: "exhibits",
+    model3d: "/models/space/optsat-500-showcase-3d.glb",
+    defaultScale: 1,
+  },
+  {
+    id: "exhibit-optsar-550",
+    type: "exhibit",
+    label: "OPTSAR 550",
+    category: "exhibits",
+    model3d: "/models/space/optsar-550-showcase-3d.glb",
+    defaultScale: 1,
+  },
+  {
+    id: "exhibit-tecsar",
+    type: "exhibit",
+    label: "TECSAR",
+    category: "exhibits",
+    model3d: "/models/space/tecsar-showcase-3d.glb",
+    defaultScale: 1,
+  },
+  {
+    id: "exhibit-3dcapture",
+    type: "exhibit",
+    label: "3DCAPTURE",
+    category: "exhibits",
+    model3d: "/models/land/3dcapture-showcase-3d.glb",
+    defaultScale: 1,
+  },
+  {
+    id: "exhibit-arrow-2",
+    type: "exhibit",
+    label: "Arrow 2",
+    category: "exhibits",
+    model3d: "/models/air/arrow-2-showcase-3d.glb",
+    defaultScale: 1,
+  },
+  {
+    id: "exhibit-lora",
+    type: "exhibit",
+    label: "LORA",
+    category: "exhibits",
+    model3d: "/models/air/lora-showcase-3d.glb",
+    defaultScale: 1,
+  },
+  {
+    id: "exhibit-arrow-3-launcher",
+    type: "exhibit",
+    label: "Arrow 3 Launcher",
+    category: "exhibits",
+    model3d: "/models/air/arrow-3-showcase-3d.glb",
     defaultScale: 1,
   },
 ];

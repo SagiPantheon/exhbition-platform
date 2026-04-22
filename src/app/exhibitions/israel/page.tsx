@@ -35,6 +35,9 @@ type IsraelExhibition = {
   endDate: string
   theme: string
   supplier: string
+  screenSupplier: string
+  exhibitionOwner: string
+  approvingManager: string
   brochure: string
   boothType: BoothType
   notes: string
@@ -88,6 +91,9 @@ function normalizeExhibition(item: Partial<IsraelExhibition>): IsraelExhibition 
     endDate: item.endDate || '',
     theme: item.theme || '',
     supplier: item.supplier || '',
+    screenSupplier: item.screenSupplier || '',
+    exhibitionOwner: item.exhibitionOwner || '',
+    approvingManager: item.approvingManager || '',
     brochure: item.brochure || '',
     boothType:
       item.boothType === 'without-booth' || item.boothType === 'digital-only'
@@ -301,6 +307,9 @@ export default function IsraelExhibitionsPage() {
       endDate,
       theme,
       supplier,
+      screenSupplier: '',
+      exhibitionOwner: '',
+      approvingManager: '',
       brochure,
       boothType,
       notes,
@@ -494,7 +503,8 @@ function removeAssetRef(id: string) {
                       <div>תאריך: {formatDateHe(item.startDate)} {item.endDate ? `← ${formatDateHe(item.endDate)}` : ''}</div>
                       <div>מוצגים: {item.exhibits.length}</div>
                       <div>כמות יחידות: {countTotalUnits(item.exhibits)}</div>
-                      <div>אוהל: {tentTemplateLabel(item.tentTemplate)}</div>
+                      <div>אופן הקמה: {boothLabel(item.boothType)}</div>
+                        <div>אוהל: {tentTemplateLabel(item.tentTemplate)}</div>
                       <div>סטטוס: {layoutStatusLabel(item.layoutStatus)}</div>
                       <div>פריטי תכנון: {item.planningItemsCount}</div>
                     </div>
@@ -504,33 +514,42 @@ function removeAssetRef(id: string) {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20">
+          <section className="rounded-3xl border border-cyan-300/16 bg-[linear-gradient(180deg,rgba(9,20,36,0.96),rgba(7,17,31,0.98))] p-6 shadow-[0_0_0_1px_rgba(103,232,249,0.05),0_24px_80px_rgba(0,0,0,0.34)]">
             {!draft ? (
               <div className="flex min-h-[500px] items-center justify-center text-white/50">
                 בחר תערוכה כדי לראות ולערוך את הנתונים
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-cyan-300/18 bg-cyan-400/[0.05] px-4 py-4 shadow-[0_0_30px_rgba(34,211,238,0.08)]">
                   <div>
-                    <h2 className="text-2xl font-bold">{draft.nameHe || 'ללא שם'}</h2>
+                    <h2 className="text-2xl font-bold tracking-[-0.02em] text-white">{draft.nameHe || 'ללא שם'}</h2>
                     <p className="mt-1 text-sm text-white/60">
                       {isEditing ? 'מצב עריכה פעיל' : 'תצוגת פרטים'}
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-xs text-cyan-200">
+                  <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-[#08131f]/78 px-3 py-3">
+                    <span className="rounded-full border border-cyan-300/40 bg-cyan-400/12 px-3 py-2 text-xs font-semibold text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.10)]">
                       מוצגים: {draft.exhibits.length}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
+                    <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white/80">
                       סה״כ יחידות: {countTotalUnits(draft.exhibits)}
                     </span>
+                      <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white/80">
+                        מדיה: {draft.screenSupplier || '—'}
+                      </span>
+                      <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white/80">
+                        אחראי: {draft.exhibitionOwner || '—'}
+                      </span>
+                      <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white/80">
+                        מאשר: {draft.approvingManager || '—'}
+                      </span>
 
                     {!isEditing ? (
                       <button
                         onClick={handleEditStart}
-                        className="rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm text-amber-100 transition hover:bg-amber-300/20"
+                        className="rounded-2xl border border-amber-200/70 bg-gradient-to-r from-amber-300/30 via-yellow-200/20 to-amber-300/30 px-5 py-2.5 text-sm font-extrabold tracking-[0.04em] text-amber-50 shadow-[0_0_0_1px_rgba(255,220,120,0.18),0_0_28px_rgba(251,191,36,0.24)] transition duration-200 hover:-translate-y-[1px] hover:border-amber-100/90 hover:from-amber-300/40 hover:to-yellow-200/30 hover:shadow-[0_0_0_1px_rgba(255,235,160,0.28),0_0_36px_rgba(251,191,36,0.34)]"
                       >
                         ערוך
                       </button>
@@ -632,6 +651,36 @@ function removeAssetRef(id: string) {
                       className={inputClass(isEditing)}
                     />
                   </Field>
+                    <Field label="ספק מדיה">
+                      <input
+                        value={draft.screenSupplier}
+                        onChange={(e) => updateDraft('screenSupplier', e.target.value)}
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                        placeholder="ספק מסכים / סטנדים / גדלים"
+                      />
+                    </Field>
+
+                    <Field label="אחראי תערוכה">
+                      <input
+                        value={draft.exhibitionOwner}
+                        onChange={(e) => updateDraft('exhibitionOwner', e.target.value)}
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                        placeholder="שם אחראי / מוביל תערוכה"
+                      />
+                    </Field>
+
+                    <Field label="מנהל / גורם מאשר">
+                      <input
+                        value={draft.approvingManager}
+                        onChange={(e) => updateDraft('approvingManager', e.target.value)}
+                        disabled={!isEditing}
+                        className={inputClass(isEditing)}
+                        placeholder="מנהל / גורם מאשר"
+                      />
+                    </Field>
+
 
                   <Field label="קיים ביתן / ללא ביתן">
                     <select
@@ -640,9 +689,9 @@ function removeAssetRef(id: string) {
                       disabled={!isEditing}
                       className={inputClass(isEditing)}
                     >
-                      <option value="with-booth">קיים ביתן</option>
-                      <option value="without-booth">ללא ביתן</option>
-                      <option value="digital-only">דיגיטלי בלבד</option>
+                      <option value="external-supplier-build">מוקם ע״י ספק חיצוני</option>
+                        <option value="internal-company-build">מוקם פנימית ע״י החברה</option>
+                        <option value="participation-only">השתתפות בלבד / ללא הקמה</option>
                     </select>
                   </Field>
 
@@ -671,7 +720,7 @@ function removeAssetRef(id: string) {
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h3 className="text-lg font-semibold">תכנון והקמה</h3>
-                      <p className="mt-1 text-sm text-white/60">
+                      <p className="mt-1 text-sm font-medium text-cyan-100/75">
                         חיבור התערוכה לתבנית אוהל, לוח תכנון ופריטי מלאי תומכים
                       </p>
                     </div>

@@ -41,10 +41,10 @@ export default function SpacePage() {
 
     saveAsset({
       ...asset,
-      title: { en: titleEn, he: titleEn },
-      subtitle: { en: subtitleEn, he: subtitleEn },
-      status: { en: statusEn, he: statusEn },
-      config: { en: configEn, he: configEn },
+      title: { en: titleEn, he: titleHe },
+      subtitle: { en: subtitleEn, he: subtitleHe },
+      status: { en: statusEn, he: statusHe },
+      config: { en: configEn, he: configHe },
     });
   }
 
@@ -58,7 +58,7 @@ export default function SpacePage() {
 
   return (
     <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
-      <div className="mx-auto flex max-w-[1850px] flex-col gap-8">
+<div className="mx-auto flex max-w-[1850px] flex-col gap-8">
         <section className="rounded-[34px] border border-cyan-300/20 bg-[radial-gradient(circle_at_top,rgba(32,80,170,0.28),rgba(11,18,39,1)_55%)] p-8 shadow-[0_0_50px_rgba(24,119,242,0.12)] md:p-10">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="max-w-4xl">
@@ -123,11 +123,22 @@ export default function SpacePage() {
                 badgesAlign="end"
               />
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div
+                data-space-edit-bar
+                className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300/30 bg-gradient-to-r from-amber-300/12 via-yellow-200/8 to-amber-300/12 px-3 py-3 shadow-[0_0_28px_rgba(251,191,36,0.12)]"
+              >
+                <div
+                  data-space-edit-marker
+                  className="inline-flex items-center rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.22em] text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.16)]"
+                >
+                  LIVE SPACE EDIT
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+
                 <button
                   type="button"
                   onClick={() => handleEdit(asset)}
-                  className="rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-300/20"
+                  className="rounded-2xl border border-amber-200/70 bg-gradient-to-r from-amber-300/30 via-yellow-200/20 to-amber-300/30 px-5 py-2.5 text-sm font-extrabold tracking-[0.04em] text-amber-50 shadow-[0_0_0_1px_rgba(255,220,120,0.18),0_0_28px_rgba(251,191,36,0.24)] transition duration-200 hover:-translate-y-[1px] hover:border-amber-100/90 hover:from-amber-300/40 hover:to-yellow-200/30 hover:shadow-[0_0_0_1px_rgba(255,235,160,0.28),0_0_36px_rgba(251,191,36,0.34)]"
                 >
                   Edit Space Data
                 </button>
@@ -139,6 +150,7 @@ export default function SpacePage() {
                 >
                   Reset
                 </button>
+                </div>
               </div>
             </div>
           ))}

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -59,15 +61,36 @@ function makeId() {
 
 function getSpawnPosition(
   index: number,
-  template: (typeof templates)[TemplateId]
+  template: { width: number; depth: number },
+  type?: ElementType
 ) {
-  const col = index % 4;
-  const row = Math.floor(index / 4);
-  const startX = -template.width / 2 + 3;
-  const startZ = -template.depth / 2 + 3;
+  const isExhibit = type === "exhibit";
+
+  const cols = isExhibit ? 3 : 4;
+  const spacingX = isExhibit
+    ? (template.width >= 28 ? 2.8 : 2.2)
+    : (template.width >= 28 ? 2.2 : 1.8);
+  const spacingZ = isExhibit
+    ? (template.depth >= 18 ? 2.8 : 2.2)
+    : (template.depth >= 18 ? 2.4 : 1.9);
+
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+
+  const startX = -((cols - 1) * spacingX) / 2;
+  const startZ = isExhibit ? -0.2 : 2.4;
+
+  const rawX = startX + col * spacingX;
+  const rawZ = startZ + row * spacingZ;
+
+  const minX = isExhibit ? -template.width * 0.18 : -template.width * 0.24;
+  const maxX = isExhibit ? template.width * 0.18 : template.width * 0.24;
+  const minZ = isExhibit ? -template.depth * 0.08 : template.depth * 0.04;
+  const maxZ = isExhibit ? template.depth * 0.1 : template.depth * 0.22;
+
   return {
-    x: startX + col * 3.2,
-    z: startZ + row * 3.2,
+    x: Math.min(maxX, Math.max(minX, rawX)),
+    z: Math.min(maxZ, Math.max(minZ, rawZ)),
   };
 }
 
@@ -103,6 +126,14 @@ function getElementHeight(type: ElementType) {
       return 1.2;
     case "lectern":
       return 1.15;
+    case "screen":
+      return 1.05;
+    case "screenstand":
+      return 1.8;
+    case "inflatableTentSmall":
+      return 3;
+    case "exhibit":
+      return 1.4;
     case "flagpair":
       return 1.8;
     case "chair":
@@ -117,8 +148,67 @@ function getElementHeight(type: ElementType) {
   }
 }
 
+
+
+function getExhibitModelYOffset(label: string) {
+  switch (label) {
+    case "OPTSAT 500":
+      return 0.06;
+    case "OPTSAR 550":
+      return 0.06;
+    case "TECSAR":
+      return 0.06;
+    case "3DCAPTURE":
+      return 0.03;
+    case "Arrow 2":
+      return 0.04;
+    case "LORA":
+      return 0.04;
+    case "Arrow 3 Launcher":
+      return 0.04;
+    default:
+      return 0.04;
+  }
+}
+
+function getExhibitModelScale(label: string) {
+  switch (label) {
+    case "OPTSAT 500":
+      return 1.0;
+    case "OPTSAR 550":
+      return 1.0;
+    case "TECSAR":
+      return 1.0;
+    case "3DCAPTURE":
+      return 0.78;
+    case "Arrow 2":
+      return 0.92;
+    case "LORA":
+      return 0.92;
+    case "Arrow 3 Launcher":
+      return 0.88;
+    default:
+      return 1.0;
+  }
+}
+
+function getInventoryModelYOffset(type: ElementType) {
+  switch (type) {
+    case "flagpair":
+      return 0.06;
+    case "lightbox":
+      return 0.02;
+    case "inflatableTentSmall":
+      return 0.01;
+    case "logo":
+      return 0.0;
+    default:
+      return 0;
+  }
+}
+
 function TentModel() {
-  const gltf = useGLTF("/models/inventor/event+tent+3d+model.glb");
+  const gltf = useGLTF("/models/inventory/event+tent+3d+model.glb");
 
   return (
     <primitive
@@ -139,7 +229,7 @@ function LogoMesh({
   selected: boolean;
   onPointerDown: (id: string) => void;
 }) {
-  const gltf = useGLTF("/models/inventor/blue+logo+3d+model.glb");
+  const gltf = useGLTF("/models/inventory/blue+logo+3d+model.glb");
 
   return (
     <group
@@ -169,11 +259,19 @@ function ElementMesh({
   item,
   selected,
   onPointerDown,
+  onDelete,
+  onSelect,
 }: {
   item: PlacedItem;
   selected: boolean;
   onPointerDown: (id: string) => void;
+  onDelete: (id: string) => void;
+  onSelect: (id: string) => void;
 }) {
+  const exhibitEntry =
+    item.type === "exhibit"
+      ? layoutInventory.find((entry) => entry.type === "exhibit" && entry.label === item.label)
+      : null;
   const wrapProps = {
     position: [item.x, 0, item.z] as [number, number, number],
     rotation: [0, item.rotation, 0] as [number, number, number],
@@ -182,10 +280,30 @@ function ElementMesh({
       e.stopPropagation();
       onPointerDown(item.id);
     },
+    onContextMenu: (e: any) => {
+      e.stopPropagation();
+      e.preventDefault?.();
+      e.nativeEvent?.preventDefault?.();
+
+      const button =
+        typeof e.button === "number"
+          ? e.button
+          : e.nativeEvent && typeof e.nativeEvent.button === "number"
+            ? e.nativeEvent.button
+            : -1;
+
+      if (button === 2) {
+        if (selected) {
+          onDelete(item.id);
+        } else {
+          onSelect(item.id);
+        }
+      }
+    },
   };
 
   if (item.type === "logo") {
-    const gltf = useGLTF("/models/inventor/blue+logo+3d+model.glb");
+    const gltf = useGLTF("/models/inventory/blue+logo+3d+model.glb");
 
     return (
       <group {...wrapProps}>
@@ -196,6 +314,125 @@ function ElementMesh({
             <meshBasicMaterial color="#60a5fa" transparent opacity={0.8} />
           </mesh>
         ) : null}
+      </group>
+    );
+  }
+
+  if (item.type === "lightbox") {
+    const gltf = useGLTF("/models/inventory/lightbox-vertical-iai-01.glb");
+
+    return (
+      <group {...wrapProps}>
+        <primitive object={gltf.scene.clone()} position={[0, getInventoryModelYOffset(item.type), 0]} scale={item.scale ?? 1} />
+      </group>
+    );
+  }
+
+  if (item.type === "flagpair") {
+    const gltf = useGLTF("/models/inventory/flag-pair-iai-israel-01.glb");
+
+    return (
+      <group {...wrapProps}>
+        <primitive object={gltf.scene.clone()} position={[0, getInventoryModelYOffset(item.type), 0]} scale={item.scale ?? 1} />
+      </group>
+    );
+  }
+
+  if (item.type === "inflatableTentSmall") {
+    const gltf = useGLTF("/models/inventory/inflatable-tent-iai-blue-01.glb");
+
+    return (
+      <group {...wrapProps}>
+        <primitive object={gltf.scene.clone()} position={[0, getInventoryModelYOffset(item.type), 0]} scale={item.scale ?? 1} />
+      </group>
+    );
+  }
+
+  if (item.type === "exhibit" && exhibitEntry?.model3d) {
+    const gltf = useGLTF(exhibitEntry.model3d);
+
+    return (
+      <group {...wrapProps}>
+        <primitive
+          object={gltf.scene.clone()}
+          position={[0, getExhibitModelYOffset(item.label), 0]}
+          scale={(item.scale ?? 1) * getExhibitModelScale(item.label)}
+        />
+        {selected ? (
+          <mesh position={[0, 0.04, 0]}>
+            <ringGeometry args={[1.15, 1.35, 32]} />
+            <meshBasicMaterial color="#d946ef" transparent opacity={0.75} />
+          </mesh>
+        ) : null}
+      </group>
+    );
+  }
+
+  if (item.type === "screen") {
+    return (
+      <group {...wrapProps}>
+        <mesh position={[0, 0.58, 0]}>
+          <boxGeometry args={[1.6, 0.95, 0.06]} />
+          <meshStandardMaterial color={selected ? "#93c5fd" : "#111827"} metalness={0.45} roughness={0.35} />
+        </mesh>
+        <mesh position={[0, 0.08, 0]}>
+          <cylinderGeometry args={[0.06, 0.09, 0.16, 20]} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.5} roughness={0.4} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (item.type === "screenstand") {
+    return (
+      <group {...wrapProps}>
+        <mesh position={[0, 1.02, 0]}>
+          <boxGeometry args={[1.4, 0.82, 0.08]} />
+          <meshStandardMaterial color={selected ? "#93c5fd" : "#0f172a"} metalness={0.38} roughness={0.42} />
+        </mesh>
+
+        <mesh position={[0, 0.62, 0]}>
+          <boxGeometry args={[0.12, 0.92, 0.12]} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.45} roughness={0.4} />
+        </mesh>
+
+        <mesh position={[0, 0.08, 0]}>
+          <cylinderGeometry args={[0.32, 0.38, 0.08, 24]} />
+          <meshStandardMaterial color="#64748b" metalness={0.42} roughness={0.45} />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (item.type === "inflatableTentSmall") {
+    return (
+      <group {...wrapProps}>
+        <mesh position={[0, 1.7, 0]}>
+          <boxGeometry args={[3.8, 1.4, 3.8]} />
+          <meshStandardMaterial color={selected ? "#67e8f9" : "#2563eb"} transparent opacity={0.78} />
+        </mesh>
+
+        <mesh position={[0, 2.45, 0]}>
+          <boxGeometry args={[3.2, 0.18, 3.2]} />
+          <meshStandardMaterial color={selected ? "#93c5fd" : "#1d4ed8"} />
+        </mesh>
+
+        <mesh position={[-1.55, 0.75, -1.55]}>
+          <cylinderGeometry args={[0.16, 0.22, 1.5, 16]} />
+          <meshStandardMaterial color="#1d4ed8" />
+        </mesh>
+        <mesh position={[1.55, 0.75, -1.55]}>
+          <cylinderGeometry args={[0.16, 0.22, 1.5, 16]} />
+          <meshStandardMaterial color="#1d4ed8" />
+        </mesh>
+        <mesh position={[-1.55, 0.75, 1.55]}>
+          <cylinderGeometry args={[0.16, 0.22, 1.5, 16]} />
+          <meshStandardMaterial color="#1d4ed8" />
+        </mesh>
+        <mesh position={[1.55, 0.75, 1.55]}>
+          <cylinderGeometry args={[0.16, 0.22, 1.5, 16]} />
+          <meshStandardMaterial color="#1d4ed8" />
+        </mesh>
       </group>
     );
   }
@@ -495,7 +732,7 @@ function TentScene({
         (state.gl.domElement as any).__r3f = { root: { getState: () => state } };
       }}
     >
-      <PerspectiveCamera makeDefault position={[0, 2.2, 4.8]} fov={60} />
+      <PerspectiveCamera makeDefault position={[12.4, 6.6, 11.4]} fov={44} />
       <color attach="background" args={["#08111d"]} />
 
       <ambientLight intensity={1.15} />
@@ -562,6 +799,13 @@ function TentScene({
                 setSelectedItemId(id);
                 setIsDragging(true);
               }}
+              onDelete={(id) => {
+                setItems((prev) => prev.filter((entry) => entry.id !== id));
+                setSelectedItemId((prev) => (prev === id ? null : prev));
+              }}
+              onSelect={(id) => {
+                setSelectedItemId(id);
+              }}
             />
           </group>
         ))}
@@ -571,21 +815,21 @@ function TentScene({
         makeDefault
         enabled={!isDragging}
         enablePan
-        panSpeed={0.9}
-        zoomSpeed={0.9}
-        rotateSpeed={0.75}
-        maxPolarAngle={Math.PI / 1.72}
-        minPolarAngle={0.2}
-        minDistance={0.8}
-        maxDistance={18}
-        target={[0, 1.1, 0]}
+        panSpeed={0.75}
+        zoomSpeed={0.78}
+        rotateSpeed={0.72}
+        maxPolarAngle={Math.PI / 1.7}
+        minPolarAngle={0.24}
+        minDistance={1.2}
+        maxDistance={22}
+        target={[0, 1.2, 0.2]}
       />
     </Canvas>
   );
 }
 
-useGLTF.preload("/models/inventor/event+tent+3d+model.glb");
-useGLTF.preload("/models/inventor/blue+logo+3d+model.glb");
+useGLTF.preload("/models/inventory/event+tent+3d+model.glb");
+useGLTF.preload("/models/inventory/blue+logo+3d+model.glb");
 
 export default function LayoutPlanningPage() {
   const router = useRouter();
@@ -602,31 +846,44 @@ export default function LayoutPlanningPage() {
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateId>(initialTemplate);
 
-  const [items, setItems] = useState<PlacedItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
-
-      return parsed.map((item) => ({
-        ...item,
-        scale: typeof item.scale === "number" ? item.scale : 1,
-      }));
-    } catch {
-      return [];
-    }
-  });
-
+  const [items, setItems] = useState<PlacedItem[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [hasCarpet, setHasCarpet] = useState(false);
+  const [hasCarpet, setHasCarpet] = useState(true);
+  const [storageReady, setStorageReady] = useState(false);
 
   useEffect(() => {
     if (urlTemplate === "tent-25x15" || urlTemplate === "tent-30x20") {
       setSelectedTemplate(urlTemplate);
     }
   }, [urlTemplate]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        setStorageReady(true);
+        return;
+      }
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        setStorageReady(true);
+        return;
+      }
+
+      setItems(
+        parsed.map((item) => ({
+          ...item,
+          scale: typeof item.scale === "number" ? item.scale : 1,
+        }))
+      );
+    } catch {
+      // ignore bad saved data
+    } finally {
+      setStorageReady(true);
+    }
+  }, []);
 
   useEffect(() => {
     const current = searchParams.get("t");
@@ -636,8 +893,9 @@ export default function LayoutPlanningPage() {
   }, [router, searchParams, selectedTemplate]);
 
   useEffect(() => {
+    if (!storageReady) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+  }, [items, storageReady]);
 
   useEffect(() => {
     window.localStorage.setItem(SELECTED_TEMPLATE_KEY, selectedTemplate);
@@ -647,7 +905,7 @@ export default function LayoutPlanningPage() {
 
   function addElement(type: ElementType, label: string) {
     setItems((prev) => {
-      const spawn = getSpawnPosition(prev.length, currentTemplate);
+      const spawn = getSpawnPosition(prev.length, currentTemplate, type);
       return [
         ...prev,
         {
@@ -708,6 +966,21 @@ export default function LayoutPlanningPage() {
   function clearWorkspace() {
     setItems([]);
     setSelectedItemId(null);
+  }
+
+  function removeLastPlacedItem() {
+    setItems((prev) => {
+      if (!prev.length) return prev;
+      const next = prev.slice(0, -1);
+      const nextSelected =
+        selectedItemId && next.some((item) => item.id === selectedItemId)
+          ? selectedItemId
+          : next.length
+            ? next[next.length - 1].id
+            : null;
+      setSelectedItemId(nextSelected);
+      return next;
+    });
   }
 
   const selectedItem =
@@ -841,6 +1114,12 @@ export default function LayoutPlanningPage() {
               </div>
 
               <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/"
+                  className="inline-flex items-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-2.5 text-sm text-cyan-100 transition hover:bg-cyan-300/15"
+                >
+                  Home
+                </Link>
                 <button
                   type="button"
                   onClick={() => router.push("/inventory")}
@@ -889,6 +1168,13 @@ export default function LayoutPlanningPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={removeLastPlacedItem}
+                  className="rounded-2xl border border-amber-300/20 bg-amber-300/10 px-4 py-2.5 text-sm text-amber-100 transition"
+                >
+                  מחק אובייקט אחרון
+                </button>
+                <button
+                  type="button"
                   onClick={clearWorkspace}
                   className="rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-2.5 text-sm text-rose-100 transition"
                 >
@@ -910,7 +1196,7 @@ export default function LayoutPlanningPage() {
           </section>
 
           <aside className="space-y-6">
-            <section className="rounded-[32px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.25)]">
+            <section className="rounded-[32px] border border-fuchsia-300/18 bg-[linear-gradient(180deg,rgba(38,12,47,0.28),rgba(255,255,255,0.03))] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.25)]">
               <div className="mb-4">
                 <div className="text-[11px] uppercase tracking-[0.3em] text-cyan-300/70">
                   Real Elements Library
@@ -919,7 +1205,7 @@ export default function LayoutPlanningPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {layoutInventory.map((item) => (
+                {layoutInventory.filter((item) => item.category !== "exhibits").map((item) => (
                   <button
                     key={item.id}
                     type="button"
@@ -939,6 +1225,35 @@ export default function LayoutPlanningPage() {
 
             <section className="rounded-[32px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.25)]">
               <div className="mb-4">
+                <div className="text-[11px] uppercase tracking-[0.3em] text-fuchsia-300/80">
+                  3D Exhibits
+                </div>
+                <h3 className="mt-2 text-xl font-semibold text-white">מוצגים תלת־ממדיים</h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {layoutInventory
+                  .filter((item) => item.category === "exhibits")
+                  .map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => addElement(item.type as ElementType, item.label)}
+                      className="rounded-[24px] border border-fuchsia-300/24 bg-black/20 p-4 text-right transition hover:-translate-y-[1px] hover:border-fuchsia-300/40 hover:bg-fuchsia-300/[0.08]"
+                    >
+                      <div className="text-sm font-semibold text-white">
+                        {item.label}
+                      </div>
+                      <div className="mt-1 text-xs text-white/45">
+                        add exhibit into 3D scene
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </section>
+
+            <section className="hidden rounded-[32px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.25)]">
+              <div className="mb-4">
                 <div className="text-[11px] uppercase tracking-[0.3em] text-cyan-300/70">
                   Placed Objects
                 </div>
@@ -950,12 +1265,19 @@ export default function LayoutPlanningPage() {
                   items.map((item) => {
                     const selected = item.id === selectedItemId;
                     return (
-                      <button
+                      <div
                         key={item.id}
-                        type="button"
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setSelectedItemId(item.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setSelectedItemId(item.id);
+                          }
+                        }}
                         className={[
-                          "w-full rounded-[24px] border p-4 text-right transition",
+                          "w-full rounded-[24px] border p-4 text-right transition cursor-pointer",
                           selected
                             ? "border-cyan-300/35 bg-cyan-300/[0.07]"
                             : "border-white/10 bg-black/20",
@@ -1016,7 +1338,7 @@ export default function LayoutPlanningPage() {
                             </div>
                           </div>
                         </div>
-                      </button>
+                      </div>
                     );
                   })
                 ) : (
