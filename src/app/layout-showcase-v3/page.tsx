@@ -19,7 +19,7 @@ type SceneAsset = {
   scale: number;
   widthM?: number;
   depthM?: number;
-  heightM?: number;
+  גובהM?: number;
 };
 
 type PresetKey = "premium" | "space" | "air" | "vip";
@@ -31,13 +31,13 @@ type TentTemplate = {
   label: string;
   widthM: number;
   depthM: number;
-  heightM: number;
+  גובהM: number;
 };
 
 const TENT_TEMPLATES: TentTemplate[] = [
-  { id: "10x15", label: "10m × 15m", widthM: 10, depthM: 15, heightM: 5 },
-  { id: "15x25", label: "15m × 25m", widthM: 15, depthM: 25, heightM: 6 },
-  { id: "20x30", label: "20m × 30m", widthM: 20, depthM: 30, heightM: 7 },
+  { id: "10x15", label: "10m × 15m", widthM: 10, depthM: 15, גובהM: 5 },
+  { id: "15x25", label: "15m × 25m", widthM: 15, depthM: 25, גובהM: 6 },
+  { id: "20x30", label: "20m × 30m", widthM: 20, depthM: 30, גובהM: 7 },
 ];
 
 const DEFAULT_TENT_TEMPLATE = TENT_TEMPLATES.find((template) => template.id === "20x30") ?? TENT_TEMPLATES[0];
@@ -82,7 +82,7 @@ const EXHIBIT_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale"
   },
 ];
 
-const INVENTORY_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">[] = [
+const מלאי_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">[] = [
   {
     title: "IAI Flag Pair",
     titleHe: "זוג דגלים",
@@ -157,9 +157,9 @@ function buildTent(position: [number, number, number], rotation: [number, number
 function buildPremiumPreset(): SceneAsset[] {
   return [
     buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.08),
-    buildAsset(INVENTORY_LIBRARY[2], [-8.8, 0, -5.3], [0, 0, 0], 1.05),
-    buildAsset(INVENTORY_LIBRARY[3], [8.8, 0, -5.0], [0, 0, 0], 1.05),
-    buildAsset(INVENTORY_LIBRARY[0], [-10.8, 0, 5.0], [0, Math.PI / 2, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[2], [-8.8, 0, -5.3], [0, 0, 0], 1.05),
+    buildAsset(מלאי_LIBRARY[3], [8.8, 0, -5.0], [0, 0, 0], 1.05),
+    buildAsset(מלאי_LIBRARY[0], [-10.8, 0, 5.0], [0, Math.PI / 2, 0], 1.0),
     buildAsset(EXHIBIT_LIBRARY[3], [10.6, 0, 4.8], [0, -Math.PI / 2, 0], 0.95),
   ];
 }
@@ -170,7 +170,7 @@ function buildSpacePreset(): SceneAsset[] {
     buildAsset(EXHIBIT_LIBRARY[0], [-7, 0, -1.5], [0, 0.3, 0], 0.95),
     buildAsset(EXHIBIT_LIBRARY[1], [0, 0, 3], [0, 0, 0], 0.95),
     buildAsset(EXHIBIT_LIBRARY[2], [7, 0, -1], [0, -0.35, 0], 0.95),
-    buildAsset(INVENTORY_LIBRARY[3], [11.5, 0, 5.2], [0, 0, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[3], [11.5, 0, 5.2], [0, 0, 0], 1.0),
   ];
 }
 
@@ -179,18 +179,18 @@ function buildAirPreset(): SceneAsset[] {
     buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.04),
     buildAsset(EXHIBIT_LIBRARY[3], [-7.5, 0, 0], [0, 0.65, 0], 0.9),
     buildAsset(EXHIBIT_LIBRARY[4], [8.5, 0, 0.5], [0, -0.65, 0], 1.0),
-    buildAsset(INVENTORY_LIBRARY[2], [0, 0, -5.6], [0, 0, 0], 1.0),
-    buildAsset(INVENTORY_LIBRARY[0], [11.0, 0, 4.5], [0, Math.PI / 2, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[2], [0, 0, -5.6], [0, 0, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[0], [11.0, 0, 4.5], [0, Math.PI / 2, 0], 1.0),
   ];
 }
 
 function buildVipPreset(): SceneAsset[] {
   return [
     buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.02),
-    buildAsset(INVENTORY_LIBRARY[2], [-8.8, 0, -5.2], [0, 0, 0], 1.0),
-    buildAsset(INVENTORY_LIBRARY[3], [8.8, 0, -5.2], [0, 0, 0], 1.0),
-    buildAsset(INVENTORY_LIBRARY[1], [0, 0, 5.7], [0, 0, 0], 1.0),
-    buildAsset(INVENTORY_LIBRARY[0], [-11.0, 0, 4.8], [0, Math.PI / 2, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[2], [-8.8, 0, -5.2], [0, 0, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[3], [8.8, 0, -5.2], [0, 0, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[1], [0, 0, 5.7], [0, 0, 0], 1.0),
+    buildAsset(מלאי_LIBRARY[0], [-11.0, 0, 4.8], [0, Math.PI / 2, 0], 1.0),
   ];
 }
 
@@ -206,33 +206,74 @@ function dimensionsForAsset(asset: SceneAsset, template: TentTemplate) {
     return {
       widthM: template.widthM,
       depthM: template.depthM,
-      heightM: template.heightM,
+      גובהM: template.גובהM,
     };
   }
 
-  if (asset.widthM && asset.depthM && asset.heightM) {
+  if (asset.widthM && asset.depthM && asset.גובהM) {
     return {
       widthM: asset.widthM,
       depthM: asset.depthM,
-      heightM: asset.heightM,
+      גובהM: asset.גובהM,
     };
   }
 
-  if (asset.model.includes("arrow-3-launcher")) return { widthM: 8.0, depthM: 3.0, heightM: 3.0 };
-  if (asset.model.includes("lora")) return { widthM: 6.5, depthM: 2.6, heightM: 2.8 };
-  if (asset.model.includes("/models/air/")) return { widthM: 4.0, depthM: 2.5, heightM: 2.8 };
-  if (asset.model.includes("/models/space/")) return { widthM: 2.0, depthM: 2.0, heightM: 2.8 };
-  if (asset.model.includes("flag-pair")) return { widthM: 2.2, depthM: 0.8, heightM: 2.6 };
-  if (asset.model.includes("lightbox-horizontal")) return { widthM: 3.0, depthM: 0.5, heightM: 2.2 };
-  if (asset.model.includes("lightbox-vertical")) return { widthM: 1.2, depthM: 0.5, heightM: 2.8 };
-  if (asset.model.includes("blue+logo")) return { widthM: 2.5, depthM: 0.4, heightM: 1.2 };
-  if (asset.model.includes("inflatable-tent")) return { widthM: 4.0, depthM: 4.0, heightM: 3.0 };
+  if (asset.model.includes("arrow-3-launcher")) return { widthM: 8.0, depthM: 3.0, גובהM: 3.0 };
+  if (asset.model.includes("lora")) return { widthM: 6.5, depthM: 2.6, גובהM: 2.8 };
+  if (asset.model.includes("/models/air/")) return { widthM: 4.0, depthM: 2.5, גובהM: 2.8 };
+  if (asset.model.includes("/models/space/")) return { widthM: 2.0, depthM: 2.0, גובהM: 2.8 };
+  if (asset.model.includes("flag-pair")) return { widthM: 2.2, depthM: 0.8, גובהM: 2.6 };
+  if (asset.model.includes("lightbox-horizontal")) return { widthM: 3.0, depthM: 0.5, גובהM: 2.2 };
+  if (asset.model.includes("lightbox-vertical")) return { widthM: 1.2, depthM: 0.5, גובהM: 2.8 };
+  if (asset.model.includes("blue+logo")) return { widthM: 2.5, depthM: 0.4, גובהM: 1.2 };
+  if (asset.model.includes("inflatable-tent")) return { widthM: 4.0, depthM: 4.0, גובהM: 3.0 };
 
-  return { widthM: 1.5, depthM: 1.5, heightM: 1.5 };
+  return { widthM: 1.5, depthM: 1.5, גובהM: 1.5 };
 }
 
 function formatMeters(value: number) {
   return `${Number(value.toFixed(1))}m`;
+}
+
+function getFitCheck(
+  asset: SceneAsset,
+  dimensions: { widthM: number; depthM: number; גובהM: number },
+  template: TentTemplate
+) {
+  const halfTentW = template.widthM / 2;
+  const halfTentD = template.depthM / 2;
+  const halfAssetW = dimensions.widthM / 2;
+  const halfAssetD = dimensions.depthM / 2;
+
+  const minX = asset.position[0] - halfAssetW;
+  const maxX = asset.position[0] + halfAssetW;
+  const minZ = asset.position[2] - halfAssetD;
+  const maxZ = asset.position[2] + halfAssetD;
+
+  const fitsרוחב = dimensions.widthM <= template.widthM;
+  const fitsעומק = dimensions.depthM <= template.depthM;
+  const insideX = minX >= -halfTentW && maxX <= halfTentW;
+  const insideZ = minZ >= -halfTentD && maxZ <= halfTentD;
+
+  const clearanceLeft = minX + halfTentW;
+  const clearanceRight = halfTentW - maxX;
+  const clearanceBack = minZ + halfTentD;
+  const clearanceFront = halfTentD - maxZ;
+
+  const minClearance = Math.min(clearanceLeft, clearanceRight, clearanceBack, clearanceFront);
+
+  return {
+    fits: fitsרוחב && fitsעומק && insideX && insideZ,
+    fitsרוחב,
+    fitsעומק,
+    insideX,
+    insideZ,
+    minClearance,
+    clearanceLeft,
+    clearanceRight,
+    clearanceBack,
+    clearanceFront,
+  };
 }
 
 function FrameRect({
@@ -279,13 +320,13 @@ function FrameRect({
 
 function FloorSystem({ template }: { template: TentTemplate }) {
   const margin = 6;
-  const carpetWidth = template.widthM + margin;
-  const carpetDepth = template.depthM + margin;
+  const carpetרוחב = template.widthM + margin;
+  const carpetעומק = template.depthM + margin;
 
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
-        <planeGeometry args={[carpetWidth, carpetDepth]} />
+        <planeGeometry args={[carpetרוחב, carpetעומק]} />
         <meshStandardMaterial
           color="#0d42ff"
           emissive="#0a2ae0"
@@ -296,7 +337,7 @@ function FloorSystem({ template }: { template: TentTemplate }) {
       </mesh>
 
       <gridHelper
-        args={[Math.max(carpetWidth, carpetDepth), Math.max(18, Math.round(Math.max(carpetWidth, carpetDepth))), "#7bc3ff", "#2a5cff"]}
+        args={[Math.max(carpetרוחב, carpetעומק), Math.max(18, Math.round(Math.max(carpetרוחב, carpetעומק))), "#7bc3ff", "#2a5cff"]}
         position={[0, 0.02, 0]}
       />
 
@@ -368,8 +409,8 @@ function Walls() {
 }
 
 
-function visualScaleForModel(asset: SceneAsset) {
-  if (asset.category === "tent") return 7.2;
+function visualScaleForמצבl(asset: SceneAsset) {
+  if (asset.category === "tent") return 16.0;
   if (asset.model.includes("arrow-3-launcher")) return 3.2;
   if (asset.model.includes("/models/air/")) return 3.0;
   if (asset.model.includes("/models/space/")) return 3.4;
@@ -380,7 +421,7 @@ function visualScaleForModel(asset: SceneAsset) {
   return 2.2;
 }
 
-function SceneModel({
+function Sceneמצבl({
   asset,
   selected,
   onSelect,
@@ -391,7 +432,7 @@ function SceneModel({
 }) {
   const { scene } = useGLTF(asset.model);
   const cloned = useMemo(() => scene.clone(), [scene]);
-  const visualScale = asset.scale * visualScaleForModel(asset);
+  const visualScale = asset.scale * visualScaleForמצבl(asset);
   const selectedRing = Math.max(1.35, visualScale * 0.42);
 
   return (
@@ -430,7 +471,7 @@ function ShowcaseScene({
     <Canvas
       shadows
       dpr={[1, 1.25]}
-      camera={{ position: [0, 9.8, 20], fov: 36 }}
+      camera={{ position: [0, 10, 22], fov: 34 }}
       style={{ width: "100%", height: "100%" }}
       onPointerMissed={() => onSelect("main-tent")}
     >
@@ -443,7 +484,7 @@ function ShowcaseScene({
         <CornerLighting />
         <Walls />
         {sceneAssets.map((asset) => (
-          <SceneModel
+          <Sceneמצבl
             key={asset.id}
             asset={asset}
             selected={selectedId === asset.id}
@@ -471,15 +512,16 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div
       style={{
-        border: "1px solid rgba(130,160,255,0.22)",
+        border: "1px solid rgba(151, 237, 255, 0.18)",
         borderRadius: 18,
-        padding: "14px 18px",
-        background: "rgba(10,20,48,0.56)",
-        minWidth: 130,
+        padding: "12px 14px",
+        background: "linear-gradient(180deg, rgba(21,38,82,0.72), rgba(8,17,41,0.72))",
+        minWidth: 110,
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
       }}
     >
-      <div style={{ fontSize: 12, letterSpacing: 0.6, opacity: 0.72 }}>{label}</div>
-      <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.05, marginTop: 8 }}>{value}</div>
+      <div style={{ fontSize: 11, letterSpacing: 0.8, opacity: 0.72, fontWeight: 800 }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 900, lineHeight: 1.05, marginTop: 7 }}>{value}</div>
     </div>
   );
 }
@@ -494,20 +536,23 @@ function LibraryCard({
   return (
     <div
       style={{
-        border: "1px solid rgba(130,160,255,0.18)",
-        borderRadius: 16,
+        border: "1px solid rgba(151, 237, 255, 0.16)",
+        borderRadius: 15,
         overflow: "hidden",
-        background: "rgba(11,20,45,0.72)",
+        background: "linear-gradient(180deg, rgba(18,35,82,0.76), rgba(8,17,41,0.86))",
+        boxShadow: "0 10px 24px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.05)",
+        minHeight: 148,
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <div
         style={{
-          height: 92,
-          background: "linear-gradient(180deg, rgba(37,71,154,0.88), rgba(9,22,52,0.92))",
+          padding: 7,
+          flex: 1,
           display: "flex",
-          alignItems: "end",
-          justifyContent: "start",
-          padding: 10,
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <img
@@ -515,31 +560,33 @@ function LibraryCard({
           alt={item.title}
           style={{
             width: "100%",
-            height: "100%",
+            height: 92,
             objectFit: "cover",
-            borderRadius: 10,
+            borderRadius: 11,
             border: "1px solid rgba(255,255,255,0.12)",
+            display: "block",
+            background: "rgba(255,255,255,0.03)",
           }}
         />
       </div>
-      <div style={{ padding: 12 }}>
-        <div style={{ fontWeight: 800, fontSize: 16 }}>{item.title}</div>
-        <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>{item.category.toUpperCase()}</div>
+
+      <div style={{ padding: "0 7px 7px" }}>
         <button
           onClick={onAdd}
           style={{
-            marginTop: 10,
             width: "100%",
-            borderRadius: 12,
-            border: "1px solid rgba(151, 237, 255, 0.32)",
-            background: "rgba(58,128,255,0.18)",
-            color: "#f0fbff",
-            padding: "10px 12px",
-            fontWeight: 700,
+            borderRadius: 11,
+            border: "1px solid rgba(151, 237, 255, 0.30)",
+            background: "linear-gradient(180deg, rgba(44,122,255,0.72), rgba(24,71,170,0.78))",
+            color: "#f1fbff",
+            padding: "7px 8px",
+            fontWeight: 900,
+            fontSize: 13,
             cursor: "pointer",
+            boxShadow: "0 0 14px rgba(44,137,255,0.18)",
           }}
         >
-          ADD
+          הוסף
         </button>
       </div>
     </div>
@@ -551,22 +598,26 @@ export default function LayoutShowcaseV3Page() {
   const [templateId, setTemplateId] = useState<TentTemplateId>("20x30");
   const activeTemplate = TENT_TEMPLATES.find((template) => template.id === templateId) ?? DEFAULT_TENT_TEMPLATE;
   const [sceneAssets, setSceneAssets] = useState<SceneAsset[]>(() => buildPremiumPreset());
-  const [selectedId, setSelectedId] = useState<string | null>("main-tent");
+  const [selectedId, setנבחרId] = useState<string | null>("main-tent");
 
   const selectedAsset =
     sceneAssets.find((item) => item.id === selectedId) ?? sceneAssets[0] ?? null;
 
   const selectedDimensions = selectedAsset ? dimensionsForAsset(selectedAsset, activeTemplate) : null;
+  const selectedFit =
+    selectedAsset && selectedDimensions
+      ? getFitCheck(selectedAsset, selectedDimensions, activeTemplate)
+      : null;
 
   function applyPreset(nextPreset: PresetKey) {
     setPreset(nextPreset);
     setSceneAssets(buildPreset(nextPreset));
-    setSelectedId("main-tent");
+    setנבחרId("main-tent");
   }
 
   function applyTentTemplate(nextTemplateId: TentTemplateId) {
     setTemplateId(nextTemplateId);
-    setSelectedId("main-tent");
+    setנבחרId("main-tent");
   }
 
   function addFromLibrary(item: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">) {
@@ -580,17 +631,17 @@ export default function LayoutShowcaseV3Page() {
       item.category === "inventory" ? 1.0 : 0.95
     );
     setSceneAssets((current) => [...current, next]);
-    setSelectedId(next.id);
+    setנבחרId(next.id);
   }
 
-  function updateSelected(patch: Partial<SceneAsset>) {
+  function updateנבחר(patch: Partial<SceneAsset>) {
     if (!selectedId) return;
     setSceneAssets((current) =>
       current.map((item) => (item.id === selectedId ? { ...item, ...patch } : item))
     );
   }
 
-  function moveSelected(dx: number, dz: number) {
+  function moveנבחר(dx: number, dz: number) {
     if (!selectedAsset) return;
 
     const [x, y, z] = selectedAsset.position;
@@ -599,7 +650,7 @@ export default function LayoutShowcaseV3Page() {
     const limitX = Math.max(0.5, activeTemplate.widthM / 2 - dims.widthM / 2);
     const limitZ = Math.max(0.5, activeTemplate.depthM / 2 - dims.depthM / 2);
 
-    updateSelected({
+    updateנבחר({
       position: [
         Number(Math.max(-limitX, Math.min(limitX, x + dx)).toFixed(2)),
         y,
@@ -608,30 +659,30 @@ export default function LayoutShowcaseV3Page() {
     });
   }
 
-  function rotateSelected(delta: number) {
+  function rotateנבחר(delta: number) {
     if (!selectedAsset) return;
     const [rx, ry, rz] = selectedAsset.rotation;
-    updateSelected({ rotation: [rx, Number((ry + delta).toFixed(2)), rz] });
+    updateנבחר({ rotation: [rx, Number((ry + delta).toFixed(2)), rz] });
   }
 
-  function scaleSelected(delta: number) {
+  function scaleנבחר(delta: number) {
     if (!selectedAsset) return;
     const next = Math.min(2.2, Math.max(0.35, Number((selectedAsset.scale + delta).toFixed(2))));
-    updateSelected({ scale: next });
+    updateנבחר({ scale: next });
   }
 
-  function removeSelected() {
+  function removeנבחר() {
     if (!selectedAsset || selectedAsset.id === "main-tent") return;
     setSceneAssets((current) => current.filter((item) => item.id !== selectedAsset.id));
-    setSelectedId("main-tent");
+    setנבחרId("main-tent");
   }
 
   function selectMainTent() {
-    setSelectedId("main-tent");
+    setנבחרId("main-tent");
   }
 
   const pageStyle: React.CSSProperties = {
-    minHeight: "100vh",
+    minheight: "100vh",
     color: "#eef7ff",
     background:
       "radial-gradient(circle at top, rgba(30,73,160,0.28), transparent 32%), linear-gradient(180deg, #08142d 0%, #0a1733 55%, #091327 100%)",
@@ -640,7 +691,7 @@ export default function LayoutShowcaseV3Page() {
   };
 
   const shellStyle: React.CSSProperties = {
-    maxWidth: 1440,
+    maxרוחב: 1440,
     margin: "0 auto",
     padding: "28px 28px 42px",
   };
@@ -655,7 +706,7 @@ export default function LayoutShowcaseV3Page() {
 
   const presetButton = (active: boolean): React.CSSProperties => ({
     flex: 1,
-    minWidth: 180,
+    minרוחב: 180,
     textAlign: "left",
     borderRadius: 18,
     border: active ? "1px solid rgba(112,248,255,0.48)" : "1px solid rgba(120,155,255,0.18)",
@@ -679,10 +730,10 @@ export default function LayoutShowcaseV3Page() {
         >
           <div>
             <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
-              EXHIBITION HUB / SHOWCASE V3
+              EXHIBITION HUB / תצוגת V3
             </div>
-            <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.05, marginTop: 8 }}>
-              Executive Layout Showcase
+            <div style={{ fontSize: 42, fontWeight: 900, lineheight: 1.05, marginTop: 8 }}>
+              מרכז תכנון תצוגה
             </div>
           </div>
 
@@ -699,7 +750,7 @@ export default function LayoutShowcaseV3Page() {
                 fontWeight: 700,
               }}
             >
-              Home
+              בית
             </a>
             <a
               href="/layout-planning"
@@ -713,7 +764,7 @@ export default function LayoutShowcaseV3Page() {
                 fontWeight: 700,
               }}
             >
-              Layout Planning
+              תכנון פריסה
             </a>
           </div>
         </div>
@@ -729,19 +780,19 @@ export default function LayoutShowcaseV3Page() {
           }}
         >
           <button style={presetButton(preset === "premium")} onClick={() => applyPreset("premium")}>
-            <div style={{ fontWeight: 800 }}>Premium Tent</div>
+            <div style={{ fontWeight: 800 }}>תצוגה מלאה</div>
             <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>בסיס תצוגה מלא</div>
           </button>
           <button style={presetButton(preset === "space")} onClick={() => applyPreset("space")}>
-            <div style={{ fontWeight: 800 }}>Space Showcase</div>
+            <div style={{ fontWeight: 800 }}>תצוגת חלל</div>
             <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>לוויינים וחלל</div>
           </button>
           <button style={presetButton(preset === "air")} onClick={() => applyPreset("air")}>
-            <div style={{ fontWeight: 800 }}>Air Defense</div>
+            <div style={{ fontWeight: 800 }}>הגנה אווירית</div>
             <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>מערכות אוויריות</div>
           </button>
           <button style={presetButton(preset === "vip")} onClick={() => applyPreset("vip")}>
-            <div style={{ fontWeight: 800 }}>VIP Visit</div>
+            <div style={{ fontWeight: 800 }}>ביקור VIP</div>
             <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>מיתוג ואירוח</div>
           </button>
         </div>
@@ -763,13 +814,13 @@ export default function LayoutShowcaseV3Page() {
                 key={template.id}
                 style={{
                   ...presetButton(active),
-                  minWidth: 0,
+                  minרוחב: 0,
                 }}
                 onClick={() => applyTentTemplate(template.id)}
               >
                 <div style={{ fontWeight: 800 }}>{template.label}</div>
                 <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>
-                  height {template.heightM}m · active tent size
+                  גובה {template.גובהM}m · גודל אוהל פעיל
                 </div>
               </button>
             );
@@ -789,36 +840,40 @@ export default function LayoutShowcaseV3Page() {
           >
             <div>
               <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
-                MAIN SCENE
+                סביבת עבודה
               </div>
               <div style={{ fontSize: 22, fontWeight: 900, marginTop: 6 }}>
-                Tent Configuration Stage
+                בימת תכנון תצוגה
               </div>
               <div style={{ fontSize: 14, opacity: 0.8, marginTop: 6 }}>
-                Real GLB models • blue exhibition floor • elegant grid • neon frame • four corner spotlights
+                מודלים תלת־ממדיים אמיתיים • שטיח כחול • רשת מדידה • מסגרת נאון • ארבעה זרקורים
               </div>
             </div>
 
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <StatCard label="Objects" value={sceneAssets.length} />
-              <StatCard label="Selected" value={selectedAsset?.title ?? "None"} />
-              <StatCard label="Mode" value="V3" />
+              width: "100%",
+              <StatCard label="אובייקטים" value={sceneAssets.length} />
+              <StatCard label="נבחר" value={selectedAsset?.title ?? "None"} />
+              <StatCard label="מצב" value="V3" />
             </div>
           </div>
 
           <div
             style={{
-              border: "1px solid rgba(120,155,255,0.18)",
-              borderRadius: 22,
+              border: "1px solid rgba(120,155,255,0.20)",
+              borderRadius: 24,
               overflow: "hidden",
-              height: 760,
-              background: "rgba(8,15,36,0.84)",
+              height: "76vh",
+              minHeight: 760,
+              width: "100%",
+              maxHeight: "none",
+              background: "rgba(8,15,36,0.88)",
             }}
           >
             <ShowcaseScene
               sceneAssets={sceneAssets}
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onSelect={setנבחרId}
               template={activeTemplate}
             />
           </div>
@@ -828,21 +883,21 @@ export default function LayoutShowcaseV3Page() {
           style={{
             marginTop: 16,
             display: "grid",
-            gridTemplateColumns: "1.15fr 1.15fr 0.75fr",
+            gridTemplateColumns: "1.05fr 1.05fr 0.9fr",
             gap: 16,
             alignItems: "start",
           }}
         >
           <section style={{ ...panelStyle, padding: 16 }}>
             <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
-              EXHIBITS
+              מוצגים
             </div>
-            <div style={{ fontSize: 26, fontWeight: 900, marginTop: 8 }}>Real 3D Exhibits</div>
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>מוצגים תלת־ממדיים</div>
             <div
               style={{
                 marginTop: 14,
                 display: "grid",
-                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gridTemplateColumns: "repeat(5, minmax(86px, 1fr))",
                 gap: 12,
               }}
             >
@@ -858,18 +913,18 @@ export default function LayoutShowcaseV3Page() {
 
           <section style={{ ...panelStyle, padding: 16 }}>
             <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
-              INVENTORY
+              מלאי
             </div>
-            <div style={{ fontSize: 26, fontWeight: 900, marginTop: 8 }}>Real 3D Inventory</div>
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>מלאי תלת־ממדי</div>
             <div
               style={{
                 marginTop: 14,
                 display: "grid",
-                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gridTemplateColumns: "repeat(5, minmax(86px, 1fr))",
                 gap: 12,
               }}
             >
-              {INVENTORY_LIBRARY.map((item) => (
+              {מלאי_LIBRARY.map((item) => (
                 <LibraryCard
                   key={item.title}
                   item={item}
@@ -879,12 +934,12 @@ export default function LayoutShowcaseV3Page() {
             </div>
           </section>
 
-          <section style={{ ...panelStyle, padding: 16 }}>
+          <section style={{ ...panelStyle, padding: 16, direction: "rtl", textAlign: "right" }}>
             <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
-              SELECTED OBJECT
+              אובייקט נבחר
             </div>
-            <div style={{ fontSize: 26, fontWeight: 900, marginTop: 8 }}>
-              {selectedAsset?.title ?? "No selection"}
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>
+              {selectedAsset?.title ?? "לא נבחר"}
             </div>
             <div style={{ fontSize: 13, opacity: 0.78, marginTop: 4 }}>
               {selectedAsset?.titleHe ?? "—"}
@@ -899,9 +954,9 @@ export default function LayoutShowcaseV3Page() {
                   gap: 8,
                 }}
               >
-                <StatCard label="Width" value={formatMeters(selectedDimensions.widthM)} />
-                <StatCard label="Depth" value={formatMeters(selectedDimensions.depthM)} />
-                <StatCard label="Height" value={formatMeters(selectedDimensions.heightM)} />
+                <StatCard label="רוחב" value={formatMeters(selectedDimensions.widthM)} />
+                <StatCard label="עומק" value={formatMeters(selectedDimensions.depthM)} />
+                <StatCard label="גובה" value={formatMeters(selectedDimensions.גובהM)} />
               </div>
             ) : null}
 
@@ -913,12 +968,96 @@ export default function LayoutShowcaseV3Page() {
                 border: "1px solid rgba(151, 237, 255, 0.18)",
                 background: "rgba(255,255,255,0.045)",
                 fontSize: 13,
-                lineHeight: 1.45,
+                lineheight: 1.45,
                 color: "rgba(238,247,255,0.82)",
               }}
             >
-              Active tent: <b>{activeTemplate.label}</b> · usable footprint {activeTemplate.widthM}m × {activeTemplate.depthM}m
+              אוהל פעיל: <b>{activeTemplate.label}</b> · שטח עבודה {activeTemplate.widthM}m × {activeTemplate.depthM}m
             </div>
+
+            {selectedFit ? (
+              <div
+                style={{
+                  marginTop: 12,
+                  padding: "12px",
+                  borderRadius: 16,
+                  border: selectedFit.fits
+                    ? "1px solid rgba(71,255,190,0.34)"
+                    : "1px solid rgba(255,160,120,0.42)",
+                  background: selectedFit.fits
+                    ? "rgba(28,180,125,0.10)"
+                    : "rgba(255,105,80,0.12)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 12, letterSpacing: 1.5, color: "#83e4ff", fontWeight: 800 }}>
+                      בדיקת התאמה
+                    </div>
+                    <div style={{ fontSize: 13, opacity: 0.78, marginTop: 4 }}>
+                      בדיקת מיקום האובייקט בתוך שטח האוהל
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: 999,
+                      padding: "8px 12px",
+                      fontWeight: 900,
+                      color: selectedFit.fits ? "#a9ffe4" : "#ffd1c7",
+                      background: selectedFit.fits
+                        ? "rgba(28,180,125,0.16)"
+                        : "rgba(255,105,80,0.18)",
+                      border: selectedFit.fits
+                        ? "1px solid rgba(71,255,190,0.26)"
+                        : "1px solid rgba(255,160,120,0.34)",
+                    }}
+                  >
+                    {selectedFit.fits ? "מתאים" : "לא מתאים"}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 12,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gap: 8,
+                    fontSize: 13,
+                  }}
+                >
+                  <div style={{ opacity: 0.82 }}>
+                    רוחב: {selectedFit.fitsרוחב ? "תקין" : "רחב מדי"}
+                  </div>
+                  <div style={{ opacity: 0.82 }}>
+                    עומק: {selectedFit.fitsעומק ? "תקין" : "עמוק מדי"}
+                  </div>
+                  <div style={{ opacity: 0.82 }}>
+                    מיקום X: {selectedFit.insideX ? "בפנים" : "בחוץ"}
+                  </div>
+                  <div style={{ opacity: 0.82 }}>
+                    מיקום Z: {selectedFit.insideZ ? "בפנים" : "בחוץ"}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 10,
+                    fontSize: 13,
+                    color: selectedFit.minClearance >= 0 ? "rgba(238,247,255,0.82)" : "#ffd1c7",
+                  }}
+                >
+                  מרווח מינימלי: <b>{formatMeters(selectedFit.minClearance)}</b>
+                </div>
+              </div>
+            ) : null}
 
             <div
               style={{
@@ -930,10 +1069,10 @@ export default function LayoutShowcaseV3Page() {
             >
               <StatCard label="X" value={selectedAsset?.position[0] ?? 0} />
               <StatCard label="Z" value={selectedAsset?.position[2] ?? 0} />
-              <StatCard label="Scale" value={selectedAsset?.scale ?? 1} />
+              <StatCard label="קנ״מ" value={selectedAsset?.scale ?? 1} />
             </div>
 
-            <div style={{ marginTop: 18, fontWeight: 800 }}>Move</div>
+            <div style={{ marginTop: 18, fontWeight: 800 }}>הזזה</div>
             <div
               style={{
                 display: "grid",
@@ -942,15 +1081,15 @@ export default function LayoutShowcaseV3Page() {
                 marginTop: 10,
               }}
             >
-              <button style={controlBtn} onClick={() => moveSelected(-1, 0)}>←</button>
-              <button style={controlBtn} onClick={() => moveSelected(0, -1)}>↑</button>
-              <button style={controlBtn} onClick={() => moveSelected(1, 0)}>→</button>
+              <button style={controlBtn} onClick={() => moveנבחר(-1, 0)}>←</button>
+              <button style={controlBtn} onClick={() => moveנבחר(0, -1)}>↑</button>
+              <button style={controlBtn} onClick={() => moveנבחר(1, 0)}>→</button>
               <div />
-              <button style={controlBtn} onClick={() => moveSelected(0, 1)}>↓</button>
+              <button style={controlBtn} onClick={() => moveנבחר(0, 1)}>↓</button>
               <div />
             </div>
 
-            <div style={{ marginTop: 18, fontWeight: 800 }}>Rotate / Scale</div>
+            <div style={{ marginTop: 18, fontWeight: 800 }}>סיבוב / קנה מידה</div>
             <div
               style={{
                 display: "grid",
@@ -959,16 +1098,16 @@ export default function LayoutShowcaseV3Page() {
                 marginTop: 10,
               }}
             >
-              <button style={controlBtn} onClick={() => rotateSelected(-0.2)}>Rotate −</button>
-              <button style={controlBtn} onClick={() => rotateSelected(0.2)}>Rotate +</button>
-              <button style={controlBtn} onClick={() => scaleSelected(-0.05)}>Scale −</button>
-              <button style={controlBtn} onClick={() => scaleSelected(0.05)}>Scale +</button>
+              <button style={controlBtn} onClick={() => rotateנבחר(-0.2)}>סובב −</button>
+              <button style={controlBtn} onClick={() => rotateנבחר(0.2)}>סובב +</button>
+              <button style={controlBtn} onClick={() => scaleנבחר(-0.05)}>הקטן</button>
+              <button style={controlBtn} onClick={() => scaleנבחר(0.05)}>הגדל</button>
             </div>
 
-            <div style={{ marginTop: 18, fontWeight: 800 }}>Actions</div>
+            <div style={{ marginTop: 18, fontWeight: 800 }}>פעולות</div>
             <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
-              <button style={controlBtn} onClick={selectMainTent}>Select Main Tent</button>
-              <button style={dangerBtn} onClick={removeSelected}>Remove Selected</button>
+              <button style={controlBtn} onClick={selectMainTent}>בחר אוהל ראשי</button>
+              <button style={dangerBtn} onClick={removeנבחר}>Remove נבחר</button>
             </div>
           </section>
         </div>
@@ -999,4 +1138,4 @@ const dangerBtn: React.CSSProperties = {
 
 useGLTF.preload("/models/inventory/event+tent+3d+model.glb");
 EXHIBIT_LIBRARY.forEach((asset) => useGLTF.preload(asset.model));
-INVENTORY_LIBRARY.forEach((asset) => useGLTF.preload(asset.model));
+מלאי_LIBRARY.forEach((asset) => useGLTF.preload(asset.model));
