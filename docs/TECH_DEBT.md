@@ -34,3 +34,9 @@ Later, after V3 is stable:
 - document real model paths used in V3
 - add scene export/import
 - add cross-device sync strategy
+
+## Resolved / Stabilized — 2026-04-24
+
+- Dirty `layout-planning` edits were reverted to the stable Git version.
+- Old showcase experiments were archived outside active routes.
+- Active route inventory should now be regenerated from current `src/app`.

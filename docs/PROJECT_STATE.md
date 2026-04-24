@@ -130,3 +130,13 @@ Inventory is important but should be presented as a supporting layer.
 - Do not break `/layout-planning` for showcase work.
 - If a code anchor is not found, inspect the live file before editing.
 - Do not rediscover old requirements; treat this document as project baseline.
+
+## Cleanup checkpoint — 2026-04-24
+
+Old showcase experiments were removed from active `src/app` routes and moved to archive.
+
+Current rule after cleanup:
+- `/layout-planning` remains the stable operational editor.
+- old `/layout-showcase` and `/layout-showcase-v2` are not active routes.
+- future work should create `/layout-showcase-v3` as a clean demo route.
+- V3 must use real existing GLB/assets listed in `docs/ASSET_INVENTORY.generated.txt`.

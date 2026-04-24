@@ -16,8 +16,6 @@ src/app/land/[slug]/page.tsx
 src/app/land/page.tsx
 src/app/layout-planning/[template]/page.tsx
 src/app/layout-planning/page.tsx
-src/app/layout-showcase-v2/page.tsx
-src/app/layout-showcase/page.tsx
 src/app/naval/[slug]/page.tsx
 src/app/naval/page.tsx
 src/app/page.tsx
