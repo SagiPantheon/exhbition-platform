@@ -6,6 +6,7 @@ import { Grid, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/dr
 import * as THREE from "three";
 
 type LibraryCategory = "exhibits" | "inventory";
+type ScenePresetId = "premium" | "space" | "air" | "vip";
 
 type SceneAsset = {
   id: string;
@@ -136,6 +137,232 @@ const INITIAL_ITEMS: SceneAsset[] = [
     scale: 0.72,
   },
 ];
+
+
+function buildPreset(preset: ScenePresetId): SceneAsset[] {
+  const baseTent: SceneAsset = {
+    id: "main-tent",
+    label: "Main Exhibition Tent",
+    category: "inventory",
+    model: "/models/inventory/event+tent+3d+model.glb",
+    preview: "/inventory/tent-30x20-white-01.png",
+    position: [0, 0.02, 0],
+    rotation: [0, 0, 0],
+    scale: 1.08,
+  };
+
+  if (preset === "space") {
+    return [
+      baseTent,
+      {
+        id: "optsat-preset",
+        label: "OPTSAT 500",
+        category: "exhibits",
+        model: "/models/space/optsat-500-showcase-3d.glb",
+        preview: "/images/space/optsat-500-showcase.png",
+        position: [-7.2, 0.02, 5.2],
+        rotation: [0, 0.2, 0],
+        scale: 0.95,
+      },
+      {
+        id: "optsar-preset",
+        label: "OPTSAR 550",
+        category: "exhibits",
+        model: "/models/space/optsar-550-showcase-3d.glb",
+        preview: "/images/space/optsar-550-showcase.png",
+        position: [0, 0.02, 6.2],
+        rotation: [0, 0, 0],
+        scale: 0.95,
+      },
+      {
+        id: "mcs-preset",
+        label: "MCS",
+        category: "exhibits",
+        model: "/models/space/mcs-showcase-3d.glb",
+        preview: "/images/space/mcs-showcase.png",
+        position: [7.3, 0.02, 5.0],
+        rotation: [0, -0.25, 0],
+        scale: 0.9,
+      },
+      {
+        id: "flag-space-preset",
+        label: "IAI Flag Pair",
+        category: "inventory",
+        model: "/models/inventory/flag-pair-iai-israel-01.glb",
+        preview: "/inventory/flag-pair-iai-israel-01.png",
+        position: [-12.5, 0.02, -7.2],
+        rotation: [0, 0.5, 0],
+        scale: 0.9,
+      },
+      {
+        id: "lightbox-space-preset",
+        label: "Vertical Lightbox",
+        category: "inventory",
+        model: "/models/inventory/lightbox-vertical-iai-01.glb",
+        preview: "/inventory/lightbox-vertical-multidomain-01.jpeg",
+        position: [12.2, 0.02, -7.0],
+        rotation: [0, -0.5, 0],
+        scale: 0.9,
+      },
+    ];
+  }
+
+  if (preset === "air") {
+    return [
+      baseTent,
+      {
+        id: "launcher-air-preset",
+        label: "Arrow 3 Launcher",
+        category: "exhibits",
+        model: "/models/air/arrow-3-launcher.glb",
+        preview: "/images/air/arrow-3-launcher-showcase.png",
+        position: [6.8, 0.02, -4.7],
+        rotation: [0, -0.55, 0],
+        scale: 0.86,
+      },
+      {
+        id: "lora-air-preset",
+        label: "LORA",
+        category: "exhibits",
+        model: "/models/air/lora-showcase-3d.glb",
+        preview: "/images/air/lora-showcase.png",
+        position: [-6.8, 0.02, -4.8],
+        rotation: [0, 0.55, 0],
+        scale: 0.86,
+      },
+      {
+        id: "mmr-air-preset",
+        label: "MMR Radar",
+        category: "exhibits",
+        model: "/models/air/mmr-showcase-3d.glb",
+        preview: "/images/air/mmr-showcase.png",
+        position: [0, 0.02, 6.1],
+        rotation: [0, 0, 0],
+        scale: 0.8,
+      },
+      {
+        id: "flag-air-preset",
+        label: "IAI Flag Pair",
+        category: "inventory",
+        model: "/models/inventory/flag-pair-iai-israel-01.glb",
+        preview: "/inventory/flag-pair-iai-israel-01.png",
+        position: [-12.4, 0.02, 6.8],
+        rotation: [0, 0.45, 0],
+        scale: 0.9,
+      },
+      {
+        id: "lightbox-air-preset",
+        label: "Horizontal Lightbox",
+        category: "inventory",
+        model: "/models/inventory/lightbox-horizontal-iai-01.glb",
+        preview: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
+        position: [12.1, 0.02, 6.6],
+        rotation: [0, -0.45, 0],
+        scale: 0.9,
+      },
+    ];
+  }
+
+  if (preset === "vip") {
+    return [
+      baseTent,
+      {
+        id: "logo-vip-preset",
+        label: "IAI Logo",
+        category: "inventory",
+        model: "/models/inventory/blue+logo+3d+model.glb",
+        preview: "/inventory/logo-iai-large-2m-01.png",
+        position: [0, 0.02, 7.0],
+        rotation: [0, 0, 0],
+        scale: 1.1,
+      },
+      {
+        id: "flag-vip-left",
+        label: "IAI Flag Pair",
+        category: "inventory",
+        model: "/models/inventory/flag-pair-iai-israel-01.glb",
+        preview: "/inventory/flag-pair-iai-israel-01.png",
+        position: [-11.8, 0.02, 6.6],
+        rotation: [0, 0.55, 0],
+        scale: 0.95,
+      },
+      {
+        id: "flag-vip-right",
+        label: "IAI Flag Pair",
+        category: "inventory",
+        model: "/models/inventory/flag-pair-iai-israel-01.glb",
+        preview: "/inventory/flag-pair-iai-israel-01.png",
+        position: [11.8, 0.02, 6.6],
+        rotation: [0, -0.55, 0],
+        scale: 0.95,
+      },
+      {
+        id: "lightbox-vip-left",
+        label: "Vertical Lightbox",
+        category: "inventory",
+        model: "/models/inventory/lightbox-vertical-iai-01.glb",
+        preview: "/inventory/lightbox-vertical-multidomain-01.jpeg",
+        position: [-8.8, 0.02, -6.8],
+        rotation: [0, 0.35, 0],
+        scale: 0.9,
+      },
+      {
+        id: "lightbox-vip-right",
+        label: "Vertical Lightbox",
+        category: "inventory",
+        model: "/models/inventory/lightbox-vertical-iai-01.glb",
+        preview: "/inventory/lightbox-vertical-multidomain-01.jpeg",
+        position: [8.8, 0.02, -6.8],
+        rotation: [0, -0.35, 0],
+        scale: 0.9,
+      },
+    ];
+  }
+
+  return [
+    baseTent,
+    {
+      id: "flag-pair-start",
+      label: "IAI Flag Pair",
+      category: "inventory",
+      model: "/models/inventory/flag-pair-iai-israel-01.glb",
+      preview: "/inventory/flag-pair-iai-israel-01.png",
+      position: [-11.8, 0.02, 6.7],
+      rotation: [0, 0.35, 0],
+      scale: 0.95,
+    },
+    {
+      id: "lightbox-start",
+      label: "Horizontal Lightbox",
+      category: "inventory",
+      model: "/models/inventory/lightbox-horizontal-iai-01.glb",
+      preview: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
+      position: [11.4, 0.02, 6.4],
+      rotation: [0, -0.35, 0],
+      scale: 0.95,
+    },
+    {
+      id: "optsat-start",
+      label: "OPTSAT 500",
+      category: "exhibits",
+      model: "/models/space/optsat-500-showcase-3d.glb",
+      preview: "/images/space/optsat-500-showcase.png",
+      position: [-5.4, 0.02, 5.6],
+      rotation: [0, 0.1, 0],
+      scale: 0.9,
+    },
+    {
+      id: "launcher-start",
+      label: "Arrow 3 Launcher",
+      category: "exhibits",
+      model: "/models/air/arrow-3-launcher.glb",
+      preview: "/images/air/arrow-3-launcher-showcase.png",
+      position: [6.4, 0.02, -4.5],
+      rotation: [0, -0.5, 0],
+      scale: 0.84,
+    },
+  ];
+}
 
 function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
@@ -417,13 +644,20 @@ function ControlButton({ children, onClick }: { children: React.ReactNode; onCli
 }
 
 export default function LayoutShowcaseV3Page() {
-  const [items, setItems] = useState<SceneAsset[]>(INITIAL_ITEMS);
+  const [activePreset, setActivePreset] = useState<ScenePresetId>("premium");
+  const [items, setItems] = useState<SceneAsset[]>(() => buildPreset("premium"));
   const [selectedId, setSelectedId] = useState<string | null>("main-tent");
 
   const selectedItem = useMemo(
     () => items.find((item) => item.id === selectedId) ?? null,
     [items, selectedId]
   );
+
+  function applyPreset(preset: ScenePresetId) {
+    setActivePreset(preset);
+    setItems(buildPreset(preset));
+    setSelectedId("main-tent");
+  }
 
   function addAsset(asset: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">) {
     const index = items.length;
@@ -512,6 +746,33 @@ export default function LayoutShowcaseV3Page() {
         </header>
 
         <section className="rounded-[28px] border border-cyan-300/12 bg-[#061020]/90 p-4 shadow-[0_30px_110px_rgba(0,0,0,0.45)]">
+          <div className="mb-4 grid gap-2 md:grid-cols-4">
+            {[
+              { id: "premium" as ScenePresetId, title: "Premium Tent", sub: "בסיס תצוגה מלא" },
+              { id: "space" as ScenePresetId, title: "Space Showcase", sub: "לוויינים וחלל" },
+              { id: "air" as ScenePresetId, title: "Air Defense", sub: "מערכות אוויריות" },
+              { id: "vip" as ScenePresetId, title: "VIP Visit", sub: "מיתוג ואירוח" },
+            ].map((preset) => {
+              const active = activePreset === preset.id;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => applyPreset(preset.id)}
+                  className={[
+                    "rounded-[18px] border px-4 py-3 text-left transition",
+                    active
+                      ? "border-cyan-300/38 bg-cyan-300/[0.12] shadow-[0_0_26px_rgba(34,211,238,0.18)]"
+                      : "border-white/10 bg-white/[0.04] hover:border-cyan-300/24 hover:bg-cyan-300/[0.06]",
+                  ].join(" ")}
+                >
+                  <div className="text-sm font-semibold text-white">{preset.title}</div>
+                  <div className="mt-1 text-xs text-white/45">{preset.sub}</div>
+                </button>
+              );
+            })}
+          </div>
+
           <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
             <div>
               <div className="text-[11px] uppercase tracking-[0.35em] text-cyan-300/70">
@@ -536,7 +797,7 @@ export default function LayoutShowcaseV3Page() {
             </div>
           </div>
 
-          <div className="h-[78vh] min-h-[720px] overflow-hidden rounded-[26px] border border-cyan-300/14 bg-[#081425]">
+          <div className="h-[82vh] min-h-[760px] overflow-hidden rounded-[26px] border border-cyan-300/14 bg-[#081425]">
             <ShowcaseScene items={items} selectedId={selectedId} onSelect={setSelectedId} />
           </div>
         </section>
