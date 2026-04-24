@@ -2,496 +2,316 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Grid, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-type LibraryCategory = "exhibits" | "inventory";
-type ScenePresetId = "premium" | "space" | "air" | "vip";
+type AssetKind = "tent" | "exhibit" | "inventory";
 
 type SceneAsset = {
   id: string;
-  label: string;
-  category: LibraryCategory;
+  title: string;
+  titleHe: string;
+  category: AssetKind;
   model: string;
-  preview: string;
+  poster: string;
   position: [number, number, number];
   rotation: [number, number, number];
   scale: number;
+  widthM?: number;
+  depthM?: number;
+  heightM?: number;
 };
+
+type PresetKey = "premium" | "space" | "air" | "vip";
+
+type TentTemplateId = "10x15" | "15x25" | "20x30";
+
+type TentTemplate = {
+  id: TentTemplateId;
+  label: string;
+  widthM: number;
+  depthM: number;
+  heightM: number;
+};
+
+const TENT_TEMPLATES: TentTemplate[] = [
+  { id: "10x15", label: "10m × 15m", widthM: 10, depthM: 15, heightM: 5 },
+  { id: "15x25", label: "15m × 25m", widthM: 15, depthM: 25, heightM: 6 },
+  { id: "20x30", label: "20m × 30m", widthM: 20, depthM: 30, heightM: 7 },
+];
+
+const DEFAULT_TENT_TEMPLATE = TENT_TEMPLATES.find((template) => template.id === "20x30") ?? TENT_TEMPLATES[0];
+
+const TENT_MODEL = "/models/inventory/event+tent+3d+model.glb";
 
 const EXHIBIT_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">[] = [
   {
-    label: "OPTSAT 500",
-    category: "exhibits",
+    title: "OPTSAT 500",
+    titleHe: "אופסט 500",
+    category: "exhibit",
     model: "/models/space/optsat-500-showcase-3d.glb",
-    preview: "/images/space/optsat-500-showcase.png",
+    poster: "/images/space/optsat-500-showcase.png",
   },
   {
-    label: "OPTSAR 550",
-    category: "exhibits",
+    title: "OPTSAR 550",
+    titleHe: "אופטסר 550",
+    category: "exhibit",
     model: "/models/space/optsar-550-showcase-3d.glb",
-    preview: "/images/space/optsar-550-showcase.png",
+    poster: "/images/space/optsar-550-showcase.png",
   },
   {
-    label: "MCS",
-    category: "exhibits",
+    title: "MCS",
+    titleHe: "לווין וחלל",
+    category: "exhibit",
     model: "/models/space/mcs-showcase-3d.glb",
-    preview: "/images/space/mcs-showcase.png",
+    poster: "/images/space/mcs-showcase.png",
   },
   {
-    label: "Arrow 3 Launcher",
-    category: "exhibits",
+    title: "Arrow 3 Launcher",
+    titleHe: "משגר חץ 3",
+    category: "exhibit",
     model: "/models/air/arrow-3-launcher.glb",
-    preview: "/images/air/arrow-3-launcher-showcase.png",
+    poster: "/images/air/arrow-3-launcher-showcase.png",
   },
   {
-    label: "LORA",
-    category: "exhibits",
+    title: "LORA",
+    titleHe: "לורה",
+    category: "exhibit",
     model: "/models/air/lora-showcase-3d.glb",
-    preview: "/images/air/lora-showcase.png",
+    poster: "/images/air/lora-showcase.png",
   },
 ];
 
 const INVENTORY_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">[] = [
   {
-    label: "IAI Flag Pair",
+    title: "IAI Flag Pair",
+    titleHe: "זוג דגלים",
     category: "inventory",
     model: "/models/inventory/flag-pair-iai-israel-01.glb",
-    preview: "/inventory/flag-pair-iai-israel-01.png",
+    poster: "/inventory/flag-pair-iai-israel-01.png",
   },
   {
-    label: "IAI Logo",
+    title: "IAI Logo",
+    titleHe: "לוגו IAI",
     category: "inventory",
     model: "/models/inventory/blue+logo+3d+model.glb",
-    preview: "/inventory/logo-iai-large-2m-01.png",
+    poster: "/inventory/logo-iai-large-2m-01.png",
   },
   {
-    label: "Horizontal Lightbox",
+    title: "Horizontal Lightbox",
+    titleHe: "לייטבוקס אופקי",
     category: "inventory",
     model: "/models/inventory/lightbox-horizontal-iai-01.glb",
-    preview: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
+    poster: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
   },
   {
-    label: "Vertical Lightbox",
+    title: "Vertical Lightbox",
+    titleHe: "לייטבוקס אנכי",
     category: "inventory",
     model: "/models/inventory/lightbox-vertical-iai-01.glb",
-    preview: "/inventory/lightbox-vertical-multidomain-01.jpeg",
+    poster: "/inventory/lightbox-vertical-multidomain-01.jpeg",
   },
   {
-    label: "Blue Dome Tent",
+    title: "Blue Dome Tent",
+    titleHe: "אוהל כיפה כחול",
     category: "inventory",
     model: "/models/inventory/inflatable-tent-iai-blue-01.glb",
-    preview: "/inventory/tent-dome-iai-blue-01.png",
+    poster: "/inventory/tent-dome-iai-blue-01.png",
   },
 ];
-
-const INITIAL_ITEMS: SceneAsset[] = [
-  {
-    id: "main-tent",
-    label: "Main Exhibition Tent",
-    category: "inventory",
-    model: "/models/inventory/event+tent+3d+model.glb",
-    preview: "/inventory/tent-30x20-white-01.png",
-    position: [0, 0.02, 0],
-    rotation: [0, 0, 0],
-    scale: 1.0,
-  },
-  {
-    id: "flag-pair-start",
-    label: "IAI Flag Pair",
-    category: "inventory",
-    model: "/models/inventory/flag-pair-iai-israel-01.glb",
-    preview: "/inventory/flag-pair-iai-israel-01.png",
-    position: [-10, 0.02, 6.6],
-    rotation: [0, 0.35, 0],
-    scale: 0.9,
-  },
-  {
-    id: "lightbox-start",
-    label: "Horizontal Lightbox",
-    category: "inventory",
-    model: "/models/inventory/lightbox-horizontal-iai-01.glb",
-    preview: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
-    position: [9.4, 0.02, 5.8],
-    rotation: [0, -0.35, 0],
-    scale: 0.9,
-  },
-  {
-    id: "optsat-start",
-    label: "OPTSAT 500",
-    category: "exhibits",
-    model: "/models/space/optsat-500-showcase-3d.glb",
-    preview: "/images/space/optsat-500-showcase.png",
-    position: [-5.2, 0.02, 5.2],
-    rotation: [0, 0.1, 0],
-    scale: 0.8,
-  },
-  {
-    id: "launcher-start",
-    label: "Arrow 3 Launcher",
-    category: "exhibits",
-    model: "/models/air/arrow-3-launcher.glb",
-    preview: "/images/air/arrow-3-launcher-showcase.png",
-    position: [6.3, 0.02, -4.2],
-    rotation: [0, -0.5, 0],
-    scale: 0.72,
-  },
-];
-
-
-function buildPreset(preset: ScenePresetId): SceneAsset[] {
-  const baseTent: SceneAsset = {
-    id: "main-tent",
-    label: "Main Exhibition Tent",
-    category: "inventory",
-    model: "/models/inventory/event+tent+3d+model.glb",
-    preview: "/inventory/tent-30x20-white-01.png",
-    position: [0, 0.02, 0],
-    rotation: [0, 0, 0],
-    scale: 1.08,
-  };
-
-  if (preset === "space") {
-    return [
-      baseTent,
-      {
-        id: "optsat-preset",
-        label: "OPTSAT 500",
-        category: "exhibits",
-        model: "/models/space/optsat-500-showcase-3d.glb",
-        preview: "/images/space/optsat-500-showcase.png",
-        position: [-7.2, 0.02, 5.2],
-        rotation: [0, 0.2, 0],
-        scale: 0.95,
-      },
-      {
-        id: "optsar-preset",
-        label: "OPTSAR 550",
-        category: "exhibits",
-        model: "/models/space/optsar-550-showcase-3d.glb",
-        preview: "/images/space/optsar-550-showcase.png",
-        position: [0, 0.02, 6.2],
-        rotation: [0, 0, 0],
-        scale: 0.95,
-      },
-      {
-        id: "mcs-preset",
-        label: "MCS",
-        category: "exhibits",
-        model: "/models/space/mcs-showcase-3d.glb",
-        preview: "/images/space/mcs-showcase.png",
-        position: [7.3, 0.02, 5.0],
-        rotation: [0, -0.25, 0],
-        scale: 0.9,
-      },
-      {
-        id: "flag-space-preset",
-        label: "IAI Flag Pair",
-        category: "inventory",
-        model: "/models/inventory/flag-pair-iai-israel-01.glb",
-        preview: "/inventory/flag-pair-iai-israel-01.png",
-        position: [-12.5, 0.02, -7.2],
-        rotation: [0, 0.5, 0],
-        scale: 0.9,
-      },
-      {
-        id: "lightbox-space-preset",
-        label: "Vertical Lightbox",
-        category: "inventory",
-        model: "/models/inventory/lightbox-vertical-iai-01.glb",
-        preview: "/inventory/lightbox-vertical-multidomain-01.jpeg",
-        position: [12.2, 0.02, -7.0],
-        rotation: [0, -0.5, 0],
-        scale: 0.9,
-      },
-    ];
-  }
-
-  if (preset === "air") {
-    return [
-      baseTent,
-      {
-        id: "launcher-air-preset",
-        label: "Arrow 3 Launcher",
-        category: "exhibits",
-        model: "/models/air/arrow-3-launcher.glb",
-        preview: "/images/air/arrow-3-launcher-showcase.png",
-        position: [6.8, 0.02, -4.7],
-        rotation: [0, -0.55, 0],
-        scale: 0.86,
-      },
-      {
-        id: "lora-air-preset",
-        label: "LORA",
-        category: "exhibits",
-        model: "/models/air/lora-showcase-3d.glb",
-        preview: "/images/air/lora-showcase.png",
-        position: [-6.8, 0.02, -4.8],
-        rotation: [0, 0.55, 0],
-        scale: 0.86,
-      },
-      {
-        id: "mmr-air-preset",
-        label: "MMR Radar",
-        category: "exhibits",
-        model: "/models/air/mmr-showcase-3d.glb",
-        preview: "/images/air/mmr-showcase.png",
-        position: [0, 0.02, 6.1],
-        rotation: [0, 0, 0],
-        scale: 0.8,
-      },
-      {
-        id: "flag-air-preset",
-        label: "IAI Flag Pair",
-        category: "inventory",
-        model: "/models/inventory/flag-pair-iai-israel-01.glb",
-        preview: "/inventory/flag-pair-iai-israel-01.png",
-        position: [-12.4, 0.02, 6.8],
-        rotation: [0, 0.45, 0],
-        scale: 0.9,
-      },
-      {
-        id: "lightbox-air-preset",
-        label: "Horizontal Lightbox",
-        category: "inventory",
-        model: "/models/inventory/lightbox-horizontal-iai-01.glb",
-        preview: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
-        position: [12.1, 0.02, 6.6],
-        rotation: [0, -0.45, 0],
-        scale: 0.9,
-      },
-    ];
-  }
-
-  if (preset === "vip") {
-    return [
-      baseTent,
-      {
-        id: "logo-vip-preset",
-        label: "IAI Logo",
-        category: "inventory",
-        model: "/models/inventory/blue+logo+3d+model.glb",
-        preview: "/inventory/logo-iai-large-2m-01.png",
-        position: [0, 0.02, 7.0],
-        rotation: [0, 0, 0],
-        scale: 1.1,
-      },
-      {
-        id: "flag-vip-left",
-        label: "IAI Flag Pair",
-        category: "inventory",
-        model: "/models/inventory/flag-pair-iai-israel-01.glb",
-        preview: "/inventory/flag-pair-iai-israel-01.png",
-        position: [-11.8, 0.02, 6.6],
-        rotation: [0, 0.55, 0],
-        scale: 0.95,
-      },
-      {
-        id: "flag-vip-right",
-        label: "IAI Flag Pair",
-        category: "inventory",
-        model: "/models/inventory/flag-pair-iai-israel-01.glb",
-        preview: "/inventory/flag-pair-iai-israel-01.png",
-        position: [11.8, 0.02, 6.6],
-        rotation: [0, -0.55, 0],
-        scale: 0.95,
-      },
-      {
-        id: "lightbox-vip-left",
-        label: "Vertical Lightbox",
-        category: "inventory",
-        model: "/models/inventory/lightbox-vertical-iai-01.glb",
-        preview: "/inventory/lightbox-vertical-multidomain-01.jpeg",
-        position: [-8.8, 0.02, -6.8],
-        rotation: [0, 0.35, 0],
-        scale: 0.9,
-      },
-      {
-        id: "lightbox-vip-right",
-        label: "Vertical Lightbox",
-        category: "inventory",
-        model: "/models/inventory/lightbox-vertical-iai-01.glb",
-        preview: "/inventory/lightbox-vertical-multidomain-01.jpeg",
-        position: [8.8, 0.02, -6.8],
-        rotation: [0, -0.35, 0],
-        scale: 0.9,
-      },
-    ];
-  }
-
-  return [
-    baseTent,
-    {
-      id: "flag-pair-start",
-      label: "IAI Flag Pair",
-      category: "inventory",
-      model: "/models/inventory/flag-pair-iai-israel-01.glb",
-      preview: "/inventory/flag-pair-iai-israel-01.png",
-      position: [-11.8, 0.02, 6.7],
-      rotation: [0, 0.35, 0],
-      scale: 0.95,
-    },
-    {
-      id: "lightbox-start",
-      label: "Horizontal Lightbox",
-      category: "inventory",
-      model: "/models/inventory/lightbox-horizontal-iai-01.glb",
-      preview: "/inventory/lightbox-horizontal-multidomain-01.jpeg",
-      position: [11.4, 0.02, 6.4],
-      rotation: [0, -0.35, 0],
-      scale: 0.95,
-    },
-    {
-      id: "optsat-start",
-      label: "OPTSAT 500",
-      category: "exhibits",
-      model: "/models/space/optsat-500-showcase-3d.glb",
-      preview: "/images/space/optsat-500-showcase.png",
-      position: [-5.4, 0.02, 5.6],
-      rotation: [0, 0.1, 0],
-      scale: 0.9,
-    },
-    {
-      id: "launcher-start",
-      label: "Arrow 3 Launcher",
-      category: "exhibits",
-      model: "/models/air/arrow-3-launcher.glb",
-      preview: "/images/air/arrow-3-launcher-showcase.png",
-      position: [6.4, 0.02, -4.5],
-      rotation: [0, -0.5, 0],
-      scale: 0.84,
-    },
-  ];
-}
 
 function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value));
+function buildAsset(
+  base: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">,
+  position: [number, number, number],
+  rotation: [number, number, number],
+  scale: number,
+  forcedId?: string
+): SceneAsset {
+  return {
+    ...base,
+    id: forcedId ?? makeId(base.category),
+    position,
+    rotation,
+    scale,
+  };
 }
 
-function ModelAsset({
-  item,
-  selected,
-  onSelect,
+function buildTent(position: [number, number, number], rotation: [number, number, number], scale: number): SceneAsset {
+  return {
+    id: "main-tent",
+    title: "Main Exhibition Tent",
+    titleHe: "אוהל תצוגה ראשי",
+    category: "tent",
+    model: TENT_MODEL,
+    poster: "/inventory/tent-30x20-white-01.png",
+    position,
+    rotation,
+    scale,
+  };
+}
+
+function buildPremiumPreset(): SceneAsset[] {
+  return [
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.08),
+    buildAsset(INVENTORY_LIBRARY[2], [-8.8, 0, -5.3], [0, 0, 0], 1.05),
+    buildAsset(INVENTORY_LIBRARY[3], [8.8, 0, -5.0], [0, 0, 0], 1.05),
+    buildAsset(INVENTORY_LIBRARY[0], [-10.8, 0, 5.0], [0, Math.PI / 2, 0], 1.0),
+    buildAsset(EXHIBIT_LIBRARY[3], [10.6, 0, 4.8], [0, -Math.PI / 2, 0], 0.95),
+  ];
+}
+
+function buildSpacePreset(): SceneAsset[] {
+  return [
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.05),
+    buildAsset(EXHIBIT_LIBRARY[0], [-7, 0, -1.5], [0, 0.3, 0], 0.95),
+    buildAsset(EXHIBIT_LIBRARY[1], [0, 0, 3], [0, 0, 0], 0.95),
+    buildAsset(EXHIBIT_LIBRARY[2], [7, 0, -1], [0, -0.35, 0], 0.95),
+    buildAsset(INVENTORY_LIBRARY[3], [11.5, 0, 5.2], [0, 0, 0], 1.0),
+  ];
+}
+
+function buildAirPreset(): SceneAsset[] {
+  return [
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.04),
+    buildAsset(EXHIBIT_LIBRARY[3], [-7.5, 0, 0], [0, 0.65, 0], 0.9),
+    buildAsset(EXHIBIT_LIBRARY[4], [8.5, 0, 0.5], [0, -0.65, 0], 1.0),
+    buildAsset(INVENTORY_LIBRARY[2], [0, 0, -5.6], [0, 0, 0], 1.0),
+    buildAsset(INVENTORY_LIBRARY[0], [11.0, 0, 4.5], [0, Math.PI / 2, 0], 1.0),
+  ];
+}
+
+function buildVipPreset(): SceneAsset[] {
+  return [
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.02),
+    buildAsset(INVENTORY_LIBRARY[2], [-8.8, 0, -5.2], [0, 0, 0], 1.0),
+    buildAsset(INVENTORY_LIBRARY[3], [8.8, 0, -5.2], [0, 0, 0], 1.0),
+    buildAsset(INVENTORY_LIBRARY[1], [0, 0, 5.7], [0, 0, 0], 1.0),
+    buildAsset(INVENTORY_LIBRARY[0], [-11.0, 0, 4.8], [0, Math.PI / 2, 0], 1.0),
+  ];
+}
+
+function buildPreset(key: PresetKey): SceneAsset[] {
+  if (key === "space") return buildSpacePreset();
+  if (key === "air") return buildAirPreset();
+  if (key === "vip") return buildVipPreset();
+  return buildPremiumPreset();
+}
+
+function dimensionsForAsset(asset: SceneAsset, template: TentTemplate) {
+  if (asset.category === "tent") {
+    return {
+      widthM: template.widthM,
+      depthM: template.depthM,
+      heightM: template.heightM,
+    };
+  }
+
+  if (asset.widthM && asset.depthM && asset.heightM) {
+    return {
+      widthM: asset.widthM,
+      depthM: asset.depthM,
+      heightM: asset.heightM,
+    };
+  }
+
+  if (asset.model.includes("arrow-3-launcher")) return { widthM: 8.0, depthM: 3.0, heightM: 3.0 };
+  if (asset.model.includes("lora")) return { widthM: 6.5, depthM: 2.6, heightM: 2.8 };
+  if (asset.model.includes("/models/air/")) return { widthM: 4.0, depthM: 2.5, heightM: 2.8 };
+  if (asset.model.includes("/models/space/")) return { widthM: 2.0, depthM: 2.0, heightM: 2.8 };
+  if (asset.model.includes("flag-pair")) return { widthM: 2.2, depthM: 0.8, heightM: 2.6 };
+  if (asset.model.includes("lightbox-horizontal")) return { widthM: 3.0, depthM: 0.5, heightM: 2.2 };
+  if (asset.model.includes("lightbox-vertical")) return { widthM: 1.2, depthM: 0.5, heightM: 2.8 };
+  if (asset.model.includes("blue+logo")) return { widthM: 2.5, depthM: 0.4, heightM: 1.2 };
+  if (asset.model.includes("inflatable-tent")) return { widthM: 4.0, depthM: 4.0, heightM: 3.0 };
+
+  return { widthM: 1.5, depthM: 1.5, heightM: 1.5 };
+}
+
+function formatMeters(value: number) {
+  return `${Number(value.toFixed(1))}m`;
+}
+
+function FrameRect({
+  width,
+  depth,
+  y = 0.04,
 }: {
-  item: SceneAsset;
-  selected: boolean;
-  onSelect: (id: string) => void;
+  width: number;
+  depth: number;
+  y?: number;
 }) {
-  const gltf = useGLTF(item.model);
-  const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
-
-  return (
-    <group
-      position={item.position}
-      rotation={item.rotation}
-      scale={[item.scale, item.scale, item.scale]}
-      onClick={(event) => {
-        event.stopPropagation();
-        onSelect(item.id);
-      }}
-    >
-      <primitive object={scene} />
-
-      {selected ? (
-        <group position={[0, 0.05, 0]}>
-          <mesh rotation={[-Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[1.25, 1.55, 80]} />
-            <meshBasicMaterial color="#7ee8ff" transparent opacity={0.78} />
-          </mesh>
-          <pointLight position={[0, 1.8, 0]} intensity={1.8} distance={5} color="#7ee8ff" />
-        </group>
-      ) : null}
-    </group>
-  );
-}
-
-function FloorSystem() {
-  const width = 34;
-  const depth = 23;
-
-  return (
-    <>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[width + 18, depth + 18]} />
-        <meshStandardMaterial
-          color="#091324"
-          emissive="#102142"
-          emissiveIntensity={0.2}
-          roughness={1}
-        />
-      </mesh>
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[width, depth]} />
-        <meshStandardMaterial
-          color="#0f49f2"
-          emissive="#245dff"
-          emissiveIntensity={0.34}
-          roughness={0.76}
-          metalness={0.04}
-        />
-      </mesh>
-
-      <Grid
-        args={[width, depth]}
-        cellSize={1.15}
-        cellThickness={0.5}
-        sectionSize={4.6}
-        sectionThickness={1.05}
-        cellColor="#69a9ff"
-        sectionColor="#d9f8ff"
-        infiniteGrid={false}
-        fadeDistance={0}
-        fadeStrength={0}
-        position={[0, 0.035, 0]}
-      />
-
-      <NeonFrame width={width} depth={depth} />
-    </>
-  );
-}
-
-function NeonFrame({ width, depth }: { width: number; depth: number }) {
-  const y = 0.12;
-  const t = 0.14;
-
   const material = (
     <meshStandardMaterial
-      color="#ffffff"
-      emissive="#65e8ff"
-      emissiveIntensity={5.6}
-      roughness={0.18}
-      metalness={0.4}
+      color="#f1fbff"
+      emissive="#d9f5ff"
+      emissiveIntensity={3.8}
+      roughness={0.2}
+      metalness={0.2}
     />
   );
 
   return (
     <>
-      <mesh position={[0, y, -depth / 2]}>
-        <boxGeometry args={[width, t, t]} />
-        {material}
-      </mesh>
       <mesh position={[0, y, depth / 2]}>
-        <boxGeometry args={[width, t, t]} />
+        <boxGeometry args={[width, 0.06, 0.14]} />
         {material}
       </mesh>
-      <mesh position={[-width / 2, y, 0]}>
-        <boxGeometry args={[t, t, depth]} />
+      <mesh position={[0, y, -depth / 2]}>
+        <boxGeometry args={[width, 0.06, 0.14]} />
         {material}
       </mesh>
       <mesh position={[width / 2, y, 0]}>
-        <boxGeometry args={[t, t, depth]} />
+        <boxGeometry args={[0.14, 0.06, depth]} />
+        {material}
+      </mesh>
+      <mesh position={[-width / 2, y, 0]}>
+        <boxGeometry args={[0.14, 0.06, depth]} />
         {material}
       </mesh>
     </>
   );
 }
 
-function SpotLightFixture({
+
+function FloorSystem({ template }: { template: TentTemplate }) {
+  const margin = 6;
+  const carpetWidth = template.widthM + margin;
+  const carpetDepth = template.depthM + margin;
+
+  return (
+    <group>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
+        <planeGeometry args={[carpetWidth, carpetDepth]} />
+        <meshStandardMaterial
+          color="#0d42ff"
+          emissive="#0a2ae0"
+          emissiveIntensity={0.95}
+          roughness={0.5}
+          metalness={0.15}
+        />
+      </mesh>
+
+      <gridHelper
+        args={[Math.max(carpetWidth, carpetDepth), Math.max(18, Math.round(Math.max(carpetWidth, carpetDepth))), "#7bc3ff", "#2a5cff"]}
+        position={[0, 0.02, 0]}
+      />
+
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.028, 0]}>
+        <ringGeometry args={[Math.min(template.widthM, template.depthM) * 0.28, Math.min(template.widthM, template.depthM) * 0.34, 128]} />
+        <meshBasicMaterial color="#d8f8ff" transparent opacity={0.82} />
+      </mesh>
+
+      <FrameRect width={template.widthM} depth={template.depthM} />
+    </group>
+  );
+}
+
+
+function SpotlightFixture({
   position,
   rotation,
 }: {
@@ -501,13 +321,12 @@ function SpotLightFixture({
   return (
     <group position={position} rotation={rotation}>
       <mesh castShadow>
-        <cylinderGeometry args={[0.24, 0.32, 0.7, 24]} />
-        <meshStandardMaterial color="#dcecff" emissive="#7ddfff" emissiveIntensity={0.7} />
+        <cylinderGeometry args={[0.22, 0.24, 0.18, 20]} />
+        <meshStandardMaterial color="#d8edf7" metalness={0.55} roughness={0.25} />
       </mesh>
-
-      <mesh position={[0, -0.65, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[0.95, 2.4, 32, 1, true]} />
-        <meshBasicMaterial color="#83eaff" transparent opacity={0.13} side={THREE.DoubleSide} />
+      <mesh position={[0, -0.16, 0.24]} rotation={[0.95, 0, 0]}>
+        <coneGeometry args={[0.2, 0.35, 18]} />
+        <meshStandardMaterial color="#f7fbff" emissive="#e7f9ff" emissiveIntensity={1.5} />
       </mesh>
     </group>
   );
@@ -515,402 +334,669 @@ function SpotLightFixture({
 
 function CornerLighting() {
   return (
-    <>
+    <group>
       <spotLight position={[-15, 8, -10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
       <spotLight position={[15, 8, -10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
       <spotLight position={[-15, 8, 10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
       <spotLight position={[15, 8, 10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
 
-      <SpotLightFixture position={[-15.3, 1.0, -10.2]} rotation={[0.6, 0, -0.45]} />
-      <SpotLightFixture position={[15.3, 1.0, -10.2]} rotation={[0.6, 0, 0.45]} />
-      <SpotLightFixture position={[-15.3, 1.0, 10.2]} rotation={[-0.6, 0, -0.45]} />
-      <SpotLightFixture position={[15.3, 1.0, 10.2]} rotation={[-0.6, 0, 0.45]} />
-    </>
+      <SpotlightFixture position={[-15.3, 0.25, -10.2]} rotation={[0.6, 0, -0.45]} />
+      <SpotlightFixture position={[15.3, 0.25, -10.2]} rotation={[0.6, 0, 0.45]} />
+      <SpotlightFixture position={[-15.3, 0.25, 10.2]} rotation={[-0.6, 0, -0.45]} />
+      <SpotlightFixture position={[15.3, 0.25, 10.2]} rotation={[-0.6, 0, 0.45]} />
+    </group>
   );
 }
 
-function SceneBackground() {
+function Walls() {
   return (
-    <>
-      <mesh position={[0, 7.5, -17.5]}>
-        <planeGeometry args={[54, 22]} />
-        <meshStandardMaterial color="#0a1830" emissive="#112c5a" emissiveIntensity={0.22} roughness={1} />
+    <group>
+      <mesh position={[0, 7, -12]} receiveShadow>
+        <planeGeometry args={[36, 14]} />
+        <meshStandardMaterial color="#102042" roughness={0.8} metalness={0.05} />
       </mesh>
-      <mesh position={[-18.5, 7.5, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[36, 22]} />
-        <meshStandardMaterial color="#081528" emissive="#10234a" emissiveIntensity={0.12} roughness={1} />
+      <mesh position={[-18, 7, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
+        <planeGeometry args={[24, 14]} />
+        <meshStandardMaterial color="#0c1736" roughness={0.84} metalness={0.05} />
       </mesh>
-      <mesh position={[18.5, 7.5, 0]} rotation={[0, -Math.PI / 2, 0]}>
-        <planeGeometry args={[36, 22]} />
-        <meshStandardMaterial color="#081528" emissive="#10234a" emissiveIntensity={0.12} roughness={1} />
+      <mesh position={[18, 7, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
+        <planeGeometry args={[24, 14]} />
+        <meshStandardMaterial color="#0c1736" roughness={0.84} metalness={0.05} />
       </mesh>
-    </>
+    </group>
+  );
+}
+
+
+function visualScaleForModel(asset: SceneAsset) {
+  if (asset.category === "tent") return 7.2;
+  if (asset.model.includes("arrow-3-launcher")) return 3.2;
+  if (asset.model.includes("/models/air/")) return 3.0;
+  if (asset.model.includes("/models/space/")) return 3.4;
+  if (asset.model.includes("flag-pair")) return 2.4;
+  if (asset.model.includes("lightbox")) return 2.6;
+  if (asset.model.includes("blue+logo")) return 3.0;
+  if (asset.model.includes("inflatable-tent")) return 3.0;
+  return 2.2;
+}
+
+function SceneModel({
+  asset,
+  selected,
+  onSelect,
+}: {
+  asset: SceneAsset;
+  selected: boolean;
+  onSelect: (id: string) => void;
+}) {
+  const { scene } = useGLTF(asset.model);
+  const cloned = useMemo(() => scene.clone(), [scene]);
+  const visualScale = asset.scale * visualScaleForModel(asset);
+  const selectedRing = Math.max(1.35, visualScale * 0.42);
+
+  return (
+    <group
+      position={asset.position}
+      rotation={asset.rotation}
+      scale={[visualScale, visualScale, visualScale]}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect(asset.id);
+      }}
+    >
+      <primitive object={cloned} />
+      {selected ? (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+          <ringGeometry args={[selectedRing, selectedRing + 0.25, 64]} />
+          <meshBasicMaterial color="#c7fbff" transparent opacity={0.85} />
+        </mesh>
+      ) : null}
+    </group>
   );
 }
 
 function ShowcaseScene({
-  items,
+  sceneAssets,
   selectedId,
   onSelect,
+  template,
 }: {
-  items: SceneAsset[];
+  sceneAssets: SceneAsset[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  template: TentTemplate;
 }) {
   return (
-    <Canvas shadows dpr={[1, 1.35]} gl={{ antialias: true }}>
-      <PerspectiveCamera makeDefault position={[18, 8.2, 19]} fov={36} />
-      <color attach="background" args={["#0b1730"]} />
-      <fog attach="fog" args={["#0b1730", 42, 100]} />
-
-      <ambientLight intensity={0.9} />
-      <directionalLight
-        position={[10, 18, 12]}
-        intensity={1.35}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-      />
-      <pointLight position={[0, 7.5, 0]} intensity={2.2} distance={50} color="#7dbdff" />
-
-      <SceneBackground />
-      <FloorSystem />
-      <CornerLighting />
-
+    <Canvas
+      shadows
+      dpr={[1, 1.25]}
+      camera={{ position: [0, 9.8, 20], fov: 36 }}
+      style={{ width: "100%", height: "100%" }}
+      onPointerMissed={() => onSelect("main-tent")}
+    >
+      <color attach="background" args={["#091634"]} />
+      <fog attach="fog" args={["#091634", 28, 60]} />
+      <ambientLight intensity={1.5} />
+      <directionalLight position={[10, 12, 8]} intensity={1.2} color="#effbff" />
       <Suspense fallback={null}>
-        {items.map((item) => (
-          <ModelAsset
-            key={item.id}
-            item={item}
-            selected={selectedId === item.id}
+        <FloorSystem template={template} />
+        <CornerLighting />
+        <Walls />
+        {sceneAssets.map((asset) => (
+          <SceneModel
+            key={asset.id}
+            asset={asset}
+            selected={selectedId === asset.id}
             onSelect={onSelect}
           />
         ))}
       </Suspense>
-
       <OrbitControls
         makeDefault
         enablePan
-        panSpeed={0.85}
-        zoomSpeed={0.88}
-        rotateSpeed={0.78}
-        minDistance={6}
-        maxDistance={52}
-        minPolarAngle={0.18}
-        maxPolarAngle={1.56}
-        target={[0, 0.9, 0]}
+        panSpeed={0.9}
+        zoomSpeed={0.9}
+        rotateSpeed={0.8}
+        minDistance={10}
+        maxDistance={44}
+        minPolarAngle={0.45}
+        maxPolarAngle={1.45}
+        target={[0, 1.65, 0]}
       />
     </Canvas>
   );
 }
 
-function LibraryCard({
-  asset,
-  onAdd,
-}: {
-  asset: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">;
-  onAdd: () => void;
-}) {
+function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <button
-      type="button"
-      onClick={onAdd}
-      className="group overflow-hidden rounded-[18px] border border-white/10 bg-white/[0.04] text-left transition hover:-translate-y-[1px] hover:border-cyan-300/28 hover:bg-cyan-300/[0.06]"
+    <div
+      style={{
+        border: "1px solid rgba(130,160,255,0.22)",
+        borderRadius: 18,
+        padding: "14px 18px",
+        background: "rgba(10,20,48,0.56)",
+        minWidth: 130,
+      }}
     >
-      <div
-        className="h-24 bg-cover bg-center"
-        style={{ backgroundImage: `url(${asset.preview})` }}
-      />
-      <div className="p-3">
-        <div className="text-sm font-semibold text-white">{asset.label}</div>
-        <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-white/38">
-          {asset.category}
-        </div>
-      </div>
-    </button>
+      <div style={{ fontSize: 12, letterSpacing: 0.6, opacity: 0.72 }}>{label}</div>
+      <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.05, marginTop: 8 }}>{value}</div>
+    </div>
   );
 }
 
-function ControlButton({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+function LibraryCard({
+  item,
+  onAdd,
+}: {
+  item: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">;
+  onAdd: () => void;
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white/85 transition hover:bg-cyan-300/[0.08]"
+    <div
+      style={{
+        border: "1px solid rgba(130,160,255,0.18)",
+        borderRadius: 16,
+        overflow: "hidden",
+        background: "rgba(11,20,45,0.72)",
+      }}
     >
-      {children}
-    </button>
+      <div
+        style={{
+          height: 92,
+          background: "linear-gradient(180deg, rgba(37,71,154,0.88), rgba(9,22,52,0.92))",
+          display: "flex",
+          alignItems: "end",
+          justifyContent: "start",
+          padding: 10,
+        }}
+      >
+        <img
+          src={item.poster}
+          alt={item.title}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        />
+      </div>
+      <div style={{ padding: 12 }}>
+        <div style={{ fontWeight: 800, fontSize: 16 }}>{item.title}</div>
+        <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>{item.category.toUpperCase()}</div>
+        <button
+          onClick={onAdd}
+          style={{
+            marginTop: 10,
+            width: "100%",
+            borderRadius: 12,
+            border: "1px solid rgba(151, 237, 255, 0.32)",
+            background: "rgba(58,128,255,0.18)",
+            color: "#f0fbff",
+            padding: "10px 12px",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          ADD
+        </button>
+      </div>
+    </div>
   );
 }
 
 export default function LayoutShowcaseV3Page() {
-  const [activePreset, setActivePreset] = useState<ScenePresetId>("premium");
-  const [items, setItems] = useState<SceneAsset[]>(() => buildPreset("premium"));
+  const [preset, setPreset] = useState<PresetKey>("premium");
+  const [templateId, setTemplateId] = useState<TentTemplateId>("20x30");
+  const activeTemplate = TENT_TEMPLATES.find((template) => template.id === templateId) ?? DEFAULT_TENT_TEMPLATE;
+  const [sceneAssets, setSceneAssets] = useState<SceneAsset[]>(() => buildPremiumPreset());
   const [selectedId, setSelectedId] = useState<string | null>("main-tent");
 
-  const selectedItem = useMemo(
-    () => items.find((item) => item.id === selectedId) ?? null,
-    [items, selectedId]
-  );
+  const selectedAsset =
+    sceneAssets.find((item) => item.id === selectedId) ?? sceneAssets[0] ?? null;
 
-  function applyPreset(preset: ScenePresetId) {
-    setActivePreset(preset);
-    setItems(buildPreset(preset));
+  const selectedDimensions = selectedAsset ? dimensionsForAsset(selectedAsset, activeTemplate) : null;
+
+  function applyPreset(nextPreset: PresetKey) {
+    setPreset(nextPreset);
+    setSceneAssets(buildPreset(nextPreset));
     setSelectedId("main-tent");
   }
 
-  function addAsset(asset: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">) {
-    const index = items.length;
-    const angle = index * 0.72;
-    const radius = asset.category === "exhibits" ? 6.5 : 9.2;
+  function applyTentTemplate(nextTemplateId: TentTemplateId) {
+    setTemplateId(nextTemplateId);
+    setSelectedId("main-tent");
+  }
 
-    const next: SceneAsset = {
-      ...asset,
-      id: makeId(asset.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")),
-      position: [
-        Number((Math.sin(angle) * radius).toFixed(2)),
-        0.02,
-        Number((Math.cos(angle) * radius).toFixed(2)),
-      ],
-      rotation: [0, -angle, 0],
-      scale: asset.category === "exhibits" ? 0.75 : 0.85,
-    };
-
-    setItems((current) => [...current, next]);
+  function addFromLibrary(item: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">) {
+    const count = sceneAssets.length;
+    const angle = count * 0.7;
+    const radius = 6 + (count % 3) * 2.4;
+    const next = buildAsset(
+      item,
+      [Math.cos(angle) * radius, 0, Math.sin(angle) * radius],
+      [0, -angle, 0],
+      item.category === "inventory" ? 1.0 : 0.95
+    );
+    setSceneAssets((current) => [...current, next]);
     setSelectedId(next.id);
   }
 
-  function patchSelected(update: (item: SceneAsset) => SceneAsset) {
+  function updateSelected(patch: Partial<SceneAsset>) {
     if (!selectedId) return;
-    setItems((current) => current.map((item) => (item.id === selectedId ? update(item) : item)));
+    setSceneAssets((current) =>
+      current.map((item) => (item.id === selectedId ? { ...item, ...patch } : item))
+    );
   }
 
   function moveSelected(dx: number, dz: number) {
-    patchSelected((item) => ({
-      ...item,
+    if (!selectedAsset) return;
+
+    const [x, y, z] = selectedAsset.position;
+    const dims = dimensionsForAsset(selectedAsset, activeTemplate);
+
+    const limitX = Math.max(0.5, activeTemplate.widthM / 2 - dims.widthM / 2);
+    const limitZ = Math.max(0.5, activeTemplate.depthM / 2 - dims.depthM / 2);
+
+    updateSelected({
       position: [
-        clamp(Number((item.position[0] + dx).toFixed(2)), -15.5, 15.5),
-        item.position[1],
-        clamp(Number((item.position[2] + dz).toFixed(2)), -10.2, 10.2),
+        Number(Math.max(-limitX, Math.min(limitX, x + dx)).toFixed(2)),
+        y,
+        Number(Math.max(-limitZ, Math.min(limitZ, z + dz)).toFixed(2)),
       ],
-    }));
+    });
   }
 
   function rotateSelected(delta: number) {
-    patchSelected((item) => ({
-      ...item,
-      rotation: [item.rotation[0], Number((item.rotation[1] + delta).toFixed(2)), item.rotation[2]],
-    }));
+    if (!selectedAsset) return;
+    const [rx, ry, rz] = selectedAsset.rotation;
+    updateSelected({ rotation: [rx, Number((ry + delta).toFixed(2)), rz] });
   }
 
   function scaleSelected(delta: number) {
-    patchSelected((item) => ({
-      ...item,
-      scale: clamp(Number((item.scale + delta).toFixed(2)), 0.25, 2.6),
-    }));
+    if (!selectedAsset) return;
+    const next = Math.min(2.2, Math.max(0.35, Number((selectedAsset.scale + delta).toFixed(2))));
+    updateSelected({ scale: next });
   }
 
   function removeSelected() {
-    if (!selectedId || selectedId === "main-tent") return;
-    setItems((current) => current.filter((item) => item.id !== selectedId));
+    if (!selectedAsset || selectedAsset.id === "main-tent") return;
+    setSceneAssets((current) => current.filter((item) => item.id !== selectedAsset.id));
     setSelectedId("main-tent");
   }
 
+  function selectMainTent() {
+    setSelectedId("main-tent");
+  }
+
+  const pageStyle: React.CSSProperties = {
+    minHeight: "100vh",
+    color: "#eef7ff",
+    background:
+      "radial-gradient(circle at top, rgba(30,73,160,0.28), transparent 32%), linear-gradient(180deg, #08142d 0%, #0a1733 55%, #091327 100%)",
+    fontFamily:
+      'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  };
+
+  const shellStyle: React.CSSProperties = {
+    maxWidth: 1440,
+    margin: "0 auto",
+    padding: "28px 28px 42px",
+  };
+
+  const panelStyle: React.CSSProperties = {
+    border: "1px solid rgba(120,155,255,0.18)",
+    borderRadius: 22,
+    background: "rgba(10,18,40,0.56)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.16)",
+    backdropFilter: "blur(8px)",
+  };
+
+  const presetButton = (active: boolean): React.CSSProperties => ({
+    flex: 1,
+    minWidth: 180,
+    textAlign: "left",
+    borderRadius: 18,
+    border: active ? "1px solid rgba(112,248,255,0.48)" : "1px solid rgba(120,155,255,0.18)",
+    background: active ? "rgba(68,137,255,0.18)" : "rgba(10,18,40,0.42)",
+    color: "#eef8ff",
+    padding: "14px 16px",
+    cursor: "pointer",
+  });
+
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#0d1d36_0%,#050b16_52%,#03060d_100%)] text-white">
-      <div className="mx-auto max-w-[1920px] px-4 pb-10 pt-4">
-        <header className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-cyan-300/10 bg-[#061020]/86 px-4 py-3 shadow-[0_20px_70px_rgba(0,0,0,0.32)]">
+    <main style={pageStyle}>
+      <div style={shellStyle}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 16,
+            alignItems: "center",
+            marginBottom: 18,
+          }}
+        >
           <div>
-            <div className="text-[10px] uppercase tracking-[0.35em] text-cyan-300/70">
-              Exhibition Hub / Showcase V3
+            <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
+              EXHIBITION HUB / SHOWCASE V3
             </div>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+            <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.05, marginTop: 8 }}>
               Executive Layout Showcase
-            </h1>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div style={{ display: "flex", gap: 10 }}>
             <a
               href="/"
-              className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm text-cyan-50"
+              style={{
+                padding: "10px 16px",
+                borderRadius: 999,
+                textDecoration: "none",
+                color: "#eef7ff",
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(151, 237, 255, 0.22)",
+                fontWeight: 700,
+              }}
             >
               Home
             </a>
             <a
-              href="/layout-planning?t=tent-30x20"
-              className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/75"
+              href="/layout-planning"
+              style={{
+                padding: "10px 16px",
+                borderRadius: 999,
+                textDecoration: "none",
+                color: "#eef7ff",
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(151, 237, 255, 0.22)",
+                fontWeight: 700,
+              }}
             >
               Layout Planning
             </a>
           </div>
-        </header>
+        </div>
 
-        <section className="rounded-[28px] border border-cyan-300/12 bg-[#061020]/90 p-4 shadow-[0_30px_110px_rgba(0,0,0,0.45)]">
-          <div className="mb-4 grid gap-2 md:grid-cols-4">
-            {[
-              { id: "premium" as ScenePresetId, title: "Premium Tent", sub: "בסיס תצוגה מלא" },
-              { id: "space" as ScenePresetId, title: "Space Showcase", sub: "לוויינים וחלל" },
-              { id: "air" as ScenePresetId, title: "Air Defense", sub: "מערכות אוויריות" },
-              { id: "vip" as ScenePresetId, title: "VIP Visit", sub: "מיתוג ואירוח" },
-            ].map((preset) => {
-              const active = activePreset === preset.id;
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => applyPreset(preset.id)}
-                  className={[
-                    "rounded-[18px] border px-4 py-3 text-left transition",
-                    active
-                      ? "border-cyan-300/38 bg-cyan-300/[0.12] shadow-[0_0_26px_rgba(34,211,238,0.18)]"
-                      : "border-white/10 bg-white/[0.04] hover:border-cyan-300/24 hover:bg-cyan-300/[0.06]",
-                  ].join(" ")}
-                >
-                  <div className="text-sm font-semibold text-white">{preset.title}</div>
-                  <div className="mt-1 text-xs text-white/45">{preset.sub}</div>
-                </button>
-              );
-            })}
-          </div>
+        <div
+          style={{
+            ...panelStyle,
+            padding: 18,
+            display: "grid",
+            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+            gap: 12,
+            marginBottom: 16,
+          }}
+        >
+          <button style={presetButton(preset === "premium")} onClick={() => applyPreset("premium")}>
+            <div style={{ fontWeight: 800 }}>Premium Tent</div>
+            <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>בסיס תצוגה מלא</div>
+          </button>
+          <button style={presetButton(preset === "space")} onClick={() => applyPreset("space")}>
+            <div style={{ fontWeight: 800 }}>Space Showcase</div>
+            <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>לוויינים וחלל</div>
+          </button>
+          <button style={presetButton(preset === "air")} onClick={() => applyPreset("air")}>
+            <div style={{ fontWeight: 800 }}>Air Defense</div>
+            <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>מערכות אוויריות</div>
+          </button>
+          <button style={presetButton(preset === "vip")} onClick={() => applyPreset("vip")}>
+            <div style={{ fontWeight: 800 }}>VIP Visit</div>
+            <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>מיתוג ואירוח</div>
+          </button>
+        </div>
 
-          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div
+          style={{
+            ...panelStyle,
+            padding: 18,
+            display: "grid",
+            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+            gap: 12,
+            marginBottom: 16,
+          }}
+        >
+          {TENT_TEMPLATES.map((template) => {
+            const active = template.id === templateId;
+            return (
+              <button
+                key={template.id}
+                style={{
+                  ...presetButton(active),
+                  minWidth: 0,
+                }}
+                onClick={() => applyTentTemplate(template.id)}
+              >
+                <div style={{ fontWeight: 800 }}>{template.label}</div>
+                <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>
+                  height {template.heightM}m · active tent size
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ ...panelStyle, padding: 18 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 16,
+              alignItems: "end",
+              marginBottom: 14,
+              flexWrap: "wrap",
+            }}
+          >
             <div>
-              <div className="text-[11px] uppercase tracking-[0.35em] text-cyan-300/70">
-                Main Scene
+              <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
+                MAIN SCENE
               </div>
-              <h2 className="mt-1 text-3xl font-semibold">Tent Configuration Stage</h2>
-              <p className="mt-1 text-sm text-white/52">
+              <div style={{ fontSize: 22, fontWeight: 900, marginTop: 6 }}>
+                Tent Configuration Stage
+              </div>
+              <div style={{ fontSize: 14, opacity: 0.8, marginTop: 6 }}>
                 Real GLB models • blue exhibition floor • elegant grid • neon frame • four corner spotlights
-              </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center text-xs text-white/65">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2">
-                Objects<br /><span className="text-lg font-semibold text-cyan-100">{items.length}</span>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2">
-                Selected<br /><span className="text-lg font-semibold text-cyan-100">{selectedItem?.label ?? "None"}</span>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2">
-                Mode<br /><span className="text-lg font-semibold text-cyan-100">V3</span>
-              </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <StatCard label="Objects" value={sceneAssets.length} />
+              <StatCard label="Selected" value={selectedAsset?.title ?? "None"} />
+              <StatCard label="Mode" value="V3" />
             </div>
           </div>
 
-          <div className="h-[82vh] min-h-[760px] overflow-hidden rounded-[26px] border border-cyan-300/14 bg-[#081425]">
-            <ShowcaseScene items={items} selectedId={selectedId} onSelect={setSelectedId} />
+          <div
+            style={{
+              border: "1px solid rgba(120,155,255,0.18)",
+              borderRadius: 22,
+              overflow: "hidden",
+              height: 760,
+              background: "rgba(8,15,36,0.84)",
+            }}
+          >
+            <ShowcaseScene
+              sceneAssets={sceneAssets}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              template={activeTemplate}
+            />
           </div>
-        </section>
+        </div>
 
-        <section className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <section className="rounded-[24px] border border-fuchsia-300/14 bg-[#080f20]/88 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.28)]">
-              <div className="mb-3">
-                <div className="text-[10px] uppercase tracking-[0.3em] text-fuchsia-300/70">
-                  Exhibits
-                </div>
-                <h3 className="mt-1 text-xl font-semibold">Real 3D Exhibits</h3>
-              </div>
+        <div
+          style={{
+            marginTop: 16,
+            display: "grid",
+            gridTemplateColumns: "1.15fr 1.15fr 0.75fr",
+            gap: 16,
+            alignItems: "start",
+          }}
+        >
+          <section style={{ ...panelStyle, padding: 16 }}>
+            <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
+              EXHIBITS
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 900, marginTop: 8 }}>Real 3D Exhibits</div>
+            <div
+              style={{
+                marginTop: 14,
+                display: "grid",
+                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gap: 12,
+              }}
+            >
+              {EXHIBIT_LIBRARY.map((item) => (
+                <LibraryCard
+                  key={item.title}
+                  item={item}
+                  onAdd={() => addFromLibrary(item)}
+                />
+              ))}
+            </div>
+          </section>
 
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-                {EXHIBIT_LIBRARY.map((asset) => (
-                  <LibraryCard
-                    key={asset.label}
-                    asset={asset}
-                    onAdd={() => addAsset(asset)}
-                  />
-                ))}
-              </div>
-            </section>
+          <section style={{ ...panelStyle, padding: 16 }}>
+            <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
+              INVENTORY
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 900, marginTop: 8 }}>Real 3D Inventory</div>
+            <div
+              style={{
+                marginTop: 14,
+                display: "grid",
+                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gap: 12,
+              }}
+            >
+              {INVENTORY_LIBRARY.map((item) => (
+                <LibraryCard
+                  key={item.title}
+                  item={item}
+                  onAdd={() => addFromLibrary(item)}
+                />
+              ))}
+            </div>
+          </section>
 
-            <section className="rounded-[24px] border border-cyan-300/14 bg-[#080f20]/88 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.28)]">
-              <div className="mb-3">
-                <div className="text-[10px] uppercase tracking-[0.3em] text-cyan-300/70">
-                  Inventory
-                </div>
-                <h3 className="mt-1 text-xl font-semibold">Real 3D Inventory</h3>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-                {INVENTORY_LIBRARY.map((asset) => (
-                  <LibraryCard
-                    key={asset.label}
-                    asset={asset}
-                    onAdd={() => addAsset(asset)}
-                  />
-                ))}
-              </div>
-            </section>
-          </div>
-
-          <aside className="rounded-[24px] border border-cyan-300/14 bg-[#080f20]/90 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.28)]">
-            <div className="text-[10px] uppercase tracking-[0.3em] text-cyan-300/70">
-              Selected Object
+          <section style={{ ...panelStyle, padding: 16 }}>
+            <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
+              SELECTED OBJECT
+            </div>
+            <div style={{ fontSize: 26, fontWeight: 900, marginTop: 8 }}>
+              {selectedAsset?.title ?? "No selection"}
+            </div>
+            <div style={{ fontSize: 13, opacity: 0.78, marginTop: 4 }}>
+              {selectedAsset?.titleHe ?? "—"}
             </div>
 
-            <h3 className="mt-2 text-xl font-semibold">{selectedItem?.label ?? "No selection"}</h3>
+            {selectedDimensions ? (
+              <div
+                style={{
+                  marginTop: 14,
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                  gap: 8,
+                }}
+              >
+                <StatCard label="Width" value={formatMeters(selectedDimensions.widthM)} />
+                <StatCard label="Depth" value={formatMeters(selectedDimensions.depthM)} />
+                <StatCard label="Height" value={formatMeters(selectedDimensions.heightM)} />
+              </div>
+            ) : null}
 
-            {selectedItem ? (
-              <>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <div className="text-[10px] text-white/40">X</div>
-                    <div className="font-semibold">{selectedItem.position[0].toFixed(1)}</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <div className="text-[10px] text-white/40">Z</div>
-                    <div className="font-semibold">{selectedItem.position[2].toFixed(1)}</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <div className="text-[10px] text-white/40">Scale</div>
-                    <div className="font-semibold">{selectedItem.scale.toFixed(2)}</div>
-                  </div>
-                </div>
+            <div
+              style={{
+                marginTop: 12,
+                padding: "10px 12px",
+                borderRadius: 14,
+                border: "1px solid rgba(151, 237, 255, 0.18)",
+                background: "rgba(255,255,255,0.045)",
+                fontSize: 13,
+                lineHeight: 1.45,
+                color: "rgba(238,247,255,0.82)",
+              }}
+            >
+              Active tent: <b>{activeTemplate.label}</b> · usable footprint {activeTemplate.widthM}m × {activeTemplate.depthM}m
+            </div>
 
-                <div className="mt-4">
-                  <div className="text-sm font-semibold text-white/80">Move</div>
-                  <div className="mt-2 grid grid-cols-3 gap-2">
-                    <ControlButton onClick={() => moveSelected(-0.6, 0)}>←</ControlButton>
-                    <ControlButton onClick={() => moveSelected(0, -0.6)}>↑</ControlButton>
-                    <ControlButton onClick={() => moveSelected(0.6, 0)}>→</ControlButton>
-                    <div />
-                    <ControlButton onClick={() => moveSelected(0, 0.6)}>↓</ControlButton>
-                    <div />
-                  </div>
-                </div>
+            <div
+              style={{
+                marginTop: 16,
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 10,
+              }}
+            >
+              <StatCard label="X" value={selectedAsset?.position[0] ?? 0} />
+              <StatCard label="Z" value={selectedAsset?.position[2] ?? 0} />
+              <StatCard label="Scale" value={selectedAsset?.scale ?? 1} />
+            </div>
 
-                <div className="mt-4">
-                  <div className="text-sm font-semibold text-white/80">Rotate / Scale</div>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <ControlButton onClick={() => rotateSelected(-0.18)}>Rotate −</ControlButton>
-                    <ControlButton onClick={() => rotateSelected(0.18)}>Rotate +</ControlButton>
-                    <ControlButton onClick={() => scaleSelected(-0.08)}>Scale −</ControlButton>
-                    <ControlButton onClick={() => scaleSelected(0.08)}>Scale +</ControlButton>
-                  </div>
-                </div>
+            <div style={{ marginTop: 18, fontWeight: 800 }}>Move</div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 10,
+                marginTop: 10,
+              }}
+            >
+              <button style={controlBtn} onClick={() => moveSelected(-1, 0)}>←</button>
+              <button style={controlBtn} onClick={() => moveSelected(0, -1)}>↑</button>
+              <button style={controlBtn} onClick={() => moveSelected(1, 0)}>→</button>
+              <div />
+              <button style={controlBtn} onClick={() => moveSelected(0, 1)}>↓</button>
+              <div />
+            </div>
 
-                <div className="mt-4 grid gap-2">
-                  <ControlButton onClick={() => setSelectedId("main-tent")}>Select Main Tent</ControlButton>
-                  <button
-                    type="button"
-                    disabled={selectedId === "main-tent"}
-                    onClick={removeSelected}
-                    className="rounded-xl border border-rose-300/20 bg-rose-300/8 px-3 py-2 text-sm text-rose-100 transition hover:bg-rose-300/14 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    Remove Selected
-                  </button>
-                </div>
-              </>
-            ) : (
-              <p className="mt-3 text-sm text-white/45">Click an object in the scene.</p>
-            )}
-          </aside>
-        </section>
+            <div style={{ marginTop: 18, fontWeight: 800 }}>Rotate / Scale</div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: 10,
+                marginTop: 10,
+              }}
+            >
+              <button style={controlBtn} onClick={() => rotateSelected(-0.2)}>Rotate −</button>
+              <button style={controlBtn} onClick={() => rotateSelected(0.2)}>Rotate +</button>
+              <button style={controlBtn} onClick={() => scaleSelected(-0.05)}>Scale −</button>
+              <button style={controlBtn} onClick={() => scaleSelected(0.05)}>Scale +</button>
+            </div>
+
+            <div style={{ marginTop: 18, fontWeight: 800 }}>Actions</div>
+            <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+              <button style={controlBtn} onClick={selectMainTent}>Select Main Tent</button>
+              <button style={dangerBtn} onClick={removeSelected}>Remove Selected</button>
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );
 }
 
+const controlBtn: React.CSSProperties = {
+  borderRadius: 14,
+  border: "1px solid rgba(151, 237, 255, 0.22)",
+  background: "rgba(255,255,255,0.06)",
+  color: "#f0fbff",
+  padding: "12px 14px",
+  fontWeight: 800,
+  cursor: "pointer",
+};
+
+const dangerBtn: React.CSSProperties = {
+  borderRadius: 14,
+  border: "1px solid rgba(255, 150, 150, 0.26)",
+  background: "rgba(255, 100, 100, 0.08)",
+  color: "#fff2f2",
+  padding: "12px 14px",
+  fontWeight: 800,
+  cursor: "pointer",
+};
+
+useGLTF.preload("/models/inventory/event+tent+3d+model.glb");
 EXHIBIT_LIBRARY.forEach((asset) => useGLTF.preload(asset.model));
 INVENTORY_LIBRARY.forEach((asset) => useGLTF.preload(asset.model));
-useGLTF.preload("/models/inventory/event+tent+3d+model.glb");
