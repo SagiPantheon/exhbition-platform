@@ -1,11 +1,24 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import { Html, OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 type AssetKind = "tent" | "exhibit" | "inventory";
+
+type TransformMode = "translate" | "rotate" | "scale";
+
+type ObjectControlAction =
+  | "move-left"
+  | "move-right"
+  | "move-forward"
+  | "move-back"
+  | "rotate-left"
+  | "rotate-right"
+  | "scale-up"
+  | "scale-down"
+  | "delete";
 
 type SceneAsset = {
   id: string;
@@ -425,48 +438,255 @@ function Sceneמצבl({
   asset,
   selected,
   onSelect,
+  transformMode,
+  onTransformCommit,
+  onTransformActiveChange,
+  onTransformModeChange,
+  onObjectControl,
 }: {
   asset: SceneAsset;
   selected: boolean;
   onSelect: (id: string) => void;
+  transformMode: TransformMode;
+  onTransformCommit: (id: string, patch: Partial<SceneAsset>) => void;
+  onTransformActiveChange: (active: boolean) => void;
+  onTransformModeChange: (mode: TransformMode) => void;
+  onObjectControl: (action: ObjectControlAction) => void;
 }) {
   const { scene } = useGLTF(asset.model);
   const cloned = useMemo(() => scene.clone(), [scene]);
-  const visualScale = asset.scale * visualScaleForמצבl(asset);
+  const groupRef = useRef<any>(null);
+  const dragPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), -asset.position[1]), [asset.position[1]]);
+  const dragOffsetRef = useRef(new THREE.Vector3());
+  const dragPointRef = useRef(new THREE.Vector3());
+  const isDraggingRef = useRef(false);
+  const [hovered, setHovered] = useState(false);
+  const visualBase = visualScaleForמצבl(asset);
+  const visualScale = asset.scale * visualBase;
   const selectedRing = Math.max(1.35, visualScale * 0.42);
+  const dockButton = {
+    border: "1px solid rgba(161, 231, 255, 0.42)",
+    background: "rgba(8, 18, 42, 0.86)",
+    color: "rgba(238, 247, 255, 0.96)",
+    borderRadius: 10,
+    padding: "8px 10px",
+    minWidth: 42,
+    fontSize: 14,
+    fontWeight: 900,
+    cursor: "pointer",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.28)",
+  } as const;
 
-  return (
+  const activeDockButton = {
+    ...dockButton,
+    border: "1px solid rgba(103, 232, 249, 0.88)",
+    background: "rgba(14, 116, 144, 0.92)",
+    color: "#ffffff",
+  } as const;
+
+  const stopDockEvent = (event: any) => {
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    event.nativeEvent?.stopImmediatePropagation?.();
+  };
+
+  const dockClick = (event: any, action: ObjectControlAction) => {
+    stopDockEvent(event);
+    onSelect(asset.id);
+    onObjectControl(action);
+  };
+
+  const modeClick = (event: any, mode: TransformMode) => {
+    stopDockEvent(event);
+    onSelect(asset.id);
+    onTransformModeChange(mode);
+  };
+
+  const beginObjectDrag = (event: any) => {
+    event.stopPropagation();
+    onSelect(asset.id);
+
+    if (transformMode !== "translate") return;
+
+    isDraggingRef.current = true;
+    onTransformActiveChange(true);
+    document.body.style.cursor = "grabbing";
+    event.target?.setPointerCapture?.(event.pointerId);
+
+    if (event.ray?.intersectPlane(dragPlane, dragPointRef.current)) {
+      dragOffsetRef.current.set(
+        asset.position[0] - dragPointRef.current.x,
+        0,
+        asset.position[2] - dragPointRef.current.z
+      );
+    }
+  };
+
+  const moveObjectDrag = (event: any) => {
+    if (!isDraggingRef.current || transformMode !== "translate") return;
+
+    event.stopPropagation();
+
+    if (!event.ray?.intersectPlane(dragPlane, dragPointRef.current)) return;
+
+    const nextX = Number((dragPointRef.current.x + dragOffsetRef.current.x).toFixed(2));
+    const nextZ = Number((dragPointRef.current.z + dragOffsetRef.current.z).toFixed(2));
+
+    onTransformCommit(asset.id, {
+      position: [nextX, asset.position[1], nextZ],
+    });
+  };
+
+  const endObjectDrag = (event: any) => {
+    if (!isDraggingRef.current) return;
+
+    event.stopPropagation();
+    event.target?.releasePointerCapture?.(event.pointerId);
+    isDraggingRef.current = false;
+    onTransformActiveChange(false);
+    document.body.style.cursor = "pointer";
+  };
+
+
+  function commitTransform() {
+    if (!groupRef.current) return;
+    const object = groupRef.current;
+    const nextScale = Number((object.scale.x / visualBase).toFixed(2));
+
+    onTransformCommit(asset.id, {
+      position: [
+        Number(object.position.x.toFixed(2)),
+        asset.position[1],
+        Number(object.position.z.toFixed(2)),
+      ],
+      rotation: [
+        Number(object.rotation.x.toFixed(2)),
+        Number(object.rotation.y.toFixed(2)),
+        Number(object.rotation.z.toFixed(2)),
+      ],
+      scale: Math.min(3.5, Math.max(0.2, nextScale)),
+    });
+  }
+
+  const modelGroup = (
     <group
+      ref={groupRef}
       position={asset.position}
       rotation={asset.rotation}
       scale={[visualScale, visualScale, visualScale]}
+      onPointerOver={(event) => {
+        event.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={(event) => {
+        event.stopPropagation();
+        if (!isDraggingRef.current) {
+          setHovered(false);
+          document.body.style.cursor = "default";
+        }
+      }}
+      onPointerDown={beginObjectDrag}
+      onPointerMove={moveObjectDrag}
+      onPointerUp={endObjectDrag}
+      onPointerCancel={endObjectDrag}
       onClick={(event) => {
         event.stopPropagation();
         onSelect(asset.id);
       }}
     >
       <primitive object={cloned} />
+      {hovered && !selected ? (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.055, 0]}>
+          <ringGeometry args={[selectedRing, selectedRing + 0.22, 64]} />
+          <meshBasicMaterial color="#67e8f9" transparent opacity={0.55} />
+        </mesh>
+      ) : null}
+
       {selected ? (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
           <ringGeometry args={[selectedRing, selectedRing + 0.25, 64]} />
           <meshBasicMaterial color="#c7fbff" transparent opacity={0.85} />
         </mesh>
       ) : null}
+
+      {selected ? (
+        <Html
+          position={[0, Math.max(1.65, selectedRing * 0.42 + 1.15), 0]}
+          center
+          distanceFactor={10}
+          zIndexRange={[100, 0]}
+          style={{ pointerEvents: "auto", userSelect: "none" }}
+        >
+          <div
+            onPointerDown={stopDockEvent}
+            onPointerUp={stopDockEvent}
+            onMouseDown={stopDockEvent}
+            onMouseUp={stopDockEvent}
+            onClick={stopDockEvent}
+            style={{
+              display: "grid",
+              gap: 6,
+              padding: 8,
+              borderRadius: 14,
+              border: "1px solid rgba(103, 232, 249, 0.55)",
+              background: "linear-gradient(180deg, rgba(5, 14, 32, 0.96), rgba(8, 24, 52, 0.91))",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.46), 0 0 30px rgba(34, 211, 238, 0.2)",
+              backdropFilter: "blur(10px)",
+              minWidth: 238,
+              direction: "rtl",
+            }}
+          >
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5 }}>
+              <button style={transformMode === "translate" ? activeDockButton : dockButton} onClick={(event) => modeClick(event, "translate")}>הזזה</button>
+              <button style={transformMode === "rotate" ? activeDockButton : dockButton} onClick={(event) => modeClick(event, "rotate")}>סיבוב</button>
+              <button style={transformMode === "scale" ? activeDockButton : dockButton} onClick={(event) => modeClick(event, "scale")}>גודל</button>
+              <button style={{ ...dockButton, border: "1px solid rgba(251, 113, 133, 0.78)", color: "#ffd7de" }} onClick={(event) => dockClick(event, "delete")}>מחק</button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5 }}>
+              <button style={dockButton} onClick={(event) => dockClick(event, "move-left")}>←</button>
+              <button style={dockButton} onClick={(event) => dockClick(event, "move-forward")}>↑</button>
+              <button style={dockButton} onClick={(event) => dockClick(event, "move-back")}>↓</button>
+              <button style={dockButton} onClick={(event) => dockClick(event, "move-right")}>→</button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5 }}>
+              <button style={dockButton} onClick={(event) => dockClick(event, "rotate-left")}>⟲</button>
+              <button style={dockButton} onClick={(event) => dockClick(event, "rotate-right")}>⟳</button>
+              <button style={dockButton} onClick={(event) => dockClick(event, "scale-down")}>−</button>
+              <button style={dockButton} onClick={(event) => dockClick(event, "scale-up")}>+</button>
+            </div>
+          </div>
+        </Html>
+      ) : null}
     </group>
   );
+
+  return modelGroup;
 }
 
 function ShowcaseScene({
   sceneAssets,
   selectedId,
   onSelect,
+  transformMode,
+  onTransformCommit,
+  onTransformModeChange,
+  onObjectControl,
   template,
 }: {
   sceneAssets: SceneAsset[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  transformMode: TransformMode;
+  onTransformCommit: (id: string, patch: Partial<SceneAsset>) => void;
+  onTransformModeChange: (mode: TransformMode) => void;
+  onObjectControl: (action: ObjectControlAction) => void;
   template: TentTemplate;
 }) {
+  const [isTransforming, setIsTransforming] = useState(false);
+
   return (
     <Canvas
       shadows
@@ -489,11 +709,17 @@ function ShowcaseScene({
             asset={asset}
             selected={selectedId === asset.id}
             onSelect={onSelect}
+            transformMode={transformMode}
+            onTransformCommit={onTransformCommit}
+            onTransformActiveChange={setIsTransforming}
+            onTransformModeChange={onTransformModeChange}
+            onObjectControl={onObjectControl}
           />
         ))}
       </Suspense>
       <OrbitControls
         makeDefault
+        enabled={!isTransforming}
         enablePan
         panSpeed={0.9}
         zoomSpeed={0.9}
@@ -559,9 +785,12 @@ function LibraryCard({
           src={item.poster}
           alt={item.title}
           style={{
-            width: "100%",
-            height: 92,
-            objectFit: "cover",
+width: "100%",
+            height: 74,
+            objectFit: "contain",
+            padding: 7,
+            boxSizing: "border-box",
+            background: "rgba(2, 8, 23, 0.72)",
             borderRadius: 11,
             border: "1px solid rgba(255,255,255,0.12)",
             display: "block",
@@ -599,6 +828,7 @@ export default function LayoutShowcaseV3Page() {
   const activeTemplate = TENT_TEMPLATES.find((template) => template.id === templateId) ?? DEFAULT_TENT_TEMPLATE;
   const [sceneAssets, setSceneAssets] = useState<SceneAsset[]>(() => buildPremiumPreset());
   const [selectedId, setנבחרId] = useState<string | null>("main-tent");
+  const [transformMode, setTransformMode] = useState<TransformMode>("translate");
 
   const selectedAsset =
     sceneAssets.find((item) => item.id === selectedId) ?? sceneAssets[0] ?? null;
@@ -641,6 +871,12 @@ export default function LayoutShowcaseV3Page() {
     );
   }
 
+  function commitTransformForAsset(id: string, patch: Partial<SceneAsset>) {
+    setSceneAssets((current) =>
+      current.map((item) => (item.id === id ? { ...item, ...patch } : item))
+    );
+  }
+
   function moveנבחר(dx: number, dz: number) {
     if (!selectedAsset) return;
 
@@ -667,14 +903,35 @@ export default function LayoutShowcaseV3Page() {
 
   function scaleנבחר(delta: number) {
     if (!selectedAsset) return;
-    const next = Math.min(2.2, Math.max(0.35, Number((selectedAsset.scale + delta).toFixed(2))));
+    const next = Math.min(3.5, Math.max(0.2, Number((selectedAsset.scale + delta).toFixed(2))));
     updateנבחר({ scale: next });
   }
 
   function removeנבחר() {
-    if (!selectedAsset || selectedAsset.id === "main-tent") return;
-    setSceneAssets((current) => current.filter((item) => item.id !== selectedAsset.id));
+    if (!selectedAsset) return;
+    const removedId = selectedAsset.id;
+    setSceneAssets((current) => current.filter((item) => item.id !== removedId));
+    setנבחרId(null);
+  }
+
+  function restoreMainTent() {
+    setSceneAssets((current) => {
+      if (current.some((item) => item.id === "main-tent")) return current;
+      return [buildTent([0, 0, 0], [0, 0, 0], 1), ...current];
+    });
     setנבחרId("main-tent");
+  }
+
+  function handleObjectControl(action: ObjectControlAction) {
+    if (action === "move-left") moveנבחר(-1, 0);
+    if (action === "move-right") moveנבחר(1, 0);
+    if (action === "move-forward") moveנבחר(0, -1);
+    if (action === "move-back") moveנבחר(0, 1);
+    if (action === "rotate-left") rotateנבחר(-0.35);
+    if (action === "rotate-right") rotateנבחר(0.35);
+    if (action === "scale-up") scaleנבחר(0.12);
+    if (action === "scale-down") scaleנבחר(-0.12);
+    if (action === "delete") removeנבחר();
   }
 
   function selectMainTent() {
@@ -874,6 +1131,10 @@ export default function LayoutShowcaseV3Page() {
               sceneAssets={sceneAssets}
               selectedId={selectedId}
               onSelect={setנבחרId}
+              transformMode={transformMode}
+              onTransformCommit={commitTransformForAsset}
+              onTransformModeChange={setTransformMode}
+              onObjectControl={handleObjectControl}
               template={activeTemplate}
             />
           </div>
@@ -1081,6 +1342,13 @@ export default function LayoutShowcaseV3Page() {
                 marginTop: 10,
               }}
             >
+            <div style={{ marginTop: 18, fontWeight: 800 }}>שליטה ישירה בסצנה</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 10, marginBottom: 12 }}>
+              <button style={transformMode === "translate" ? activeControlBtn : controlBtn} onClick={() => setTransformMode("translate")}>הזזה</button>
+              <button style={transformMode === "rotate" ? activeControlBtn : controlBtn} onClick={() => setTransformMode("rotate")}>סיבוב</button>
+              <button style={transformMode === "scale" ? activeControlBtn : controlBtn} onClick={() => setTransformMode("scale")}>גודל</button>
+            </div>
+
               <button style={controlBtn} onClick={() => moveנבחר(-1, 0)}>←</button>
               <button style={controlBtn} onClick={() => moveנבחר(0, -1)}>↑</button>
               <button style={controlBtn} onClick={() => moveנבחר(1, 0)}>→</button>
@@ -1098,16 +1366,17 @@ export default function LayoutShowcaseV3Page() {
                 marginTop: 10,
               }}
             >
-              <button style={controlBtn} onClick={() => rotateנבחר(-0.2)}>סובב −</button>
-              <button style={controlBtn} onClick={() => rotateנבחר(0.2)}>סובב +</button>
-              <button style={controlBtn} onClick={() => scaleנבחר(-0.05)}>הקטן</button>
-              <button style={controlBtn} onClick={() => scaleנבחר(0.05)}>הגדל</button>
+              <button style={controlBtn} onClick={() => rotateנבחר(-0.35)}>סובב שמאלה</button>
+              <button style={controlBtn} onClick={() => rotateנבחר(0.35)}>סובב ימינה</button>
+              <button style={controlBtn} onClick={() => scaleנבחר(-0.12)}>הקטן</button>
+              <button style={controlBtn} onClick={() => scaleנבחר(0.12)}>הגדל</button>
             </div>
 
             <div style={{ marginTop: 18, fontWeight: 800 }}>פעולות</div>
             <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
-              <button style={controlBtn} onClick={selectMainTent}>בחר אוהל ראשי</button>
-              <button style={dangerBtn} onClick={removeנבחר}>Remove נבחר</button>
+              <button style={controlBtn} onClick={selectMainTent}>בחר אוהל</button>
+              <button style={dangerBtn} onClick={removeנבחר}>מחק נבחר</button>
+              <button style={controlBtn} onClick={restoreMainTent}>החזר אוהל</button>
             </div>
           </section>
         </div>
@@ -1124,6 +1393,13 @@ const controlBtn: React.CSSProperties = {
   padding: "12px 14px",
   fontWeight: 800,
   cursor: "pointer",
+};
+
+const activeControlBtn: React.CSSProperties = {
+  ...controlBtn,
+  border: "1px solid rgba(103, 232, 249, 0.78)",
+  background: "rgba(103, 232, 249, 0.18)",
+  color: "#eaffff",
 };
 
 const dangerBtn: React.CSSProperties = {
