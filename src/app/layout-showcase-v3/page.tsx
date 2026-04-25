@@ -200,6 +200,33 @@ const מלאי_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale
   },
 ];
 
+type InventoryFilter = "all" | "3d" | "podiums" | "signage" | "utility";
+
+const INVENTORY_FILTERS: { id: InventoryFilter; label: string }[] = [
+  { id: "all", label: "הכל" },
+  { id: "3d", label: "3D" },
+  { id: "podiums", label: "פודיומים" },
+  { id: "signage", label: "שילוט" },
+  { id: "utility", label: "ציוד" },
+];
+
+function inventoryGroupForItem(item: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">): InventoryFilter {
+  const haystack = `${item.title} ${item.titleHe} ${item.poster ?? ""} ${item.model ?? ""}`.toLowerCase();
+
+  if (item.model) return "3d";
+  if (haystack.includes("podium") || haystack.includes("פודיום")) return "podiums";
+  if (haystack.includes("sign") || haystack.includes("stand") || haystack.includes("שילוט") || haystack.includes("סטנד")) return "signage";
+  return "utility";
+}
+
+function matchesInventoryFilter(
+  item: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">,
+  filter: InventoryFilter
+) {
+  if (filter === "all") return true;
+  return inventoryGroupForItem(item) === filter;
+}
+
 function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -1004,6 +1031,7 @@ export default function LayoutShowcaseV3Page() {
   const [selectedId, setנבחרId] = useState<string | null>("main-tent");
   const [transformMode, setTransformMode] = useState<TransformMode>("translate");
   const [cameraView, setCameraView] = useState<"overview" | "inside">("overview");
+  const [inventoryFilter, setInventoryFilter] = useState<InventoryFilter>("all");
 
   useEffect(() => {
     try {
@@ -1492,16 +1520,52 @@ export default function LayoutShowcaseV3Page() {
             <div style={{ fontSize: 12, letterSpacing: 2, color: "#83e4ff", fontWeight: 700 }}>
               מלאי
             </div>
-            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>מלאי תלת־ממדי</div>
+            <div style={{ fontSize: 24, fontWeight: 900, marginTop: 8 }}>מלאי לפי קבוצות</div>
+
             <div
               style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
                 marginTop: 14,
+                marginBottom: 12,
+              }}
+            >
+              {INVENTORY_FILTERS.map((filter) => {
+                const active = inventoryFilter === filter.id;
+
+                return (
+                  <button
+                    key={filter.id}
+                    onClick={() => setInventoryFilter(filter.id)}
+                    style={{
+                      border: active
+                        ? "1px solid rgba(103,232,249,0.9)"
+                        : "1px solid rgba(255,255,255,0.14)",
+                      background: active ? "rgba(14,116,144,0.42)" : "rgba(255,255,255,0.05)",
+                      color: active ? "#eaffff" : "rgba(238,247,255,0.78)",
+                      borderRadius: 999,
+                      padding: "7px 12px",
+                      fontSize: 12,
+                      fontWeight: 900,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {filter.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div
+              style={{
+                marginTop: 10,
                 display: "grid",
                 gridTemplateColumns: "repeat(5, minmax(86px, 1fr))",
                 gap: 12,
               }}
             >
-              {מלאי_LIBRARY.map((item) => (
+              {מלאי_LIBRARY.filter((item) => matchesInventoryFilter(item, inventoryFilter)).map((item) => (
                 <LibraryCard
                   key={item.title}
                   item={item}
