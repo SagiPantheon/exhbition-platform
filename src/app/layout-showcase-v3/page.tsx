@@ -55,6 +55,12 @@ const TENT_TEMPLATES: TentTemplate[] = [
 
 const DEFAULT_TENT_TEMPLATE = TENT_TEMPLATES.find((template) => template.id === "20x30") ?? TENT_TEMPLATES[0];
 
+function tentScaleForTemplate(templateId: TentTemplateId) {
+  if (templateId === "10x15") return 0.96;
+  if (templateId === "15x25") return 1.08;
+  return 1.18;
+}
+
 const TENT_MODEL = "/models/inventory/event+tent+3d+model.glb";
 const V3_SCENE_STORAGE_KEY = "exhibition-platform:v3-layout-scene-stable-01";
 
@@ -175,7 +181,7 @@ function buildTent(position: [number, number, number], rotation: [number, number
 
 function buildPremiumPreset(): SceneAsset[] {
   return [
-    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.19),
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.18),
     buildAsset(מלאי_LIBRARY[2], [-8.8, 0, -5.3], [0, 0, 0], 1.05),
     buildAsset(מלאי_LIBRARY[3], [8.8, 0, -5.0], [0, 0, 0], 1.05),
     buildAsset(מלאי_LIBRARY[0], [-10.8, 0, 5.0], [0, Math.PI / 2, 0], 1.0),
@@ -185,7 +191,7 @@ function buildPremiumPreset(): SceneAsset[] {
 
 function buildSpacePreset(): SceneAsset[] {
   return [
-    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.16),
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.08),
     buildAsset(EXHIBIT_LIBRARY[0], [-7, 0, -1.5], [0, 0.3, 0], 0.95),
     buildAsset(EXHIBIT_LIBRARY[1], [0, 0, 3], [0, 0, 0], 0.95),
     buildAsset(EXHIBIT_LIBRARY[2], [7, 0, -1], [0, -0.35, 0], 0.95),
@@ -195,7 +201,7 @@ function buildSpacePreset(): SceneAsset[] {
 
 function buildAirPreset(): SceneAsset[] {
   return [
-    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.14),
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.10),
     buildAsset(EXHIBIT_LIBRARY[3], [-7.5, 0, 0], [0, 0.65, 0], 0.9),
     buildAsset(EXHIBIT_LIBRARY[4], [8.5, 0, 0.5], [0, -0.65, 0], 1.0),
     buildAsset(מלאי_LIBRARY[2], [0, 0, -5.6], [0, 0, 0], 1.0),
@@ -960,6 +966,13 @@ export default function LayoutShowcaseV3Page() {
 
   function applyTentTemplate(nextTemplateId: TentTemplateId) {
     setTemplateId(nextTemplateId);
+    setSceneAssets((current) =>
+      current.map((item) =>
+        isMainTentAsset(item)
+          ? { ...item, position: [0, 0, 0], rotation: [0, Math.PI / 2, 0], scale: tentScaleForTemplate(nextTemplateId) }
+          : item
+      )
+    );
     setנבחרId("main-tent");
   }
 
@@ -1034,7 +1047,7 @@ export default function LayoutShowcaseV3Page() {
   function restoreMainTent() {
     setSceneAssets((current) => {
       if (current.some((item) => item.id === "main-tent")) return current;
-      return [buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.35), ...current];
+      return [buildTent([0, 0, 0], [0, Math.PI / 2, 0], tentScaleForTemplate(templateId)), ...current];
     });
     setנבחרId("main-tent");
   }
