@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useMemo, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import { Html, OrbitControls, useGLTF } from "@react-three/drei";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
+import { Html, OrbitControls, Text, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 type AssetKind = "tent" | "exhibit" | "inventory";
@@ -56,6 +56,7 @@ const TENT_TEMPLATES: TentTemplate[] = [
 const DEFAULT_TENT_TEMPLATE = TENT_TEMPLATES.find((template) => template.id === "20x30") ?? TENT_TEMPLATES[0];
 
 const TENT_MODEL = "/models/inventory/event+tent+3d+model.glb";
+const V3_SCENE_STORAGE_KEY = "exhibition-platform:v3-layout-scene-stable-01";
 
 const EXHIBIT_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">[] = [
   {
@@ -174,7 +175,7 @@ function buildTent(position: [number, number, number], rotation: [number, number
 
 function buildPremiumPreset(): SceneAsset[] {
   return [
-    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.08),
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.19),
     buildAsset(מלאי_LIBRARY[2], [-8.8, 0, -5.3], [0, 0, 0], 1.05),
     buildAsset(מלאי_LIBRARY[3], [8.8, 0, -5.0], [0, 0, 0], 1.05),
     buildAsset(מלאי_LIBRARY[0], [-10.8, 0, 5.0], [0, Math.PI / 2, 0], 1.0),
@@ -184,7 +185,7 @@ function buildPremiumPreset(): SceneAsset[] {
 
 function buildSpacePreset(): SceneAsset[] {
   return [
-    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.05),
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.16),
     buildAsset(EXHIBIT_LIBRARY[0], [-7, 0, -1.5], [0, 0.3, 0], 0.95),
     buildAsset(EXHIBIT_LIBRARY[1], [0, 0, 3], [0, 0, 0], 0.95),
     buildAsset(EXHIBIT_LIBRARY[2], [7, 0, -1], [0, -0.35, 0], 0.95),
@@ -194,7 +195,7 @@ function buildSpacePreset(): SceneAsset[] {
 
 function buildAirPreset(): SceneAsset[] {
   return [
-    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.04),
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.14),
     buildAsset(EXHIBIT_LIBRARY[3], [-7.5, 0, 0], [0, 0.65, 0], 0.9),
     buildAsset(EXHIBIT_LIBRARY[4], [8.5, 0, 0.5], [0, -0.65, 0], 1.0),
     buildAsset(מלאי_LIBRARY[2], [0, 0, -5.6], [0, 0, 0], 1.0),
@@ -204,7 +205,7 @@ function buildAirPreset(): SceneAsset[] {
 
 function buildVipPreset(): SceneAsset[] {
   return [
-    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.02),
+    buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.12),
     buildAsset(מלאי_LIBRARY[2], [-8.8, 0, -5.2], [0, 0, 0], 1.0),
     buildAsset(מלאי_LIBRARY[3], [8.8, 0, -5.2], [0, 0, 0], 1.0),
     buildAsset(מלאי_LIBRARY[1], [0, 0, 5.7], [0, 0, 0], 1.0),
@@ -359,10 +360,7 @@ function FloorSystem({ template }: { template: TentTemplate }) {
         position={[0, 0.02, 0]}
       />
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.028, 0]}>
-        <ringGeometry args={[Math.min(template.widthM, template.depthM) * 0.28, Math.min(template.widthM, template.depthM) * 0.34, 128]} />
-        <meshBasicMaterial color="#d8f8ff" transparent opacity={0.82} />
-      </mesh>
+      {/* Decorative floor ring removed for cleaner exhibition carpet. */}
 
       <FrameRect width={template.widthM} depth={template.depthM} />
     </group>
@@ -381,7 +379,88 @@ function SpotlightFixture({
 }
 
 function CornerLighting() {
-  return null;
+  const units = [
+    { key: "nw", position: [-13.6, 0.04, -8.6] as [number, number, number], yaw: 0.99 },
+    { key: "ne", position: [13.6, 0.04, -8.6] as [number, number, number], yaw: -0.99 },
+    { key: "sw", position: [-13.6, 0.04, 8.6] as [number, number, number], yaw: 2.15 },
+    { key: "se", position: [13.6, 0.04, 8.6] as [number, number, number], yaw: -2.15 },
+  ];
+
+  return (
+    <group>
+      {units.map((unit) => (
+        <group key={unit.key} position={unit.position} rotation={[0, unit.yaw, 0]}>
+          <mesh castShadow receiveShadow position={[0, 0.11, 0]}>
+            <cylinderGeometry args={[0.22, 0.28, 0.14, 24]} />
+            <meshStandardMaterial
+              color="#15213a"
+              metalness={0.82}
+              roughness={0.28}
+              emissive="#091a3a"
+              emissiveIntensity={0.16}
+            />
+          </mesh>
+
+          <mesh castShadow receiveShadow position={[0, 0.34, 0.08]} rotation={[-0.56, 0, 0]}>
+            <boxGeometry args={[0.28, 0.18, 0.34]} />
+            <meshStandardMaterial
+              color="#dff3ff"
+              metalness={0.72}
+              roughness={0.18}
+              emissive="#84dfff"
+              emissiveIntensity={0.42}
+            />
+          </mesh>
+
+          <mesh position={[0, 0.42, 3.2]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={3}>
+            <coneGeometry args={[1.02, 6.4, 36, 1, true]} />
+            <meshBasicMaterial
+              color="#dff7ff"
+              transparent
+              opacity={0.12}
+              depthWrite={false}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.031, 6.05]}>
+            <circleGeometry args={[1.08, 48]} />
+            <meshBasicMaterial color="#d8f5ff" transparent opacity={0.14} depthWrite={false} />
+          </mesh>
+
+          <Text
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, 0.045, 6.05]}
+            fontSize={0.72}
+            color="#ffffff"
+            anchorX="center"
+            anchorY="middle"
+            material-transparent
+            material-opacity={0.34}
+          >
+            IAI
+          </Text>
+
+          <spotLight
+            position={[0, 1.05, 0.34]}
+            angle={0.34}
+            penumbra={0.96}
+            intensity={18}
+            distance={24}
+            color="#ecfbff"
+            castShadow
+          />
+
+          <pointLight
+            position={[0, 0.72, 0.35]}
+            intensity={0.85}
+            distance={4.2}
+            color="#9be7ff"
+          />
+        </group>
+      ))}
+    </group>
+  );
 }
 
 function Walls() {
@@ -650,6 +729,25 @@ function Sceneמצבl({
   return modelGroup;
 }
 
+
+function V3CameraRig({ cameraView }: { cameraView: "overview" | "inside" }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    if (cameraView === "inside") {
+      camera.position.set(0, 1.35, -6.2);
+      camera.lookAt(0, 1.05, -0.8);
+    } else {
+      camera.position.set(0, 11.2, 28);
+      camera.lookAt(0, 1.8, 0);
+    }
+
+    camera.updateProjectionMatrix();
+  }, [camera, cameraView]);
+
+  return null;
+}
+
 function ShowcaseScene({
   sceneAssets,
   selectedId,
@@ -658,6 +756,7 @@ function ShowcaseScene({
   onTransformCommit,
   onTransformModeChange,
   onObjectControl,
+  cameraView,
   template,
 }: {
   sceneAssets: SceneAsset[];
@@ -667,6 +766,7 @@ function ShowcaseScene({
   onTransformCommit: (id: string, patch: Partial<SceneAsset>) => void;
   onTransformModeChange: (mode: TransformMode) => void;
   onObjectControl: (action: ObjectControlAction) => void;
+  cameraView: "overview" | "inside";
   template: TentTemplate;
 }) {
   const [isTransforming, setIsTransforming] = useState(false);
@@ -675,10 +775,11 @@ function ShowcaseScene({
     <Canvas
       shadows
       dpr={[1, 1.25]}
-      camera={{ position: [0, 10, 22], fov: 34 }}
+      camera={{ position: [0, 11.2, 28], fov: 38 }}
       style={{ width: "100%", height: "100%" }}
       onPointerMissed={() => onSelect("main-tent")}
     >
+      <V3CameraRig cameraView={cameraView} />
       <color attach="background" args={["#091634"]} />
       <fog attach="fog" args={["#091634", 28, 60]} />
       <ambientLight intensity={1.5} />
@@ -708,11 +809,11 @@ function ShowcaseScene({
         panSpeed={0.9}
         zoomSpeed={0.9}
         rotateSpeed={0.8}
-        minDistance={10}
-        maxDistance={44}
+        minDistance={cameraView === "inside" ? 0.55 : 7}
+        maxDistance={cameraView === "inside" ? 20 : 58}
         minPolarAngle={0.45}
         maxPolarAngle={1.45}
-        target={[0, 1.65, 0]}
+        target={cameraView === "inside" ? [0, 1.05, -0.8] : [0, 1.8, 0]}
       />
     </Canvas>
   );
@@ -811,8 +912,36 @@ export default function LayoutShowcaseV3Page() {
   const [templateId, setTemplateId] = useState<TentTemplateId>("20x30");
   const activeTemplate = TENT_TEMPLATES.find((template) => template.id === templateId) ?? DEFAULT_TENT_TEMPLATE;
   const [sceneAssets, setSceneAssets] = useState<SceneAsset[]>(() => buildPremiumPreset());
+  const didHydrateSceneRef = useRef(false);
   const [selectedId, setנבחרId] = useState<string | null>("main-tent");
   const [transformMode, setTransformMode] = useState<TransformMode>("translate");
+  const [cameraView, setCameraView] = useState<"overview" | "inside">("overview");
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(V3_SCENE_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as SceneAsset[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSceneAssets(parsed);
+          setנבחרId(parsed.some((item) => item.id === selectedId) ? selectedId : parsed[0]?.id ?? "main-tent");
+        }
+      }
+    } catch (error) {
+      console.warn("Could not load saved V3 scene", error);
+    } finally {
+      didHydrateSceneRef.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!didHydrateSceneRef.current) return;
+    try {
+      window.localStorage.setItem(V3_SCENE_STORAGE_KEY, JSON.stringify(sceneAssets));
+    } catch (error) {
+      console.warn("Could not save V3 scene", error);
+    }
+  }, [sceneAssets]);
 
   const selectedAsset =
     sceneAssets.find((item) => item.id === selectedId) ?? sceneAssets[0] ?? null;
@@ -905,7 +1034,7 @@ export default function LayoutShowcaseV3Page() {
   function restoreMainTent() {
     setSceneAssets((current) => {
       if (current.some((item) => item.id === "main-tent")) return current;
-      return [buildTent([0, 0, 0], [0, 0, 0], 1), ...current];
+      return [buildTent([0, 0, 0], [0, Math.PI / 2, 0], 1.35), ...current];
     });
     setנבחרId("main-tent");
   }
@@ -1115,6 +1244,54 @@ export default function LayoutShowcaseV3Page() {
               background: "rgba(8,15,36,0.88)",
             }}
           >
+            <div
+              style={{
+                position: "absolute",
+                top: 16,
+                left: 16,
+                zIndex: 25,
+                display: "flex",
+                gap: 8,
+                padding: "8px 10px",
+                borderRadius: 16,
+                border: "1px solid rgba(103,232,249,0.22)",
+                background: "linear-gradient(180deg, rgba(5,14,32,0.84), rgba(8,24,52,0.70))",
+                boxShadow: "0 14px 34px rgba(0,0,0,0.28)",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <button
+                onClick={() => setCameraView("inside")}
+                style={{
+                  border: cameraView === "inside" ? "1px solid rgba(103,232,249,0.9)" : "1px solid rgba(255,255,255,0.14)",
+                  background: cameraView === "inside" ? "rgba(14,116,144,0.42)" : "rgba(255,255,255,0.05)",
+                  color: "#eaffff",
+                  borderRadius: 999,
+                  padding: "8px 12px",
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                }}
+              >
+                כניסה לאוהל
+              </button>
+              <button
+                onClick={() => setCameraView("overview")}
+                style={{
+                  border: cameraView === "overview" ? "1px solid rgba(103,232,249,0.9)" : "1px solid rgba(255,255,255,0.14)",
+                  background: cameraView === "overview" ? "rgba(14,116,144,0.42)" : "rgba(255,255,255,0.05)",
+                  color: "#eaffff",
+                  borderRadius: 999,
+                  padding: "8px 12px",
+                  fontSize: 12,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                }}
+              >
+                חזרה
+              </button>
+            </div>
+
             <ShowcaseScene
               sceneAssets={sceneAssets}
               selectedId={selectedId}
@@ -1123,6 +1300,7 @@ export default function LayoutShowcaseV3Page() {
               onTransformCommit={commitTransformForAsset}
               onTransformModeChange={setTransformMode}
               onObjectControl={handleObjectControl}
+              cameraView={cameraView}
               template={activeTemplate}
             />
           </div>
