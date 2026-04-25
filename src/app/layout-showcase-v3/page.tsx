@@ -25,7 +25,7 @@ type SceneAsset = {
   title: string;
   titleHe: string;
   category: AssetKind;
-  model: string;
+  model?: string;
   poster: string;
   position: [number, number, number];
   rotation: [number, number, number];
@@ -137,6 +137,66 @@ const מלאי_LIBRARY: Omit<SceneAsset, "id" | "position" | "rotation" | "scale
     category: "inventory",
     model: "/models/inventory/inflatable-tent-iai-blue-01.glb",
     poster: "/inventory/tent-dome-iai-blue-01.png",
+  },
+  {
+    title: "Podium 40×40×90",
+    titleHe: "פודיום 40×40×90",
+    category: "inventory",
+    poster: "/inventory/podium-square-40x40x90-01.png",
+  },
+  {
+    title: "Podium 50×50×90",
+    titleHe: "פודיום 50×50×90",
+    category: "inventory",
+    poster: "/inventory/podium-square-50x50x90-01.png",
+  },
+  {
+    title: "Podium 70×70×90",
+    titleHe: "פודיום 70×70×90",
+    category: "inventory",
+    poster: "/inventory/podium-square-70x70x90-01.png",
+  },
+  {
+    title: "Podium 100×100×90",
+    titleHe: "פודיום 100×100×90",
+    category: "inventory",
+    poster: "/inventory/podium-square-100x100x90-01.png",
+  },
+  {
+    title: "A4 Sign Stand Black",
+    titleHe: "סטנד שילוט A4 שחור",
+    category: "inventory",
+    poster: "/inventory/sign-stand-black-a4-01.png",
+  },
+  {
+    title: "A4 Sign Stand Silver",
+    titleHe: "סטנד שילוט A4 כסוף",
+    category: "inventory",
+    poster: "/inventory/sign-stand-silver-a4-01.png",
+  },
+  {
+    title: "Black Stanchion",
+    titleHe: "עמוד חבלול שחור",
+    category: "inventory",
+    poster: "/inventory/stanchion-black-01.png",
+  },
+  {
+    title: "Cable Reel",
+    titleHe: "תוף כבל",
+    category: "inventory",
+    poster: "/inventory/cable-reel-black-blue-01.png",
+  },
+  {
+    title: "White Folding Chair",
+    titleHe: "כיסא מתקפל לבן",
+    category: "inventory",
+    poster: "/inventory/chair-folding-white-01.png",
+  },
+  {
+    title: "Acrylic Lectern",
+    titleHe: "פודיום נאומים אקרילי",
+    category: "inventory",
+    poster: "/inventory/lectern-acrylic-01.png",
   },
 ];
 
@@ -520,7 +580,8 @@ function Sceneמצבl({
   onTransformModeChange: (mode: TransformMode) => void;
   onObjectControl: (action: ObjectControlAction) => void;
 }) {
-  const { scene } = useGLTF(asset.model);
+  const hasModel = Boolean(asset.model);
+  const { scene } = useGLTF(asset.model ?? TENT_MODEL);
   const cloned = useMemo(() => scene.clone(), [scene]);
   const groupRef = useRef<any>(null);
   const dragPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), -asset.position[1]), [asset.position[1]]);
@@ -531,6 +592,8 @@ function Sceneמצבl({
   const visualBase = visualScaleForמצבl(asset);
   const visualScale = asset.scale * visualBase;
   const selectedRing = Math.max(1.35, visualScale * 0.42);
+  const fallbackColor = asset.category === "inventory" ? "#d7ecff" : "#eef6ff";
+
   const dockButton = {
     border: "1px solid rgba(161, 231, 255, 0.42)",
     background: "rgba(8, 18, 42, 0.86)",
@@ -664,7 +727,26 @@ function Sceneמצבl({
         onSelect(asset.id);
       }}
     >
-      <primitive object={cloned} />
+      {hasModel ? (
+        <primitive object={cloned} />
+      ) : (
+        <group>
+          <mesh position={[0, 0.9, 0]} castShadow receiveShadow>
+            <boxGeometry args={[1.25, 1.8, 0.08]} />
+            <meshStandardMaterial
+              color={fallbackColor}
+              emissive="#2a5cff"
+              emissiveIntensity={0.18}
+              metalness={0.18}
+              roughness={0.36}
+            />
+          </mesh>
+          <mesh position={[0, 1.84, 0.055]} castShadow>
+            <boxGeometry args={[1.35, 0.12, 0.12]} />
+            <meshStandardMaterial color="#f8fdff" emissive="#9be7ff" emissiveIntensity={0.75} />
+          </mesh>
+        </group>
+      )}
       {hovered && !selected ? (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.055, 0]}>
           <ringGeometry args={[selectedRing, selectedRing + 0.22, 64]} />
@@ -798,7 +880,7 @@ function ShowcaseScene({
           <Sceneמצבl
             key={asset.id}
             asset={asset}
-            selected={selectedId === asset.id}
+            selected={cameraView !== "inside" && selectedId === asset.id}
             onSelect={onSelect}
             transformMode={transformMode}
             onTransformCommit={onTransformCommit}
@@ -1274,7 +1356,10 @@ export default function LayoutShowcaseV3Page() {
               }}
             >
               <button
-                onClick={() => setCameraView("inside")}
+                onClick={() => {
+                  setCameraView("inside");
+                  setTransformMode("translate");
+                }}
                 style={{
                   border: cameraView === "inside" ? "1px solid rgba(103,232,249,0.9)" : "1px solid rgba(255,255,255,0.14)",
                   background: cameraView === "inside" ? "rgba(14,116,144,0.42)" : "rgba(255,255,255,0.05)",
@@ -1304,6 +1389,58 @@ export default function LayoutShowcaseV3Page() {
                 חזרה
               </button>
             </div>
+
+            {cameraView === "inside" && selectedAsset && !isMainTentAsset(selectedAsset) ? (
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  bottom: 18,
+                  transform: "translateX(-50%)",
+                  zIndex: 35,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 12px",
+                  borderRadius: 18,
+                  border: "1px solid rgba(103,232,249,0.28)",
+                  background: "linear-gradient(180deg, rgba(5,14,32,0.92), rgba(8,24,52,0.84))",
+                  boxShadow: "0 18px 44px rgba(0,0,0,0.38), 0 0 26px rgba(56,189,248,0.14)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <div
+                  style={{
+                    color: "rgba(238,247,255,0.9)",
+                    fontSize: 12,
+                    fontWeight: 900,
+                    padding: "0 8px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {selectedAsset.titleHe}
+                </div>
+
+                <button style={indoorBtn} onClick={() => moveנבחר(-0.5, 0)}>←</button>
+                <button style={indoorBtn} onClick={() => moveנבחר(0, -0.5)}>↑</button>
+                <button style={indoorBtn} onClick={() => moveנבחר(0, 0.5)}>↓</button>
+                <button style={indoorBtn} onClick={() => moveנבחר(0.5, 0)}>→</button>
+
+                <div style={indoorDivider} />
+
+                <button style={indoorBtn} onClick={() => rotateנבחר(-0.18)}>⟲</button>
+                <button style={indoorBtn} onClick={() => rotateנבחר(0.18)}>⟳</button>
+
+                <div style={indoorDivider} />
+
+                <button style={indoorBtn} onClick={() => scaleנבחר(-0.06)}>−</button>
+                <button style={indoorBtn} onClick={() => scaleנבחר(0.06)}>+</button>
+
+                <div style={indoorDivider} />
+
+                <button style={indoorDangerBtn} onClick={removeנבחר}>מחק</button>
+              </div>
+            ) : null}
 
             <ShowcaseScene
               sceneAssets={sceneAssets}
@@ -1564,6 +1701,34 @@ export default function LayoutShowcaseV3Page() {
   );
 }
 
+const indoorBtn: React.CSSProperties = {
+  width: 44,
+  height: 38,
+  border: "1px solid rgba(103,232,249,0.34)",
+  background: "rgba(255,255,255,0.07)",
+  color: "#eaffff",
+  borderRadius: 12,
+  cursor: "pointer",
+  fontSize: 18,
+  fontWeight: 900,
+};
+
+const indoorDangerBtn: React.CSSProperties = {
+  ...indoorBtn,
+  width: 62,
+  border: "1px solid rgba(251,113,133,0.62)",
+  background: "rgba(127,29,29,0.28)",
+  color: "#ffd7de",
+  fontSize: 13,
+};
+
+const indoorDivider: React.CSSProperties = {
+  width: 1,
+  height: 30,
+  background: "rgba(255,255,255,0.12)",
+  margin: "0 2px",
+};
+
 const controlBtn: React.CSSProperties = {
   borderRadius: 14,
   border: "1px solid rgba(151, 237, 255, 0.22)",
@@ -1592,5 +1757,5 @@ const dangerBtn: React.CSSProperties = {
 };
 
 useGLTF.preload("/models/inventory/event+tent+3d+model.glb");
-EXHIBIT_LIBRARY.forEach((asset) => useGLTF.preload(asset.model));
-מלאי_LIBRARY.forEach((asset) => useGLTF.preload(asset.model));
+EXHIBIT_LIBRARY.forEach((asset) => { if (asset.model) useGLTF.preload(asset.model); });
+מלאי_LIBRARY.forEach((asset) => { if (asset.model) useGLTF.preload(asset.model); });
