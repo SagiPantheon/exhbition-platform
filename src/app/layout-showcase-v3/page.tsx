@@ -137,6 +137,10 @@ function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function isMainTentAsset(asset: Pick<SceneAsset, "id" | "kind" | "category">) {
+  return asset.id === "main-tent" || asset.kind === "tent" || asset.category === "tent";
+}
+
 function buildAsset(
   base: Omit<SceneAsset, "id" | "position" | "rotation" | "scale">,
   position: [number, number, number],
@@ -156,6 +160,7 @@ function buildAsset(
 function buildTent(position: [number, number, number], rotation: [number, number, number], scale: number): SceneAsset {
   return {
     id: "main-tent",
+    kind: "tent",
     title: "Main Exhibition Tent",
     titleHe: "אוהל תצוגה ראשי",
     category: "tent",
@@ -372,34 +377,11 @@ function SpotlightFixture({
   position: [number, number, number];
   rotation: [number, number, number];
 }) {
-  return (
-    <group position={position} rotation={rotation}>
-      <mesh castShadow>
-        <cylinderGeometry args={[0.22, 0.24, 0.18, 20]} />
-        <meshStandardMaterial color="#d8edf7" metalness={0.55} roughness={0.25} />
-      </mesh>
-      <mesh position={[0, -0.16, 0.24]} rotation={[0.95, 0, 0]}>
-        <coneGeometry args={[0.2, 0.35, 18]} />
-        <meshStandardMaterial color="#f7fbff" emissive="#e7f9ff" emissiveIntensity={1.5} />
-      </mesh>
-    </group>
-  );
+  return null;
 }
 
 function CornerLighting() {
-  return (
-    <group>
-      <spotLight position={[-15, 8, -10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
-      <spotLight position={[15, 8, -10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
-      <spotLight position={[-15, 8, 10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
-      <spotLight position={[15, 8, 10]} angle={0.42} penumbra={0.9} intensity={16} distance={52} color="#e9fbff" castShadow />
-
-      <SpotlightFixture position={[-15.3, 0.25, -10.2]} rotation={[0.6, 0, -0.45]} />
-      <SpotlightFixture position={[15.3, 0.25, -10.2]} rotation={[0.6, 0, 0.45]} />
-      <SpotlightFixture position={[-15.3, 0.25, 10.2]} rotation={[-0.6, 0, -0.45]} />
-      <SpotlightFixture position={[15.3, 0.25, 10.2]} rotation={[-0.6, 0, 0.45]} />
-    </group>
-  );
+  return null;
 }
 
 function Walls() {
@@ -505,6 +487,8 @@ function Sceneמצבl({
   const beginObjectDrag = (event: any) => {
     event.stopPropagation();
     onSelect(asset.id);
+
+    if (isMainTentAsset(asset)) return;
 
     if (transformMode !== "translate") return;
 
@@ -879,6 +863,7 @@ export default function LayoutShowcaseV3Page() {
 
   function moveנבחר(dx: number, dz: number) {
     if (!selectedAsset) return;
+    if (isMainTentAsset(selectedAsset)) return;
 
     const [x, y, z] = selectedAsset.position;
     const dims = dimensionsForAsset(selectedAsset, activeTemplate);
@@ -897,18 +882,21 @@ export default function LayoutShowcaseV3Page() {
 
   function rotateנבחר(delta: number) {
     if (!selectedAsset) return;
+    if (isMainTentAsset(selectedAsset)) return;
     const [rx, ry, rz] = selectedAsset.rotation;
     updateנבחר({ rotation: [rx, Number((ry + delta).toFixed(2)), rz] });
   }
 
   function scaleנבחר(delta: number) {
     if (!selectedAsset) return;
+    if (isMainTentAsset(selectedAsset)) return;
     const next = Math.min(3.5, Math.max(0.2, Number((selectedAsset.scale + delta).toFixed(2))));
     updateנבחר({ scale: next });
   }
 
   function removeנבחר() {
     if (!selectedAsset) return;
+    if (isMainTentAsset(selectedAsset)) return;
     const removedId = selectedAsset.id;
     setSceneAssets((current) => current.filter((item) => item.id !== removedId));
     setנבחרId(null);
