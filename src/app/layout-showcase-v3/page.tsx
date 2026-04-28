@@ -55,7 +55,7 @@ const TENT_TEMPLATES: TentTemplate[] = [
 
 const DEFAULT_TENT_TEMPLATE = TENT_TEMPLATES.find((template) => template.id === "20x30") ?? TENT_TEMPLATES[0];
 
-const TENT_VARIANTS: Record<TentTemplateId, { label: string; poster: string; scale: number }> = {
+const TENT_VARIANTS: Record<TentTemplateId, { label: string; poster: string; scale: number; model?: string }> = {
   "10x15": {
     label: "10×15",
     poster: "/inventory/tent-15x20-iai-blue-01.png",
@@ -69,6 +69,7 @@ const TENT_VARIANTS: Record<TentTemplateId, { label: string; poster: string; sca
   "20x30": {
     label: "20×30",
     poster: "/inventory/tent-20x30-iai-blue-01.png",
+    model: "/models/inventory/tent-20-30-iai-blue-01.glb",
     scale: 1.18,
   },
 };
@@ -83,6 +84,10 @@ function tentScaleForTemplate(templateId: TentTemplateId) {
 
 function tentPosterForTemplate(templateId: TentTemplateId) {
   return tentVariantForTemplate(templateId).poster;
+}
+
+function tentModelForTemplate(templateId: TentTemplateId) {
+  return tentVariantForTemplate(templateId).model ?? TENT_MODEL;
 }
 
 const TENT_MODEL = "/models/inventory/event+tent+3d+model.glb";
@@ -279,7 +284,8 @@ function buildTent(
   position: [number, number, number],
   rotation: [number, number, number],
   scale: number,
-  poster = "/inventory/tent-20x30-iai-blue-01.png"
+  poster = "/inventory/tent-20x30-iai-blue-01.png",
+  model = TENT_MODEL
 ): SceneAsset {
   return {
     id: "main-tent",
@@ -287,7 +293,7 @@ function buildTent(
     title: "Main Exhibition Tent",
     titleHe: "אוהל תצוגה ראשי",
     category: "tent",
-    model: TENT_MODEL,
+    model,
     poster,
     position,
     rotation,
@@ -1114,6 +1120,7 @@ export default function LayoutShowcaseV3Page() {
               rotation: [0, Math.PI / 2, 0],
               scale: tentScaleForTemplate(nextTemplateId),
               poster: tentPosterForTemplate(nextTemplateId),
+              model: tentModelForTemplate(nextTemplateId),
             }
           : item
       )
@@ -1197,7 +1204,8 @@ export default function LayoutShowcaseV3Page() {
           [0, 0, 0],
           [0, Math.PI / 2, 0],
           tentScaleForTemplate(templateId),
-          tentPosterForTemplate(templateId)
+          tentPosterForTemplate(templateId),
+          tentModelForTemplate(templateId)
         ),
         ...current,
       ];
