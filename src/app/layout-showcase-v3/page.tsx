@@ -55,10 +55,34 @@ const TENT_TEMPLATES: TentTemplate[] = [
 
 const DEFAULT_TENT_TEMPLATE = TENT_TEMPLATES.find((template) => template.id === "20x30") ?? TENT_TEMPLATES[0];
 
+const TENT_VARIANTS: Record<TentTemplateId, { label: string; poster: string; scale: number }> = {
+  "10x15": {
+    label: "10×15",
+    poster: "/inventory/tent-25x15-white-01.png",
+    scale: 0.96,
+  },
+  "15x25": {
+    label: "15×25",
+    poster: "/inventory/tent-25x15-white-01.png",
+    scale: 1.08,
+  },
+  "20x30": {
+    label: "20×30",
+    poster: "/inventory/tent-30x20-white-01.png",
+    scale: 1.18,
+  },
+};
+
+function tentVariantForTemplate(templateId: TentTemplateId) {
+  return TENT_VARIANTS[templateId] ?? TENT_VARIANTS["20x30"];
+}
+
 function tentScaleForTemplate(templateId: TentTemplateId) {
-  if (templateId === "10x15") return 0.96;
-  if (templateId === "15x25") return 1.08;
-  return 1.18;
+  return tentVariantForTemplate(templateId).scale;
+}
+
+function tentPosterForTemplate(templateId: TentTemplateId) {
+  return tentVariantForTemplate(templateId).poster;
 }
 
 const TENT_MODEL = "/models/inventory/event+tent+3d+model.glb";
@@ -251,7 +275,12 @@ function buildAsset(
   };
 }
 
-function buildTent(position: [number, number, number], rotation: [number, number, number], scale: number): SceneAsset {
+function buildTent(
+  position: [number, number, number],
+  rotation: [number, number, number],
+  scale: number,
+  poster = "/inventory/tent-30x20-white-01.png"
+): SceneAsset {
   return {
     id: "main-tent",
     kind: "tent",
@@ -259,7 +288,7 @@ function buildTent(position: [number, number, number], rotation: [number, number
     titleHe: "אוהל תצוגה ראשי",
     category: "tent",
     model: TENT_MODEL,
-    poster: "/inventory/tent-30x20-white-01.png",
+    poster,
     position,
     rotation,
     scale,
@@ -1079,7 +1108,13 @@ export default function LayoutShowcaseV3Page() {
     setSceneAssets((current) =>
       current.map((item) =>
         isMainTentAsset(item)
-          ? { ...item, position: [0, 0, 0], rotation: [0, Math.PI / 2, 0], scale: tentScaleForTemplate(nextTemplateId) }
+          ? {
+              ...item,
+              position: [0, 0, 0],
+              rotation: [0, Math.PI / 2, 0],
+              scale: tentScaleForTemplate(nextTemplateId),
+              poster: tentPosterForTemplate(nextTemplateId),
+            }
           : item
       )
     );
@@ -1157,7 +1192,15 @@ export default function LayoutShowcaseV3Page() {
   function restoreMainTent() {
     setSceneAssets((current) => {
       if (current.some((item) => item.id === "main-tent")) return current;
-      return [buildTent([0, 0, 0], [0, Math.PI / 2, 0], tentScaleForTemplate(templateId)), ...current];
+      return [
+        buildTent(
+          [0, 0, 0],
+          [0, Math.PI / 2, 0],
+          tentScaleForTemplate(templateId),
+          tentPosterForTemplate(templateId)
+        ),
+        ...current,
+      ];
     });
     setנבחרId("main-tent");
   }
