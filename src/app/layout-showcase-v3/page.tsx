@@ -58,17 +58,17 @@ const DEFAULT_TENT_TEMPLATE = TENT_TEMPLATES.find((template) => template.id === 
 const TENT_VARIANTS: Record<TentTemplateId, { label: string; poster: string; scale: number }> = {
   "10x15": {
     label: "10×15",
-    poster: "/inventory/tent-25x15-white-01.png",
+    poster: "/inventory/tent-15x20-iai-blue-01.png",
     scale: 0.96,
   },
   "15x25": {
     label: "15×25",
-    poster: "/inventory/tent-25x15-white-01.png",
+    poster: "/inventory/tent-20x25-iai-blue-01.png",
     scale: 1.08,
   },
   "20x30": {
     label: "20×30",
-    poster: "/inventory/tent-30x20-white-01.png",
+    poster: "/inventory/tent-20x30-iai-blue-01.png",
     scale: 1.18,
   },
 };
@@ -279,7 +279,7 @@ function buildTent(
   position: [number, number, number],
   rotation: [number, number, number],
   scale: number,
-  poster = "/inventory/tent-30x20-white-01.png"
+  poster = "/inventory/tent-20x30-iai-blue-01.png"
 ): SceneAsset {
   return {
     id: "main-tent",
