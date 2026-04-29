@@ -11,6 +11,12 @@ const bottomCards = [
   { title: "Exhibitions", href: "/exhibitions", image: "/images/home/exhibitions-home-cover.png" },
 ];
 
+const featuredCard = {
+  title: "Tents & Layout",
+  href: "/layout-showcase-v3",
+  image: "/inventory/tent-20x30-iai-blue-01.png",
+};
+
 function Card({
   title,
   href,
@@ -85,6 +91,38 @@ export default function HomePage() {
               </p>
             </div>
           </div>
+        </section>
+
+        <section>
+          <Link
+            href={featuredCard.href}
+            aria-label={`Open ${featuredCard.title}`}
+            className="group relative block overflow-hidden rounded-[24px] border border-cyan-300/24 bg-[#08131f] shadow-[0_24px_80px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1"
+          >
+            <div className="relative h-[220px] w-full md:h-[280px]">
+              <img
+                src={featuredCard.image}
+                alt={featuredCard.title}
+                className="absolute inset-0 h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.02]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#06111f]/88 via-[#06111f]/44 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#06111f] to-transparent" />
+
+              <div className="absolute left-8 top-8 z-10 max-w-[560px]">
+                <p className="mb-3 text-[12px] font-medium uppercase tracking-[0.22em] text-cyan-300">
+                  Central Planning Layer
+                </p>
+
+                <h2 className="mb-3 text-[clamp(30px,4vw,58px)] font-semibold leading-[0.95] tracking-[-0.04em] text-white">
+                  {featuredCard.title}
+                </h2>
+
+                <p className="max-w-[520px] text-[15px] leading-[1.6] text-white/88 md:text-[17px]">
+                  Build the exhibition environment first: tent scenario, layout, spatial placement, and the visual layer that connects exhibits, inventory, and real events.
+                </p>
+              </div>
+            </div>
+          </Link>
         </section>
 
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
