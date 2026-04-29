@@ -116,6 +116,11 @@ export default function HebrewHomePage() {
                 <p className="max-w-[520px] text-[15px] leading-[1.6] text-white/88 md:text-[17px]">
                   קודם בונים את סביבת התערוכה: תרחיש אוהל, פריסה, מיקום מרחבי, והשכבה החזותית שמחברת בין מוצגים, מלאי ותערוכות אמיתיות.
                 </p>
+
+                <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/45 bg-cyan-400/10 px-4 py-2 text-[12px] font-medium text-white shadow-[0_0_18px_rgba(34,211,238,0.18)]">
+                  <span>פתח אזור</span>
+                  <span aria-hidden="true">←</span>
+                </div>
               </div>
             </div>
           </Link>
