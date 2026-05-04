@@ -401,14 +401,18 @@ export default function SubDivisionPage() {
                 }}
               >
                 {previewSystems.map((item) => (
-                  <div
+                  <Link
                     key={item}
+                    href={`/global-exhibit-bank/exhibit-system?divisionId=${division.id}&subDivision=${encodeURIComponent(subDivisionName)}&system=${encodeURIComponent(item)}`}
                     style={{
                       padding: "14px 16px",
                       borderRadius: "16px",
                       border: "1px solid rgba(95, 168, 255, 0.18)",
                       background:
                         "linear-gradient(180deg, rgba(15,35,66,0.86) 0%, rgba(11,24,44,0.90) 100%)",
+                      textDecoration: "none",
+                      color: "#EAF4FF",
+                      display: "block",
                     }}
                   >
                     <div
@@ -426,9 +430,9 @@ export default function SubDivisionPage() {
                         color: "rgba(171, 211, 255, 0.70)",
                       }}
                     >
-                      Future exhibit-system entry point
+                      Open exhibit-system bridge
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
 
