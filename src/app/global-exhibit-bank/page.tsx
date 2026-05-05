@@ -2,19 +2,106 @@
 
 import Link from "next/link"
 import { useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
 import { exhibitBankSummary, exhibitDivisions } from "../../data/globalExhibitBank"
 
-export default function GlobalExhibitBankPage() {
-  const router = useRouter()
-  const [activeDivisionId, setActiveDivisionId] = useState(exhibitDivisions[0]?.id ?? "")
+type PreviewSystem = {
+  name: string
+  code: string
+  divisionId: string
+  subDivision: string
+  visual: string
+}
 
-  const activeDivision = useMemo(
-    () =>
-      exhibitDivisions.find((division) => division.id === activeDivisionId) ??
-      exhibitDivisions[0],
-    [activeDivisionId]
+const previewSystemsMap: Record<string, PreviewSystem[]> = {
+  "missiles-space-defense": [
+    { name: "OPTSAT 500", code: "SPACE-001", divisionId: "missiles-space-defense", subDivision: "חלל", visual: "🛰️" },
+    { name: "OptSar 550", code: "SPACE-002", divisionId: "missiles-space-defense", subDivision: "חלל", visual: "🛰️" },
+    { name: "OPSAT 3000", code: "SPACE-003", divisionId: "missiles-space-defense", subDivision: "חלל", visual: "🛰️" },
+    { name: "MCS", code: "SPACE-004", divisionId: "missiles-space-defense", subDivision: "חלל", visual: "🛰️" },
+    { name: "Missile Family", code: "MSD-005", divisionId: "missiles-space-defense", subDivision: "טילים", visual: "🚀" },
+    { name: "Defense Layer", code: "MSD-006", divisionId: "missiles-space-defense", subDivision: "הגנה", visual: "🛡️" },
+  ],
+  aviation: [
+    { name: "Aircraft Support", code: "AIR-001", divisionId: "aviation", subDivision: "בדק", visual: "✈️" },
+    { name: "MRO Services", code: "AIR-002", divisionId: "aviation", subDivision: "MRO", visual: "🛠️" },
+    { name: "Airframe Support", code: "AIR-003", divisionId: "aviation", subDivision: "MRO", visual: "🧩" },
+    { name: "Depot Systems", code: "AIR-004", divisionId: "aviation", subDivision: "בדק", visual: "🏭" },
+  ],
+  elta: [
+    { name: "Radar Family", code: "ELTA-001", divisionId: "elta", subDivision: "מכ״מים", visual: "📡" },
+    { name: "Communications Suite", code: "ELTA-002", divisionId: "elta", subDivision: "תקשורת", visual: "📶" },
+    { name: "Ground Robotics", code: "ELTA-003", divisionId: "elta", subDivision: "רובוטיקה", visual: "🤖" },
+    { name: "Sensor Grid", code: "ELTA-004", divisionId: "elta", subDivision: "מכ״מים", visual: "📡" },
+  ],
+  uav: [
+    { name: "UAV Family", code: "UAV-001", divisionId: "uav", subDivision: "מלט", visual: "🛸" },
+    { name: "Mission Payload", code: "UAV-002", divisionId: "uav", subDivision: "מלט", visual: "🎯" },
+    { name: "Control Segment", code: "UAV-003", divisionId: "uav", subDivision: "מלט", visual: "🧭" },
+  ],
+}
+
+const divisionIcons: Record<string, string> = {
+  "missiles-space-defense": "🚀",
+  aviation: "✈️",
+  elta: "📡",
+  uav: "🛸",
+}
+
+export default function GlobalExhibitBankPage() {
+  const [activeDivisionId, setActiveDivisionId] = useState(exhibitDivisions[0]?.id ?? "")
+  const [query, setQuery] = useState("")
+
+  const activeDivision =
+    exhibitDivisions.find((item) => item.id === activeDivisionId) ?? exhibitDivisions[0]
+
+  const allPreviewSystems = useMemo(
+    () => exhibitDivisions.flatMap((division) => previewSystemsMap[division.id] ?? []),
+    []
   )
+
+  const visiblePreviewSystems = useMemo(() => {
+    const byDivision = previewSystemsMap[activeDivision?.id ?? ""] ?? []
+    const q = query.trim().toLowerCase()
+
+    if (!q) return byDivision
+
+    return allPreviewSystems.filter((item) => {
+      const division = exhibitDivisions.find((d) => d.id === item.divisionId)
+      return (
+        item.name.toLowerCase().includes(q) ||
+        item.code.toLowerCase().includes(q) ||
+        item.subDivision.toLowerCase().includes(q) ||
+        division?.titleHe.toLowerCase().includes(q) ||
+        division?.titleEn.toLowerCase().includes(q)
+      )
+    })
+  }, [activeDivision, query, allPreviewSystems])
+
+  const topStats = [
+    { label: "Total Exhibits", value: exhibitBankSummary.totalExhibits ?? 81, icon: "◈" },
+    { label: "Divisions", value: exhibitDivisions.length, icon: "⬡" },
+    {
+      label: "Sub-Divisions",
+      value: exhibitDivisions.reduce((acc, item) => acc + item.subDivisionCount, 0),
+      icon: "⌘",
+    },
+    { label: "Ready", value: `${exhibitBankSummary.avgReadiness ?? 83}%`, icon: "✓" },
+    { label: "Missing Data", value: 14, icon: "⚠" },
+    { label: "New", value: 7, icon: "✦" },
+  ]
+
+  const sideNav = [
+    { label: "Hub", href: "/", active: false },
+    { label: "Global Exhibit Bank", href: "/global-exhibit-bank", active: true },
+    {
+      label: "Divisions",
+      href: activeDivision ? `/global-exhibit-bank/division?divisionId=${activeDivision.id}` : "/global-exhibit-bank",
+      active: false,
+    },
+    { label: "Systems", href: "/global-exhibit-bank", active: false },
+    { label: "Layouts", href: "/tents-layout", active: false },
+    { label: "Reports", href: "/global-exhibit-bank", active: false },
+  ]
 
   return (
     <main
@@ -22,700 +109,897 @@ export default function GlobalExhibitBankPage() {
         minHeight: "100vh",
         color: "#EAF4FF",
         background:
-          "radial-gradient(circle at top, rgba(24,77,255,0.20), transparent 32%), linear-gradient(180deg, #07111f 0%, #08182c 45%, #050b14 100%)",
+          "radial-gradient(circle at top, rgba(32,104,255,0.20), transparent 28%), linear-gradient(180deg, #030811 0%, #06101d 42%, #03070d 100%)",
       }}
     >
       <div
         style={{
-          maxWidth: "1500px",
+          width: "100%",
+          maxWidth: "1760px",
           margin: "0 auto",
-          padding: "32px 24px 40px",
+          padding: "14px",
         }}
       >
-        <header
+        <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: "20px",
-            flexWrap: "wrap",
-            marginBottom: "28px",
+            display: "grid",
+            gridTemplateColumns: "116px minmax(0, 1fr)",
+            gap: "14px",
+            minHeight: "calc(100vh - 28px)",
           }}
         >
-          <div>
-            <div
-              style={{
-                fontSize: "12px",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: "rgba(154, 196, 255, 0.72)",
-                marginBottom: "10px",
-              }}
-            >
-              Strategic command layer
-            </div>
-
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "clamp(32px, 4vw, 56px)",
-                lineHeight: 1,
-                fontWeight: 900,
-              }}
-            >
-              Global Exhibit Bank
-            </h1>
-
-            <p
-              style={{
-                margin: "14px 0 0",
-                maxWidth: "760px",
-                fontSize: "16px",
-                lineHeight: 1.7,
-                color: "rgba(214, 233, 255, 0.82)",
-              }}
-            >
-              Command view of company exhibit structure, readiness, and system hierarchy.
-            </p>
-          </div>
-
-          <div
+          <aside
             style={{
+              borderRadius: "28px",
+              border: "1px solid rgba(95, 168, 255, 0.18)",
+              background:
+                "linear-gradient(180deg, rgba(7,18,36,0.96) 0%, rgba(5,12,26,0.98) 100%)",
+              boxShadow:
+                "0 20px 60px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(130,196,255,0.04)",
+              padding: "12px 10px",
               display: "flex",
-              gap: "12px",
-              flexWrap: "wrap",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "10px",
             }}
           >
-            {[
-              { label: "Divisions", value: exhibitBankSummary.totalDivisions },
-              { label: "Exhibits", value: exhibitBankSummary.totalExhibits },
-              { label: "Avg. readiness", value: `${exhibitBankSummary.averageReadiness}%` },
-            ].map((item) => (
-              <div
-                key={item.label}
-                style={{
-                  minWidth: "140px",
-                  padding: "14px 16px",
-                  borderRadius: "18px",
-                  border: "1px solid rgba(95, 168, 255, 0.24)",
-                  background: "rgba(9, 20, 40, 0.72)",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.22)",
-                  backdropFilter: "blur(10px)",
-                }}
-              >
-                <div
+            <div
+              style={{
+                width: "86px",
+                height: "86px",
+                borderRadius: "24px",
+                border: "1px solid rgba(95,168,255,0.22)",
+                background:
+                  "radial-gradient(circle at center, rgba(70,155,255,0.26) 0%, rgba(10,24,46,0.96) 62%, rgba(8,16,30,1) 100%)",
+                display: "grid",
+                placeItems: "center",
+                boxShadow: "inset 0 0 30px rgba(90,195,255,0.10)",
+                fontSize: "34px",
+              }}
+            >
+              🌐
+            </div>
+
+            <div style={{ width: "100%", display: "grid", gap: "8px", marginTop: "6px" }}>
+              {sideNav.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
                   style={{
+                    textDecoration: "none",
+                    color: "#EAF4FF",
+                    borderRadius: "18px",
+                    border: item.active
+                      ? "1px solid rgba(111,200,255,0.42)"
+                      : "1px solid rgba(95,168,255,0.12)",
+                    background: item.active
+                      ? "linear-gradient(180deg, rgba(18,47,87,0.98) 0%, rgba(11,26,50,0.98) 100%)"
+                      : "rgba(8,18,35,0.74)",
+                    padding: "14px 8px",
+                    textAlign: "center",
                     fontSize: "12px",
-                    color: "rgba(153, 198, 255, 0.72)",
-                    marginBottom: "8px",
+                    lineHeight: 1.25,
+                    fontWeight: item.active ? 800 : 600,
+                    boxShadow: item.active ? "0 0 22px rgba(95,193,255,0.16)" : "none",
                   }}
                 >
                   {item.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: "26px",
-                    fontWeight: 800,
-                    lineHeight: 1,
-                  }}
-                >
-                  {item.value}
-                </div>
-              </div>
-            ))}
-          </div>
-        </header>
-
-        <section
-          style={{
-            position: "relative",
-            borderRadius: "30px",
-            padding: "28px",
-            border: "1px solid rgba(93, 167, 255, 0.18)",
-            background:
-              "linear-gradient(180deg, rgba(10,24,46,0.82) 0%, rgba(7,16,32,0.88) 100%)",
-            boxShadow:
-              "0 24px 70px rgba(0,0,0,0.30), inset 0 0 0 1px rgba(130,196,255,0.04)",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-              background:
-                "radial-gradient(circle at center, rgba(36,142,255,0.12), transparent 24%), linear-gradient(90deg, transparent 49.5%, rgba(86,157,255,0.10) 50%, transparent 50.5%)",
-            }}
-          />
-
-          <div
-            style={{
-              position: "relative",
-              display: "grid",
-              gridTemplateColumns: "1fr minmax(280px, 380px) 1fr",
-              gap: "20px",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gap: "18px",
-              }}
-            >
-              {exhibitDivisions.slice(0, 2).map((division) => {
-                const active = division.id === activeDivision?.id
-                return (
-                  <button
-                    key={division.id}
-                    onClick={() => setActiveDivisionId(division.id)}
-                    onDoubleClick={() => router.push(`/global-exhibit-bank/division?divisionId=${division.id}`)}
-                    onDoubleClick={() => router.push(`/global-exhibit-bank/division?divisionId=${division.id}`)}
-                    style={{
-                      textAlign: "right",
-                      padding: "18px 18px 16px",
-                      borderRadius: "22px",
-                      border: active
-                        ? "1px solid rgba(111, 200, 255, 0.65)"
-                        : "1px solid rgba(95, 168, 255, 0.18)",
-                      background: active
-                        ? "linear-gradient(180deg, rgba(17,41,76,0.96) 0%, rgba(12,28,52,0.96) 100%)"
-                        : "rgba(8,18,34,0.82)",
-                      boxShadow: active
-                        ? "0 0 0 1px rgba(111,200,255,0.08), 0 0 34px rgba(53,145,255,0.22)"
-                        : "0 12px 28px rgba(0,0,0,0.18)",
-                      color: "#EAF4FF",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <div style={{ fontSize: "28px", fontWeight: 800, marginBottom: "6px" }}>
-                      {division.titleHe}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        color: "rgba(132, 193, 255, 0.68)",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      {division.titleEn}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        color: "rgba(171, 211, 255, 0.82)",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      {division.subDivisions.join(" · ")}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "rgba(140, 190, 255, 0.74)",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      {division.exhibitCount} מוצגים · {division.subDivisionCount} תתי־יחידות ·{" "}
-                      {division.readiness}% מוכנות
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        lineHeight: 1.6,
-                        color: "rgba(224, 239, 255, 0.88)",
-                        marginBottom: "12px",
-                      }}
-                    >
-                      {division.descriptionHe}
-                    </div>
-
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                        color: "rgba(132, 193, 255, 0.58)",
-                      }}
-                    >
-                      Click to inspect · Double-click to open
-                    </div>
-                  </button>
-                )
-              })}
+                </Link>
+              ))}
             </div>
 
-            <div
-              style={{
-                minHeight: "440px",
-                borderRadius: "28px",
-                padding: "22px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-                border: "1px solid rgba(100, 181, 255, 0.28)",
-                background:
-                  "radial-gradient(circle at center, rgba(36,126,255,0.18) 0%, rgba(10,24,48,0.90) 40%, rgba(7,16,30,0.98) 100%)",
-                boxShadow:
-                  "0 0 0 1px rgba(95, 188, 255, 0.06), 0 0 60px rgba(43, 125, 255, 0.16), inset 0 0 60px rgba(69, 149, 255, 0.12)",
-              }}
-            >
+            <div style={{ marginTop: "auto", width: "100%" }}>
               <div
                 style={{
-                  width: "170px",
-                  height: "170px",
-                  borderRadius: "999px",
-                  display: "grid",
-                  placeItems: "center",
-                  marginBottom: "20px",
-                  border: "1px solid rgba(111, 200, 255, 0.36)",
-                  background:
-                    "radial-gradient(circle at center, rgba(91,191,255,0.30) 0%, rgba(26,79,157,0.18) 42%, rgba(9,19,37,0.92) 72%)",
-                  boxShadow: "0 0 42px rgba(52, 146, 255, 0.28)",
+                  borderRadius: "18px",
+                  border: "1px solid rgba(95,168,255,0.12)",
+                  background: "rgba(8,18,35,0.74)",
+                  padding: "14px 10px",
+                  textAlign: "center",
                 }}
               >
-                <div>
-                  <div
-                    style={{
-                      fontSize: "13px",
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      color: "rgba(158, 207, 255, 0.74)",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    Core
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "28px",
-                      fontWeight: 900,
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    Global
-                    <br />
-                    Exhibit Core
-                  </div>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: "rgba(162,206,255,0.76)",
+                    marginBottom: "8px",
+                  }}
+                >
+                  GEB Command
+                </div>
+                <div style={{ fontSize: "12px", color: "#DCEEFF", marginBottom: "6px" }}>v2.5.0</div>
+                <div style={{ fontSize: "11px", color: "#7BFFB2", fontWeight: 800 }}>● ONLINE</div>
+              </div>
+            </div>
+          </aside>
+
+          <section
+            style={{
+              borderRadius: "30px",
+              border: "1px solid rgba(95, 168, 255, 0.18)",
+              background:
+                "radial-gradient(circle at 50% 0%, rgba(50,130,255,0.10), transparent 25%), linear-gradient(180deg, rgba(6,16,30,0.96) 0%, rgba(4,10,20,0.98) 100%)",
+              boxShadow:
+                "0 22px 70px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(130,196,255,0.03)",
+              padding: "16px",
+              display: "grid",
+              gridTemplateRows: "auto auto auto auto",
+              gap: "14px",
+            }}
+          >
+            <header
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.1fr 0.9fr",
+                gap: "14px",
+                alignItems: "start",
+              }}
+            >
+              <div>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: "48px",
+                    lineHeight: 1,
+                    fontWeight: 900,
+                    letterSpacing: "-0.04em",
+                  }}
+                >
+                  GLOBAL EXHIBIT BANK
+                </h1>
+                <div
+                  style={{
+                    marginTop: "8px",
+                    fontSize: "16px",
+                    color: "rgba(223,238,255,0.84)",
+                  }}
+                >
+                  Unified access point to all divisions, sub-divisions, and exhibit systems
                 </div>
               </div>
 
-              <p
+              <div
                 style={{
-                  margin: 0,
-                  maxWidth: "280px",
-                  fontSize: "14px",
-                  lineHeight: 1.7,
-                  color: "rgba(216, 235, 255, 0.82)",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 54px",
+                  gap: "10px",
+                  alignItems: "stretch",
                 }}
               >
-                Unified command layer for all exhibit systems, divisions, and readiness overview.
-              </p>
-            </div>
+                <div
+                  style={{
+                    borderRadius: "16px",
+                    border: "1px solid rgba(95,168,255,0.16)",
+                    background: "rgba(6,16,30,0.82)",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 16px",
+                    minHeight: "54px",
+                  }}
+                >
+                  <span style={{ fontSize: "18px", marginRight: "10px", opacity: 0.82 }}>⌕</span>
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search exhibits, divisions, systems..."
+                    style={{
+                      width: "100%",
+                      background: "transparent",
+                      border: "none",
+                      outline: "none",
+                      color: "#EAF4FF",
+                      fontSize: "16px",
+                    }}
+                  />
+                </div>
 
-            <div
+                <button
+                  style={{
+                    borderRadius: "16px",
+                    border: "1px solid rgba(95,168,255,0.16)",
+                    background: "rgba(6,16,30,0.82)",
+                    color: "#EAF4FF",
+                    fontSize: "20px",
+                    cursor: "pointer",
+                  }}
+                >
+                  ⚙
+                </button>
+              </div>
+            </header>
+
+            <section
               style={{
                 display: "grid",
-                gap: "18px",
+                gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+                gap: "12px",
               }}
             >
-              {exhibitDivisions.slice(2).map((division) => {
-                const active = division.id === activeDivision?.id
-                return (
-                  <button
-                    key={division.id}
-                    onClick={() => setActiveDivisionId(division.id)}
+              {topStats.map((item) => (
+                <div
+                  key={item.label}
+                  style={{
+                    borderRadius: "18px",
+                    border: "1px solid rgba(95,168,255,0.16)",
+                    background:
+                      "linear-gradient(180deg, rgba(10,25,46,0.92) 0%, rgba(8,18,34,0.92) 100%)",
+                    padding: "16px 18px",
+                    display: "grid",
+                    gridTemplateColumns: "48px 1fr",
+                    gap: "12px",
+                    alignItems: "center",
+                    boxShadow: "inset 0 0 0 1px rgba(130,196,255,0.03)",
+                  }}
+                >
+                  <div
                     style={{
-                      textAlign: "right",
-                      padding: "18px 18px 16px",
-                      borderRadius: "22px",
-                      border: active
-                        ? "1px solid rgba(111, 200, 255, 0.65)"
-                        : "1px solid rgba(95, 168, 255, 0.18)",
-                      background: active
-                        ? "linear-gradient(180deg, rgba(17,41,76,0.96) 0%, rgba(12,28,52,0.96) 100%)"
-                        : "rgba(8,18,34,0.82)",
-                      boxShadow: active
-                        ? "0 0 0 1px rgba(111,200,255,0.08), 0 0 34px rgba(53,145,255,0.22)"
-                        : "0 12px 28px rgba(0,0,0,0.18)",
-                      color: "#EAF4FF",
-                      cursor: "pointer",
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "14px",
+                      display: "grid",
+                      placeItems: "center",
+                      background: "rgba(9,24,46,0.86)",
+                      border: "1px solid rgba(95,168,255,0.12)",
+                      fontSize: "22px",
+                      color: "#6FD9FF",
                     }}
                   >
-                    <div style={{ fontSize: "28px", fontWeight: 800, marginBottom: "6px" }}>
-                      {division.titleHe}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        color: "rgba(132, 193, 255, 0.68)",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      {division.titleEn}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        color: "rgba(171, 211, 255, 0.82)",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      {division.subDivisions.join(" · ")}
-                    </div>
+                    {item.icon}
+                  </div>
+                  <div>
                     <div
                       style={{
                         fontSize: "13px",
-                        color: "rgba(140, 190, 255, 0.74)",
-                        marginBottom: "10px",
+                        color: "rgba(192,225,255,0.76)",
+                        marginBottom: "4px",
                       }}
                     >
-                      {division.exhibitCount} מוצגים · {division.subDivisionCount} תתי־יחידות ·{" "}
-                      {division.readiness}% מוכנות
+                      {item.label}
                     </div>
                     <div
                       style={{
-                        fontSize: "14px",
-                        lineHeight: 1.6,
-                        color: "rgba(224, 239, 255, 0.88)",
-                        marginBottom: "12px",
+                        fontSize: "24px",
+                        fontWeight: 900,
+                        lineHeight: 1,
+                        color:
+                          item.label === "Ready"
+                            ? "#82F39A"
+                            : item.label === "Missing Data"
+                            ? "#FFD55A"
+                            : "#EAF4FF",
                       }}
                     >
-                      {division.descriptionHe}
+                      {item.value}
                     </div>
+                  </div>
+                </div>
+              ))}
+            </section>
 
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                        color: "rgba(132, 193, 255, 0.58)",
-                      }}
-                    >
-                      Click to inspect · Double-click to open
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        {activeDivision && (
-          <section
-            style={{
-              marginTop: "24px",
-              borderRadius: "28px",
-              padding: "24px",
-              border: "1px solid rgba(95, 168, 255, 0.18)",
-              background:
-                "linear-gradient(180deg, rgba(9,20,40,0.90) 0%, rgba(7,16,30,0.94) 100%)",
-              boxShadow: "0 16px 42px rgba(0,0,0,0.22)",
-            }}
-          >
-            <div
+            <section
               style={{
                 display: "grid",
-                gridTemplateColumns: "1.2fr 1fr 1fr",
-                gap: "20px",
+                gridTemplateColumns: "1fr 1.12fr 1fr",
+                gap: "14px",
                 alignItems: "stretch",
               }}
             >
-              <div
-                style={{
-                  borderRadius: "22px",
-                  padding: "20px",
-                  border: "1px solid rgba(95, 168, 255, 0.16)",
-                  background: "rgba(8,18,34,0.66)",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "12px",
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    color: "rgba(153, 198, 255, 0.68)",
-                    marginBottom: "12px",
-                  }}
-                >
-                  Active division
-                </div>
-
-                <div
-                  style={{
-                    fontSize: "34px",
-                    fontWeight: 900,
-                    marginBottom: "6px",
-                  }}
-                >
-                  {activeDivision.titleHe}
-                </div>
-
-                <div
-                  style={{
-                    fontSize: "12px",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    color: "rgba(132, 193, 255, 0.68)",
-                    marginBottom: "12px",
-                  }}
-                >
-                  {activeDivision.titleEn}
-                </div>
-
-                <div
-                  style={{
-                    fontSize: "15px",
-                    color: "rgba(171, 211, 255, 0.82)",
-                    marginBottom: "12px",
-                  }}
-                >
-                  {activeDivision.subDivisions.join(" · ")}
-                </div>
-
-                <div
-                  style={{
-                    fontSize: "14px",
-                    lineHeight: 1.75,
-                    color: "rgba(224, 239, 255, 0.88)",
-                    marginBottom: "18px",
-                  }}
-                >
-                  {activeDivision.descriptionHe}
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    flexWrap: "wrap",
-                    marginBottom: "18px",
-                  }}
-                >
-                  {[
-                    `${activeDivision.exhibitCount} מוצגים`,
-                    `${activeDivision.subDivisionCount} תתי־יחידות`,
-                    `${activeDivision.readiness}% מוכנות`,
-                  ].map((chip) => (
-                    <span
-                      key={chip}
+              <div style={{ display: "grid", gap: "14px" }}>
+                {exhibitDivisions.slice(0, 2).map((division) => {
+                  const isActive = activeDivisionId === division.id
+                  return (
+                    <button
+                      key={division.id}
+                      onClick={() => setActiveDivisionId(division.id)}
                       style={{
-                        padding: "8px 12px",
-                        borderRadius: "999px",
-                        border: "1px solid rgba(95, 168, 255, 0.20)",
-                        background: "rgba(14,31,58,0.72)",
-                        fontSize: "13px",
-                        color: "rgba(218, 236, 255, 0.86)",
+                        textAlign: "right",
+                        cursor: "pointer",
+                        borderRadius: "26px",
+                        border: isActive
+                          ? "1px solid rgba(115,208,255,0.52)"
+                          : "1px solid rgba(95,168,255,0.16)",
+                        background:
+                          "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+                        padding: "18px 20px",
+                        color: "#EAF4FF",
+                        boxShadow: isActive ? "0 0 26px rgba(95,193,255,0.14)" : "none",
                       }}
                     >
-                      {chip}
-                    </span>
-                  ))}
-                </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: "12px",
+                          alignItems: "center",
+                          marginBottom: "12px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            borderRadius: "18px",
+                            border: "1px solid rgba(95,168,255,0.14)",
+                            background: "rgba(8,18,35,0.74)",
+                            display: "grid",
+                            placeItems: "center",
+                            fontSize: "28px",
+                          }}
+                        >
+                          {divisionIcons[division.id] ?? "◉"}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "42px", fontWeight: 900, lineHeight: 1 }}>
+                            {division.titleHe}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: "8px",
+                              fontSize: "18px",
+                              color: "rgba(223,238,255,0.88)",
+                            }}
+                          >
+                            {division.subDivisions.join(" · ")}
+                          </div>
+                        </div>
+                      </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "12px",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <Link
-                    href={`/global-exhibit-bank/division?divisionId=${activeDivision.id}`}
-                    style={{
-                      padding: "12px 16px",
-                      borderRadius: "14px",
-                      textDecoration: "none",
-                      fontWeight: 800,
-                      color: "#04111E",
-                      background: "linear-gradient(180deg, #8AD8FF 0%, #5FC1FF 100%)",
-                    }}
-                  >
-                    {activeDivision.ctaHe}
-                  </Link>
+                      <div
+                        style={{
+                          fontSize: "28px",
+                          marginBottom: "12px",
+                          color: "rgba(223,238,255,0.9)",
+                        }}
+                      >
+                        {division.exhibitCount} מוצגים &nbsp; · &nbsp; {division.subDivisionCount} תתי-יחידות &nbsp; ·
+                        &nbsp; <span style={{ color: "#86F59B", fontWeight: 900 }}>{division.readiness}%</span>
+                      </div>
 
-                  <Link
-                    href="#"
-                    style={{
-                      padding: "12px 16px",
-                      borderRadius: "14px",
-                      textDecoration: "none",
-                      fontWeight: 700,
-                      color: "#DCEEFF",
-                      border: "1px solid rgba(111, 200, 255, 0.28)",
-                      background: "rgba(11,24,45,0.74)",
-                    }}
-                  >
-                    לצפייה במערכות
-                  </Link>
-                </div>
+                      <div
+                        style={{
+                          fontSize: "24px",
+                          lineHeight: 1.55,
+                          color: "rgba(223,238,255,0.86)",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        {division.descriptionHe}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          minWidth: "220px",
+                          borderRadius: "14px",
+                          padding: "12px 18px",
+                          background: "rgba(9,24,46,0.86)",
+                          border: "1px solid rgba(95,168,255,0.18)",
+                          fontSize: "22px",
+                          fontWeight: 800,
+                        }}
+                      >
+                        פתח חטיבה →
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
 
               <div
                 style={{
-                  borderRadius: "22px",
-                  padding: "20px",
-                  border: "1px solid rgba(95, 168, 255, 0.16)",
-                  background: "rgba(8,18,34,0.66)",
+                  borderRadius: "30px",
+                  border: "1px solid rgba(95,168,255,0.18)",
+                  background:
+                    "radial-gradient(circle at center, rgba(38,130,255,0.16) 0%, rgba(8,18,35,0.96) 52%, rgba(7,16,30,0.98) 100%)",
+                  display: "grid",
+                  placeItems: "center",
+                  padding: "24px",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
                 <div
                   style={{
-                    fontSize: "12px",
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    color: "rgba(153, 198, 255, 0.68)",
-                    marginBottom: "14px",
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "radial-gradient(circle at center, rgba(92,197,255,0.08) 0%, transparent 52%)",
+                    pointerEvents: "none",
                   }}
-                >
-                  Sub-divisions
-                </div>
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "88%",
+                    height: "1px",
+                    background:
+                      "linear-gradient(90deg, rgba(95,193,255,0.0) 0%, rgba(95,193,255,0.9) 50%, rgba(95,193,255,0.0) 100%)",
+                    top: "50%",
+                    left: "6%",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    height: "88%",
+                    width: "1px",
+                    background:
+                      "linear-gradient(180deg, rgba(95,193,255,0.0) 0%, rgba(95,193,255,0.9) 50%, rgba(95,193,255,0.0) 100%)",
+                    top: "6%",
+                    left: "50%",
+                  }}
+                />
 
                 <div
                   style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "10px",
+                    width: "100%",
+                    maxWidth: "520px",
+                    borderRadius: "30px",
+                    border: "1px solid rgba(111,200,255,0.34)",
+                    background:
+                      "linear-gradient(180deg, rgba(11,28,52,0.96) 0%, rgba(7,18,34,0.98) 100%)",
+                    boxShadow:
+                      "0 0 34px rgba(95,193,255,0.18), inset 0 0 0 1px rgba(130,196,255,0.04)",
+                    padding: "26px 24px",
+                    textAlign: "center",
+                    position: "relative",
                   }}
                 >
-                  {activeDivision.subDivisions.map((item) => (
-                    <div
-                      key={item}
+                  <div
+                    style={{
+                      width: "114px",
+                      height: "114px",
+                      margin: "0 auto 18px",
+                      borderRadius: "999px",
+                      border: "1px solid rgba(111,200,255,0.38)",
+                      background:
+                        "radial-gradient(circle at center, rgba(79,173,255,0.26) 0%, rgba(8,18,35,0.98) 65%, rgba(5,12,24,1) 100%)",
+                      display: "grid",
+                      placeItems: "center",
+                      fontSize: "42px",
+                      boxShadow: "0 0 28px rgba(95,193,255,0.16)",
+                    }}
+                  >
+                    🌐
+                  </div>
+
+                  <div style={{ fontSize: "28px", fontWeight: 900, lineHeight: 1.1, marginBottom: "10px" }}>
+                    <div className="gec-premium-orb-wrap" aria-hidden="true">
+  <div className="gec-premium-orb-ring gec-premium-orb-ring-1" />
+  <div className="gec-premium-orb-ring gec-premium-orb-ring-2" />
+  <div className="gec-premium-orb-grid" />
+  <div className="gec-premium-orb-core">🌐</div>
+</div>
+GLOBAL EXHIBIT CORE
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "17px",
+                      color: "rgba(223,238,255,0.84)",
+                      marginBottom: "18px",
+                    }}
+                  >
+                    Unified company-wide exhibit ecosystem
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "10px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <Link
+                      href="/global-exhibit-bank"
                       style={{
-                        padding: "12px 14px",
+                        textDecoration: "none",
+                        color: "#DDF2FF",
                         borderRadius: "14px",
-                        border: "1px solid rgba(95, 168, 255, 0.20)",
-                        background: "rgba(14,31,58,0.72)",
+                        border: "1px solid rgba(95,168,255,0.18)",
+                        background: "rgba(8,18,35,0.72)",
+                        padding: "12px 10px",
                         fontSize: "14px",
                         fontWeight: 700,
-                        color: "#E7F3FF",
                       }}
                     >
-                      {item}
-                    </div>
-                  ))}
+                      View All Exhibits
+                    </Link>
+                    <Link
+                      href={activeDivision ? `/global-exhibit-bank/division?divisionId=${activeDivision.id}` : "/global-exhibit-bank"}
+                      style={{
+                        textDecoration: "none",
+                        color: "#DDF2FF",
+                        borderRadius: "14px",
+                        border: "1px solid rgba(95,168,255,0.18)",
+                        background: "rgba(8,18,35,0.72)",
+                        padding: "12px 10px",
+                        fontSize: "14px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Open Division
+                    </Link>
+                    <Link
+                      href="/tents-layout"
+                      style={{
+                        textDecoration: "none",
+                        color: "#DDF2FF",
+                        borderRadius: "14px",
+                        border: "1px solid rgba(95,168,255,0.18)",
+                        background: "rgba(8,18,35,0.72)",
+                        padding: "12px 10px",
+                        fontSize: "14px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Layouts
+                    </Link>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "12px",
+                      borderTop: "1px solid rgba(95,168,255,0.14)",
+                      paddingTop: "14px",
+                    }}
+                  >
+                    {[
+                      { label: "Total Systems", value: exhibitBankSummary.totalExhibits ?? 81 },
+                      { label: "Exhibition Ready", value: `${exhibitBankSummary.avgReadiness ?? 83}%` },
+                      { label: "Divisions Connected", value: exhibitDivisions.length },
+                    ].map((item) => (
+                      <div key={item.label}>
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "rgba(162,206,255,0.76)",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          {item.label}
+                        </div>
+                        <div style={{ fontSize: "22px", fontWeight: 900 }}>{item.value}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              </div>
+
+              <div style={{ display: "grid", gap: "14px" }}>
+                {exhibitDivisions.slice(2, 4).map((division) => {
+                  const isActive = activeDivisionId === division.id
+                  return (
+                    <button
+                      key={division.id}
+                      onClick={() => setActiveDivisionId(division.id)}
+                      style={{
+                        textAlign: "right",
+                        cursor: "pointer",
+                        borderRadius: "26px",
+                        border: isActive
+                          ? "1px solid rgba(115,208,255,0.52)"
+                          : "1px solid rgba(95,168,255,0.16)",
+                        background:
+                          "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+                        padding: "18px 20px",
+                        color: "#EAF4FF",
+                        boxShadow: isActive ? "0 0 26px rgba(95,193,255,0.14)" : "none",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: "12px",
+                          alignItems: "center",
+                          marginBottom: "12px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            borderRadius: "18px",
+                            border: "1px solid rgba(95,168,255,0.14)",
+                            background: "rgba(8,18,35,0.74)",
+                            display: "grid",
+                            placeItems: "center",
+                            fontSize: "28px",
+                          }}
+                        >
+                          {divisionIcons[division.id] ?? "◉"}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "42px", fontWeight: 900, lineHeight: 1 }}>
+                            {division.titleHe}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: "8px",
+                              fontSize: "18px",
+                              color: "rgba(223,238,255,0.88)",
+                            }}
+                          >
+                            {division.subDivisions.join(" · ")}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: "28px",
+                          marginBottom: "12px",
+                          color: "rgba(223,238,255,0.9)",
+                        }}
+                      >
+                        {division.exhibitCount} מוצגים &nbsp; · &nbsp; {division.subDivisionCount} תתי-יחידות &nbsp; ·
+                        &nbsp; <span style={{ color: "#86F59B", fontWeight: 900 }}>{division.readiness}%</span>
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: "24px",
+                          lineHeight: 1.55,
+                          color: "rgba(223,238,255,0.86)",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        {division.descriptionHe}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          minWidth: "220px",
+                          borderRadius: "14px",
+                          padding: "12px 18px",
+                          background: "rgba(9,24,46,0.86)",
+                          border: "1px solid rgba(95,168,255,0.18)",
+                          fontSize: "22px",
+                          fontWeight: 800,
+                        }}
+                      >
+                        פתח חטיבה →
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+
+            <section
+              style={{
+                borderRadius: "24px",
+                border: "1px solid rgba(95,168,255,0.16)",
+                background:
+                  "linear-gradient(180deg, rgba(10,25,46,0.90) 0%, rgba(7,18,34,0.94) 100%)",
+                padding: "16px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "30px",
+                  fontWeight: 900,
+                  marginBottom: "6px",
+                }}
+              >
+                SELECTED DIVISION / DRILLDOWN PANEL
               </div>
 
               <div
                 style={{
-                  borderRadius: "22px",
-                  padding: "20px",
-                  border: "1px solid rgba(95, 168, 255, 0.16)",
-                  background: "rgba(8,18,34,0.66)",
+                  fontSize: "18px",
+                  color: "rgba(223,238,255,0.76)",
+                  marginBottom: "14px",
                 }}
               >
-                <div
-                  style={{
-                    fontSize: "12px",
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    color: "rgba(153, 198, 255, 0.68)",
-                    marginBottom: "14px",
-                  }}
-                >
-                  Preview systems
-                </div>
+                If selected, show sub-divisions and preview systems
+              </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gap: "10px",
-                  }}
-                >
-                  {activeDivision.previewSystems.map((system) => (
+              <div
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  flexWrap: "wrap",
+                  marginBottom: "16px",
+                }}
+              >
+                {activeDivision?.subDivisions.map((sub) => (
+                  <span
+                    key={sub}
+                    style={{
+                      padding: "12px 20px",
+                      borderRadius: "14px",
+                      border: "1px solid rgba(95,168,255,0.16)",
+                      background:
+                        "linear-gradient(180deg, rgba(18,47,87,0.98) 0%, rgba(11,26,50,0.98) 100%)",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {sub}
+                  </span>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                  gap: "12px",
+                }}
+              >
+                {visiblePreviewSystems.map((item) => (
+                  <Link
+                    key={`${item.code}-${item.name}`}
+                    href={`/global-exhibit-bank/exhibit-system?divisionId=${item.divisionId}&subDivision=${encodeURIComponent(item.subDivision)}&system=${encodeURIComponent(item.name)}`}
+                    style={{
+                      textDecoration: "none",
+                      color: "#EAF4FF",
+                      borderRadius: "18px",
+                      border: "1px solid rgba(95,168,255,0.16)",
+                      background:
+                        "linear-gradient(180deg, rgba(9,22,42,0.94) 0%, rgba(7,16,30,0.96) 100%)",
+                      padding: "12px",
+                      minHeight: "180px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <div
-                      key={system}
                       style={{
-                        padding: "14px 14px",
+                        height: "76px",
                         borderRadius: "14px",
-                        border: "1px solid rgba(95, 168, 255, 0.18)",
+                        border: "1px solid rgba(95,168,255,0.12)",
                         background:
-                          "linear-gradient(180deg, rgba(15,35,66,0.86) 0%, rgba(11,24,44,0.90) 100%)",
+                          "radial-gradient(circle at center, rgba(73,166,255,0.18) 0%, rgba(7,16,30,0.96) 70%)",
+                        display: "grid",
+                        placeItems: "center",
+                        fontSize: "38px",
+                        marginBottom: "12px",
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: 800,
-                          marginBottom: "5px",
-                        }}
-                      >
-                        {system}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          color: "rgba(171, 211, 255, 0.72)",
-                        }}
-                      >
-                        Future system entry point
-                      </div>
+                      {item.visual}
                     </div>
-                  ))}
-                </div>
+
+                    <div
+                      style={{
+                        fontSize: "22px",
+                        lineHeight: 1.15,
+                        fontWeight: 800,
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {item.name}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        color: "rgba(162,206,255,0.78)",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      ● {item.code}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        color: "rgba(162,206,255,0.78)",
+                      }}
+                    >
+                      {item.subDivision}
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </div>
+            </section>
+
+            <section
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                gap: "14px",
+              }}
+            >
+              <Link
+                href="/global-exhibit-bank"
+                style={{
+                  textDecoration: "none",
+                  color: "#EAF4FF",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(95,168,255,0.16)",
+                  background:
+                    "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+                  padding: "20px",
+                  fontSize: "18px",
+                  fontWeight: 800,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "72px",
+                }}
+              >
+                👁 View All Exhibits
+              </Link>
+
+              <Link
+                href={activeDivision ? `/global-exhibit-bank/division?divisionId=${activeDivision.id}` : "/global-exhibit-bank"}
+                style={{
+                  textDecoration: "none",
+                  color: "#EAF4FF",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(95,168,255,0.16)",
+                  background:
+                    "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+                  padding: "20px",
+                  fontSize: "18px",
+                  fontWeight: 800,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "72px",
+                }}
+              >
+                📁 Open Selected Division
+              </Link>
+
+              <Link
+                href="/global-exhibit-bank"
+                style={{
+                  textDecoration: "none",
+                  color: "#EAF4FF",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(95,168,255,0.16)",
+                  background:
+                    "linear-gradient(180deg, rgba(28,22,70,0.95) 0%, rgba(13,18,47,0.96) 100%)",
+                  padding: "20px",
+                  fontSize: "18px",
+                  fontWeight: 800,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "72px",
+                }}
+              >
+                ⭳ Export Summary
+              </Link>
+
+              <Link
+                href="/tents-layout"
+                style={{
+                  textDecoration: "none",
+                  color: "#EAF4FF",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(95,168,255,0.16)",
+                  background:
+                    "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+                  padding: "20px",
+                  fontSize: "18px",
+                  fontWeight: 800,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "72px",
+                }}
+              >
+                ◫ Go to Layouts
+              </Link>
+            </section>
           </section>
-        )}
-
-        <footer
-          style={{
-            marginTop: "20px",
-            display: "flex",
-            gap: "12px",
-            flexWrap: "wrap",
-          }}
-        >
-          <Link
-            href="/"
-            style={{
-              padding: "11px 14px",
-              borderRadius: "14px",
-              textDecoration: "none",
-              color: "#DCEEFF",
-              border: "1px solid rgba(95, 168, 255, 0.18)",
-              background: "rgba(9,20,40,0.72)",
-            }}
-          >
-            Back to Hub
-          </Link>
-
-          <Link
-            href="#"
-            style={{
-              padding: "11px 14px",
-              borderRadius: "14px",
-              textDecoration: "none",
-              color: "#DCEEFF",
-              border: "1px solid rgba(95, 168, 255, 0.18)",
-              background: "rgba(9,20,40,0.72)",
-            }}
-          >
-            Division View
-          </Link>
-
-          <Link
-            href="#"
-            style={{
-              padding: "11px 14px",
-              borderRadius: "14px",
-              textDecoration: "none",
-              color: "#DCEEFF",
-              border: "1px solid rgba(95, 168, 255, 0.18)",
-              background: "rgba(9,20,40,0.72)",
-            }}
-          >
-            Future Exhibit Systems
-          </Link>
-        </footer>
+        </div>
       </div>
     </main>
   )
