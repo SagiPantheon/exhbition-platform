@@ -1,107 +1,176 @@
+"use client";
 import Link from "next/link";
 
-const topCards = [
-  { title: "Space", href: "/space", image: "/images/home/space-cover.png" },
-  { title: "Air", href: "/air", image: "/images/home/air-cover.png" },
-  { title: "Land", href: "/land", image: "/images/home/land-cover.png" },
+const divisions = [
+  {
+    id: "missiles-space-defense",
+    nameHe: 'חטיבת מט"ח',
+    nameEn: "MTA Division",
+    subHe: "מלמ · טילים · חלל · הגנה",
+    exhibits: 24,
+    subDivisions: 4,
+    readiness: 82,
+    cover: "/images/divisions/matach-cover.png",
+    color: "#00c8ff",
+  },
+  {
+    id: "aviation",
+    nameHe: "חטיבת תעופה",
+    nameEn: "Aviation Division",
+    subHe: "בדק · MRO",
+    exhibits: 18,
+    subDivisions: 2,
+    readiness: 79,
+    cover: "/images/divisions/taufa-cover.png",
+    color: "#00c8ff",
+  },
+  {
+    id: "elta",
+    nameHe: "חטיבת אלתא",
+    nameEn: "ELTA Division",
+    subHe: "רובוטיקה · תקשורת · מכ״מים",
+    exhibits: 27,
+    subDivisions: 3,
+    readiness: 88,
+    cover: "/images/divisions/elta-cover.png",
+    color: "#00c8ff",
+  },
+  {
+    id: "uav",
+    nameHe: 'חטיבת כט"צ',
+    nameEn: "UAV Division",
+    subHe: "מלט",
+    exhibits: 12,
+    subDivisions: 1,
+    readiness: 84,
+    cover: "/images/divisions/uav-cover.png",
+    color: "#00c8ff",
+  },
 ];
-
-const bottomCards = [
-  { title: "Naval", href: "/naval", image: "/images/home/naval-cover.png" },
-  { title: "Exhibitions", href: "/exhibitions", image: "/images/home/exhibitions-home-cover.png" },
-];
-
-
-function Card({
-  title,
-  href,
-  image,
-}: {
-  title: string;
-  href: string;
-  image: string;
-}) {
-  return (
-    <Link
-      href={href}
-      aria-label={`Open ${title}`}
-      className="group block overflow-hidden rounded-[16px] border border-white/10 bg-[#08131f] shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 cursor-pointer"
-    >
-      <div className="relative aspect-[16/7.2] w-full">
-        <img
-          src={image}
-          alt={title}
-          className="absolute inset-0 h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.02]"
-        />
-      </div>
-    </Link>
-  );
-}
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#06111f] text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1700px] flex-col gap-4 px-4 py-4">
-        <div className="flex items-center justify-end">
-          <div className="inline-flex overflow-hidden rounded-[14px] border border-cyan-300/24 bg-[#08131f]/92 shadow-[0_0_0_1px_rgba(103,232,249,0.08),0_0_18px_rgba(34,211,238,0.10)]">
-            <span className="bg-cyan-400/12 px-4 py-2 text-[13px] font-medium uppercase tracking-[0.18em] text-white">
-              EN
-            </span>
-            <Link
-              href="/he"
-              aria-label="Switch to Hebrew"
-              className="px-4 py-2 text-[13px] font-medium uppercase tracking-[0.18em] text-cyan-200 transition duration-300 hover:bg-cyan-400/10 hover:text-white"
-            >
-              HE
-            </Link>
+    <main className="min-h-screen bg-[#02040e] text-white" dir="rtl">
+      {/* Header */}
+      <header className="flex items-center justify-between px-8 py-5 border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <img src="/covers/iai-white.png" alt="IAI" className="h-10 w-auto" style={{ filter: "drop-shadow(0 0 8px rgba(0,160,255,0.6))" }} />
+          <div>
+            <p className="text-[10px] tracking-[0.3em] text-cyan-300/60 uppercase">Exhibition Hub</p>
+            <p className="text-[12px] text-white/80 font-light">מערכת ניהול תערוכות</p>
           </div>
         </div>
+        <div className="flex items-center gap-3">
+          <Link href="/tents-layout" className="px-4 py-2 bg-cyan-500/10 border border-cyan-400/30 rounded-lg text-cyan-300 text-[11px] tracking-widest hover:bg-cyan-500/20 transition">
+            🏕 אוהלים ופריסה
+          </Link>
+          <Link href="/inventory" className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60 text-[11px] tracking-widest hover:bg-white/10 transition">
+            מחסן
+          </Link>
+          <Link href="/exhibitions" className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60 text-[11px] tracking-widest hover:bg-white/10 transition">
+            תערוכות
+          </Link>
+        </div>
+      </header>
 
-        <section className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[#08131f] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
-          <div className="relative h-[56vh] min-h-[420px] max-h-[760px] w-full">
-            <img
-              src="/images/home/home-hero-bg.png"
-              alt="Exhibition Platform Hero Background"
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
+      {/* Hero */}
+      <div className="px-8 py-10 text-center">
+        <p className="text-cyan-300/50 text-[10px] tracking-[0.5em] uppercase mb-3">Israel Aerospace Industries</p>
+        <h1 className="text-4xl font-extralight tracking-wide text-white mb-2">בנק מוצגים גלובלי</h1>
+        <p className="text-white/40 text-sm">ניהול מרכזי של כל החטיבות, המוצגים, והתערוכות</p>
+      </div>
 
-            <div className="absolute inset-0 bg-gradient-to-r from-[#06111f]/88 via-[#06111f]/38 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#06111f] to-transparent" />
-
-            <div className="absolute left-[5%] top-[18%] z-10 max-w-[620px]">
-              <p className="mb-3 text-[clamp(14px,1.2vw,20px)] font-medium uppercase tracking-[0.22em] text-cyan-300">
-                Exhibition Platform
-              </p>
-
-              <h1 className="mb-4 text-[clamp(56px,7vw,120px)] font-semibold leading-[0.92] tracking-[-0.04em] text-white">
-                Operational
-                <br />
-                Exhibition Hub
-              </h1>
-
-              <div className="mb-6 h-[3px] w-40 rounded-full bg-cyan-400/90 shadow-[0_0_18px_rgba(34,211,238,0.55)]" />
-
-              <p className="max-w-[560px] text-[clamp(16px,1.35vw,22px)] leading-[1.55] text-white/90">
-                A digital platform for managing exhibition assets, presenting key systems in 3D, and building a structured foundation for planning, layout, and exhibition operations.
-              </p>
-            </div>
+      {/* Stats bar */}
+      <div className="flex justify-center gap-6 px-8 mb-10">
+        {[
+          { label: "סה״כ מוצגים", value: "81" },
+          { label: "חטיבות", value: "4" },
+          { label: "תתי-יחידות", value: "10" },
+          { label: "מוכנות", value: "83%" },
+        ].map((s) => (
+          <div key={s.label} className="bg-white/4 border border-white/8 rounded-xl px-6 py-3 text-center">
+            <p className="text-2xl font-light text-cyan-300">{s.value}</p>
+            <p className="text-[10px] text-white/40 tracking-widest uppercase mt-1">{s.label}</p>
           </div>
-        </section>
+        ))}
+      </div>
 
-        <section>
-        </section>
+      {/* Division cards */}
+      <div className="grid grid-cols-2 gap-5 px-8 max-w-5xl mx-auto pb-16">
+        {divisions.map((div) => (
+          <Link
+            key={div.id}
+            href={`/global-exhibit-bank/division?divisionId=${div.id}`}
+            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#06111f] hover:border-cyan-400/40 transition-all duration-500 hover:-translate-y-1"
+          >
+            {/* Cover image */}
+            <div className="relative h-44 overflow-hidden">
+              <img
+                src={div.cover}
+                alt={div.nameHe}
+                className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-55 group-hover:scale-105 transition-all duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#06111f] via-[#06111f]/60 to-transparent" />
+              <div className="absolute top-4 left-4">
+                <span className="text-[10px] tracking-[0.3em] text-cyan-300/60 uppercase">חטיבה</span>
+              </div>
+              <div className="absolute bottom-4 right-4 text-right">
+                <h2 className="text-2xl font-semibold text-white">{div.nameHe}</h2>
+                <p className="text-cyan-300/70 text-[11px] tracking-wider mt-1">{div.subHe}</p>
+              </div>
+            </div>
 
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {topCards.map((card) => (
-            <Card key={card.title} {...card} />
+            {/* Stats */}
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-4 mb-3">
+                <span className="text-cyan-400 text-xl font-light">{div.readiness}%</span>
+                <span className="text-white/40 text-xs">מוכנות</span>
+                <span className="mx-2 text-white/20">·</span>
+                <span className="text-white/70 text-sm">{div.exhibits}</span>
+                <span className="text-white/40 text-xs">מוצגים</span>
+                <span className="mx-2 text-white/20">·</span>
+                <span className="text-white/70 text-sm">{div.subDivisions}</span>
+                <span className="text-white/40 text-xs">תתי-יחידות</span>
+              </div>
+
+              {/* Readiness bar */}
+              <div className="w-full bg-white/8 rounded-full h-1 mb-4">
+                <div
+                  className="h-1 rounded-full bg-cyan-400"
+                  style={{ width: `${div.readiness}%`, boxShadow: "0 0 8px rgba(0,200,255,0.6)" }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-white/30 text-[11px]">{div.nameEn}</span>
+                <span className="text-cyan-300/70 text-[11px] group-hover:text-cyan-200 transition">
+                  פתח חטיבה →
+                </span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Footer nav */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#02040e]/95 backdrop-blur border-t border-white/5 px-8 py-3">
+        <div className="flex items-center justify-center gap-8 max-w-3xl mx-auto">
+          {[
+            { label: "חטיבות", href: "/", active: true },
+            { label: "מוצגים", href: "/global-exhibit-bank" },
+            { label: "מלאי", href: "/inventory" },
+            { label: "תערוכות", href: "/exhibitions" },
+            { label: "אוהלים", href: "/tents-layout" },
+          ].map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={`text-[11px] tracking-widest uppercase transition ${item.active ? "text-cyan-300" : "text-white/40 hover:text-white/70"}`}
+            >
+              {item.label}
+            </Link>
           ))}
-        </section>
-
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:px-[16.66%]">
-          {bottomCards.map((card) => (
-            <Card key={card.title} {...card} />
-          ))}
-        </section>
+        </div>
       </div>
     </main>
   );
