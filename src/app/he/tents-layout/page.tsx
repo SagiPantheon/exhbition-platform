@@ -5,7 +5,7 @@ const cards = [
     eyebrow: "WOW LAYER",
     title: "תרחיש תצוגה",
     text: "פתיחת סביבת האוהל הוויזואלית והצגת מרחב התערוכה כסצנת קבלת החלטות אמיתית, לא כקטלוג שטוח.",
-    href: "/layout-showcase-v3",
+    href: "/tents-layout",
     cta: "פתח תצוגה",
   },
   {
