@@ -180,7 +180,7 @@ function tentTemplateLabel(value: IsraelExhibition['tentTemplate']) {
 
 function planningHref(value: IsraelExhibition['tentTemplate']) {
   if (!value) return null
-  return `/layout-planning/${value}`
+  return `/tents-layout/${value}`
 }
 
 const inventoryMap = new Map(inventoryItems.map((item) => [item.id, item]))
@@ -443,7 +443,7 @@ function removeAssetRef(id: string) {
             </Link>
 
             <Link
-              href="/layout-planning"
+              href="/tents-layout"
               className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
             >
               הדמיית אוהל / פריסה
@@ -727,7 +727,7 @@ function removeAssetRef(id: string) {
 
                     {draft.tentTemplate ? (
                       <Link
-                        href={planningHref(draft.tentTemplate) || '/layout-planning'}
+                        href={planningHref(draft.tentTemplate) || '/tents-layout'}
                         className="rounded-2xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200 transition hover:bg-cyan-400/20"
                       >
                         פתח לוח תכנון

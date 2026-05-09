@@ -12,7 +12,7 @@ const cards = [
     eyebrow: "WORK LAYER",
     title: "תכנון פריסה",
     text: "מעבר מהצגה לעבודה תפעולית: מיקום, קנה מידה, לוגיקת סביבה וחשיבת הקמה.",
-    href: "/layout-planning",
+    href: "/tents-layout",
     cta: "פתח תכנון",
   },
   {
