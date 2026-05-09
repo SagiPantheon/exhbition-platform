@@ -1,4 +1,4 @@
-import { abroadFlagCards } from "../../../data/abroadFlags";
+import { abroadFlagCards } from "../../../../data/abroadFlags";
 
 function StatCard({
   label,
@@ -55,7 +55,7 @@ function StatCard({
   );
 }
 
-export default function AbroadExhibitionsPage() {
+export default function HebrewAbroadExhibitionsPage() {
   return (
     <main
       style={{
@@ -88,7 +88,7 @@ export default function AbroadExhibitionsPage() {
             color: "#7dd3fc",
           }}
         >
-          International Layer
+          שכבה בינלאומית
         </div>
 
         <h1
@@ -100,7 +100,7 @@ export default function AbroadExhibitionsPage() {
             maxWidth: "980px",
           }}
         >
-          Exhibitions Abroad
+          תערוכות בחו״ל
         </h1>
 
         <p
@@ -112,10 +112,9 @@ export default function AbroadExhibitionsPage() {
             color: "rgba(226,232,240,0.88)",
           }}
         >
-          This is the international country layer of the platform. It turns the
-          abroad section into a visual planning surface: countries first, then
-          real exhibition routes, then operational details, approvals, assets,
-          and logistics.
+          זו שכבת המדינות הבינלאומית של הפלטפורמה. היא הופכת את תחום החו״ל
+          למשטח תכנון ויזואלי: קודם מדינות, אחר כך מסלולי תערוכות אמיתיים,
+          ואז פרטים תפעוליים, אישורים, מוצגים ולוגיסטיקה.
         </p>
 
         <div
@@ -127,19 +126,19 @@ export default function AbroadExhibitionsPage() {
           }}
         >
           <StatCard
-            label="Country Library"
+            label="ספריית מדינות"
             value={String(abroadFlagCards.length)}
-            note="A flexible visual base for the future international exhibitions map."
+            note="בסיס ויזואלי גמיש למפת תערוכות בינלאומיות עתידית."
           />
           <StatCard
-            label="First Real Anchor"
-            value="Greece"
-            note="MARE MED Athens gives this section a real operational starting point."
+            label="עוגן ראשון אמיתי"
+            value="יוון"
+            note="MARE MED Athens נותנת לאזור הזה נקודת פתיחה תפעולית אמיתית."
           />
           <StatCard
-            label="Platform Logic"
-            value="Countries → Events"
-            note="First define the geography, then connect live exhibitions and planning flows."
+            label="לוגיקת פלטפורמה"
+            value="מדינות ← אירועים"
+            note="קודם מגדירים את הגיאוגרפיה, ואז מחברים תערוכות חיות וזרימות תכנון."
           />
         </div>
 
@@ -165,7 +164,7 @@ export default function AbroadExhibitionsPage() {
                   marginBottom: "8px",
                 }}
               >
-                Flag Library
+                ספריית דגלים
               </div>
               <h2
                 style={{
@@ -175,7 +174,7 @@ export default function AbroadExhibitionsPage() {
                   lineHeight: 1.15,
                 }}
               >
-                Country Cards
+                כרטיסי מדינות
               </h2>
             </div>
 
@@ -190,7 +189,7 @@ export default function AbroadExhibitionsPage() {
                 color: "rgba(226,232,240,0.82)",
               }}
             >
-              Built for future international exhibition routes
+              נבנה עבור מסלולי תערוכות בינלאומיים עתידיים
             </div>
           </div>
 
@@ -235,7 +234,7 @@ export default function AbroadExhibitionsPage() {
                       lineHeight: 1.15,
                     }}
                   >
-                    {item.country}
+                    {item.countryHe}
                   </h3>
                   <div
                     style={{
@@ -244,7 +243,7 @@ export default function AbroadExhibitionsPage() {
                       color: "rgba(148,163,184,0.92)",
                     }}
                   >
-                    {item.countryHe}
+                    {item.country}
                   </div>
                 </div>
 
@@ -263,7 +262,7 @@ export default function AbroadExhibitionsPage() {
                     textTransform: "uppercase",
                   }}
                 >
-                  {item.statusEn}
+                  {item.statusHe}
                 </div>
 
                 <p
@@ -274,7 +273,7 @@ export default function AbroadExhibitionsPage() {
                     color: "rgba(226,232,240,0.86)",
                   }}
                 >
-                  {item.noteEn}
+                  {item.noteHe}
                 </p>
 
                 <div
@@ -286,7 +285,7 @@ export default function AbroadExhibitionsPage() {
                     color: "rgba(148,163,184,0.84)",
                   }}
                 >
-                  Future country hub
+                  בסיס למרכז מדינה עתידי
                 </div>
               </article>
             ))}

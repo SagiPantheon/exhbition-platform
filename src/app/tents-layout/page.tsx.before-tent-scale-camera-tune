@@ -1,0 +1,1208 @@
+"use client";
+
+import { Canvas } from "@react-three/fiber";
+import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+
+import { Suspense, useMemo, useState } from "react";
+
+const leftItems = [
+  "Missile System",
+  "Launcher",
+  "Vehicle",
+  "Radar",
+  "Flag Set",
+  "Screen Stand",
+];
+
+const rightItems = [
+  "Table",
+  "Chair",
+  "Sofa",
+  "Display Screen",
+  "Coffee Bar",
+  "Lectern",
+  "Projector",
+  "Speaker",
+];
+
+const previewMap: Record<string, string> = {
+  "Missile System": "/images/air/arrow-3-launcher-showcase.png",
+  "Launcher": "/images/air/arrow-3-launcher-showcase.png",
+  "Vehicle": "/images/air/lora-showcase.png",
+  "Radar": "/images/air/mmr-radar-showcase.png",
+  "Flag Set": "/images/inventory/flag-pair-iai-israel-01.png",
+  "Screen Stand": "/images/inventory/sign-stand-silver-a4-01.png",
+  "Control Desk": "/images/inventory/sign-stand-black-a4-01.png",
+  "Drone": "/images/air/arrow-3-launcher-showcase.png",
+
+  "Table": "/images/inventory/table-cover-iai-blue-01.png",
+  "Chair": "/images/inventory/chair-folding-white-01.png",
+  "Sofa": "/images/inventory/sofa-01.png",
+  "Display Screen": "/images/inventory/sign-stand-black-a4-01.png",
+  "Coffee Bar": "/images/inventory/lectern-acrylic-01.png",
+  "Lectern": "/images/inventory/lectern-acrylic-01.png",
+  "Projector": "/images/inventory/projector-01.png",
+  "Speaker": "/images/inventory/speaker-01.png",
+};
+
+const statusItems = [
+  ["Tent 25x15", "Active template"],
+  ["25m", "Length"],
+  ["15m", "Width"],
+  ["375m²", "Area"],
+  ["42", "Elements"],
+  ["96%", "Readiness"],
+];
+
+function TopPill({
+  label,
+  active = false,
+}: {
+  label: string;
+  active?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        padding: "8px 12px",
+        borderRadius: "12px",
+        border: active
+          ? "1px solid rgba(56,189,248,0.48)"
+          : "1px solid rgba(148,163,184,0.18)",
+        background: active
+          ? "rgba(34,211,238,0.14)"
+          : "rgba(255,255,255,0.03)",
+        color: "#f8fbff",
+        fontSize: "13px",
+        fontWeight: 700,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function ToolButton({
+  label,
+  active = false,
+}: {
+  label: string;
+  active?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        padding: "7px 11px",
+        borderRadius: "11px",
+        border: active
+          ? "1px solid rgba(56,189,248,0.50)"
+          : "1px solid rgba(148,163,184,0.22)",
+        background: active
+          ? "rgba(34,211,238,0.14)"
+          : "rgba(255,255,255,0.03)",
+        color: "#f8fbff",
+        fontSize: "13px",
+        fontWeight: 700,
+        lineHeight: 1,
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function SideActionCard({ title }: { title: string }) {
+  return (
+    <button
+      type="button"
+      style={{
+        width: "100%",
+        minHeight: "74px",
+        borderRadius: "14px",
+        border: "1px solid rgba(148,163,184,0.18)",
+        background: "rgba(255,255,255,0.03)",
+        color: "#f8fbff",
+        padding: "12px 12px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "10px",
+        textAlign: "left",
+        cursor: "pointer",
+      }}
+    >
+      <span
+        style={{
+          fontWeight: 700,
+          lineHeight: 1.1,
+          fontSize: "13px",
+        }}
+      >
+        {title}
+      </span>
+
+      <span
+        style={{
+          width: "22px",
+          height: "22px",
+          borderRadius: "999px",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "1px solid rgba(103,232,249,0.46)",
+          color: "#67e8f9",
+          flexShrink: 0,
+          fontWeight: 800,
+          fontSize: "14px",
+        }}
+      >
+        +
+      </span>
+    </button>
+  );
+}
+
+
+const TENT_MODEL_PATH = "/models/inventory/tent-20-30-iai-blue-01.glb";
+
+function TentModel3D() {
+  const gltf = useGLTF(TENT_MODEL_PATH);
+  const cloned = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+
+  return (
+    <primitive
+      object={cloned}
+      position={[0, -1.15, 0]}
+      rotation={[0, 0.62, 0]}
+      scale={1.55}
+    />
+  );
+}
+
+function TentStage3D() {
+  return (
+    <Canvas
+      shadows
+      dpr={[1, 1.5]}
+      gl={{ antialias: true, alpha: true }}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <PerspectiveCamera makeDefault position={[7.2, 4.4, 8.2]} fov={34} />
+      <ambientLight intensity={1.25} />
+      <directionalLight
+        position={[7, 10, 6]}
+        intensity={2.2}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+      />
+      <directionalLight position={[-5, 4, -4]} intensity={0.7} />
+      <spotLight position={[0, 8, 0]} intensity={0.45} angle={0.34} penumbra={1} />
+
+      <Suspense
+        fallback={
+          <Html center>
+            <div
+              style={{
+                padding: "10px 14px",
+                borderRadius: "12px",
+                border: "1px solid rgba(103,232,249,0.24)",
+                background: "rgba(5,10,20,0.75)",
+                color: "#dff7ff",
+                fontSize: "12px",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Loading tent model…
+            </div>
+          </Html>
+        }
+      >
+        <TentModel3D />
+      </Suspense>
+
+      <mesh rotation={[-3.14159 / 2, 0, 0]} position={[0, -1.38, 0]} receiveShadow>
+        <planeGeometry args={[13, 13]} />
+        <meshStandardMaterial color="#071120" roughness={0.95} metalness={0.05} />
+      </mesh>
+
+      <ContactShadows
+        position={[0, -1.36, 0]}
+        opacity={0.45}
+        scale={10}
+        blur={2.4}
+        far={4.8}
+        resolution={1024}
+      />
+
+      <OrbitControls
+        enablePan={false}
+        enableZoom={true}
+        minDistance={5.8}
+        maxDistance={11}
+        minPolarAngle={0.8}
+        maxPolarAngle={1.42}
+        target={[0, -0.25, 0]}
+      />
+    </Canvas>
+  );
+}
+
+useGLTF.preload(TENT_MODEL_PATH);
+
+export default function TentsLayoutPage() {
+  const [focusMode, setFocusMode] = useState(false);
+
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at top, rgba(56,189,248,0.12), transparent 24%), linear-gradient(180deg, #050b16 0%, #040914 100%)",
+        color: "#eaf4ff",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: focusMode ? "100vw" : "1880px",
+          margin: "14px auto 0",
+          padding: focusMode ? "6px" : "12px",
+          display: "grid",
+          gap: focusMode ? "8px" : "12px",
+          transition: "all 220ms ease",
+        }}
+      >
+        {/* TOP BAR */}
+        <section
+          style={{
+            height: focusMode ? "42px" : "56px",
+            borderRadius: focusMode ? "12px" : "18px",
+            border: "1px solid rgba(125,211,252,0.12)",
+            background:
+              "linear-gradient(180deg, rgba(8,16,32,0.92) 0%, rgba(6,12,24,0.98) 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: focusMode ? "0 12px" : "0 16px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div
+              style={{
+                fontSize: focusMode ? "14px" : "16px",
+                fontWeight: 800,
+                letterSpacing: "0.06em",
+              }}
+            >
+              EXHIBITION HUB
+            </div>
+
+            {!focusMode ? (
+              <div
+                style={{
+                  fontSize: "11px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.18em",
+                  color: "rgba(180,220,255,0.68)",
+                }}
+              >
+                Tents / Layout
+              </div>
+            ) : null}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              gap: focusMode ? "6px" : "10px",
+              flexWrap: "nowrap",
+              flexShrink: 0,
+              minWidth: 0,
+            }}
+          >
+            {!focusMode ? (
+              <>
+                <span style={{ color: "rgba(234,244,255,0.74)", fontSize: "13px" }}>
+                  Dashboard
+                </span>
+                <span style={{ color: "rgba(234,244,255,0.74)", fontSize: "13px" }}>
+                  Planning
+                </span>
+              </>
+            ) : null}
+
+            {focusMode ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setFocusMode(false)}
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: "999px",
+                    border: "1px solid rgba(56,189,248,0.34)",
+                    background:
+                      "linear-gradient(180deg, rgba(8,145,178,0.22) 0%, rgba(59,130,246,0.20) 100%)",
+                    color: "#f8fbff",
+                    fontWeight: 800,
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Exit Focus
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => window.history.back()}
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: "999px",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: "#f8fbff",
+                    fontWeight: 700,
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  ← Back
+                </button>
+
+                <a
+                  href="/"
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: "999px",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: "#f8fbff",
+                    fontWeight: 700,
+                    fontSize: "12px",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Home
+                </a>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setFocusMode((v) => !v)}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "999px",
+                  border: "1px solid rgba(56,189,248,0.34)",
+                  background:
+                    "linear-gradient(180deg, rgba(8,145,178,0.22) 0%, rgba(59,130,246,0.20) 100%)",
+                  color: "#f8fbff",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Focus Mode
+              </button>
+            )}
+          </div>
+        </section>
+
+        {/* CONTEXT */}
+        {!focusMode ? (
+          <section
+            style={{
+              borderRadius: "18px",
+              border: "1px solid rgba(125,211,252,0.14)",
+              background:
+                "linear-gradient(180deg, rgba(8,16,32,0.84) 0%, rgba(6,10,22,0.94) 100%)",
+              padding: "10px 14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "14px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+              <span style={{ color: "rgba(180,220,255,0.76)" }}>Layout Planning</span>
+              <span style={{ color: "rgba(125,211,252,0.7)" }}>•</span>
+              <strong style={{ fontSize: "18px" }}>Tent 25x15</strong>
+              <span style={{ color: "rgba(180,220,255,0.7)" }}>
+                Main operational shell rebuilt cleanly
+              </span>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <TopPill label="Preview" />
+              <TopPill label="Save" />
+              <TopPill label="Export Plan" active />
+            </div>
+          </section>
+        ) : null}
+
+        {/* STEPS */}
+        {!focusMode ? (
+          <section
+            style={{
+              borderRadius: "18px",
+              border: "1px solid rgba(125,211,252,0.14)",
+              background:
+                "linear-gradient(180deg, rgba(7,13,26,0.86) 0%, rgba(5,10,20,0.94) 100%)",
+              padding: "10px 14px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              flexWrap: "wrap",
+            }}
+          >
+            <TopPill label="1. Scene Setup" active />
+            <TopPill label="2. Assets & Content" />
+            <TopPill label="3. Review & Presentation" />
+          </section>
+        ) : null}
+
+        {/* WORKSPACE */}
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: focusMode ? "1fr" : "260px minmax(0, 1fr) 260px",
+            gap: focusMode ? "0" : "18px",
+            alignItems: "stretch",
+            minHeight: focusMode ? "calc(100vh - 220px)" : "660px",
+          }}
+        >
+          {!focusMode ? (
+            <aside
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                minHeight: "100%",
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: "18px",
+                  border: "1px solid rgba(125,211,252,0.14)",
+                  background:
+                    "linear-gradient(180deg, rgba(7,13,26,0.94) 0%, rgba(5,10,20,0.98) 100%)",
+                  padding: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: 800,
+                    color: "#f8fbff",
+                  }}
+                >
+                  Exhibit Library
+                </div>
+
+                <div
+                  style={{
+                    width: "34px",
+                    height: "34px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: "rgba(255,255,255,0.03)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "rgba(180,220,255,0.78)",
+                    fontSize: "15px",
+                    fontWeight: 800,
+                  }}
+                >
+                  ⌕
+                </div>
+              </div>
+
+              <div
+                style={{
+                  borderRadius: "18px",
+                  border: "1px solid rgba(125,211,252,0.14)",
+                  background:
+                    "linear-gradient(180deg, rgba(7,13,26,0.94) 0%, rgba(5,10,20,0.98) 100%)",
+                  padding: "12px",
+                  display: "flex",
+                  gap: "8px",
+                  flexWrap: "wrap",
+                }}
+              >
+                {["All", "Space", "Air", "Land", "Naval"].map((tag, idx) => (
+                  <div
+                    key={tag}
+                    style={{
+                      padding: "7px 10px",
+                      borderRadius: "11px",
+                      border: idx === 0
+                        ? "1px solid rgba(56,189,248,0.42)"
+                        : "1px solid rgba(148,163,184,0.18)",
+                      background: idx === 0
+                        ? "rgba(34,211,238,0.12)"
+                        : "rgba(255,255,255,0.03)",
+                      color: "#f8fbff",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {tag}
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  borderRadius: "22px",
+                  border: "1px solid rgba(125,211,252,0.14)",
+                  background:
+                    "linear-gradient(180deg, rgba(7,13,26,0.94) 0%, rgba(5,10,20,0.98) 100%)",
+                  padding: "12px",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "10px",
+                  flex: 1,
+                  alignContent: "start",
+                }}
+              >
+                {[
+                  "Missile System",
+                  "Launcher",
+                  "Vehicle",
+                  "Radar",
+                  "Flag Set",
+                  "Screen Stand",
+                  "Control Desk",
+                  "Drone"
+                ].map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    style={{
+                      minHeight: "126px",
+                      borderRadius: "16px",
+                      border: "1px solid rgba(148,163,184,0.16)",
+                      background:
+                        "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)",
+                      padding: "12px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      textAlign: "left",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "62px",
+                        borderRadius: "14px",
+                        border: "1px solid rgba(148,163,184,0.14)",
+                        backgroundImage: `linear-gradient(180deg, rgba(5,10,20,0.12), rgba(5,10,20,0.36)), url("${previewMap[item] || ""}")`,
+                        backgroundColor: "rgba(15,23,42,0.72)",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
+                      }}
+                    />
+
+                    <div
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "space-between",
+                        gap: "10px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#f8fbff",
+                          fontWeight: 700,
+                          fontSize: "13px",
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        {item}
+                      </span>
+
+                      <span
+                        style={{
+                          width: "24px",
+                          height: "24px",
+                          borderRadius: "999px",
+                          border: "1px solid rgba(103,232,249,0.42)",
+                          color: "#67e8f9",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          fontWeight: 800,
+                        }}
+                      >
+                        +
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </aside>
+          ) : null}
+
+          <section
+            style={{
+              position: "relative",
+              borderRadius: focusMode ? "26px" : "30px",
+              border: "1px solid rgba(125,211,252,0.14)",
+              background:
+                "linear-gradient(180deg, rgba(6,12,24,0.98) 0%, rgba(4,9,20,1) 100%)",
+              padding: focusMode ? "14px" : "18px",
+              overflow: "hidden",
+              minHeight: focusMode ? "calc(100vh - 220px)" : "660px",
+              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "radial-gradient(circle at 50% 44%, rgba(37,99,235,0.26), transparent 38%)",
+                pointerEvents: "none",
+              }}
+            />
+
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "18px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  padding: "8px 10px",
+                  borderRadius: "14px",
+                  border: "1px solid rgba(148,163,184,0.18)",
+                  background: "rgba(8,16,32,0.78)",
+                  boxShadow: "0 10px 28px rgba(0,0,0,0.22)",
+                  flexWrap: "wrap",
+                }}
+              >
+                {["Select", "Move", "Rotate", "Zoom", "View"].map((tool, idx) => (
+                  <div
+                    key={tool}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: "11px",
+                      border: idx === 0
+                        ? "1px solid rgba(56,189,248,0.50)"
+                        : "1px solid rgba(148,163,184,0.18)",
+                      background: idx === 0
+                        ? "rgba(34,211,238,0.14)"
+                        : "rgba(255,255,255,0.03)",
+                      color: "#f8fbff",
+                      fontSize: "13px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {tool}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                position: "relative",
+                zIndex: 1,
+                height: focusMode ? "calc(100vh - 300px)" : "585px",
+                borderRadius: "26px",
+                overflow: "hidden",
+                background:
+                  "linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px), radial-gradient(circle at 50% 40%, rgba(29,78,216,0.34), rgba(2,6,23,0.96) 70%)",
+                backgroundSize: "28px 28px, 28px 28px, cover",
+                border: "1px solid rgba(125,211,252,0.10)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "radial-gradient(circle at 50% 18%, rgba(59,130,246,0.12), transparent 28%)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: "6%",
+                  right: "6%",
+                  bottom: "7%",
+                  height: "34%",
+                  background:
+                    "radial-gradient(ellipse at center, rgba(59,130,246,0.22), rgba(37,99,235,0.04) 48%, transparent 74%)",
+                  filter: "blur(26px)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: "10%",
+                  right: "10%",
+                  bottom: "13%",
+                  height: "30%",
+                  clipPath: "polygon(12% 0%, 88% 0%, 100% 55%, 88% 100%, 12% 100%, 0% 55%)",
+                  border: "2px solid rgba(56,189,248,0.92)",
+                  boxShadow:
+                    "0 0 18px rgba(34,211,238,0.30), 0 0 46px rgba(37,99,235,0.22), inset 0 0 28px rgba(56,189,248,0.06)",
+                  background:
+                    "linear-gradient(180deg, rgba(14,165,233,0.03) 0%, rgba(37,99,235,0.06) 100%)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  inset: "8% 5% 12%",
+                  borderRadius: "32px",
+                  border: "2px solid rgba(56,189,248,0.92)",
+                  boxShadow:
+                    "0 0 14px rgba(34,211,238,0.28), 0 0 36px rgba(37,99,235,0.20), inset 0 0 24px rgba(56,189,248,0.06)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: "5.5%",
+                  bottom: "9.5%",
+                  width: "16px",
+                  height: "16px",
+                  borderRadius: "999px",
+                  background: "#67e8f9",
+                  boxShadow: "0 0 34px rgba(103,232,249,0.98)",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  right: "5.5%",
+                  bottom: "9.5%",
+                  width: "16px",
+                  height: "16px",
+                  borderRadius: "999px",
+                  background: "#67e8f9",
+                  boxShadow: "0 0 34px rgba(103,232,249,0.98)",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  left: "8.5%",
+                  top: "17%",
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "999px",
+                  background: "rgba(103,232,249,0.95)",
+                  boxShadow: "0 0 28px rgba(103,232,249,0.98)",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  right: "8.5%",
+                  top: "17%",
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "999px",
+                  background: "rgba(103,232,249,0.95)",
+                  boxShadow: "0 0 28px rgba(103,232,249,0.98)",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: "7.5%",
+                  bottom: "10.5%",
+                  width: "0",
+                  height: "0",
+                  borderLeft: "26px solid transparent",
+                  borderRight: "8px solid transparent",
+                  borderTop: "58px solid rgba(190,242,255,0.32)",
+                  filter: "blur(1px)",
+                  opacity: 0.75,
+                  transform: "rotate(16deg)",
+                  transformOrigin: "bottom center",
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  right: "7.5%",
+                  bottom: "10.5%",
+                  width: "0",
+                  height: "0",
+                  borderLeft: "8px solid transparent",
+                  borderRight: "26px solid transparent",
+                  borderTop: "58px solid rgba(190,242,255,0.32)",
+                  filter: "blur(1px)",
+                  opacity: 0.75,
+                  transform: "rotate(-16deg)",
+                  transformOrigin: "bottom center",
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  left: "13%",
+                  top: "18.5%",
+                  width: "0",
+                  height: "0",
+                  borderLeft: "20px solid transparent",
+                  borderRight: "4px solid transparent",
+                  borderTop: "46px solid rgba(190,242,255,0.20)",
+                  filter: "blur(1px)",
+                  opacity: 0.55,
+                  transform: "rotate(132deg)",
+                  transformOrigin: "bottom center",
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  right: "13%",
+                  top: "18.5%",
+                  width: "0",
+                  height: "0",
+                  borderLeft: "4px solid transparent",
+                  borderRight: "20px solid transparent",
+                  borderTop: "46px solid rgba(190,242,255,0.20)",
+                  filter: "blur(1px)",
+                  opacity: 0.55,
+                  transform: "rotate(-132deg)",
+                  transformOrigin: "bottom center",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  inset: "10% 8% 15%",
+                  zIndex: 2,
+                  pointerEvents: "auto",
+                }}
+              >
+                <TentStage3D />
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  bottom: "7%",
+                  transform: "translateX(-50%)",
+                  zIndex: 3,
+                  padding: "8px 12px",
+                  borderRadius: "999px",
+                  border: "1px solid rgba(103,232,249,0.24)",
+                  background: "rgba(4,10,20,0.58)",
+                  color: "#dff7ff",
+                  fontSize: focusMode ? "11px" : "12px",
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  whiteSpace: "nowrap",
+                  boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+                }}
+              >
+                Tent 3D Loaded
+              </div>
+            </div>
+          </section>
+
+          {!focusMode ? (
+            <aside
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                minHeight: "100%",
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: "18px",
+                  border: "1px solid rgba(125,211,252,0.14)",
+                  background:
+                    "linear-gradient(180deg, rgba(7,13,26,0.94) 0%, rgba(5,10,20,0.98) 100%)",
+                  padding: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: 800,
+                    color: "#f8fbff",
+                  }}
+                >
+                  Interior & Inventory
+                </div>
+
+                <div
+                  style={{
+                    width: "34px",
+                    height: "34px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: "rgba(255,255,255,0.03)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "rgba(180,220,255,0.78)",
+                    fontSize: "15px",
+                    fontWeight: 800,
+                  }}
+                >
+                  ⌕
+                </div>
+              </div>
+
+              <div
+                style={{
+                  borderRadius: "18px",
+                  border: "1px solid rgba(125,211,252,0.14)",
+                  background:
+                    "linear-gradient(180deg, rgba(7,13,26,0.94) 0%, rgba(5,10,20,0.98) 100%)",
+                  padding: "12px",
+                  display: "flex",
+                  gap: "8px",
+                  flexWrap: "wrap",
+                }}
+              >
+                {["All", "Furniture", "Media", "VIP", "Service"].map((tag, idx) => (
+                  <div
+                    key={tag}
+                    style={{
+                      padding: "7px 10px",
+                      borderRadius: "11px",
+                      border: idx === 0
+                        ? "1px solid rgba(56,189,248,0.42)"
+                        : "1px solid rgba(148,163,184,0.18)",
+                      background: idx === 0
+                        ? "rgba(34,211,238,0.12)"
+                        : "rgba(255,255,255,0.03)",
+                      color: "#f8fbff",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {tag}
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  borderRadius: "22px",
+                  border: "1px solid rgba(125,211,252,0.14)",
+                  background:
+                    "linear-gradient(180deg, rgba(7,13,26,0.94) 0%, rgba(5,10,20,0.98) 100%)",
+                  padding: "12px",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "10px",
+                  flex: 1,
+                  alignContent: "start",
+                }}
+              >
+                {[
+                  "Table",
+                  "Chair",
+                  "Sofa",
+                  "Display Screen",
+                  "Coffee Bar",
+                  "Lectern",
+                  "Projector",
+                  "Speaker"
+                ].map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    style={{
+                      minHeight: "126px",
+                      borderRadius: "16px",
+                      border: "1px solid rgba(148,163,184,0.16)",
+                      background:
+                        "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)",
+                      padding: "12px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      textAlign: "left",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "62px",
+                        borderRadius: "14px",
+                        border: "1px solid rgba(148,163,184,0.14)",
+                        backgroundImage: `linear-gradient(180deg, rgba(5,10,20,0.12), rgba(5,10,20,0.36)), url("${previewMap[item] || ""}")`,
+                        backgroundColor: "rgba(15,23,42,0.72)",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
+                      }}
+                    />
+
+                    <div
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "space-between",
+                        gap: "10px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#f8fbff",
+                          fontWeight: 700,
+                          fontSize: "13px",
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        {item}
+                      </span>
+
+                      <span
+                        style={{
+                          width: "24px",
+                          height: "24px",
+                          borderRadius: "999px",
+                          border: "1px solid rgba(103,232,249,0.42)",
+                          color: "#67e8f9",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          fontWeight: 800,
+                        }}
+                      >
+                        +
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </aside>
+          ) : null}
+        </section>
+        {/* BOTTOM STATUS */}
+        <section
+          style={{
+            marginTop: focusMode ? "10px" : "14px",
+            borderRadius: "20px",
+            border: "1px solid rgba(125,211,252,0.16)",
+            background:
+              "linear-gradient(180deg, rgba(8,14,28,0.94) 0%, rgba(5,10,20,0.99) 100%)",
+            padding: focusMode ? "9px 11px" : "15px 18px",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
+            display: "grid",
+            gridTemplateColumns: focusMode
+              ? "repeat(6, minmax(0, 1fr))"
+              : "1.3fr repeat(5, minmax(0, 1fr))",
+            gap: "14px",
+            alignItems: "stretch",
+          }}
+        >
+          {statusItems.map(([value, label], idx) => (
+            <div
+              key={label}
+              style={{
+                borderRadius: "16px",
+                border: "1px solid rgba(148,163,184,0.16)",
+                background: idx === 5 ? "linear-gradient(180deg, rgba(34,211,238,0.14) 0%, rgba(59,130,246,0.10) 100%)" : "linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.02) 100%)",
+                padding: focusMode ? "9px 11px" : "13px 15px",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.03)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                minHeight: focusMode ? "58px" : "78px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize:
+                    idx === 0
+                      ? focusMode
+                        ? "18px"
+                        : "22px"
+                      : focusMode
+                        ? "20px"
+                        : "24px",
+                  fontWeight: 800,
+                  color: idx === 5 ? "#67e8f9" : "#f8fbff",
+                  marginBottom: "5px",
+                }}
+              >
+                {value}
+              </div>
+
+              <div
+                style={{
+                  fontSize: focusMode ? "10px" : "12px",
+                  color: "rgba(188,226,255,0.74)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                {label}
+              </div>
+            </div>
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}

@@ -144,6 +144,137 @@ export default function ExhibitionsPage() {
           </button>
         </div>
 
+
+        <section
+          style={{
+            marginBottom: "24px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "0.82rem",
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: "rgba(180,210,255,0.76)",
+              marginBottom: "12px",
+            }}
+          >
+            Exhibition Routes
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "18px",
+            }}
+          >
+            <Link
+              href="/he/exhibitions/israel"
+              style={{
+                textDecoration: "none",
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: "22px",
+                  padding: "22px",
+                  border: "1px solid rgba(56,189,248,0.32)",
+                  background:
+                    "linear-gradient(180deg, rgba(10,20,40,0.94) 0%, rgba(7,12,24,0.98) 100%)",
+                  boxShadow: "0 18px 40px rgba(0,0,0,0.24)",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.78rem",
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "#7dd3fc",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Israel Layer
+                </div>
+
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: "1.5rem",
+                    color: "#f5f7fb",
+                  }}
+                >
+                  כנסים ותערוכות בארץ
+                </h2>
+
+                <p
+                  style={{
+                    marginTop: "12px",
+                    marginBottom: 0,
+                    lineHeight: 1.7,
+                    color: "rgba(245,247,251,0.82)",
+                  }}
+                >
+                  שכבת העבודה הראשית בישראל: תכנון, ספקים, בקשות, מוצגים,
+                  סטטוסי הקמה ונתונים תפעוליים.
+                </p>
+              </div>
+            </Link>
+
+            <Link
+              href="/he/exhibitions/abroad"
+              style={{
+                textDecoration: "none",
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: "22px",
+                  padding: "22px",
+                  border: "1px solid rgba(217,70,239,0.32)",
+                  background:
+                    "linear-gradient(180deg, rgba(22,12,34,0.94) 0%, rgba(10,8,22,0.98) 100%)",
+                  boxShadow: "0 18px 40px rgba(0,0,0,0.24)",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.78rem",
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "#f0abfc",
+                    marginBottom: "10px",
+                  }}
+                >
+                  International Layer
+                </div>
+
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: "1.5rem",
+                    color: "#f5f7fb",
+                  }}
+                >
+                  תערוכות בחו״ל
+                </h2>
+
+                <p
+                  style={{
+                    marginTop: "12px",
+                    marginBottom: 0,
+                    lineHeight: 1.7,
+                    color: "rgba(245,247,251,0.82)",
+                  }}
+                >
+                  שכבת המדינות הבינלאומית: דגלים, מדינות יעד, מסלולי תערוכות
+                  עתידיים והמשך חיבור לאירועים אמיתיים.
+                </p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
         <div
           style={{
             display: "grid",

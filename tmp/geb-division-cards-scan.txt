@@ -1,0 +1,444 @@
+FILE: src/app/global-exhibit-bank/page.tsx
+
+=== BLOCK 1: lines 39-118 ===
+0039:     { name: "Control Segment", code: "UAV-003", divisionId: "uav", subDivision: "מלט", visual: "🧭" },
+0040:   ],
+0041: }
+0042: 
+0043: const divisionIcons: Record<string, string> = {
+0044:   "missiles-space-defense": "🚀",
+0045:   aviation: "✈️",
+0046:   elta: "📡",
+0047:   uav: "🛸",
+0048: }
+0049: 
+0050: export default function GlobalExhibitBankPage() {
+0051:   const [activeDivisionId, setActiveDivisionId] = useState(exhibitDivisions[0]?.id ?? "")
+0052:   const [query, setQuery] = useState("")
+0053: 
+0054:   const activeDivision =
+0055:     exhibitDivisions.find((item) => item.id === activeDivisionId) ?? exhibitDivisions[0]
+0056: 
+0057:   const allPreviewSystems = useMemo(
+0058:     () => exhibitDivisions.flatMap((division) => previewSystemsMap[division.id] ?? []),
+0059:     []
+0060:   )
+0061: 
+0062:   const visiblePreviewSystems = useMemo(() => {
+0063:     const byDivision = previewSystemsMap[activeDivision?.id ?? ""] ?? []
+0064:     const q = query.trim().toLowerCase()
+0065: 
+0066:     if (!q) return byDivision
+0067: 
+0068:     return allPreviewSystems.filter((item) => {
+0069:       const division = exhibitDivisions.find((d) => d.id === item.divisionId)
+0070:       return (
+0071:         item.name.toLowerCase().includes(q) ||
+0072:         item.code.toLowerCase().includes(q) ||
+0073:         item.subDivision.toLowerCase().includes(q) ||
+0074:         division?.titleHe.toLowerCase().includes(q) ||
+0075:         division?.titleEn.toLowerCase().includes(q)
+0076:       )
+0077:     })
+0078:   }, [activeDivision, query, allPreviewSystems])
+0079: 
+0080:   const topStats = [
+0081:     { label: "Total Exhibits", value: exhibitBankSummary.totalExhibits ?? 81, icon: "◈" },
+0082:     { label: "Divisions", value: exhibitDivisions.length, icon: "⬡" },
+0083:     {
+0084:       label: "Sub-Divisions",
+0085:       value: exhibitDivisions.reduce((acc, item) => acc + item.subDivisionCount, 0),
+0086:       icon: "⌘",
+0087:     },
+0088:     { label: "Ready", value: `${exhibitBankSummary.avgReadiness ?? 83}%`, icon: "✓" },
+0089:     { label: "Missing Data", value: 14, icon: "⚠" },
+0090:     { label: "New", value: 7, icon: "✦" },
+0091:   ]
+0092: 
+0093:   const sideNav = [
+0094:     { label: "Hub", href: "/", active: false },
+0095:     { label: "Global Exhibit Bank", href: "/global-exhibit-bank", active: true },
+0096:     {
+0097:       label: "Divisions",
+0098:       href: activeDivision ? `/global-exhibit-bank/division?divisionId=${activeDivision.id}` : "/global-exhibit-bank",
+0099:       active: false,
+0100:     },
+0101:     { label: "Systems", href: "/global-exhibit-bank", active: false },
+0102:     { label: "Layouts", href: "/tents-layout", active: false },
+0103:     { label: "Reports", href: "/global-exhibit-bank", active: false },
+0104:   ]
+0105: 
+0106:   return (
+0107:     <main className="global-exhibit-bank-page"
+0108:       style={{
+0109:         minHeight: "100vh",
+0110:         color: "#EAF4FF",
+0111:         background:
+0112:           "radial-gradient(circle at top, rgba(32,104,255,0.20), transparent 28%), linear-gradient(180deg, #030811 0%, #06101d 42%, #03070d 100%)",
+0113:       }}
+0114:     >
+0115:       <div
+0116:         style={{
+0117:           width: "100%",
+0118:           maxWidth: "1760px",
+
+=== BLOCK 2: lines 379-415 ===
+0379:             </section>
+0380: 
+0381:             <section
+0382:               style={{
+0383:                 display: "grid",
+0384:                 gridTemplateColumns: "1fr 1.12fr 1fr",
+0385:                 gap: "14px",
+0386:                 alignItems: "stretch",
+0387:               }}
+0388:             >
+0389:               <div style={{ display: "grid", gap: "14px" }}>
+0390:                 {exhibitDivisions.slice(0, 2).map((division) => {
+0391:                   const isActive = activeDivisionId === division.id
+0392:                   return (
+0393:                     <button
+0394:                       key={division.id}
+0395:                       onClick={() => setActiveDivisionId(division.id)}
+0396:                       style={{
+0397:                         textAlign: "right",
+0398:                         cursor: "pointer",
+0399:                         borderRadius: "26px",
+0400:                         border: isActive
+0401:                           ? "1px solid rgba(115,208,255,0.52)"
+0402:                           : "1px solid rgba(95,168,255,0.16)",
+0403:                         background:
+0404:                           "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+0405:                         padding: "18px 20px",
+0406:                         color: "#EAF4FF",
+0407:                         boxShadow: isActive ? "0 0 26px rgba(95,193,255,0.14)" : "none",
+0408:                       }}
+0409:                     >
+0410:                       <div
+0411:                         style={{
+0412:                           display: "flex",
+0413:                           justifyContent: "space-between",
+0414:                           gap: "12px",
+0415:                           alignItems: "center",
+
+=== BLOCK 3: lines 419-505 ===
+0419:                         <div
+0420:                           style={{
+0421:                             width: "60px",
+0422:                             height: "60px",
+0423:                             borderRadius: "18px",
+0424:                             border: "1px solid rgba(95,168,255,0.14)",
+0425:                             background: "rgba(8,18,35,0.74)",
+0426:                             display: "grid",
+0427:                             placeItems: "center",
+0428:                             fontSize: "28px",
+0429:                           }}
+0430:                         >
+0431:                           {divisionIcons[division.id] ?? "◉"}
+0432:                         </div>
+0433:                         <div style={{ flex: 1 }}>
+0434:                           <div style={{ fontSize: "42px", fontWeight: 900, lineHeight: 1 }}>
+0435:                             {division.titleHe}
+0436:                           </div>
+0437:                           <div
+0438:                             style={{
+0439:                               marginTop: "8px",
+0440:                               fontSize: "18px",
+0441:                               color: "rgba(223,238,255,0.88)",
+0442:                             }}
+0443:                           >
+0444:                             {division.subDivisions.join(" · ")}
+0445:                           </div>
+0446:                         </div>
+0447:                       </div>
+0448: 
+0449:                       <div
+0450:                         style={{
+0451:                           fontSize: "28px",
+0452:                           marginBottom: "12px",
+0453:                           color: "rgba(223,238,255,0.9)",
+0454:                         }}
+0455:                       >
+0456:                         {division.exhibitCount} מוצגים &nbsp; · &nbsp; {division.subDivisionCount} תתי-יחידות &nbsp; ·
+0457:                         &nbsp; <span style={{ color: "#86F59B", fontWeight: 900 }}>{division.readiness}%</span>
+0458:                       </div>
+0459: 
+0460:                       <div
+0461:                         style={{
+0462:                           fontSize: "24px",
+0463:                           lineHeight: 1.55,
+0464:                           color: "rgba(223,238,255,0.86)",
+0465:                           marginBottom: "16px",
+0466:                         }}
+0467:                       >
+0468:                         {division.descriptionHe}
+0469:                       </div>
+0470: 
+0471:                       <div
+0472:                         style={{
+0473:                           display: "inline-flex",
+0474:                           alignItems: "center",
+0475:                           justifyContent: "center",
+0476:                           minWidth: "220px",
+0477:                           borderRadius: "14px",
+0478:                           padding: "12px 18px",
+0479:                           background: "rgba(9,24,46,0.86)",
+0480:                           border: "1px solid rgba(95,168,255,0.18)",
+0481:                           fontSize: "22px",
+0482:                           fontWeight: 800,
+0483:                         }}
+0484:                       >
+0485:                         פתח חטיבה →
+0486:                       </div>
+0487:                     </button>
+0488:                   )
+0489:                 })}
+0490:               </div>
+0491: 
+0492:               <div
+0493:                 style={{
+0494:                   borderRadius: "30px",
+0495:                   border: "1px solid rgba(95,168,255,0.18)",
+0496:                   background:
+0497:                     "radial-gradient(circle at center, rgba(38,130,255,0.16) 0%, rgba(8,18,35,0.96) 52%, rgba(7,16,30,0.98) 100%)",
+0498:                   display: "grid",
+0499:                   placeItems: "center",
+0500:                   padding: "24px",
+0501:                   position: "relative",
+0502:                   overflow: "hidden",
+0503:                 }}
+0504:               >
+0505:                 <div
+
+=== BLOCK 4: lines 666-698 ===
+0666:                         color: "#DDF2FF",
+0667:                         borderRadius: "14px",
+0668:                         border: "1px solid rgba(95,168,255,0.18)",
+0669:                         background: "rgba(8,18,35,0.72)",
+0670:                         padding: "12px 10px",
+0671:                         fontSize: "14px",
+0672:                         fontWeight: 700,
+0673:                       }}
+0674:                     >
+0675:                       View All Exhibits
+0676:                     </Link>
+0677:                     <Link
+0678:                       href={activeDivision ? `/global-exhibit-bank/division?divisionId=${activeDivision.id}` : "/global-exhibit-bank"}
+0679:                       style={{
+0680:                         textDecoration: "none",
+0681:                         color: "#DDF2FF",
+0682:                         borderRadius: "14px",
+0683:                         border: "1px solid rgba(95,168,255,0.18)",
+0684:                         background: "rgba(8,18,35,0.72)",
+0685:                         padding: "12px 10px",
+0686:                         fontSize: "14px",
+0687:                         fontWeight: 700,
+0688:                       }}
+0689:                     >
+0690:                       Open Division
+0691:                     </Link>
+0692:                     <Link
+0693:                       href="/tents-layout"
+0694:                       style={{
+0695:                         textDecoration: "none",
+0696:                         color: "#DDF2FF",
+0697:                         borderRadius: "14px",
+0698:                         border: "1px solid rgba(95,168,255,0.18)",
+
+=== BLOCK 5: lines 730-766 ===
+0730:                         >
+0731:                           {item.label}
+0732:                         </div>
+0733:                         <div style={{ fontSize: "22px", fontWeight: 900 }}>{item.value}</div>
+0734:                       </div>
+0735:                     ))}
+0736:                   </div>
+0737:                 </div>
+0738:               </div>
+0739: 
+0740:               <div style={{ display: "grid", gap: "14px" }}>
+0741:                 {exhibitDivisions.slice(2, 4).map((division) => {
+0742:                   const isActive = activeDivisionId === division.id
+0743:                   return (
+0744:                     <button
+0745:                       key={division.id}
+0746:                       onClick={() => setActiveDivisionId(division.id)}
+0747:                       style={{
+0748:                         textAlign: "right",
+0749:                         cursor: "pointer",
+0750:                         borderRadius: "26px",
+0751:                         border: isActive
+0752:                           ? "1px solid rgba(115,208,255,0.52)"
+0753:                           : "1px solid rgba(95,168,255,0.16)",
+0754:                         background:
+0755:                           "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+0756:                         padding: "18px 20px",
+0757:                         color: "#EAF4FF",
+0758:                         boxShadow: isActive ? "0 0 26px rgba(95,193,255,0.14)" : "none",
+0759:                       }}
+0760:                     >
+0761:                       <div
+0762:                         style={{
+0763:                           display: "flex",
+0764:                           justifyContent: "space-between",
+0765:                           gap: "12px",
+0766:                           alignItems: "center",
+
+=== BLOCK 6: lines 770-856 ===
+0770:                         <div
+0771:                           style={{
+0772:                             width: "60px",
+0773:                             height: "60px",
+0774:                             borderRadius: "18px",
+0775:                             border: "1px solid rgba(95,168,255,0.14)",
+0776:                             background: "rgba(8,18,35,0.74)",
+0777:                             display: "grid",
+0778:                             placeItems: "center",
+0779:                             fontSize: "28px",
+0780:                           }}
+0781:                         >
+0782:                           {divisionIcons[division.id] ?? "◉"}
+0783:                         </div>
+0784:                         <div style={{ flex: 1 }}>
+0785:                           <div style={{ fontSize: "42px", fontWeight: 900, lineHeight: 1 }}>
+0786:                             {division.titleHe}
+0787:                           </div>
+0788:                           <div
+0789:                             style={{
+0790:                               marginTop: "8px",
+0791:                               fontSize: "18px",
+0792:                               color: "rgba(223,238,255,0.88)",
+0793:                             }}
+0794:                           >
+0795:                             {division.subDivisions.join(" · ")}
+0796:                           </div>
+0797:                         </div>
+0798:                       </div>
+0799: 
+0800:                       <div
+0801:                         style={{
+0802:                           fontSize: "28px",
+0803:                           marginBottom: "12px",
+0804:                           color: "rgba(223,238,255,0.9)",
+0805:                         }}
+0806:                       >
+0807:                         {division.exhibitCount} מוצגים &nbsp; · &nbsp; {division.subDivisionCount} תתי-יחידות &nbsp; ·
+0808:                         &nbsp; <span style={{ color: "#86F59B", fontWeight: 900 }}>{division.readiness}%</span>
+0809:                       </div>
+0810: 
+0811:                       <div
+0812:                         style={{
+0813:                           fontSize: "24px",
+0814:                           lineHeight: 1.55,
+0815:                           color: "rgba(223,238,255,0.86)",
+0816:                           marginBottom: "16px",
+0817:                         }}
+0818:                       >
+0819:                         {division.descriptionHe}
+0820:                       </div>
+0821: 
+0822:                       <div
+0823:                         style={{
+0824:                           display: "inline-flex",
+0825:                           alignItems: "center",
+0826:                           justifyContent: "center",
+0827:                           minWidth: "220px",
+0828:                           borderRadius: "14px",
+0829:                           padding: "12px 18px",
+0830:                           background: "rgba(9,24,46,0.86)",
+0831:                           border: "1px solid rgba(95,168,255,0.18)",
+0832:                           fontSize: "22px",
+0833:                           fontWeight: 800,
+0834:                         }}
+0835:                       >
+0836:                         פתח חטיבה →
+0837:                       </div>
+0838:                     </button>
+0839:                   )
+0840:                 })}
+0841:               </div>
+0842:             </section>
+0843: 
+0844:             <section
+0845:               style={{
+0846:                 borderRadius: "24px",
+0847:                 border: "1px solid rgba(95,168,255,0.16)",
+0848:                 background:
+0849:                   "linear-gradient(180deg, rgba(10,25,46,0.90) 0%, rgba(7,18,34,0.94) 100%)",
+0850:                 padding: "16px",
+0851:               }}
+0852:             >
+0853:               <div
+0854:                 style={{
+0855:                   fontSize: "30px",
+0856:                   fontWeight: 900,
+
+=== BLOCK 7: lines 869-901 ===
+0869:               >
+0870:                 If selected, show sub-divisions and preview systems
+0871:               </div>
+0872: 
+0873:               <div
+0874:                 style={{
+0875:                   display: "flex",
+0876:                   gap: "12px",
+0877:                   flexWrap: "wrap",
+0878:                   marginBottom: "16px",
+0879:                 }}
+0880:               >
+0881:                 {activeDivision?.subDivisions.map((sub) => (
+0882:                   <span
+0883:                     key={sub}
+0884:                     style={{
+0885:                       padding: "12px 20px",
+0886:                       borderRadius: "14px",
+0887:                       border: "1px solid rgba(95,168,255,0.16)",
+0888:                       background:
+0889:                         "linear-gradient(180deg, rgba(18,47,87,0.98) 0%, rgba(11,26,50,0.98) 100%)",
+0890:                       fontSize: "18px",
+0891:                       fontWeight: 700,
+0892:                     }}
+0893:                   >
+0894:                     {sub}
+0895:                   </span>
+0896:                 ))}
+0897:               </div>
+0898: 
+0899:               <div
+0900:                 style={{
+0901:                   display: "grid",
+
+=== BLOCK 8: lines 991-1023 ===
+0991:                   fontSize: "18px",
+0992:                   fontWeight: 800,
+0993:                   display: "flex",
+0994:                   alignItems: "center",
+0995:                   justifyContent: "center",
+0996:                   minHeight: "72px",
+0997:                 }}
+0998:               >
+0999:                 👁 View All Exhibits
+1000:               </Link>
+1001: 
+1002:               <Link
+1003:                 href={activeDivision ? `/global-exhibit-bank/division?divisionId=${activeDivision.id}` : "/global-exhibit-bank"}
+1004:                 style={{
+1005:                   textDecoration: "none",
+1006:                   color: "#EAF4FF",
+1007:                   borderRadius: "20px",
+1008:                   border: "1px solid rgba(95,168,255,0.16)",
+1009:                   background:
+1010:                     "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+1011:                   padding: "20px",
+1012:                   fontSize: "18px",
+1013:                   fontWeight: 800,
+1014:                   display: "flex",
+1015:                   alignItems: "center",
+1016:                   justifyContent: "center",
+1017:                   minHeight: "72px",
+1018:                 }}
+1019:               >
+1020:                 📁 Open Selected Division
+1021:               </Link>
+1022: 
+1023:               <Link

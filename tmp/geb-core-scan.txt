@@ -1,0 +1,105 @@
+FILE: src/app/global-exhibit-bank/page.tsx
+
+
+=== BLOCK 1: lines 197-217 ===
+0197:                   padding: "14px 10px",
+0198:                   textAlign: "center",
+0199:                 }}
+0200:               >
+0201:                 <div
+0202:                   style={{
+0203:                     fontSize: "11px",
+0204:                     letterSpacing: "0.08em",
+0205:                     textTransform: "uppercase",
+0206:                     color: "rgba(162,206,255,0.76)",
+0207:                     marginBottom: "8px",
+0208:                   }}
+0209:                 >
+0210:                   GEB Command
+0211:                 </div>
+0212:                 <div style={{ fontSize: "12px", color: "#DCEEFF", marginBottom: "6px" }}>v2.5.0</div>
+0213:                 <div style={{ fontSize: "11px", color: "#7BFFB2", fontWeight: 800 }}>● ONLINE</div>
+0214:               </div>
+0215:             </div>
+0216:           </aside>
+0217: 
+
+=== BLOCK 2: lines 530-607 ===
+0530:                     background:
+0531:                       "linear-gradient(180deg, rgba(95,193,255,0.0) 0%, rgba(95,193,255,0.9) 50%, rgba(95,193,255,0.0) 100%)",
+0532:                     top: "6%",
+0533:                     left: "50%",
+0534:                   }}
+0535:                 />
+0536: 
+0537:                 <div
+0538:                   className="geb-core-card"
+0539:                   style={{
+0540:                     width: "100%",
+0541:                     maxWidth: "520px",
+0542:                     borderRadius: "30px",
+0543:                     border: "1px solid rgba(111,200,255,0.34)",
+0544:                     background:
+0545:                       "linear-gradient(180deg, rgba(11,28,52,0.96) 0%, rgba(7,18,34,0.98) 100%)",
+0546:                     boxShadow:
+0547:                       "0 0 34px rgba(95,193,255,0.18), inset 0 0 0 1px rgba(130,196,255,0.04)",
+0548:                     padding: "26px 24px",
+0549:                     textAlign: "center",
+0550:                     position: "relative",
+0551:                   }}
+0552:                 >
+0553:                   <div className="geb-core-title" style={{
+0554:                       overflow: "hidden",
+0555:                       position: "relative", fontSize: "28px", fontWeight: 900, lineHeight: 1.1, marginBottom: "10px" }}>
+0556:                     <div className="geb-real-globe-wrap" aria-hidden="true">
+0557:   <div className="geb-real-globe-ring geb-real-globe-ring-outer"></div>
+0558:   <div className="geb-real-globe-ring geb-real-globe-ring-inner"></div>
+0559:   <svg className="geb-real-globe" viewBox="0 0 200 200" role="img" aria-hidden="true">
+0560:     <defs>
+0561:       <radialGradient id="gebGlobeFill" cx="30%" cy="28%" r="72%">
+0562:         <stop offset="0%" stopColor="rgba(245,252,255,1)" />
+0563:         <stop offset="20%" stopColor="rgba(120,205,255,0.95)" />
+0564:         <stop offset="46%" stopColor="rgba(46,118,255,0.78)" />
+0565:         <stop offset="82%" stopColor="rgba(7,24,66,1)" />
+0566:       </radialGradient>
+0567:       <clipPath id="gebGlobeClip">
+0568:         <circle cx="100" cy="100" r="72" />
+0569:       </clipPath>
+0570:       <filter id="gebGlobeGlow" x="-50%" y="-50%" width="200%" height="200%">
+0571:         <feGaussianBlur stdDeviation="6" result="blur"/>
+0572:         <feMerge>
+0573:           <feMergeNode in="blur"/>
+0574:           <feMergeNode in="SourceGraphic"/>
+0575:         </feMerge>
+0576:       </filter>
+0577:     </defs>
+0578: 
+0579:     <circle className="geb-real-globe-core" cx="100" cy="100" r="72" fill="url(#gebGlobeFill)" />
+0580: 
+0581:     <g clipPath="url(#gebGlobeClip)">
+0582:       <g className="geb-real-globe-meridians" filter="url(#gebGlobeGlow)">
+0583:         <ellipse cx="100" cy="100" rx="54" ry="72" fill="none" stroke="rgba(220,248,255,0.55)" strokeWidth="1.2"/>
+0584:         <ellipse cx="100" cy="100" rx="34" ry="72" fill="none" stroke="rgba(220,248,255,0.42)" strokeWidth="1.1"/>
+0585:         <ellipse cx="100" cy="100" rx="14" ry="72" fill="none" stroke="rgba(220,248,255,0.30)" strokeWidth="1"/>
+0586:         <ellipse cx="100" cy="100" rx="72" ry="22" fill="none" stroke="rgba(220,248,255,0.34)" strokeWidth="1.1"/>
+0587:         <ellipse cx="100" cy="100" rx="72" ry="44" fill="none" stroke="rgba(220,248,255,0.22)" strokeWidth="1"/>
+0588:         <ellipse cx="100" cy="100" rx="72" ry="60" fill="none" stroke="rgba(220,248,255,0.16)" strokeWidth="1"/>
+0589:       </g>
+0590:     </g>
+0591: 
+0592:     <circle className="geb-real-globe-highlight" cx="72" cy="68" r="24" />
+0593:   </svg>
+0594: </div>
+0595: GLOBAL EXHIBIT CORE
+0596:                   </div>
+0597: 
+0598:                   <div
+0599:                     style={{
+0600:                       fontSize: "17px",
+0601:                       color: "rgba(223,238,255,0.84)",
+0602:                       marginBottom: "18px",
+0603:                     }}
+0604:                   >
+0605:                     Unified company-wide exhibit ecosystem
+0606:                   </div>
+0607: 

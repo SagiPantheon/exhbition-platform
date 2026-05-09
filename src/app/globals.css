@@ -61,74 +61,6 @@ img {
   color: white;
 }
 
-
-
-/* ===== Global Exhibit Bank premium center orb ===== */
-.gec-premium-orb-wrap {
-  position: relative;
-  width: 132px;
-  height: 132px;
-  margin: 0 auto 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gec-premium-orb-core {
-  position: relative;
-  z-index: 3;
-  width: 82px;
-  height: 82px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34px;
-  line-height: 1;
-  background:
-    radial-gradient(circle at 35% 35%, rgba(150, 235, 255, 0.95), rgba(65, 145, 255, 0.42) 42%, rgba(5, 18, 44, 0.94) 74%);
-  border: 1px solid rgba(170, 235, 255, 0.38);
-  box-shadow:
-    0 0 20px rgba(70, 170, 255, 0.34),
-    0 0 64px rgba(70, 170, 255, 0.20),
-    inset 0 0 24px rgba(255,255,255,0.10);
-  animation: gec-premium-orb-pulse 4.8s ease-in-out infinite;
-}
-
-.gec-premium-orb-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  pointer-events: none;
-}
-
-.gec-premium-orb-ring-1 {
-  border: 1px solid rgba(120, 220, 255, 0.26);
-  box-shadow:
-    0 0 24px rgba(56, 160, 255, 0.18),
-    inset 0 0 16px rgba(120, 220, 255, 0.07);
-  animation: gec-premium-spin 18s linear infinite;
-}
-
-.gec-premium-orb-ring-2 {
-  inset: 10px;
-  border: 1px dashed rgba(145, 228, 255, 0.28);
-  opacity: 0.95;
-  animation: gec-premium-spin-rev 12s linear infinite;
-}
-
-.gec-premium-orb-grid {
-  position: absolute;
-  inset: 18px;
-  border-radius: 999px;
-  opacity: 0.22;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at center, transparent 56%, rgba(120,220,255,0.18) 57%, transparent 62%),
-    repeating-radial-gradient(circle at center, rgba(120,220,255,0.15) 0 1px, transparent 1px 11px);
-  mask-image: radial-gradient(circle at center, black 60%, transparent 76%);
-}
-
 @keyframes gec-premium-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -156,8 +88,6 @@ img {
   }
 }
 /* ===== /Global Exhibit Bank premium center orb ===== */
-
-
 
 /* ===== Global Exhibit Bank center dominance tune ===== */
 .gec-dominance-card {
@@ -198,130 +128,11 @@ img {
   pointer-events: none;
 }
 
-.gec-dominance-card .gec-premium-orb-wrap {
-  width: 150px;
-  height: 150px;
-  margin: 4px auto 18px;
-}
-
-.gec-dominance-card .gec-premium-orb-core {
-  width: 94px;
-  height: 94px;
-  font-size: 38px;
-  box-shadow:
-    0 0 26px rgba(70, 170, 255, 0.38),
-    0 0 86px rgba(70, 170, 255, 0.24),
-    inset 0 0 28px rgba(255,255,255,0.11);
-}
-
-.gec-dominance-card .gec-premium-orb-ring-1 {
-  animation-duration: 22s;
-}
-
-.gec-dominance-card .gec-premium-orb-ring-2 {
-  animation-duration: 15s;
-}
-
 @media (max-width: 1100px) {
   .gec-dominance-card {
     transform: scale(1.01);
     min-height: 400px;
   }
-}
-/* ===== /Global Exhibit Bank center dominance tune ===== */
-
-
-
-/* ===== gec-circle-fix-v2 ===== */
-.gec-premium-orb-wrap {
-  position: relative !important;
-  width: 148px !important;
-  height: 148px !important;
-  min-width: 148px !important;
-  min-height: 148px !important;
-  max-width: 148px !important;
-  max-height: 148px !important;
-  aspect-ratio: 1 / 1 !important;
-  margin: 0 auto 18px !important;
-  display: grid !important;
-  place-items: center !important;
-  overflow: visible !important;
-  align-self: center !important;
-  justify-self: center !important;
-  flex: 0 0 148px !important;
-}
-
-.gec-premium-orb-wrap::before,
-.gec-premium-orb-wrap::after {
-  content: none !important;
-}
-
-.gec-premium-orb-ring,
-.gec-premium-orb-ring-1,
-.gec-premium-orb-ring-2,
-.gec-premium-orb-grid,
-.gec-premium-orb-core {
-  border-radius: 999px !important;
-}
-
-.gec-premium-orb-ring {
-  position: absolute !important;
-  inset: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  transform: none !important;
-}
-
-.gec-premium-orb-ring-1 {
-  border: 1px solid rgba(120, 220, 255, 0.28) !important;
-  box-shadow:
-    0 0 24px rgba(56, 160, 255, 0.16),
-    inset 0 0 16px rgba(120, 220, 255, 0.06) !important;
-  animation: gec-premium-spin 18s linear infinite !important;
-}
-
-.gec-premium-orb-ring-2 {
-  inset: 12px !important;
-  border: 1px dashed rgba(145, 228, 255, 0.28) !important;
-  opacity: 0.92 !important;
-  animation: gec-premium-spin-rev 12s linear infinite !important;
-}
-
-.gec-premium-orb-grid {
-  position: absolute !important;
-  inset: 24px !important;
-  width: auto !important;
-  height: auto !important;
-  opacity: 0.20 !important;
-  background:
-    radial-gradient(circle at center, transparent 56%, rgba(120,220,255,0.18) 57%, transparent 62%),
-    repeating-radial-gradient(circle at center, rgba(120,220,255,0.14) 0 1px, transparent 1px 11px) !important;
-  mask-image: radial-gradient(circle at center, black 60%, transparent 76%) !important;
-}
-
-.gec-premium-orb-core {
-  position: relative !important;
-  z-index: 3 !important;
-  width: 88px !important;
-  height: 88px !important;
-  min-width: 88px !important;
-  min-height: 88px !important;
-  max-width: 88px !important;
-  max-height: 88px !important;
-  aspect-ratio: 1 / 1 !important;
-  display: grid !important;
-  place-items: center !important;
-  font-size: 36px !important;
-  line-height: 1 !important;
-  background:
-    radial-gradient(circle at 35% 35%, rgba(150, 235, 255, 0.98), rgba(65, 145, 255, 0.42) 42%, rgba(5, 18, 44, 0.94) 74%) !important;
-  border: 1px solid rgba(170, 235, 255, 0.38) !important;
-  box-shadow:
-    0 0 20px rgba(70, 170, 255, 0.30),
-    0 0 56px rgba(70, 170, 255, 0.18),
-    inset 0 0 24px rgba(255,255,255,0.10) !important;
-  animation: gec-premium-orb-pulse 4.8s ease-in-out infinite !important;
-  transform: none !important;
 }
 
 /* neutralize old aggressive center-card styling if it still exists anywhere */
@@ -339,16 +150,6 @@ img {
 .gec-dominance-card::before,
 .gec-dominance-card::after {
   content: none !important;
-}
-/* ===== /gec-circle-fix-v2 ===== */
-
-
-
-/* ===== gec-single-globe-v1 ===== */
-
-/* just in case any old orb survives */
-.gec-premium-orb-wrap {
-  display: none !important;
 }
 
 .gec-single-globe-wrap {
@@ -616,3 +417,724 @@ div:has(> .gec-single-globe-wrap) {
 }
 
 /* ===== /geb-center-scale-v1 ===== */
+
+/* ===== gec-globe-spin-fix-v1 ===== */
+
+/* make the globe itself stable, and rotate the visible inner grid instead */
+.gec-single-globe {
+  animation: none !important;
+  overflow: hidden !important;
+}
+
+/* rotating visible globe lines */
+.gec-single-globe::before {
+  content: "";
+  position: absolute;
+  inset: 10px !important;
+  border-radius: 999px;
+  opacity: 0.62 !important;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 10px,
+      rgba(210,245,255,0.90) 10px 12px,
+      transparent 12px 22px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 12px,
+      rgba(210,245,255,0.72) 12px 13px,
+      transparent 13px 25px
+    );
+  mix-blend-mode: screen;
+  transform-origin: 50% 50%;
+  animation: gec-globe-visible-spin 8s linear infinite !important;
+}
+
+/* glossy highlight layer stays static so the rotation is readable */
+.gec-single-globe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.34), transparent 24%),
+    radial-gradient(circle at 50% 130%, rgba(0,0,0,0.30), transparent 42%);
+  pointer-events: none;
+}
+
+@keyframes gec-globe-visible-spin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* ===== /gec-globe-spin-fix-v1 ===== */
+
+/* ===== gec-globe-spin-fix-v2 ===== */
+
+/* keep globe body stable */
+.gec-single-globe {
+  position: relative !important;
+  overflow: hidden !important;
+  animation: none !important;
+}
+
+/* replace previous subtle grid with a much more readable rotating layer */
+.gec-single-globe::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 8px !important;
+  border-radius: 999px !important;
+  opacity: 0.95 !important;
+  background:
+    /* bright rotating meridian sweep */
+    conic-gradient(
+      from 0deg,
+      rgba(255,255,255,0.00) 0deg 36deg,
+      rgba(210,245,255,0.95) 36deg 58deg,
+      rgba(255,255,255,0.00) 58deg 360deg
+    ),
+    /* globe latitude / longitude lines */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 11px,
+      rgba(210,245,255,0.45) 11px 12px,
+      transparent 12px 23px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 13px,
+      rgba(210,245,255,0.30) 13px 14px,
+      transparent 14px 27px
+    );
+  mix-blend-mode: screen !important;
+  transform-origin: 50% 50% !important;
+  animation: gec-globe-visible-spin-v2 5.8s linear infinite !important;
+}
+
+/* static glossy highlight so the eye sees the rotation against it */
+.gec-single-globe::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.34), transparent 24%),
+    radial-gradient(circle at 74% 32%, rgba(255,255,255,0.08), transparent 18%),
+    radial-gradient(circle at 50% 130%, rgba(0,0,0,0.30), transparent 42%) !important;
+  pointer-events: none !important;
+}
+
+/* an additional thin orbit ring outside the globe for unmistakable motion */
+.gec-single-globe-wrap::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 10px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(126, 220, 255, 0.22) !important;
+  box-shadow:
+    0 0 20px rgba(66, 176, 255, 0.16),
+    inset 0 0 16px rgba(120, 220, 255, 0.06) !important;
+}
+
+.gec-single-globe-wrap::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 2px !important;
+  border-radius: 999px !important;
+  border-top: 2px solid rgba(210,245,255,0.95) !important;
+  border-right: 2px solid rgba(120,220,255,0.24) !important;
+  border-bottom: 2px solid rgba(120,220,255,0.08) !important;
+  border-left: 2px solid rgba(120,220,255,0.24) !important;
+  filter: drop-shadow(0 0 10px rgba(120,220,255,0.22));
+  animation: gec-globe-orbit-ring-v2 3.4s linear infinite !important;
+  pointer-events: none !important;
+}
+
+@keyframes gec-globe-visible-spin-v2 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gec-globe-orbit-ring-v2 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes gec-orb-deep-clean-outer {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gec-orb-deep-clean-inner {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes gec-orb-deep-clean-grid {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gec-orb-deep-clean-core {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== /gec-orb-deep-clean-v1 ===== */
+
+/* ===== geb-real-svg-globe-v1 ===== */
+
+.geb-real-globe-wrap {
+  position: relative !important;
+  width: 260px !important;
+  height: 260px !important;
+  margin: 0 auto 26px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.geb-real-globe {
+  width: 190px !important;
+  height: 190px !important;
+  overflow: visible;
+  filter: drop-shadow(0 0 28px rgba(66,176,255,0.18));
+}
+
+.geb-real-globe-core {
+  stroke: rgba(190,240,255,0.28);
+  stroke-width: 1.2;
+}
+
+.geb-real-globe-highlight {
+  fill: rgba(255,255,255,0.18);
+}
+
+.geb-real-globe-meridians {
+  transform-origin: 100px 100px;
+  animation: geb-real-globe-spin 20s linear infinite;
+}
+
+.geb-real-globe-ring {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.geb-real-globe-ring-outer {
+  inset: 0;
+  border: 1px solid rgba(126,220,255,0.24);
+  box-shadow:
+    0 0 28px rgba(66,176,255,0.18),
+    inset 0 0 18px rgba(120,220,255,0.06);
+  animation: geb-real-globe-ring-outer-spin 20s linear infinite;
+}
+
+.geb-real-globe-ring-inner {
+  inset: 18px;
+  border: 1px dashed rgba(170,235,255,0.18);
+  opacity: 0.84;
+  animation: geb-real-globe-ring-inner-spin 15s linear infinite;
+}
+
+@keyframes geb-real-globe-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes geb-real-globe-ring-outer-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes geb-real-globe-ring-inner-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* ===== /geb-real-svg-globe-v1 ===== */
+
+/* ===== division-bank-safe-boost-v2 ===== */
+
+.division-bank-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.division-bank-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(55, 140, 255, 0.14), transparent 30%),
+    radial-gradient(circle at 50% 42%, rgba(0, 190, 255, 0.05), transparent 42%);
+  z-index: -1;
+}
+
+.division-bank-page h1,
+.division-bank-page h2,
+.division-bank-page h3 {
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 18px rgba(90, 190, 255, 0.10);
+}
+
+.division-bank-page a,
+.division-bank-page button {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    filter 180ms ease;
+}
+
+.division-bank-page a:hover,
+.division-bank-page button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.division-bank-page img {
+  filter: saturate(1.04) contrast(1.02);
+}
+
+.division-bank-page hr {
+  border-color: rgba(120, 200, 255, 0.14);
+}
+
+.division-bank-page section,
+.division-bank-page > div {
+  position: relative;
+}
+
+.division-bank-page > div:first-of-type,
+.division-bank-page > section:first-of-type {
+  filter: saturate(1.03);
+}
+
+/* ===== /division-bank-safe-boost-v2 ===== */
+
+/* ===== division-cards-boost-v1 ===== */
+
+.division-bank-page .division-system-card {
+  min-height: 400px;
+  box-shadow:
+    0 0 0 1px rgba(120, 200, 255, 0.05),
+    0 18px 46px rgba(6, 18, 34, 0.30),
+    0 0 28px rgba(70, 160, 255, 0.10),
+    inset 0 0 0 1px rgba(140, 210, 255, 0.02) !important;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.division-bank-page .division-system-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(126, 220, 255, 0.10),
+    0 24px 56px rgba(6, 18, 34, 0.36),
+    0 0 34px rgba(70, 160, 255, 0.16),
+    inset 0 0 0 1px rgba(140, 210, 255, 0.03) !important;
+}
+
+.division-bank-page .division-system-open-link {
+  box-shadow:
+    0 12px 26px rgba(95,193,255,0.22),
+    0 0 18px rgba(95,193,255,0.10);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.division-bank-page .division-system-open-link:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow:
+    0 16px 30px rgba(95,193,255,0.28),
+    0 0 22px rgba(95,193,255,0.16);
+}
+
+.division-bank-page .division-system-delete {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.division-bank-page .division-system-delete:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow: 0 10px 22px rgba(120, 16, 24, 0.26);
+}
+
+/* ===== /division-cards-boost-v1 ===== */
+
+/* ===== division-hero-stats-boost-v1 ===== */
+
+.division-bank-page .division-hero-section {
+  box-shadow:
+    0 0 0 1px rgba(120, 200, 255, 0.08),
+    0 28px 80px rgba(6, 18, 34, 0.34),
+    0 0 42px rgba(70, 160, 255, 0.12),
+    inset 0 0 0 1px rgba(140, 210, 255, 0.03) !important;
+}
+
+.division-bank-page .division-hero-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(95,193,255,0.10), transparent 24%),
+    radial-gradient(circle at 82% 12%, rgba(0,230,255,0.08), transparent 20%);
+  opacity: 0.9;
+}
+
+.division-bank-page .division-stat-card {
+  box-shadow:
+    0 0 0 1px rgba(120, 200, 255, 0.05),
+    0 10px 30px rgba(8, 18, 34, 0.24),
+    0 0 20px rgba(70, 160, 255, 0.08),
+    inset 0 0 0 1px rgba(140, 210, 255, 0.02) !important;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.division-bank-page .division-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgba(126, 220, 255, 0.10),
+    0 16px 38px rgba(8, 18, 34, 0.30),
+    0 0 24px rgba(70, 160, 255, 0.14),
+    inset 0 0 0 1px rgba(140, 210, 255, 0.03) !important;
+}
+
+.division-bank-page .division-hero-section h1 {
+  text-shadow:
+    0 0 20px rgba(255,255,255,0.04),
+    0 0 26px rgba(95,193,255,0.08);
+}
+
+.division-bank-page .division-hero-section a,
+.division-bank-page .division-hero-section button {
+  box-shadow:
+    0 8px 18px rgba(8, 18, 34, 0.22),
+    0 0 16px rgba(70, 160, 255, 0.08);
+}
+
+/* ===== /division-hero-stats-boost-v1 ===== */
+
+/* ===== division-hero-command-v1 ===== */
+
+.division-bank-page .division-hero-section {
+  position: relative;
+}
+
+.division-bank-page .division-hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 16% 16%, rgba(95,193,255,0.12), transparent 20%),
+    radial-gradient(circle at 70% 12%, rgba(0,230,255,0.08), transparent 16%),
+    linear-gradient(90deg, transparent 0%, rgba(100,190,255,0.05) 50%, transparent 100%);
+  opacity: 0.95;
+}
+
+.division-bank-page .division-hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.division-bank-page .division-hero-copy h1 {
+  text-shadow:
+    0 0 18px rgba(255,255,255,0.03),
+    0 0 26px rgba(95,193,255,0.10);
+}
+
+.division-bank-page .division-hero-copy::after {
+  content: "";
+  display: block;
+  width: 180px;
+  height: 2px;
+  margin-top: 18px;
+  background: linear-gradient(90deg, rgba(95,193,255,0.85), rgba(95,193,255,0.10));
+  box-shadow: 0 0 14px rgba(95,193,255,0.18);
+}
+
+.division-bank-page .division-hero-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.division-bank-page .division-hero-actions a,
+.division-bank-page .division-hero-actions button {
+  box-shadow:
+    0 10px 22px rgba(8,18,34,0.22),
+    0 0 14px rgba(70,160,255,0.10);
+}
+
+.division-bank-page .division-stat-card {
+  backdrop-filter: blur(3px);
+}
+
+/* ===== /division-hero-command-v1 ===== */
+
+/* ===== division-hero-core-v1 ===== */
+
+.division-bank-page .division-hero-core {
+  position: relative;
+  width: 240px;
+  min-width: 240px;
+  height: 220px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  border: 1px solid rgba(95, 168, 255, 0.16);
+  background:
+    radial-gradient(circle at 50% 28%, rgba(95,193,255,0.14), transparent 28%),
+    linear-gradient(180deg, rgba(12,30,56,0.58) 0%, rgba(8,18,36,0.38) 100%);
+  box-shadow:
+    0 0 0 1px rgba(130,196,255,0.03),
+    0 20px 48px rgba(6,18,34,0.24),
+    0 0 30px rgba(70,160,255,0.10),
+    inset 0 0 0 1px rgba(140,210,255,0.02);
+  overflow: hidden;
+}
+
+.division-bank-page .division-hero-core::before,
+.division-bank-page .division-hero-core::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.division-bank-page .division-hero-core::before {
+  left: 50%;
+  top: 10%;
+  width: 1px;
+  height: 80%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(95,193,255,0.0), rgba(95,193,255,0.45), rgba(95,193,255,0.0));
+}
+
+.division-bank-page .division-hero-core::after {
+  top: 50%;
+  left: 12%;
+  width: 76%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, rgba(95,193,255,0.0), rgba(95,193,255,0.35), rgba(95,193,255,0.0));
+}
+
+.division-bank-page .division-hero-core-ring {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.division-bank-page .division-hero-core-ring-outer {
+  width: 156px;
+  height: 156px;
+  border: 1px solid rgba(126,220,255,0.22);
+  box-shadow:
+    0 0 26px rgba(66,176,255,0.16),
+    inset 0 0 18px rgba(120,220,255,0.05);
+  animation: division-hero-core-outer 18s linear infinite;
+}
+
+.division-bank-page .division-hero-core-ring-inner {
+  width: 118px;
+  height: 118px;
+  border: 1px dashed rgba(170,235,255,0.20);
+  opacity: 0.84;
+  animation: division-hero-core-inner 14s linear infinite;
+}
+
+.division-bank-page .division-hero-core-grid {
+  position: absolute;
+  width: 184px;
+  height: 184px;
+  border-radius: 999px;
+  background:
+    repeating-radial-gradient(circle at center, rgba(210,245,255,0.10) 0 1px, transparent 1px 16px);
+  opacity: 0.08;
+  animation: division-hero-core-grid 22s linear infinite;
+}
+
+.division-bank-page .division-hero-core-sphere {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  border: 1px solid rgba(190,240,255,0.28);
+  background:
+    radial-gradient(circle at 30% 28%, rgba(245,252,255,1) 0%, rgba(120,205,255,0.90) 20%, rgba(46,118,255,0.66) 46%, rgba(7,24,66,1) 82%);
+  box-shadow:
+    0 0 22px rgba(66,176,255,0.22),
+    0 0 72px rgba(66,176,255,0.12),
+    inset -12px -14px 22px rgba(0,0,0,0.24),
+    inset 12px 14px 18px rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.division-bank-page .division-hero-core-sphere-lines {
+  position: absolute;
+  inset: 12px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 12px,
+      rgba(220,248,255,0.24) 12px 13px,
+      transparent 13px 25px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 14px,
+      rgba(220,248,255,0.14) 14px 15px,
+      transparent 15px 29px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.92;
+  animation: division-hero-core-sphere 18s linear infinite;
+}
+
+.division-bank-page .division-hero-core-caption {
+  position: absolute;
+  bottom: 16px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(160, 206, 255, 0.62);
+}
+
+@keyframes division-hero-core-outer {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes division-hero-core-inner {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes division-hero-core-grid {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes division-hero-core-sphere {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1200px) {
+  .division-bank-page .division-hero-core {
+    width: 210px;
+    min-width: 210px;
+    height: 200px;
+  }
+}
+
+/* ===== /division-hero-core-v1 ===== */
+
+/* ===== global-division-bank-scope-bridge-v1 ===== */
+.global-exhibit-bank-page,
+.division-bank-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.global-exhibit-bank-page::before,
+.division-bank-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.global-exhibit-bank-page::before {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(52, 138, 255, 0.12), transparent 18%),
+    radial-gradient(circle at 50% 48%, rgba(34, 211, 238, 0.07), transparent 30%);
+}
+
+.global-exhibit-bank-page > div,
+.division-bank-page > div,
+.global-exhibit-bank-page section,
+.division-bank-page section {
+  position: relative;
+  z-index: 1;
+}
+
+.global-exhibit-bank-page div:has(> .gec-single-globe-wrap),
+.global-exhibit-bank-page div:has(> .geb-real-globe-wrap) {
+  border: 1px solid rgba(120, 206, 255, 0.28) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(68,150,255,0.16), transparent 34%),
+    linear-gradient(180deg, rgba(11,36,85,0.92), rgba(7,24,58,0.96)) !important;
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.34),
+    inset 0 0 0 1px rgba(130, 196, 255, 0.08),
+    0 0 44px rgba(72, 160, 255, 0.18);
+}
+
+.global-exhibit-bank-page .gec-single-globe-wrap,
+.global-exhibit-bank-page .geb-real-globe-wrap,
+.division-bank-page .division-hero-core {
+  filter: drop-shadow(0 0 22px rgba(95, 193, 255, 0.22));
+}
+/* ===== /global-division-bank-scope-bridge-v1 ===== */
+
+/* ===== geb-central-core-boost-v1 ===== */
+.global-exhibit-bank-page div:has(> .gec-single-globe-wrap),
+.global-exhibit-bank-page div:has(> .geb-real-globe-wrap) {
+  border: 1px solid rgba(132, 214, 255, 0.34) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(86, 165, 255, 0.22), transparent 34%),
+    linear-gradient(180deg, rgba(10, 31, 72, 0.96), rgba(6, 20, 48, 0.98)) !important;
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 1px rgba(150, 214, 255, 0.10),
+    0 0 54px rgba(72, 160, 255, 0.16);
+}
+
+.global-exhibit-bank-page .gec-single-globe-wrap,
+.global-exhibit-bank-page .geb-real-globe-wrap {
+  transform: scale(1.08);
+  filter:
+    drop-shadow(0 0 20px rgba(94, 194, 255, 0.22))
+    drop-shadow(0 0 42px rgba(41, 112, 255, 0.16));
+}
+
+.global-exhibit-bank-page .gec-single-globe-wrap::before,
+.global-exhibit-bank-page .geb-real-globe-wrap::before {
+  opacity: 0.92;
+}
+
+.global-exhibit-bank-page .gec-single-globe,
+.global-exhibit-bank-page .geb-real-globe {
+  box-shadow:
+    inset 0 0 28px rgba(210, 244, 255, 0.14),
+    0 0 34px rgba(82, 175, 255, 0.18);
+}
+
+.global-exhibit-bank-page .gec-single-globe::after,
+.global-exhibit-bank-page .geb-real-globe-highlight {
+  opacity: 0.96;
+}
+/* ===== /geb-central-core-boost-v1 ===== */
+

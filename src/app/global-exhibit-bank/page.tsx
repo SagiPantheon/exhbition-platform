@@ -47,6 +47,13 @@ const divisionIcons: Record<string, string> = {
   uav: "🛸",
 }
 
+const divisionCoverMap: Record<string, string> = {
+  "missiles-space-defense": "/images/divisions/missiles-space-defense-cover.png",
+  aviation: "/images/divisions/aviation-cover.png",
+  elta: "/images/divisions/elta-cover.png",
+  uav: "/images/divisions/uav-cover.png",
+}
+
 export default function GlobalExhibitBankPage() {
   const [activeDivisionId, setActiveDivisionId] = useState(exhibitDivisions[0]?.id ?? "")
   const [query, setQuery] = useState("")
@@ -104,7 +111,7 @@ export default function GlobalExhibitBankPage() {
   ]
 
   return (
-    <main
+    <main className="global-exhibit-bank-page"
       style={{
         minHeight: "100vh",
         color: "#EAF4FF",
@@ -400,8 +407,13 @@ export default function GlobalExhibitBankPage() {
                         border: isActive
                           ? "1px solid rgba(115,208,255,0.52)"
                           : "1px solid rgba(95,168,255,0.16)",
-                        background:
-                          "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+                        background: `
+                          linear-gradient(180deg, rgba(8,22,44,0.52) 0%, rgba(7,18,34,0.84) 52%, rgba(7,18,34,0.94) 100%),
+                          url(${divisionCoverMap[division.id] ?? ""})
+                        `,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
                         padding: "18px 20px",
                         color: "#EAF4FF",
                         boxShadow: isActive ? "0 0 26px rgba(95,193,255,0.14)" : "none",
@@ -535,6 +547,7 @@ export default function GlobalExhibitBankPage() {
                 />
 
                 <div
+                  className="geb-core-card"
                   style={{
                     width: "100%",
                     maxWidth: "520px",
@@ -549,31 +562,94 @@ export default function GlobalExhibitBankPage() {
                     position: "relative",
                   }}
                 >
-                  <div
-                    style={{
-                      width: "114px",
-                      height: "114px",
-                      margin: "0 auto 18px",
-                      borderRadius: "999px",
-                      border: "1px solid rgba(111,200,255,0.38)",
-                      background:
-                        "radial-gradient(circle at center, rgba(79,173,255,0.26) 0%, rgba(8,18,35,0.98) 65%, rgba(5,12,24,1) 100%)",
-                      display: "grid",
-                      placeItems: "center",
-                      fontSize: "42px",
-                      boxShadow: "0 0 28px rgba(95,193,255,0.16)",
-                    }}
-                  >
-                    🌐
-                  </div>
+                  <div className="geb-core-title" style={{
+                      overflow: "hidden",
+                      position: "relative", fontSize: "28px", fontWeight: 900, lineHeight: 1.1, marginBottom: "10px" }}>
+                    <div
+                      className="geb-real-globe-wrap"
+                      aria-hidden="true"
+                      style={{
+                        width: "100%",
+                        margin: "0 auto 16px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "220px",
+                          height: "220px",
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: "0",
+                            borderRadius: "999px",
+                            border: "1px solid rgba(114,197,255,0.22)",
+                            boxShadow: "0 0 26px rgba(76,170,255,0.16)",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: "18px",
+                            borderRadius: "999px",
+                            border: "1px solid rgba(114,197,255,0.16)",
+                          }}
+                        />
+                        <svg
+                          viewBox="0 0 200 200"
+                          aria-hidden="true"
+                          role="img"
+                          style={{
+                            width: "170px",
+                            height: "170px",
+                            display: "block",
+                          }}
+                        >
 
-                  <div style={{ fontSize: "28px", fontWeight: 900, lineHeight: 1.1, marginBottom: "10px" }}>
-                    <div className="gec-premium-orb-wrap" aria-hidden="true">
-  <div className="gec-premium-orb-ring gec-premium-orb-ring-1" />
-  <div className="gec-premium-orb-ring gec-premium-orb-ring-2" />
-  <div className="gec-premium-orb-grid" />
-  <div className="gec-premium-orb-core">🌐</div>
-</div>
+                          <defs>
+                            <radialGradient id="gebStableGlobeFill" cx="30%" cy="28%" r="72%">
+                              <stop offset="0%" stopColor="#F6FDFF" />
+                              <stop offset="18%" stopColor="#96DEFF" />
+                              <stop offset="48%" stopColor="#3D8DFF" />
+                              <stop offset="84%" stopColor="#0A2158" />
+                            </radialGradient>
+                            <clipPath id="gebStableGlobeClip">
+                              <circle cx="100" cy="100" r="62" />
+                            </clipPath>
+                          </defs>
+
+                          <g>
+                            <animateTransform
+                              attributeName="transform"
+                              attributeType="XML"
+                              type="rotate"
+                              from="0 100 100"
+                              to="360 100 100"
+                              dur="22s"
+                              repeatCount="indefinite"
+                            />
+                            <circle cx="100" cy="100" r="62" fill="url(#gebStableGlobeFill)" />
+                            <g clipPath="url(#gebStableGlobeClip)">
+                              <ellipse cx="100" cy="100" rx="46" ry="62" fill="none" stroke="rgba(231,248,255,0.72)" strokeWidth="1.15" />
+                              <ellipse cx="100" cy="100" rx="26" ry="62" fill="none" stroke="rgba(231,248,255,0.54)" strokeWidth="1.05" />
+                              <ellipse cx="100" cy="100" rx="10" ry="62" fill="none" stroke="rgba(231,248,255,0.34)" strokeWidth="1" />
+                              <ellipse cx="100" cy="100" rx="62" ry="18" fill="none" stroke="rgba(231,248,255,0.46)" strokeWidth="1.05" />
+                              <ellipse cx="100" cy="100" rx="62" ry="36" fill="none" stroke="rgba(231,248,255,0.30)" strokeWidth="1" />
+                              <ellipse cx="100" cy="100" rx="62" ry="50" fill="none" stroke="rgba(231,248,255,0.18)" strokeWidth="1" />
+                            </g>
+                            <circle cx="76" cy="72" r="18" fill="rgba(255,255,255,0.22)" />
+                          </g>
+                        </svg>
+                      </div>
+                    </div>
 GLOBAL EXHIBIT CORE
                   </div>
 
@@ -687,8 +763,13 @@ GLOBAL EXHIBIT CORE
                         border: isActive
                           ? "1px solid rgba(115,208,255,0.52)"
                           : "1px solid rgba(95,168,255,0.16)",
-                        background:
-                          "linear-gradient(180deg, rgba(11,28,52,0.95) 0%, rgba(7,18,34,0.96) 100%)",
+                        background: `
+                          linear-gradient(180deg, rgba(8,22,44,0.52) 0%, rgba(7,18,34,0.84) 52%, rgba(7,18,34,0.94) 100%),
+                          url(${divisionCoverMap[division.id] ?? ""})
+                        `,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
                         padding: "18px 20px",
                         color: "#EAF4FF",
                         boxShadow: isActive ? "0 0 26px rgba(95,193,255,0.14)" : "none",
