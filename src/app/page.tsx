@@ -1,167 +1,406 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const divisions = [
-  { id: "missiles-space-defense", nameHe: 'חטיבת מט"ח', nameEn: "MTA Division", subHe: "מלמ · טילים · חלל · הגנה", exhibits: 24, subDivisions: 4, readiness: 82, cover: "/images/divisions/matach-cover.png", icon: "🚀" },
-  { id: "elta", nameHe: "חטיבת אלתא", nameEn: "ELTA Division", subHe: 'רובוטיקה · תקשורת · מכ"מים', exhibits: 27, subDivisions: 3, readiness: 88, cover: "/images/divisions/elta-cover.png", icon: "📡" },
-  { id: "aviation", nameHe: "חטיבת תעופה", nameEn: "Aviation Division", subHe: "בדק · MRO", exhibits: 18, subDivisions: 2, readiness: 79, cover: "/images/divisions/taufa-cover.png", icon: "✈️" },
-  { id: "uav", nameHe: 'חטיבת כט"צ', nameEn: "UAV Division", subHe: "מלט", exhibits: 12, subDivisions: 1, readiness: 84, cover: "/images/divisions/uav-cover.png", icon: "🛸" },
+  { id: "missiles-space-defense", nameHe: 'חטיבת מט"ח', subHe: "מלמ · טילים · חלל · הגנה", exhibits: 24, subDivisions: 4, readiness: 82, cover: "/images/divisions/matach-cover.png" },
+  { id: "elta", nameHe: "חטיבת אלתא", subHe: 'רובוטיקה · תקשורת · מכ"מים', exhibits: 27, subDivisions: 3, readiness: 88, cover: "/images/divisions/elta-cover.png" },
+  { id: "aviation", nameHe: "חטיבת תעופה", subHe: "בדק · MRO", exhibits: 18, subDivisions: 2, readiness: 79, cover: "/images/divisions/taufa-cover.png" },
+  { id: "uav", nameHe: 'חטיבת כט"צ', subHe: "מלט", exhibits: 12, subDivisions: 1, readiness: 84, cover: "/images/divisions/uav-cover.png" },
 ];
 
+const exhibits = [
+  { name: "Arrow 3 Launcher", code: "AIR-001", img: "/images/air/arrow-3-launcher-showcase.png" },
+  { name: "Heron UAV", code: "AIR-002", img: "/images/air/heron-showcase.png" },
+  { name: "ZMAG", code: "LAND-001", img: "/images/land/zmag-showcase.png" },
+  { name: "3DCapture", code: "LAND-002", img: "/images/land/3dcapture-showcase.png" },
+  { name: "Panda", code: "LAND-003", img: "/images/land/panda-showcase.png" },
+  { name: "OPTSAT 500", code: "SPACE-001", img: "/images/space/optsat-500-showcase.png" },
+  { name: "OPTSAR 550", code: "SPACE-002", img: "/images/space/optsar-550-showcase.png" },
+  { name: "Katana", code: "NAVAL-001", img: "/images/naval/katana.png" },
+  { name: "MCS", code: "SPACE-003", img: "/images/space/mcs-showcase.png" },
+];
+
+type Line = { x1: number; y1: number; x2: number; y2: number };
+
 export default function HomePage() {
-  const [pulse, setPulse] = useState(false);
-  useEffect(() => { const t = setInterval(() => setPulse(p => !p), 2000); return () => clearInterval(t); }, []);
+  const [lines, setLines] = useState<Line[]>([]);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const coreRef = useRef<HTMLDivElement>(null);
+  const cardRefs = [
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+    useRef<HTMLDivElement>(null),
+  ];
+
+  useEffect(() => {
+    const measure = () => {
+      const grid = gridRef.current;
+      const core = coreRef.current;
+      if (!grid || !core) return;
+      const gb = grid.getBoundingClientRect();
+      const cb = core.getBoundingClientRect();
+      const newLines: Line[] = [];
+      cardRefs.forEach((ref, i) => {
+        const card = ref.current;
+        if (!card) return;
+        const kb = card.getBoundingClientRect();
+        const cardX = i < 2 ? kb.right - gb.left : kb.left - gb.left;
+        const cardY = kb.top + kb.height / 2 - gb.top;
+        const coreX = i < 2 ? cb.left - gb.left : cb.right - gb.left;
+        const coreY = i === 0 || i === 2
+          ? cb.top + cb.height * 0.3 - gb.top
+          : cb.top + cb.height * 0.7 - gb.top;
+        newLines.push({ x1: cardX, y1: cardY, x2: coreX, y2: coreY });
+      });
+      setLines(newLines);
+    };
+    const t = setTimeout(measure, 300);
+    window.addEventListener("resize", measure);
+    return () => { clearTimeout(t); window.removeEventListener("resize", measure); };
+  }, []);
 
   return (
-    <main className="min-h-screen bg-[#01020e] text-white flex flex-col" style={{fontFamily:"Heebo, Assistant, sans-serif"}}>
-      <header className="flex items-center justify-between px-8 py-4 border-b border-cyan-400/10 bg-[#01020e]/95 sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <img src="/covers/iai-white.png" alt="IAI" className="h-10 w-auto" style={{filter:"drop-shadow(0 0 14px rgba(0,180,255,0.9))"}} />
-          <div>
-            <p className="text-[22px] font-bold text-white tracking-tight">GLOBAL EXHIBIT BANK</p>
-            <p className="text-[11px] text-white/40">Unified access point to all divisions, sub-divisions, and exhibit systems</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/4 border border-white/8 rounded-xl">
-            <span className="text-white/30 text-sm">🔍</span>
-            <input placeholder="Search exhibits, divisions, systems..." className="bg-transparent text-white/60 text-[12px] outline-none w-56 placeholder:text-white/25" />
-          </div>
-          <button className="p-2.5 bg-white/4 border border-white/8 rounded-xl text-white/50">⚙</button>
-        </div>
-      </header>
+    <main style={{ minHeight: "100vh", background: "#01020e", color: "#fff", fontFamily: "Heebo, Assistant, sans-serif" }}>
 
-      <div className="flex flex-1">
-        <aside className="w-[140px] flex-shrink-0 border-r border-cyan-400/8 bg-[#010812] flex flex-col py-4">
-          {[{label:"Hub",icon:"⊙",href:"/",active:false},{label:"Global Exhibit Bank",icon:"◈",href:"/",active:true},{label:"Divisions",icon:"⬡",href:"#",active:false},{label:"Systems",icon:"≡",href:"#",active:false},{label:"Layouts",icon:"⊞",href:"/tents-layout",active:false},{label:"Reports",icon:"▤",href:"#",active:false}].map((item) => (
-            <a key={item.label} href={item.href} className={`flex flex-col items-center gap-1.5 px-3 py-4 mx-2 rounded-xl transition-all duration-300 ${item.active ? "bg-cyan-500/15 border border-cyan-400/30 text-cyan-300" : "text-white/30 hover:text-white/60 hover:bg-white/4"}`}>
-              <span className="text-lg">{item.icon}</span>
-              <span className="text-[9px] tracking-wider text-center leading-tight">{item.label}</span>
-            </a>
-          ))}
-          <div className="mt-auto px-3 py-4 flex flex-col items-center gap-1">
-            <img src="/covers/iai-white.png" alt="IAI" className="h-6 w-auto opacity-30" />
-            <p className="text-[8px] text-white/20">GEB COMMAND v2.5.0</p>
-            <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /><span className="text-[8px] text-green-400">ONLINE</span></div>
-          </div>
-        </aside>
+      {/* HERO */}
+      <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}>
+        <img src="/images/home/iai-hero.png" alt="IAI" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.2) 50%, rgba(1,2,14,0.85) 80%, rgba(1,2,14,1) 100%)" }} />
+        {/* IAI dot pattern overlay */}
+        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 900">
+          <defs>
+            <radialGradient id="dotGlow1" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#00c8ff" stopOpacity="1"/><stop offset="100%" stopColor="#0050cc" stopOpacity="0"/></radialGradient>
+            <radialGradient id="dotGlow2" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#22d3ee" stopOpacity="1"/><stop offset="100%" stopColor="#0070ff" stopOpacity="0"/></radialGradient>
+          </defs>
+          {/* Large accent dots */}
+          <circle cx="120" cy="80" r="7" fill="#00c8ff" opacity="0.55"/>
+          <circle cx="340" cy="140" r="9" fill="#0080ff" opacity="0.45"/>
+          <circle cx="680" cy="55" r="6" fill="#22d3ee" opacity="0.5"/>
+          <circle cx="900" cy="110" r="8" fill="#00c8ff" opacity="0.4"/>
+          <circle cx="1180" cy="70" r="7" fill="#3b82f6" opacity="0.5"/>
+          <circle cx="1360" cy="160" r="10" fill="#00aaff" opacity="0.35"/>
+          <circle cx="80" cy="320" r="8" fill="#0080ff" opacity="0.4"/>
+          <circle cx="1400" cy="400" r="9" fill="#22d3ee" opacity="0.38"/>
+          <circle cx="200" cy="620" r="7" fill="#00c8ff" opacity="0.3"/>
+          <circle cx="1280" cy="580" r="8" fill="#3b82f6" opacity="0.32"/>
+          {/* Medium dots */}
+          <circle cx="55" cy="190" r="4" fill="#00c8ff" opacity="0.6"/>
+          <circle cx="220" cy="260" r="5" fill="#22d3ee" opacity="0.5"/>
+          <circle cx="460" cy="90" r="4" fill="#0080ff" opacity="0.55"/>
+          <circle cx="590" cy="200" r="5" fill="#00c8ff" opacity="0.45"/>
+          <circle cx="820" cy="40" r="4" fill="#3b82f6" opacity="0.5"/>
+          <circle cx="1040" cy="175" r="5" fill="#00aaff" opacity="0.48"/>
+          <circle cx="1220" cy="230" r="4" fill="#22d3ee" opacity="0.5"/>
+          <circle cx="1380" cy="290" r="5" fill="#00c8ff" opacity="0.42"/>
+          <circle cx="140" cy="480" r="4" fill="#0080ff" opacity="0.38"/>
+          <circle cx="390" cy="530" r="5" fill="#22d3ee" opacity="0.35"/>
+          <circle cx="760" cy="460" r="4" fill="#00c8ff" opacity="0.4"/>
+          <circle cx="980" cy="510" r="5" fill="#3b82f6" opacity="0.36"/>
+          <circle cx="1150" cy="440" r="4" fill="#00aaff" opacity="0.38"/>
+          <circle cx="1310" cy="490" r="5" fill="#22d3ee" opacity="0.32"/>
+          <circle cx="300" cy="740" r="4" fill="#00c8ff" opacity="0.28"/>
+          <circle cx="700" cy="710" r="5" fill="#0080ff" opacity="0.25"/>
+          <circle cx="1100" cy="750" r="4" fill="#22d3ee" opacity="0.22"/>
+          {/* Small dots — dense scatter */}
+          <circle cx="30" cy="130" r="2.5" fill="#00c8ff" opacity="0.7"/>
+          <circle cx="170" cy="50" r="2" fill="#22d3ee" opacity="0.65"/>
+          <circle cx="280" cy="190" r="2.5" fill="#00c8ff" opacity="0.6"/>
+          <circle cx="410" cy="310" r="2" fill="#3b82f6" opacity="0.55"/>
+          <circle cx="530" cy="150" r="2.5" fill="#0080ff" opacity="0.6"/>
+          <circle cx="650" cy="280" r="2" fill="#00c8ff" opacity="0.55"/>
+          <circle cx="750" cy="130" r="2.5" fill="#22d3ee" opacity="0.6"/>
+          <circle cx="860" cy="230" r="2" fill="#00aaff" opacity="0.52"/>
+          <circle cx="970" cy="85" r="2.5" fill="#00c8ff" opacity="0.58"/>
+          <circle cx="1090" cy="290" r="2" fill="#3b82f6" opacity="0.5"/>
+          <circle cx="1240" cy="130" r="2.5" fill="#22d3ee" opacity="0.55"/>
+          <circle cx="1330" cy="350" r="2" fill="#00c8ff" opacity="0.48"/>
+          <circle cx="60" cy="410" r="2.5" fill="#0080ff" opacity="0.45"/>
+          <circle cx="190" cy="370" r="2" fill="#22d3ee" opacity="0.42"/>
+          <circle cx="490" cy="400" r="2.5" fill="#00c8ff" opacity="0.4"/>
+          <circle cx="640" cy="350" r="2" fill="#3b82f6" opacity="0.42"/>
+          <circle cx="870" cy="380" r="2.5" fill="#00aaff" opacity="0.38"/>
+          <circle cx="1060" cy="360" r="2" fill="#22d3ee" opacity="0.4"/>
+          <circle cx="1200" cy="320" r="2.5" fill="#00c8ff" opacity="0.36"/>
+          <circle cx="1430" cy="200" r="2" fill="#3b82f6" opacity="0.45"/>
+          <circle cx="100" cy="560" r="2.5" fill="#0080ff" opacity="0.3"/>
+          <circle cx="430" cy="650" r="2" fill="#00c8ff" opacity="0.26"/>
+          <circle cx="850" cy="600" r="2.5" fill="#22d3ee" opacity="0.28"/>
+          <circle cx="1340" cy="640" r="2" fill="#3b82f6" opacity="0.24"/>
+        </svg>
+        <div style={{ position: "absolute", bottom: 64, right: 64, textAlign: "right" }}>
+          <p style={{ color: "rgba(0,200,255,0.7)", fontSize: 11, letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: 12 }}>Israel Aerospace Industries</p>
+          <h1 style={{ fontSize: 48, fontWeight: 700, marginBottom: 12, lineHeight: 1.2, textShadow: "0 0 40px rgba(0,100,255,0.5)" }}>תעשייה האווירית<br/>לישראל</h1>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, marginBottom: 32 }}>מערכת ניהול תערוכות · תכנון חכם · ביצוע מושלם</p>
+          <a href="#main" style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "14px 32px", background: "rgba(0,200,255,0.15)", border: "1px solid rgba(0,200,255,0.5)", borderRadius: 999, color: "rgba(0,220,255,0.9)", fontSize: 13, letterSpacing: "0.2em", textDecoration: "none" }}>כניסה למערכת ↓</a>
+        </div>
+      </div>
 
-        <div className="flex-1 flex flex-col">
-          <div className="flex gap-3 px-8 py-4 border-b border-white/4">
-            {[{icon:"⬡",label:"Total Exhibits",value:"81",color:"text-cyan-300"},{icon:"◈",label:"Divisions",value:"4",color:"text-cyan-300"},{icon:"⊞",label:"Sub-Divisions",value:"10",color:"text-cyan-300"},{icon:"✓",label:"Ready",value:"83%",color:"text-green-400"},{icon:"⚠",label:"Missing Data",value:"14",color:"text-yellow-400"},{icon:"★",label:"New",value:"7",color:"text-cyan-300"}].map((s) => (
-              <div key={s.label} className="flex-1 flex items-center gap-3 bg-[#06111f] border border-white/6 rounded-xl px-4 py-3">
-                <span className={`text-lg ${s.color}`}>{s.icon}</span>
-                <div><p className={`text-2xl font-light ${s.color}`}>{s.value}</p><p className="text-[9px] text-white/30 uppercase tracking-wider">{s.label}</p></div>
-              </div>
+      <div id="main">
+
+        {/* HEADER */}
+        <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 32px", borderBottom: "1px solid rgba(0,200,255,0.1)", background: "rgba(1,2,14,0.95)", position: "sticky", top: 0, zIndex: 50 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <img src="/covers/iai-white.png" alt="IAI" style={{ height: 40, filter: "drop-shadow(0 0 14px rgba(0,180,255,0.9))" }} />
+            <div>
+              <p style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>GLOBAL EXHIBIT BANK</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Unified access point to all divisions, sub-divisions, and exhibit systems</p>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }}>
+              <span style={{ color: "rgba(255,255,255,0.3)" }}>🔍</span>
+              <input placeholder="Search exhibits, divisions, systems..." style={{ background: "transparent", border: "none", outline: "none", color: "rgba(255,255,255,0.6)", fontSize: 12, width: 240 }} />
+            </div>
+            <button style={{ padding: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>⚙</button>
+          </div>
+        </header>
+
+        <div style={{ display: "flex" }}>
+
+          {/* SIDEBAR */}
+          <aside style={{ width: 140, flexShrink: 0, borderRight: "1px solid rgba(0,200,255,0.08)", background: "#010812", display: "flex", flexDirection: "column", padding: "16px 0" }}>
+            {[
+              { label: "Hub", icon: "⊙", href: "/", active: false },
+              { label: "Global Exhibit Bank", icon: "◈", href: "#main", active: true },
+              { label: "Divisions", icon: "⬡", href: "/global-exhibit-bank", active: false },
+              { label: "Systems", icon: "≡", href: "/global-exhibit-bank", active: false },
+              { label: "Layouts", icon: "⊞", href: "/tents-layout", active: false },
+              { label: "Reports", icon: "▤", href: "#", active: false },
+            ].map((item) => (
+              <a key={item.label} href={item.href} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "14px 12px", margin: "2px 8px", borderRadius: 12, textDecoration: "none", background: item.active ? "rgba(0,200,255,0.15)" : "transparent", border: item.active ? "1px solid rgba(0,200,255,0.3)" : "1px solid transparent", color: item.active ? "rgba(0,220,255,0.9)" : "rgba(255,255,255,0.3)", transition: "all 0.3s" }}>
+                <span style={{ fontSize: 18 }}>{item.icon}</span>
+                <span style={{ fontSize: 9, letterSpacing: "0.05em", textAlign: "center", lineHeight: 1.3 }}>{item.label}</span>
+              </a>
             ))}
-          </div>
-
-          <div className="flex-1 p-6">
-            <div className="grid grid-cols-3 gap-4" style={{gridTemplateRows:"1fr 1fr",height:"calc(100vh - 280px)"}}>
-
-              <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-[#06111f] hover:border-cyan-400/30 transition-all duration-500 cursor-pointer">
-                <div className="relative h-40 overflow-hidden">
-                  <img src={divisions[0].cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06111f] via-[#06111f]/30 to-transparent" />
-                  <div className="absolute bottom-3 right-3 text-right"><h3 className="text-2xl font-bold text-white">{divisions[0].nameHe}</h3><p className="text-cyan-300/70 text-[10px]">{divisions[0].subHe}</p></div>
-                </div>
-                <div className="px-4 py-3">
-                  <div className="flex items-center gap-2 mb-2 text-[11px] text-white/60" dir="rtl"><span className="text-cyan-400">{divisions[0].readiness}%</span> מוכנות <span>·</span> <span>{divisions[0].subDivisions}</span> תתי-יחידות <span>·</span> <span>{divisions[0].exhibits}</span> מוצגים</div>
-                  <div className="w-full bg-white/6 rounded-full h-1 mb-3"><div className="h-1 rounded-full bg-gradient-to-r from-cyan-600 to-cyan-300" style={{width:`${divisions[0].readiness}%`,boxShadow:"0 0 8px rgba(0,200,255,0.6)"}} /></div>
-                  <Link href={`/global-exhibit-bank/division?divisionId=${divisions[0].id}`} className="flex items-center justify-between w-full px-4 py-2 bg-cyan-500/10 border border-cyan-400/25 rounded-xl text-[11px] text-cyan-300 hover:bg-cyan-500/20 transition" dir="rtl">פתח חטיבה <span>←</span></Link>
-                </div>
+            <div style={{ marginTop: "auto", padding: "16px 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <img src="/covers/iai-white.png" alt="IAI" style={{ height: 24, opacity: 0.3 }} />
+              <p style={{ fontSize: 8, color: "rgba(255,255,255,0.2)" }}>GEB COMMAND v2.5.0</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", animation: "pulse 2s infinite" }} />
+                <span style={{ fontSize: 8, color: "#4ade80" }}>ONLINE</span>
               </div>
-
-              <div className="row-span-2 flex items-center justify-center">
-                <div className="relative w-full max-w-[320px] flex flex-col items-center">
-                  <div className="relative w-52 h-52 rounded-full border-2 border-cyan-400/30 flex items-center justify-center mb-6" style={{background:"radial-gradient(circle at 35% 35%, rgba(0,80,160,0.8), rgba(1,5,20,0.95))",boxShadow:"0 0 60px rgba(0,150,255,0.3), 0 0 120px rgba(0,100,255,0.15)"}}>
-                    <div className="absolute inset-2 rounded-full border border-cyan-400/20 animate-spin" style={{animationDuration:"20s"}} />
-                    <div className="absolute inset-6 rounded-full border border-cyan-400/15 animate-spin" style={{animationDuration:"15s",animationDirection:"reverse"}} />
-                    <img src="/covers/iai-white.png" alt="IAI" className="w-24 h-auto relative z-10" style={{filter:"drop-shadow(0 0 20px rgba(0,200,255,0.8)) brightness(1.2)"}} />
-                    <div className="absolute inset-0 rounded-full" style={{background:"radial-gradient(circle at 30% 30%, rgba(0,150,255,0.1), transparent 60%)"}} />
-                  </div>
-                  <p className="text-[14px] font-bold text-white tracking-wider mb-1">GLOBAL EXHIBIT CORE</p>
-                  <p className="text-[10px] text-white/40 mb-4">Unified company-wide exhibit ecosystem</p>
-                  <div className="flex gap-2 mb-4">
-                    <Link href="/global-exhibit-bank" className="px-3 py-1.5 bg-cyan-500/15 border border-cyan-400/30 rounded-lg text-[10px] text-cyan-300 hover:bg-cyan-500/25 transition">👁 View All</Link>
-                    <button className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 hover:bg-white/10 transition">Open Division</button>
-                    <Link href="/tents-layout" className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 hover:bg-white/10 transition">Layouts</Link>
-                  </div>
-                  <div className="flex justify-center gap-6">
-                    {[{label:"Total Systems",value:"81"},{label:"Exhibition Ready",value:"83%"},{label:"Divisions",value:"4"}].map(s=>(
-                      <div key={s.label} className="text-center"><p className="text-lg font-light text-white">{s.value}</p><p className="text-[8px] text-white/30 tracking-wider">{s.label}</p></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-[#06111f] hover:border-cyan-400/30 transition-all duration-500 cursor-pointer">
-                <div className="relative h-40 overflow-hidden">
-                  <img src={divisions[1].cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06111f] via-[#06111f]/30 to-transparent" />
-                  <div className="absolute bottom-3 right-3 text-right"><h3 className="text-2xl font-bold text-white">{divisions[1].nameHe}</h3><p className="text-cyan-300/70 text-[10px]">{divisions[1].subHe}</p></div>
-                </div>
-                <div className="px-4 py-3">
-                  <div className="flex items-center gap-2 mb-2 text-[11px] text-white/60" dir="rtl"><span className="text-cyan-400">{divisions[1].readiness}%</span> מוכנות <span>·</span> <span>{divisions[1].subDivisions}</span> תתי-יחידות <span>·</span> <span>{divisions[1].exhibits}</span> מוצגים</div>
-                  <div className="w-full bg-white/6 rounded-full h-1 mb-3"><div className="h-1 rounded-full bg-gradient-to-r from-cyan-600 to-cyan-300" style={{width:`${divisions[1].readiness}%`,boxShadow:"0 0 8px rgba(0,200,255,0.6)"}} /></div>
-                  <Link href={`/global-exhibit-bank/division?divisionId=${divisions[1].id}`} className="flex items-center justify-between w-full px-4 py-2 bg-cyan-500/10 border border-cyan-400/25 rounded-xl text-[11px] text-cyan-300 hover:bg-cyan-500/20 transition" dir="rtl">פתח חטיבה <span>←</span></Link>
-                </div>
-              </div>
-
-              <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-[#06111f] hover:border-cyan-400/30 transition-all duration-500 cursor-pointer">
-                <div className="relative h-40 overflow-hidden">
-                  <img src={divisions[2].cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06111f] via-[#06111f]/30 to-transparent" />
-                  <div className="absolute bottom-3 right-3 text-right"><h3 className="text-2xl font-bold text-white">{divisions[2].nameHe}</h3><p className="text-cyan-300/70 text-[10px]">{divisions[2].subHe}</p></div>
-                </div>
-                <div className="px-4 py-3">
-                  <div className="flex items-center gap-2 mb-2 text-[11px] text-white/60" dir="rtl"><span className="text-cyan-400">{divisions[2].readiness}%</span> מוכנות <span>·</span> <span>{divisions[2].subDivisions}</span> תתי-יחידות <span>·</span> <span>{divisions[2].exhibits}</span> מוצגים</div>
-                  <div className="w-full bg-white/6 rounded-full h-1 mb-3"><div className="h-1 rounded-full bg-gradient-to-r from-cyan-600 to-cyan-300" style={{width:`${divisions[2].readiness}%`,boxShadow:"0 0 8px rgba(0,200,255,0.6)"}} /></div>
-                  <Link href={`/global-exhibit-bank/division?divisionId=${divisions[2].id}`} className="flex items-center justify-between w-full px-4 py-2 bg-cyan-500/10 border border-cyan-400/25 rounded-xl text-[11px] text-cyan-300 hover:bg-cyan-500/20 transition" dir="rtl">פתח חטיבה <span>←</span></Link>
-                </div>
-              </div>
-
-              <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-[#06111f] hover:border-cyan-400/30 transition-all duration-500 cursor-pointer">
-                <div className="relative h-40 overflow-hidden">
-                  <img src={divisions[3].cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06111f] via-[#06111f]/30 to-transparent" />
-                  <div className="absolute bottom-3 right-3 text-right"><h3 className="text-2xl font-bold text-white">{divisions[3].nameHe}</h3><p className="text-cyan-300/70 text-[10px]">{divisions[3].subHe}</p></div>
-                </div>
-                <div className="px-4 py-3">
-                  <div className="flex items-center gap-2 mb-2 text-[11px] text-white/60" dir="rtl"><span className="text-cyan-400">{divisions[3].readiness}%</span> מוכנות <span>·</span> <span>{divisions[3].subDivisions}</span> תתי-יחידות <span>·</span> <span>{divisions[3].exhibits}</span> מוצגים</div>
-                  <div className="w-full bg-white/6 rounded-full h-1 mb-3"><div className="h-1 rounded-full bg-gradient-to-r from-cyan-600 to-cyan-300" style={{width:`${divisions[3].readiness}%`,boxShadow:"0 0 8px rgba(0,200,255,0.6)"}} /></div>
-                  <Link href={`/global-exhibit-bank/division?divisionId=${divisions[3].id}`} className="flex items-center justify-between w-full px-4 py-2 bg-cyan-500/10 border border-cyan-400/25 rounded-xl text-[11px] text-cyan-300 hover:bg-cyan-500/20 transition" dir="rtl">פתח חטיבה <span>←</span></Link>
-                </div>
-              </div>
-
             </div>
-          </div>
+          </aside>
 
-          <div className="border-t border-white/6 bg-[#010812] px-8 py-4">
-            <div className="flex items-center justify-between mb-3">
-              <div><p className="text-[12px] font-semibold text-white tracking-wider">SELECTED DIVISION / DRILLDOWN PANEL</p><p className="text-[10px] text-white/30">If selected, show sub-divisions and preview systems</p></div>
-              <div className="flex gap-2" dir="rtl">{["מלמ","טילים","חלל","הגנה"].map(s=>(<button key={s} className="px-4 py-1.5 bg-cyan-500/15 border border-cyan-400/30 rounded-lg text-[11px] text-cyan-300 hover:bg-cyan-500/25 transition">{s}</button>))}</div>
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {[{name:"Arrow 3 Launcher",code:"AIR-001",img:"/images/air/arrow-3-launcher-showcase.png"},{name:"Heron UAV",code:"AIR-002",img:"/images/air/heron-showcase.png"},{name:"ZMAG",code:"LAND-001",img:"/images/land/zmag-showcase.png"},{name:"3DCapture",code:"LAND-002",img:"/images/land/3dcapture-showcase.png"},{name:"Panda",code:"LAND-003",img:"/images/land/panda-showcase.png"},{name:"OPTSAT 500",code:"SPACE-001",img:"/images/space/optsat-500-showcase.png"},{name:"OPTSAR 550",code:"SPACE-002",img:"/images/space/optsar-550-showcase.png"},{name:"Katana",code:"NAVAL-001",img:"/images/naval/katana.png"},{name:"MCS",code:"SPACE-003",img:"/images/space/mcs-showcase.png"}].map((item) => (
-                <div key={item.code} className="flex-shrink-0 w-36 bg-[#06111f] border border-white/8 rounded-xl overflow-hidden hover:border-cyan-400/40 transition cursor-pointer group">
-                  <div className="h-20 overflow-hidden"><img src={item.img} alt={item.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" /></div>
-                  <div className="px-2 py-2"><p className="text-[11px] font-medium text-white truncate">{item.name}</p><div className="flex items-center gap-1 mt-1"><div className="w-1.5 h-1.5 rounded-full bg-green-400" /><p className="text-[9px] text-white/40">{item.code}</p></div></div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+
+            {/* STATS BAR */}
+            <div style={{ display: "flex", gap: 12, padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+              {[
+                { icon: "⬡", label: "Total Exhibits", value: "81", color: "#5eead4" },
+                { icon: "◈", label: "Divisions", value: "4", color: "#5eead4" },
+                { icon: "⊞", label: "Sub-Divisions", value: "10", color: "#5eead4" },
+                { icon: "✓", label: "Ready", value: "83%", color: "#4ade80" },
+                { icon: "⚠", label: "Missing Data", value: "14", color: "#facc15" },
+                { icon: "★", label: "New", value: "7", color: "#5eead4" },
+              ].map((s) => (
+                <div key={s.label} style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, background: "#06111f", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "12px 16px" }}>
+                  <span style={{ fontSize: 18, color: s.color }}>{s.icon}</span>
+                  <div>
+                    <p style={{ fontSize: 22, fontWeight: 300, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                    <p style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 2 }}>{s.label}</p>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="grid grid-cols-4 border-t border-white/6">
-            {[{icon:"👁",label:"View All Exhibits",href:"/global-exhibit-bank",primary:true},{icon:"📂",label:"Open Selected Division",href:"#",primary:false},{icon:"⬇",label:"Export Summary",href:"#",primary:false},{icon:"⊞",label:"Go to Layouts",href:"/tents-layout",primary:false}].map((btn,i) => (
-              <Link key={i} href={btn.href} className={`flex items-center justify-center gap-3 py-4 text-[12px] tracking-wider transition-all duration-300 border-r border-white/4 last:border-r-0 ${btn.primary ? "bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20" : "text-white/40 hover:bg-white/5 hover:text-white/70"}`}>
-                <span>{btn.icon}</span>{btn.label}
-              </Link>
-            ))}
+            {/* MAIN GRID */}
+            <div style={{ flex: 1, padding: 24 }}>
+              <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 16, height: "calc(100vh - 260px)", position: "relative" }}>
+
+                {/* NEON LINES SVG */}
+                {lines.length === 4 && (
+                  <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 20, overflow: "visible" }}>
+                    <defs>
+                      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="8" result="blur" />
+                        <feMerge><feMergeNode in="blur" /><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                      </filter>
+                    </defs>
+                    {lines.map((l, i) => (
+                      <g key={i}>
+                        <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="rgba(0,200,255,0.5)" strokeWidth="14" strokeLinecap="round" />
+                        <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="#00c8ff" strokeWidth="3" strokeLinecap="round" filter="url(#glow)" strokeDasharray="16 8">
+                          <animate attributeName="stroke-dashoffset" from="0" to="-48" dur={`${2.2 + i * 0.3}s`} repeatCount="indefinite" />
+                        </line>
+                        <circle cx={l.x2} cy={l.y2} r="8" fill="#00c8ff" filter="url(#glow)">
+                          <animate attributeName="opacity" values="0.4;1;0.4" dur={`${2 + i * 0.2}s`} repeatCount="indefinite" />
+                        </circle>
+                        <circle cx={l.x1} cy={l.y1} r="5" fill="#00c8ff" filter="url(#glow)" opacity="0.7" />
+                      </g>
+                    ))}
+                  </svg>
+                )}
+
+                {/* CARDS 0 and 2 — LEFT COLUMN */}
+                {[0, 2].map((i) => (
+                  <div key={i} ref={cardRefs[i]} style={{ position: "relative", overflow: "hidden", borderRadius: 20, border: "1px solid rgba(255,255,255,0.08)", background: "#06111f", cursor: "pointer", display: "flex", flexDirection: "column", zIndex: 1 }}>
+                    <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
+                      <img src={divisions[i].cover} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.75 }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #06111f 0%, rgba(6,17,31,0.4) 50%, transparent 100%)" }} />
+                      <div style={{ position: "absolute", bottom: 16, right: 16, textAlign: "right" }}>
+                        <h3 style={{ fontSize: 26, fontWeight: 700 }}>{divisions[i].nameHe}</h3>
+                        <p style={{ fontSize: 11, color: "rgba(0,200,255,0.8)", marginTop: 4 }}>{divisions[i].subHe}</p>
+                      </div>
+                    </div>
+                    <div style={{ padding: "12px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 11, color: "rgba(255,255,255,0.6)", direction: "rtl" }}>
+                        <span style={{ color: "#5eead4", fontWeight: 700 }}>{divisions[i].readiness}%</span>
+                        <span>מוכנות ·</span>
+                        <span>{divisions[i].subDivisions} תתי-יחידות ·</span>
+                        <span>{divisions[i].exhibits} מוצגים</span>
+                      </div>
+                      <div style={{ width: "100%", background: "rgba(255,255,255,0.06)", borderRadius: 999, height: 3, marginBottom: 10 }}>
+                        <div style={{ height: 3, borderRadius: 999, background: "linear-gradient(to right, #0891b2, #22d3ee)", width: `${divisions[i].readiness}%`, boxShadow: "0 0 8px rgba(0,200,255,0.6)" }} />
+                      </div>
+                      <Link href={`/global-exhibit-bank/division?divisionId=${divisions[i].id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: "rgba(0,200,255,0.1)", border: "1px solid rgba(0,200,255,0.25)", borderRadius: 10, fontSize: 12, color: "rgba(0,220,255,0.9)", textDecoration: "none", direction: "rtl" }}>
+                        פתח חטיבה <span>←</span>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+
+                {/* CENTER GLOBE */}
+                <div ref={coreRef} style={{ gridRow: "1 / 3", gridColumn: "2 / 3", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+
+                    {/* Globe */}
+                    <div style={{ position: "relative", width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px solid rgba(0,200,255,0.35)", boxShadow: "0 0 60px rgba(0,150,255,0.3), 0 0 120px rgba(0,100,255,0.15)", background: "radial-gradient(circle at 35% 35%, rgba(0,80,160,0.8), rgba(1,5,20,0.95))" }} />
+                      <div style={{ position: "absolute", inset: 8, borderRadius: "50%", border: "1px solid rgba(0,200,255,0.15)", animation: "spin 20s linear infinite" }} />
+                      <div style={{ position: "absolute", inset: 20, borderRadius: "50%", border: "1px solid rgba(0,200,255,0.1)", animation: "spin 15s linear infinite reverse" }} />
+                      <svg viewBox="0 0 200 200" style={{ width: 160, height: 160, position: "relative", zIndex: 2 }}>
+                        <defs>
+                          <radialGradient id="globeGrad" cx="30%" cy="28%" r="72%">
+                            <stop offset="0%" stopColor="#F6FDFF" />
+                            <stop offset="18%" stopColor="#96DEFF" />
+                            <stop offset="48%" stopColor="#3D8DFF" />
+                            <stop offset="84%" stopColor="#0A2158" />
+                          </radialGradient>
+                          <clipPath id="globeClip"><circle cx="100" cy="100" r="62" /></clipPath>
+                        </defs>
+                        <g>
+                          <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 100 100" to="360 100 100" dur="18s" repeatCount="indefinite" />
+                          <circle cx="100" cy="100" r="62" fill="url(#globeGrad)" />
+                          <g clipPath="url(#globeClip)">
+                            <ellipse cx="100" cy="100" rx="46" ry="62" fill="none" stroke="rgba(231,248,255,0.6)" strokeWidth="1" />
+                            <ellipse cx="100" cy="100" rx="26" ry="62" fill="none" stroke="rgba(231,248,255,0.4)" strokeWidth="1" />
+                            <ellipse cx="100" cy="100" rx="62" ry="22" fill="none" stroke="rgba(231,248,255,0.4)" strokeWidth="1" />
+                            <ellipse cx="100" cy="100" rx="62" ry="42" fill="none" stroke="rgba(231,248,255,0.25)" strokeWidth="1" />
+                          </g>
+                        </g>
+                      </svg>
+                      <img src="/covers/iai-white.png" alt="IAI" style={{ position: "absolute", width: 64, zIndex: 3, filter: "drop-shadow(0 0 16px rgba(0,200,255,0.9)) brightness(1.2)" }} />
+                    </div>
+
+                    <p style={{ fontSize: 16, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 4 }}>GLOBAL EXHIBIT CORE</p>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Unified company-wide exhibit ecosystem</p>
+
+                    <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                      <Link href="/global-exhibit-bank" style={{ padding: "8px 14px", background: "rgba(0,200,255,0.15)", border: "1px solid rgba(0,200,255,0.35)", borderRadius: 10, fontSize: 11, color: "rgba(0,220,255,0.9)", textDecoration: "none" }}>👁 View All</Link>
+                      <Link href={`/global-exhibit-bank/division?divisionId=missiles-space-defense`} style={{ padding: "8px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, fontSize: 11, color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Open Division</Link>
+                      <Link href="/tents-layout" style={{ padding: "8px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, fontSize: 11, color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Layouts</Link>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 24 }}>
+                      {[{ label: "Total Systems", value: "81" }, { label: "Exhibition Ready", value: "83%" }, { label: "Divisions", value: "4" }].map((s) => (
+                        <div key={s.label} style={{ textAlign: "center" }}>
+                          <p style={{ fontSize: 20, fontWeight: 300, color: "#fff" }}>{s.value}</p>
+                          <p style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* CARDS 1 and 3 — RIGHT COLUMN */}
+                {[1, 3].map((i) => (
+                  <div key={i} ref={cardRefs[i]} style={{ position: "relative", overflow: "hidden", borderRadius: 20, border: "1px solid rgba(255,255,255,0.08)", background: "#06111f", cursor: "pointer", display: "flex", flexDirection: "column", zIndex: 1 }}>
+                    <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
+                      <img src={divisions[i].cover} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.75 }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #06111f 0%, rgba(6,17,31,0.4) 50%, transparent 100%)" }} />
+                      <div style={{ position: "absolute", bottom: 16, right: 16, textAlign: "right" }}>
+                        <h3 style={{ fontSize: 26, fontWeight: 700 }}>{divisions[i].nameHe}</h3>
+                        <p style={{ fontSize: 11, color: "rgba(0,200,255,0.8)", marginTop: 4 }}>{divisions[i].subHe}</p>
+                      </div>
+                    </div>
+                    <div style={{ padding: "12px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 11, color: "rgba(255,255,255,0.6)", direction: "rtl" }}>
+                        <span style={{ color: "#5eead4", fontWeight: 700 }}>{divisions[i].readiness}%</span>
+                        <span>מוכנות ·</span>
+                        <span>{divisions[i].subDivisions} תתי-יחידות ·</span>
+                        <span>{divisions[i].exhibits} מוצגים</span>
+                      </div>
+                      <div style={{ width: "100%", background: "rgba(255,255,255,0.06)", borderRadius: 999, height: 3, marginBottom: 10 }}>
+                        <div style={{ height: 3, borderRadius: 999, background: "linear-gradient(to right, #0891b2, #22d3ee)", width: `${divisions[i].readiness}%`, boxShadow: "0 0 8px rgba(0,200,255,0.6)" }} />
+                      </div>
+                      <Link href={`/global-exhibit-bank/division?divisionId=${divisions[i].id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: "rgba(0,200,255,0.1)", border: "1px solid rgba(0,200,255,0.25)", borderRadius: 10, fontSize: 12, color: "rgba(0,220,255,0.9)", textDecoration: "none", direction: "rtl" }}>
+                        פתח חטיבה <span>←</span>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+
+              </div>
+            </div>
+
+            {/* DRILLDOWN PANEL */}
+            <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "#010812", padding: "16px 24px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.1em" }}>SELECTED DIVISION / DRILLDOWN PANEL</p>
+                  <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>If selected, show sub-divisions and preview systems</p>
+                </div>
+                <div style={{ display: "flex", gap: 8, direction: "rtl" }}>
+                  {["מלמ", "טילים", "חלל", "הגנה"].map((s) => (
+                    <button key={s} style={{ padding: "6px 16px", background: s === "מלמ" ? "rgba(0,200,255,0.2)" : "rgba(255,255,255,0.05)", border: s === "מלמ" ? "1px solid rgba(0,200,255,0.4)" : "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 11, color: s === "מלמ" ? "rgba(0,220,255,0.9)" : "rgba(255,255,255,0.5)", cursor: "pointer" }}>{s}</button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8 }}>
+                {exhibits.map((item) => (
+                  <Link key={item.code} href={`/global-exhibit-bank/exhibit-system?system=${encodeURIComponent(item.name)}`} style={{ flexShrink: 0, width: 140, background: "#06111f", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, overflow: "hidden", textDecoration: "none", color: "#fff", transition: "border-color 0.3s" }}>
+                    <div style={{ height: 80, overflow: "hidden" }}>
+                      <img src={item.img} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+                    </div>
+                    <div style={{ padding: "8px 10px" }}>
+                      <p style={{ fontSize: 11, fontWeight: 500, marginBottom: 4 }}>{item.name}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80" }} />
+                        <p style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{item.code}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* FOOTER BUTTONS */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              {[
+                { icon: "👁", label: "View All Exhibits", href: "/global-exhibit-bank", primary: true },
+                { icon: "📂", label: "Open Selected Division", href: "/global-exhibit-bank/division?divisionId=missiles-space-defense", primary: false },
+                { icon: "⬇", label: "Export Summary", href: "#", primary: false },
+                { icon: "⊞", label: "Go to Layouts", href: "/tents-layout", primary: false },
+              ].map((btn) => (
+                <Link key={btn.label} href={btn.href} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "18px", fontSize: 12, letterSpacing: "0.05em", textDecoration: "none", background: btn.primary ? "rgba(0,200,255,0.1)" : "transparent", color: btn.primary ? "rgba(0,220,255,0.9)" : "rgba(255,255,255,0.4)", borderRight: "1px solid rgba(255,255,255,0.04)", transition: "all 0.3s" }}>
+                  <span>{btn.icon}</span>{btn.label}
+                </Link>
+              ))}
+            </div>
+
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+      `}</style>
+
     </main>
   );
 }

@@ -511,7 +511,6 @@ export default function GlobalExhibitBankPage() {
                   placeItems: "center",
                   padding: "24px",
                   position: "relative",
-                  overflow: "hidden",
                 }}
               >
                 <div
@@ -523,28 +522,7 @@ export default function GlobalExhibitBankPage() {
                     pointerEvents: "none",
                   }}
                 />
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "88%",
-                    height: "1px",
-                    background:
-                      "linear-gradient(90deg, rgba(95,193,255,0.0) 0%, rgba(95,193,255,0.9) 50%, rgba(95,193,255,0.0) 100%)",
-                    top: "50%",
-                    left: "6%",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    height: "88%",
-                    width: "1px",
-                    background:
-                      "linear-gradient(180deg, rgba(95,193,255,0.0) 0%, rgba(95,193,255,0.9) 50%, rgba(95,193,255,0.0) 100%)",
-                    top: "6%",
-                    left: "50%",
-                  }}
-                />
+                <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",overflow:"visible",zIndex:0}} viewBox="0 0 100 100" preserveAspectRatio="none"><defs><filter id="neonGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><line x1="50" y1="50" x2="-38" y2="18" stroke="rgba(95,193,255,0.25)" strokeWidth="2.5" strokeLinecap="round"/><line x1="50" y1="50" x2="-38" y2="82" stroke="rgba(95,193,255,0.25)" strokeWidth="2.5" strokeLinecap="round"/><line x1="50" y1="50" x2="138" y2="18" stroke="rgba(95,193,255,0.25)" strokeWidth="2.5" strokeLinecap="round"/><line x1="50" y1="50" x2="138" y2="82" stroke="rgba(95,193,255,0.25)" strokeWidth="2.5" strokeLinecap="round"/><line x1="50" y1="50" x2="-38" y2="18" stroke="#5FC1FF" strokeWidth="0.5" strokeLinecap="round" filter="url(#neonGlow)" strokeDasharray="4 2"><animate attributeName="stroke-dashoffset" from="0" to="-18" dur="2.4s" repeatCount="indefinite"/></line><line x1="50" y1="50" x2="-38" y2="82" stroke="#5FC1FF" strokeWidth="0.5" strokeLinecap="round" filter="url(#neonGlow)" strokeDasharray="4 2"><animate attributeName="stroke-dashoffset" from="0" to="-18" dur="2.8s" repeatCount="indefinite"/></line><line x1="50" y1="50" x2="138" y2="18" stroke="#5FC1FF" strokeWidth="0.5" strokeLinecap="round" filter="url(#neonGlow)" strokeDasharray="4 2"><animate attributeName="stroke-dashoffset" from="0" to="-18" dur="2.2s" repeatCount="indefinite"/></line><line x1="50" y1="50" x2="138" y2="82" stroke="#5FC1FF" strokeWidth="0.5" strokeLinecap="round" filter="url(#neonGlow)" strokeDasharray="4 2"><animate attributeName="stroke-dashoffset" from="0" to="-18" dur="3s" repeatCount="indefinite"/></line><circle cx="-38" cy="18" r="1.4" fill="#5FC1FF" filter="url(#neonGlow)" opacity="0.9"/><circle cx="-38" cy="82" r="1.4" fill="#5FC1FF" filter="url(#neonGlow)" opacity="0.9"/><circle cx="138" cy="18" r="1.4" fill="#5FC1FF" filter="url(#neonGlow)" opacity="0.9"/><circle cx="138" cy="82" r="1.4" fill="#5FC1FF" filter="url(#neonGlow)" opacity="0.9"/><circle cx="50" cy="50" r="2" fill="#5FC1FF" filter="url(#neonGlow)" opacity="0.7"><animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0.9;0.5" dur="2s" repeatCount="indefinite"/></circle></svg>
 
                 <div
                   className="geb-core-card"
