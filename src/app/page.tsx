@@ -67,68 +67,7 @@ export default function HomePage() {
       {/* HERO */}
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}>
         <img src="/images/home/iai-hero.png" alt="IAI" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.2) 50%, rgba(1,2,14,0.85) 80%, rgba(1,2,14,1) 100%)" }} />
-        {/* IAI dot pattern overlay */}
-        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 900">
-          <defs>
-            <radialGradient id="dotGlow1" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#00c8ff" stopOpacity="1"/><stop offset="100%" stopColor="#0050cc" stopOpacity="0"/></radialGradient>
-            <radialGradient id="dotGlow2" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#22d3ee" stopOpacity="1"/><stop offset="100%" stopColor="#0070ff" stopOpacity="0"/></radialGradient>
-          </defs>
-          {/* Large accent dots */}
-          <circle cx="120" cy="80" r="7" fill="#00c8ff" opacity="0.55"/>
-          <circle cx="340" cy="140" r="9" fill="#0080ff" opacity="0.45"/>
-          <circle cx="680" cy="55" r="6" fill="#22d3ee" opacity="0.5"/>
-          <circle cx="900" cy="110" r="8" fill="#00c8ff" opacity="0.4"/>
-          <circle cx="1180" cy="70" r="7" fill="#3b82f6" opacity="0.5"/>
-          <circle cx="1360" cy="160" r="10" fill="#00aaff" opacity="0.35"/>
-          <circle cx="80" cy="320" r="8" fill="#0080ff" opacity="0.4"/>
-          <circle cx="1400" cy="400" r="9" fill="#22d3ee" opacity="0.38"/>
-          <circle cx="200" cy="620" r="7" fill="#00c8ff" opacity="0.3"/>
-          <circle cx="1280" cy="580" r="8" fill="#3b82f6" opacity="0.32"/>
-          {/* Medium dots */}
-          <circle cx="55" cy="190" r="4" fill="#00c8ff" opacity="0.6"/>
-          <circle cx="220" cy="260" r="5" fill="#22d3ee" opacity="0.5"/>
-          <circle cx="460" cy="90" r="4" fill="#0080ff" opacity="0.55"/>
-          <circle cx="590" cy="200" r="5" fill="#00c8ff" opacity="0.45"/>
-          <circle cx="820" cy="40" r="4" fill="#3b82f6" opacity="0.5"/>
-          <circle cx="1040" cy="175" r="5" fill="#00aaff" opacity="0.48"/>
-          <circle cx="1220" cy="230" r="4" fill="#22d3ee" opacity="0.5"/>
-          <circle cx="1380" cy="290" r="5" fill="#00c8ff" opacity="0.42"/>
-          <circle cx="140" cy="480" r="4" fill="#0080ff" opacity="0.38"/>
-          <circle cx="390" cy="530" r="5" fill="#22d3ee" opacity="0.35"/>
-          <circle cx="760" cy="460" r="4" fill="#00c8ff" opacity="0.4"/>
-          <circle cx="980" cy="510" r="5" fill="#3b82f6" opacity="0.36"/>
-          <circle cx="1150" cy="440" r="4" fill="#00aaff" opacity="0.38"/>
-          <circle cx="1310" cy="490" r="5" fill="#22d3ee" opacity="0.32"/>
-          <circle cx="300" cy="740" r="4" fill="#00c8ff" opacity="0.28"/>
-          <circle cx="700" cy="710" r="5" fill="#0080ff" opacity="0.25"/>
-          <circle cx="1100" cy="750" r="4" fill="#22d3ee" opacity="0.22"/>
-          {/* Small dots — dense scatter */}
-          <circle cx="30" cy="130" r="2.5" fill="#00c8ff" opacity="0.7"/>
-          <circle cx="170" cy="50" r="2" fill="#22d3ee" opacity="0.65"/>
-          <circle cx="280" cy="190" r="2.5" fill="#00c8ff" opacity="0.6"/>
-          <circle cx="410" cy="310" r="2" fill="#3b82f6" opacity="0.55"/>
-          <circle cx="530" cy="150" r="2.5" fill="#0080ff" opacity="0.6"/>
-          <circle cx="650" cy="280" r="2" fill="#00c8ff" opacity="0.55"/>
-          <circle cx="750" cy="130" r="2.5" fill="#22d3ee" opacity="0.6"/>
-          <circle cx="860" cy="230" r="2" fill="#00aaff" opacity="0.52"/>
-          <circle cx="970" cy="85" r="2.5" fill="#00c8ff" opacity="0.58"/>
-          <circle cx="1090" cy="290" r="2" fill="#3b82f6" opacity="0.5"/>
-          <circle cx="1240" cy="130" r="2.5" fill="#22d3ee" opacity="0.55"/>
-          <circle cx="1330" cy="350" r="2" fill="#00c8ff" opacity="0.48"/>
-          <circle cx="60" cy="410" r="2.5" fill="#0080ff" opacity="0.45"/>
-          <circle cx="190" cy="370" r="2" fill="#22d3ee" opacity="0.42"/>
-          <circle cx="490" cy="400" r="2.5" fill="#00c8ff" opacity="0.4"/>
-          <circle cx="640" cy="350" r="2" fill="#3b82f6" opacity="0.42"/>
-          <circle cx="870" cy="380" r="2.5" fill="#00aaff" opacity="0.38"/>
-          <circle cx="1060" cy="360" r="2" fill="#22d3ee" opacity="0.4"/>
-          <circle cx="1200" cy="320" r="2.5" fill="#00c8ff" opacity="0.36"/>
-          <circle cx="1430" cy="200" r="2" fill="#3b82f6" opacity="0.45"/>
-          <circle cx="100" cy="560" r="2.5" fill="#0080ff" opacity="0.3"/>
-          <circle cx="430" cy="650" r="2" fill="#00c8ff" opacity="0.26"/>
-          <circle cx="850" cy="600" r="2.5" fill="#22d3ee" opacity="0.28"/>
-          <circle cx="1340" cy="640" r="2" fill="#3b82f6" opacity="0.24"/>
-        </svg>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.05) 50%, rgba(1,2,14,0.55) 80%, rgba(1,2,14,0.9) 100%)" }} />
         <div style={{ position: "absolute", bottom: 64, right: 64, textAlign: "right" }}>
           <p style={{ color: "rgba(0,200,255,0.7)", fontSize: 11, letterSpacing: "0.5em", textTransform: "uppercase", marginBottom: 12 }}>Israel Aerospace Industries</p>
           <h1 style={{ fontSize: 48, fontWeight: 700, marginBottom: 12, lineHeight: 1.2, textShadow: "0 0 40px rgba(0,100,255,0.5)" }}>תעשייה האווירית<br/>לישראל</h1>
