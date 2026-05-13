@@ -41,8 +41,8 @@ Built by **Sagi Amiel**. Exhibition management system for Israel Aerospace Indus
 | # | Status | Block |
 |---|--------|-------|
 | 1 | ✅ Done | Hero section, Global Exhibit Bank hub, 4 division cards, animated globe, IAI dot pattern |
-| 2 | 🔲 Next | `src/data/exhibits.ts` data layer, division page, exhibit card component |
-| 3 | 🔲 | Tent configurator with drag-and-drop layout |
+| 2 | ✅ Done | Space / Air / Land / Naval section pages — all working, unified in same design system (Tailwind, SpaceAssetCard-style cards, edit bars, ClassificationBadge). All 4 sections connected to main page via navigation strip. |
+| 3 | 🔲 Next | Tent configurator with drag-and-drop layout |
 | 4 | 🔲 | Exhibitions center — Israel and abroad views |
 | 5 | 🔲 | Polish pass — animations, transitions, print/export |
 
