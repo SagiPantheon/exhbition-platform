@@ -145,6 +145,27 @@ export default function HomePage() {
               ))}
             </div>
 
+            {/* SECTION NAV */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, padding: "12px 24px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+              {[
+                { label: "Space", sub: "7 assets", href: "/space", img: "/images/home/space-cover.png" },
+                { label: "Air", sub: "5+ assets", href: "/air", img: "/images/home/air-cover.png" },
+                { label: "Land", sub: "3 assets", href: "/land", img: "/images/home/land-cover.png" },
+                { label: "Naval", sub: "1 asset", href: "/naval", img: "/images/home/naval-cover.png" },
+              ].map((s) => (
+                <Link key={s.label} href={s.href} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)", background: "rgba(6,17,31,0.8)", textDecoration: "none", overflow: "hidden", transition: "border-color 0.2s" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: "1px solid rgba(255,255,255,0.1)" }}>
+                    <img src={s.img} alt={s.label} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.9 }} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "white", margin: 0 }}>{s.label}</p>
+                    <p style={{ fontSize: 10, color: "rgba(0,200,255,0.55)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "3px 0 0" }}>{s.sub}</p>
+                  </div>
+                  <span style={{ marginLeft: "auto", color: "rgba(0,200,255,0.45)", fontSize: 13, flexShrink: 0 }}>→</span>
+                </Link>
+              ))}
+            </div>
+
             {/* MAIN GRID */}
             <div style={{ flex: 1, padding: 24 }}>
               <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 16, height: "calc(100vh - 260px)", position: "relative" }}>
