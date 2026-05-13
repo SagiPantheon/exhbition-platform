@@ -45,6 +45,12 @@ const previewMap: Record<string, string> = {
   "Speaker": "/inventory/speaker-01.png",
 };
 
+type SceneItem = {
+  id: string;
+  type: string;
+  position: [number, number, number];
+};
+
 const statusItems = [
   ["Tent 25x15", "Active template"],
   ["25m", "Length"],
@@ -278,7 +284,16 @@ function InventorySet3D() {
   );
 }
 
-function TentStage3D() {
+function DynamicItem({ item }: { item: SceneItem }) {
+  return (
+    <mesh position={item.position} castShadow receiveShadow>
+      <boxGeometry args={[0.6, 0.9, 0.6]} />
+      <meshStandardMaterial color="#22d3ee" emissive="#0e7490" emissiveIntensity={0.4} roughness={0.5} metalness={0.3} />
+    </mesh>
+  );
+}
+
+function TentStage3D({ items }: { items: SceneItem[] }) {
   return (
     <Canvas
       shadows
@@ -286,7 +301,7 @@ function TentStage3D() {
       gl={{ antialias: true, alpha: true }}
       style={{ width: "100%", height: "100%" }}
     >
-      <PerspectiveCamera makeDefault position={[4.8, 2.9, 5.8]} fov={34} />
+      <PerspectiveCamera makeDefault position={[12, 10, 12]} fov={40} />
       <ambientLight intensity={1.25} />
       <directionalLight
         position={[7, 10, 6]}
@@ -319,33 +334,41 @@ function TentStage3D() {
         }
       >
         <>
-        <TentModel3D />
-        <InventorySet3D />
-      </>
+          <TentModel3D />
+          {items.map((item) => (
+            <DynamicItem key={item.id} item={item} />
+          ))}
+        </>
       </Suspense>
 
-      <mesh rotation={[-3.14159 / 2, 0, 0]} position={[0, -1.38, 0]} receiveShadow>
-        <planeGeometry args={[13, 13]} />
-        <meshStandardMaterial color="#071120" roughness={0.95} metalness={0.05} />
+      {/* Dark base plane */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.38, 0]} receiveShadow>
+        <planeGeometry args={[32, 32]} />
+        <meshStandardMaterial color="#040b18" roughness={1} metalness={0} />
       </mesh>
+
+      {/* Neon grid — primary cyan lines */}
+      <gridHelper args={[32, 32, "#00c8ff", "#0a2a40"]} position={[0, -1.37, 0]} />
+      {/* Second coarser grid — brighter accent for 4-unit sections */}
+      <gridHelper args={[32, 8, "#22d3ee", "#0d3050"]} position={[0, -1.36, 0]} />
 
       <ContactShadows
         position={[0, -1.36, 0]}
-        opacity={0.45}
-        scale={10}
-        blur={2.4}
-        far={4.8}
+        opacity={0.55}
+        scale={22}
+        blur={2.8}
+        far={6}
         resolution={1024}
       />
 
       <OrbitControls
-        enablePan={false}
+        enablePan={true}
         enableZoom={true}
-        minDistance={3.8}
-        maxDistance={9}
-        minPolarAngle={0.8}
-        maxPolarAngle={1.42}
-        target={[0, -0.55, 0]}
+        minDistance={8}
+        maxDistance={22}
+        minPolarAngle={0.25}
+        maxPolarAngle={1.35}
+        target={[0, -1, 0]}
       />
     </Canvas>
   );
@@ -355,6 +378,24 @@ useGLTF.preload(TENT_MODEL_PATH);
 
 export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
+  const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
+
+  function addItem(type: string) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 5.5 + Math.random() * 4.5; // ring 5.5–10 units out from tent center
+    setSceneItems((prev) => [
+      ...prev,
+      {
+        id: `${type}-${Date.now()}`,
+        type,
+        position: [
+          Math.cos(angle) * radius,
+          -0.93,  // box center: floor at -1.38 + half-height 0.45
+          Math.sin(angle) * radius,
+        ],
+      },
+    ]);
+  }
 
   return (
     <main
@@ -601,14 +642,29 @@ export default function TentsLayoutPage() {
                   gap: "10px",
                 }}
               >
-                <div
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: 800,
-                    color: "#f8fbff",
-                  }}
-                >
-                  Exhibit Library
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: 800,
+                      color: "#f8fbff",
+                    }}
+                  >
+                    Exhibit Library
+                  </div>
+                  {sceneItems.length > 0 && (
+                    <div style={{
+                      background: "rgba(34,211,238,0.18)",
+                      border: "1px solid rgba(34,211,238,0.4)",
+                      color: "#67e8f9",
+                      fontSize: "11px",
+                      fontWeight: 800,
+                      borderRadius: "999px",
+                      padding: "2px 8px",
+                    }}>
+                      {sceneItems.length} in scene
+                    </div>
+                  )}
                 </div>
 
                 <div
@@ -691,6 +747,7 @@ export default function TentsLayoutPage() {
                   <button
                     key={item}
                     type="button"
+                    onClick={() => addItem(item)}
                     style={{
                       minHeight: "126px",
                       borderRadius: "16px",
@@ -1026,7 +1083,7 @@ export default function TentsLayoutPage() {
                   pointerEvents: "auto",
                 }}
               >
-                <TentStage3D />
+                <TentStage3D items={sceneItems} />
               </div>
 
               <div
@@ -1076,14 +1133,29 @@ export default function TentsLayoutPage() {
                   gap: "10px",
                 }}
               >
-                <div
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: 800,
-                    color: "#f8fbff",
-                  }}
-                >
-                  Interior & Inventory
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: 800,
+                      color: "#f8fbff",
+                    }}
+                  >
+                    Interior & Inventory
+                  </div>
+                  {sceneItems.length > 0 && (
+                    <div style={{
+                      background: "rgba(34,211,238,0.18)",
+                      border: "1px solid rgba(34,211,238,0.4)",
+                      color: "#67e8f9",
+                      fontSize: "11px",
+                      fontWeight: 800,
+                      borderRadius: "999px",
+                      padding: "2px 8px",
+                    }}>
+                      {sceneItems.length} in scene
+                    </div>
+                  )}
                 </div>
 
                 <div
@@ -1166,6 +1238,7 @@ export default function TentsLayoutPage() {
                   <button
                     key={item}
                     type="button"
+                    onClick={() => addItem(item)}
                     style={{
                       minHeight: "126px",
                       borderRadius: "16px",
@@ -1287,7 +1360,7 @@ export default function TentsLayoutPage() {
                   marginBottom: "5px",
                 }}
               >
-                {value}
+                {label === "Elements" ? sceneItems.length : value}
               </div>
 
               <div
