@@ -1,598 +1,196 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useSectionAssets } from "../../hooks/useSectionAssets";
-import { normalizeLandAssetForCard } from "../../lib/editor/landDraftAdapter";
-import { draftToLandAsset } from "../../lib/editor/landDraftAdapter";
-import type { AssetEditorDraft } from "../../lib/editor/assetEditor";
-
 import { landAssets } from "../../data/landAssets";
+import ClassificationBadge from "../../components/common/ClassificationBadge";
+import { useSectionAssets } from "../../hooks/useSectionAssets";
 
-function TopButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "44px",
-        padding: "0 16px",
-        borderRadius: "14px",
-        border: "1px solid rgba(125,211,252,0.35)",
-        background: "rgba(14, 22, 38, 0.72)",
-        color: "white",
-        textDecoration: "none",
-        fontSize: "14px",
-        fontWeight: 600,
-        boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      {children}
-    </Link>
-  );
-}
+type LandAsset = typeof landAssets[number];
 
 export default function LandPage() {
-  const { assets: liveLandAssets, saveAsset, removeAsset } = useSectionAssets("land", landAssets);
-  const cardAssets = liveLandAssets.map(normalizeLandAssetForCard);
+  const {
+    assets: liveLandAssets,
+    saveAsset,
+    removeAsset,
+  } = useSectionAssets("land", landAssets);
 
-  function saveLandDraft(draft: AssetEditorDraft) {
-    saveAsset(draftToLandAsset(draft) as any);
+  function handleEdit(asset: LandAsset) {
+    const name = window.prompt("Name", asset.name);
+    if (name === null) return;
+
+    const category = window.prompt("Category", asset.category);
+    if (category === null) return;
+
+    const subtitle = window.prompt("Subtitle", asset.subtitle);
+    if (subtitle === null) return;
+
+    const status = window.prompt("Status", asset.status);
+    if (status === null) return;
+
+    saveAsset({ ...asset, name, category, subtitle, status });
   }
 
-  function addPilotLandAsset() {
-    saveLandDraft({
-      id: "",
-      slug: "",
-      section: "land",
-      code: "LAND-PILOT-001",
-      title: {
-        en: "Pilot Land Asset",
-        he: "Pilot Land Asset",
-      },
-      subtitle: {
-        en: "Pilot category",
-        he: "Pilot category",
-      },
-      description: {
-        en: "Temporary pilot asset for add/edit flow validation.",
-        he: "Temporary pilot asset for add/edit flow validation.",
-      },
-      image: "/images/land/zmag-showcase.png",
-      model3d: "/models/land/zmag-showcase-3d.glb",
-      assetCategory: "Pilot category",
-      missionType: "",
-      classification: {
-        en: "Unclassified",
-        he: 'בלמ״ס',
-      },
-      dimensions: "",
-      weight: "",
-      status: "ready",
-    });
-  }
-
-  function editPilotLandAsset() {
-    const source = liveLandAssets.find(
-      (item: any) =>
-        item?.id === "LAND-PILOT-001" ||
-        item?.code === "LAND-PILOT-001" ||
-        item?.slug === "pilot-land-asset" ||
-        item?.name === "Pilot Land Asset"
+  function handleReset(slug: string) {
+    const ok = window.confirm(
+      "Reset this Land asset back to its original base data?"
     );
-
-    if (!source) {
-      window.alert("Pilot asset not found yet. Add it first.");
-      return;
-    }
-
-    const asset = normalizeLandAssetForCard(source as any);
-
-    const nextTitle = window.prompt("English title", asset.name || "");
-    if (nextTitle === null) return;
-
-    const nextCategory = window.prompt("Category", asset.category || "");
-    if (nextCategory === null) return;
-
-    const nextDescription = window.prompt("Description", asset.subtitle || "");
-    if (nextDescription === null) return;
-
-    saveLandDraft({
-      id: source.id || "",
-      slug: source.slug || "",
-      section: "land",
-      code: source.id || source.code || "LAND-PILOT-001",
-      title: {
-        en: nextTitle,
-        he: nextTitle,
-      },
-      subtitle: {
-        en: nextCategory,
-        he: nextCategory,
-      },
-      description: {
-        en: nextDescription,
-        he: nextDescription,
-      },
-      image: source.image || "/images/land/zmag-showcase.png",
-      model3d: source.model3d || "/models/land/zmag-showcase-3d.glb",
-      assetCategory: nextCategory,
-      missionType: "",
-      classification: {
-        en: "Unclassified",
-        he: 'בלמ״ס',
-      },
-      dimensions: "",
-      weight: "",
-      status: "ready",
-    });
-  }
-
-  function deletePilotLandAsset() {
-    const source = liveLandAssets.find(
-      (item: any) =>
-        item?.id === "LAND-PILOT-001" ||
-        item?.code === "LAND-PILOT-001" ||
-        item?.slug === "pilot-land-asset" ||
-        item?.name === "Pilot Land Asset"
-    );
-
-    if (!source) {
-      window.alert("Pilot asset not found.");
-      return;
-    }
-
-    const confirmed = window.confirm("Delete Pilot Land Asset?");
-    if (!confirmed) return;
-
-    removeAsset(source.slug || "pilot-land-asset");
+    if (!ok) return;
+    removeAsset(slug);
   }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, rgba(44,92,160,0.18), transparent 32%), linear-gradient(180deg, #07111f 0%, #0a1628 45%, #0b1320 100%)",
-        color: "white",
-        padding: "24px 24px 64px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div style={{ maxWidth: "1560px", margin: "0 auto" }}>
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginBottom: "24px",
-          }}
-        >
-          <TopButton href="/">← Back to Main</TopButton>
-          <TopButton href="/air">Go to Air</TopButton>
-          <TopButton href="/space">Go to Space</TopButton>
-          <button
-            onClick={addPilotLandAsset}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "44px",
-              padding: "0 16px",
-              borderRadius: "14px",
-              border: "1px solid rgba(74,222,128,0.35)",
-              background: "rgba(12, 28, 20, 0.72)",
-              color: "white",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 600,
-              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-              backdropFilter: "blur(8px)",
-              cursor: "pointer",
-            }}
-          >
-            Add pilot land asset
-          </button>
+    <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
+      <div className="mx-auto flex max-w-[1850px] flex-col gap-8">
 
-          <button
-            onClick={editPilotLandAsset}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "44px",
-              padding: "0 16px",
-              borderRadius: "14px",
-              border: "1px solid rgba(125,211,252,0.35)",
-              background: "rgba(14, 40, 68, 0.72)",
-              color: "#c4f1ff",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 600,
-              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-              backdropFilter: "blur(8px)",
-              cursor: "pointer",
-            }}
-          >
-            Edit pilot land asset
-          </button>
+        <section className="rounded-[34px] border border-cyan-300/20 bg-[radial-gradient(circle_at_top,rgba(32,80,170,0.28),rgba(11,18,39,1)_55%)] p-8 shadow-[0_0_50px_rgba(24,119,242,0.12)] md:p-10">
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div className="max-w-4xl">
+              <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">
+                Exhibition Platform
+              </p>
+              <h1 className="mt-2 text-4xl font-extrabold md:text-5xl">
+                Land Assets
+              </h1>
+              <p className="mt-4 text-sm leading-7 text-slate-300 md:text-base">
+                Browse the current land asset collection in one clear catalog.
+                Each page opens a fuller view with dimensions, display logic,
+                and exhibition-ready presentation details.
+              </p>
 
-          <button
-            onClick={deletePilotLandAsset}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "44px",
-              padding: "0 16px",
-              borderRadius: "14px",
-              border: "1px solid rgba(248,113,113,0.35)",
-              background: "rgba(60, 16, 16, 0.72)",
-              color: "#fecaca",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 600,
-              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
-              backdropFilter: "blur(8px)",
-              cursor: "pointer",
-            }}
-          >
-            Delete pilot land asset
-          </button>
-        </div>
-
-        <div
-          style={{
-            border: "1px solid rgba(125,211,252,0.18)",
-            borderRadius: "26px",
-            padding: "22px 22px 30px",
-            background: "rgba(8, 15, 28, 0.34)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
-          }}
-        >
-          <div style={{ marginBottom: "24px" }}>
-            <div
-              style={{
-                fontSize: "12px",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: "#7dd3fc",
-                marginBottom: "10px",
-              }}
-            >
-              Land Section
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href="/"
+                  className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  ← Back to Main
+                </Link>
+                <Link
+                  href="/air"
+                  className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/20"
+                >
+                  Go to Air
+                </Link>
+                <Link
+                  href="/space"
+                  className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/20"
+                >
+                  Go to Space
+                </Link>
+              </div>
             </div>
 
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "52px",
-                lineHeight: 1.04,
-                fontWeight: 700,
-              }}
-            >
-              Land Assets
-            </h1>
-
-            <p
-              style={{
-                marginTop: "12px",
-                maxWidth: "900px",
-                fontSize: "17px",
-                lineHeight: 1.6,
-                color: "rgba(255,255,255,0.78)",
-              }}
-            >
-              Ground platforms, robotic systems, and mobile defense assets for
-              premium exhibition presentation.
-            </p>
+            <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
+              <QuickPill label="Category" value="Land" />
+              <QuickPill label="Items" value={`${liveLandAssets.length} Assets`} />
+              <QuickPill label="Experience" value="Friendly Catalog" />
+              <QuickPill label="Status" value="Ready" />
+            </div>
           </div>
+        </section>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
-              gap: "24px",
-            }}
-          >
-            {cardAssets.map((asset) => (
-              <article
-                key={asset.id}
-                style={{
-                  borderRadius: "24px",
-                  overflow: "hidden",
-                  background: "rgba(9, 17, 31, 0.92)",
-                  border: "1px solid rgba(125,211,252,0.22)",
-                  boxShadow: "0 18px 48px rgba(0,0,0,0.34)",
-                }}
+        <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
+          {liveLandAssets.map((asset: LandAsset) => (
+            <div
+              key={asset.slug}
+              className="rounded-[28px] border border-white/8 bg-white/[0.02] p-3 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
+            >
+              <Link
+                href={`/land/${asset.slug}`}
+                className="group flex min-h-[620px] flex-col overflow-hidden rounded-[32px] border border-cyan-300/20 bg-[#0b1227] shadow-[0_0_40px_rgba(24,119,242,0.10)] transition duration-200 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_0_60px_rgba(24,119,242,0.18)]"
               >
-                <Link
-                  href={`/land/${asset.slug}`}
-                  style={{
-                    display: "block",
-                    position: "relative",
-                    minHeight: "282px",
-                    borderBottom: "1px solid rgba(125,211,252,0.14)",
-                    background:
-                      "linear-gradient(180deg, rgba(13,23,42,1) 0%, rgba(7,14,26,1) 100%)",
-                    textDecoration: "none",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "radial-gradient(circle at center, rgba(59,130,246,0.18), transparent 42%)",
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: "12px",
-                      borderRadius: "18px",
-                      overflow: "hidden",
-                      border: "1px solid rgba(125,211,252,0.18)",
-                    }}
-                  >
-                    <Image
+                <div className="border-b border-cyan-300/15 bg-[#081226] p-5">
+                  <div className="relative overflow-hidden rounded-[24px] border border-cyan-300/20 bg-black/20 p-3">
+                    <img
                       src={asset.image}
-                      alt={asset.name}
-                      fill
-                      style={{ objectFit: "cover" }}
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      alt={`${asset.name} showcase`}
+                      className="h-[360px] w-full rounded-[18px] object-contain object-center p-4 transition duration-300 group-hover:scale-[1.01]"
                     />
                   </div>
 
-                </Link>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    flexWrap: "wrap",
-                    padding: "14px 20px 0",
-                  }}
-                >
-                  <span
-                    style={{
-                      padding: "7px 12px",
-                      borderRadius: "999px",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      color: "#dcfce7",
-                      background: "rgba(34,197,94,0.16)",
-                      border: "1px solid rgba(34,197,94,0.42)",
-                    }}
-                  >
-                    {asset.status}
-                  </span>
-
-                  <span
-                    style={{
-                      padding: "7px 12px",
-                      borderRadius: "999px",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      color: "#c4f1ff",
-                      background: "rgba(14,165,233,0.14)",
-                      border: "1px solid rgba(56,189,248,0.35)",
-                    }}
-                  >
-                    {asset.displayType}
-                  </span>
-
-                  <span
-                    style={{
-                      padding: "7px 12px",
-                      borderRadius: "999px",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      color: "white",
-                      background: "rgba(255,255,255,0.08)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                    }}
-                  >
-                    {asset.scale}
-                  </span>
-
-                  <span
-                    style={{
-                      padding: "7px 12px",
-                      borderRadius: "999px",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      color: "#c4f1ff",
-                      background: "rgba(14,165,233,0.14)",
-                      border: "1px solid rgba(56,189,248,0.35)",
-                      marginLeft: "auto",
-                    }}
-                  >
-                    3D connected
-                  </span>
-                </div>
-
-
-                <div
-                  style={{
-                    padding: "18px 20px 20px",
-                    display: "grid",
-                    gridTemplateColumns: "1.2fr 0.9fr",
-                    gap: "18px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        letterSpacing: "0.18em",
-                        textTransform: "uppercase",
-                        color: "#7dd3fc",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      Featured Asset
-                    </div>
-
-                    <h2
-                      style={{
-                        margin: 0,
-                        fontSize: "28px",
-                        lineHeight: 1.12,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {asset.name}
-                    </h2>
-
-                    <div
-                      style={{
-                        marginTop: "8px",
-                        fontSize: "14px",
-                        color: "rgba(255,255,255,0.7)",
-                      }}
-                    >
-                      {asset.id} · {asset.category}
-                    </div>
-
-                    <p
-                      style={{
-                        marginTop: "14px",
-                        marginBottom: 0,
-                        color: "rgba(255,255,255,0.76)",
-                        fontSize: "15px",
-                        lineHeight: 1.6,
-                        maxWidth: "95%",
-                      }}
-                    >
-                      {asset.subtitle}
-                    </p>
-
-                    <div style={{ marginTop: "16px" }}>
-                      <Link
-                        href={`/land/${asset.slug}`}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          minHeight: "38px",
-                          padding: "0 14px",
-                          borderRadius: "999px",
-                          border: "1px solid rgba(255,255,255,0.18)",
-                          background: "rgba(255,255,255,0.06)",
-                          color: "white",
-                          textDecoration: "none",
-                          fontSize: "13px",
-                          fontWeight: 700,
-                        }}
-                      >
-                        View
-                      </Link>
-                    </div>
-                  </div>
-
-                  <div style={{ display: "grid", gap: "10px" }}>
-                    <div
-                      style={{
-                        padding: "12px 14px",
-                        borderRadius: "16px",
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.10)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          letterSpacing: "0.12em",
-                          textTransform: "uppercase",
-                          color: "#93c5fd",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Operational Readiness
-                      </div>
-                      <div style={{ fontSize: "14px", color: "white" }}>
-                        {asset.readiness}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        padding: "12px 14px",
-                        borderRadius: "16px",
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.10)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          letterSpacing: "0.12em",
-                          textTransform: "uppercase",
-                          color: "#93c5fd",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Support
-                      </div>
-                      <div style={{ fontSize: "14px", color: "white" }}>
-                        {asset.support}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        padding: "12px 14px",
-                        borderRadius: "16px",
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.10)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          letterSpacing: "0.12em",
-                          textTransform: "uppercase",
-                          color: "#93c5fd",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Presentation Level
-                      </div>
-                      <div style={{ fontSize: "14px", color: "white" }}>
-                        {asset.presentationLevel}
-                      </div>
-                    </div>
+                  <div className="mt-3 flex flex-wrap justify-end gap-2 px-2 pb-1">
+                    <span className="inline-flex rounded-full border border-[rgba(92,214,126,0.35)] bg-[rgba(92,214,126,0.14)] px-2.5 py-1 text-[11px] text-[#9df0b2]">
+                      {asset.status}
+                    </span>
+                    <span className="inline-flex rounded-full border border-[rgba(93,214,255,0.35)] bg-[rgba(93,214,255,0.14)] px-2.5 py-1 text-[11px] text-[#8fe7ff]">
+                      {asset.displayType}
+                    </span>
+                    <span className="inline-flex rounded-full border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] px-2.5 py-1 text-[11px] text-[#e7ecff]">
+                      {asset.scale}
+                    </span>
                   </div>
                 </div>
-              </article>
-            ))}
-          </div>
 
-          <div
-            style={{
-              marginTop: "20px",
-              textAlign: "center",
-              fontSize: "12px",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.56)",
-            }}
-          >
-            Unclassified
-          </div>
-        </div>
+                <div className="flex flex-1 flex-col gap-4 p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-300">
+                        Featured Asset
+                      </p>
+                      <h2 className="mt-2 text-3xl font-extrabold leading-none">
+                        {asset.name}
+                      </h2>
+                      <p className="mt-2 text-sm text-slate-400">{asset.id}</p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-white">
+                      View
+                    </span>
+                  </div>
+
+                  <p className="text-sm font-medium leading-6 text-slate-200">
+                    {asset.subtitle}
+                  </p>
+
+                  <p className="text-sm leading-7 text-slate-400">
+                    {asset.category}
+                  </p>
+
+                  <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm text-slate-300">
+                    <span>Open Asset Page</span>
+                    <span className="font-semibold text-white">
+                      /land/{asset.slug}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300/30 bg-gradient-to-r from-amber-300/12 via-yellow-200/8 to-amber-300/12 px-3 py-3 shadow-[0_0_28px_rgba(251,191,36,0.12)]">
+                <div className="inline-flex items-center rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.22em] text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.16)]">
+                  LIVE LAND EDIT
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleEdit(asset)}
+                    className="rounded-2xl border border-amber-200/70 bg-gradient-to-r from-amber-300/30 via-yellow-200/20 to-amber-300/30 px-5 py-2.5 text-sm font-extrabold tracking-[0.04em] text-amber-50 shadow-[0_0_0_1px_rgba(255,220,120,0.18),0_0_28px_rgba(251,191,36,0.24)] transition duration-200 hover:-translate-y-[1px] hover:border-amber-100/90 hover:from-amber-300/40 hover:to-yellow-200/30 hover:shadow-[0_0_0_1px_rgba(255,235,160,0.28),0_0_36px_rgba(251,191,36,0.34)]"
+                  >
+                    Edit Land Data
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleReset(asset.slug)}
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </section>
+
       </div>
+      <ClassificationBadge label="Unclassified" />
     </main>
+  );
+}
+
+function QuickPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-cyan-300/15 bg-white/[0.04] p-4">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-bold text-white">{value}</p>
+    </div>
   );
 }

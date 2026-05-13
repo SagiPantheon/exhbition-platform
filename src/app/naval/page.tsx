@@ -1,381 +1,196 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { navalAssets } from "../../data/navalAssets";
+import ClassificationBadge from "../../components/common/ClassificationBadge";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
 
-import { navalAssets } from "../../data/navalAssets";
+type NavalAsset = typeof navalAssets[number];
 
-export default function WaterPage() {
-  const { assets: liveNavalAssets } = useSectionAssets("naval", navalAssets);
+export default function NavalPage() {
+  const {
+    assets: liveNavalAssets,
+    saveAsset,
+    removeAsset,
+  } = useSectionAssets("naval", navalAssets);
+
+  function handleEdit(asset: NavalAsset) {
+    const name = window.prompt("Name", asset.name);
+    if (name === null) return;
+
+    const category = window.prompt("Category", asset.category);
+    if (category === null) return;
+
+    const subtitle = window.prompt("Subtitle", asset.subtitle);
+    if (subtitle === null) return;
+
+    const status = window.prompt("Status", asset.status);
+    if (status === null) return;
+
+    saveAsset({ ...asset, name, category, subtitle, status });
+  }
+
+  function handleReset(slug: string) {
+    const ok = window.confirm(
+      "Reset this Naval asset back to its original base data?"
+    );
+    if (!ok) return;
+    removeAsset(slug);
+  }
+
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, rgba(44,92,160,0.18), transparent 32%), linear-gradient(180deg, #07111f 0%, #0a1628 45%, #0b1320 100%)",
-        color: "white",
-        padding: "24px 24px 64px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div style={{ maxWidth: "1560px", margin: "0 auto" }}>
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginBottom: "22px",
-          }}
-        >
-          <Link
-            href="/"
-            style={navButtonStyle}
-          >
-            ← Back to Main
-          </Link>
+    <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
+      <div className="mx-auto flex max-w-[1850px] flex-col gap-8">
 
-          <Link
-            href="/air"
-            style={navButtonStyle}
-          >
-            Go to Air
-          </Link>
+        <section className="rounded-[34px] border border-cyan-300/20 bg-[radial-gradient(circle_at_top,rgba(32,80,170,0.28),rgba(11,18,39,1)_55%)] p-8 shadow-[0_0_50px_rgba(24,119,242,0.12)] md:p-10">
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div className="max-w-4xl">
+              <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">
+                Exhibition Platform
+              </p>
+              <h1 className="mt-2 text-4xl font-extrabold md:text-5xl">
+                Naval Assets
+              </h1>
+              <p className="mt-4 text-sm leading-7 text-slate-300 md:text-base">
+                Browse the current naval asset collection in one clear catalog.
+                Each page opens a fuller view with dimensions, display logic,
+                and exhibition-ready presentation details.
+              </p>
 
-          <Link
-            href="/land"
-            style={navButtonStyle}
-          >
-            Go to Land
-          </Link>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href="/"
+                  className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  ← Back to Main
+                </Link>
+                <Link
+                  href="/air"
+                  className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/20"
+                >
+                  Go to Air
+                </Link>
+                <Link
+                  href="/land"
+                  className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/20"
+                >
+                  Go to Land
+                </Link>
+              </div>
+            </div>
 
-          <Link
-            href="/space"
-            style={navButtonStyle}
-          >
-            Go to Space
-          </Link>
-        </div>
-
-        <section
-          style={{
-            border: "1px solid rgba(125,211,252,0.18)",
-            borderRadius: "28px",
-            padding: "26px 24px 30px",
-            background: "rgba(8, 15, 28, 0.34)",
-            marginBottom: "26px",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "13px",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "#7dd3fc",
-              marginBottom: "10px",
-            }}
-          >
-            Naval Section
+            <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
+              <QuickPill label="Category" value="Naval" />
+              <QuickPill label="Items" value={`${liveNavalAssets.length} Assets`} />
+              <QuickPill label="Experience" value="Friendly Catalog" />
+              <QuickPill label="Status" value="Ready" />
+            </div>
           </div>
-
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "64px",
-              lineHeight: 1.02,
-              fontWeight: 800,
-              letterSpacing: "-0.04em",
-            }}
-          >
-            Naval Assets
-          </h1>
-
-          <p
-            style={{
-              marginTop: "14px",
-              maxWidth: "920px",
-              fontSize: "19px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.80)",
-            }}
-          >
-            Unmanned naval systems, fast patrol platforms, and maritime defense
-            assets prepared for premium exhibition presentation.
-          </p>
         </section>
 
-        <section
-          style={{
-            border: "1px solid rgba(125,211,252,0.18)",
-            borderRadius: "28px",
-            padding: "24px",
-            background: "rgba(8, 15, 28, 0.34)",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
-              gap: "24px",
-            }}
-          >
-            {liveNavalAssets.map((asset) => (
-              <article
-                key={asset.id}
-                style={{
-                  borderRadius: "26px",
-                  overflow: "hidden",
-                  background:
-                    "linear-gradient(180deg, rgba(15,28,52,0.96) 0%, rgba(10,20,40,0.96) 100%)",
-                  border: "1px solid rgba(125,211,252,0.28)",
-                  boxShadow: "0 0 0 1px rgba(80,160,255,0.06) inset",
-                }}
+        <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
+          {liveNavalAssets.map((asset: NavalAsset) => (
+            <div
+              key={asset.slug}
+              className="rounded-[28px] border border-white/8 bg-white/[0.02] p-3 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
+            >
+              <Link
+                href={asset.status === "Coming soon" ? "#" : `/naval/${asset.slug}`}
+                className="group flex min-h-[620px] flex-col overflow-hidden rounded-[32px] border border-cyan-300/20 bg-[#0b1227] shadow-[0_0_40px_rgba(24,119,242,0.10)] transition duration-200 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_0_60px_rgba(24,119,242,0.18)]"
               >
-                <div
-                  style={{
-                    padding: "18px 18px 0",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "relative",
-                      borderRadius: "22px",
-                      overflow: "hidden",
-                      border: "1px solid rgba(125,211,252,0.22)",
-                      background:
-                        "radial-gradient(circle at top, rgba(35,82,170,0.28), rgba(8,18,38,0.96) 68%)",
-                      minHeight: "250px",
-                    }}
-                  >
-                    <Image
+                <div className="border-b border-cyan-300/15 bg-[#081226] p-5">
+                  <div className="relative overflow-hidden rounded-[24px] border border-cyan-300/20 bg-black/20 p-3">
+                    <img
                       src={asset.image}
-                      alt={asset.name}
-                      fill
-                      style={{
-                        objectFit: "contain",
-                        padding: "18px",
-                      }}
+                      alt={`${asset.name} showcase`}
+                      className="h-[360px] w-full rounded-[18px] object-contain object-center p-4 transition duration-300 group-hover:scale-[1.01]"
                     />
                   </div>
-                </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    flexWrap: "wrap",
-                    padding: "14px 20px 0",
-                  }}
-                >
-                  <span style={asset.status === "Approved" ? approvedBadgeStyle : neutralBadgeStyle}>
-                    {asset.status}
-                  </span>
-
-                  <span style={infoBadgeStyle}>{asset.displayType}</span>
-
-                  <span style={darkBadgeStyle}>{asset.scale}</span>
-
-                  <span
-                    style={{
-                      ...infoBadgeStyle,
-                      marginLeft: "auto",
-                    }}
-                  >
-                    {asset.model3d ? "3D connected" : "Awaiting 3D"}
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    padding: "18px 20px 20px",
-                    display: "grid",
-                    gridTemplateColumns: "1.2fr 0.9fr",
-                    gap: "18px",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        letterSpacing: "0.18em",
-                        textTransform: "uppercase",
-                        color: "#7dd3fc",
-                        marginBottom: "12px",
-                      }}
-                    >
-                      Featured Asset
-                    </div>
-
-                    <h2
-                      style={{
-                        margin: 0,
-                        fontSize: "28px",
-                        lineHeight: 1.12,
-                        fontWeight: 800,
-                      }}
-                    >
-                      {asset.name}
-                    </h2>
-
-                    <div
-                      style={{
-                        marginTop: "8px",
-                        color: "rgba(255,255,255,0.78)",
-                        fontSize: "17px",
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {asset.id} · {asset.category}
-                    </div>
-
-                    <p
-                      style={{
-                        marginTop: "14px",
-                        color: "rgba(255,255,255,0.82)",
-                        fontSize: "17px",
-                        lineHeight: 1.7,
-                        marginBottom: "18px",
-                      }}
-                    >
-                      {asset.subtitle}
-                    </p>
-
-                    <Link href={asset.slug === "katana" ? "/naval/katana" : "#"}
-                      style={{
-                        padding: "9px 16px",
-                        borderRadius: "999px",
-                        border: "1px solid rgba(255,255,255,0.22)",
-                        background: "rgba(255,255,255,0.06)",
-                        color: "white",
-                        fontWeight: 700,
-                        fontSize: "14px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      View
-                    </Link>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gap: "12px",
-                      alignContent: "start",
-                    }}
-                  >
-                    {[
-                      ["Operational Readiness", asset.readiness],
-                      ["Support", asset.support],
-                      ["Presentation Level", asset.presentationLevel],
-                    ].map(([label, value]) => (
-                      <div
-                        key={label}
-                        style={{
-                          padding: "14px 16px",
-                          borderRadius: "18px",
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.12)",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: "11px",
-                            letterSpacing: "0.12em",
-                            textTransform: "uppercase",
-                            color: "rgba(255,255,255,0.72)",
-                            marginBottom: "8px",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {label}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "15px",
-                            lineHeight: 1.45,
-                            color: "white",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {value}
-                        </div>
-                      </div>
-                    ))}
+                  <div className="mt-3 flex flex-wrap justify-end gap-2 px-2 pb-1">
+                    <span className="inline-flex rounded-full border border-[rgba(92,214,126,0.35)] bg-[rgba(92,214,126,0.14)] px-2.5 py-1 text-[11px] text-[#9df0b2]">
+                      {asset.status}
+                    </span>
+                    <span className="inline-flex rounded-full border border-[rgba(93,214,255,0.35)] bg-[rgba(93,214,255,0.14)] px-2.5 py-1 text-[11px] text-[#8fe7ff]">
+                      {asset.displayType}
+                    </span>
+                    <span className="inline-flex rounded-full border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] px-2.5 py-1 text-[11px] text-[#e7ecff]">
+                      {asset.scale}
+                    </span>
                   </div>
                 </div>
-              </article>
-            ))}
-          </div>
 
-          <div
-            style={{
-              marginTop: "22px",
-              textAlign: "center",
-              fontSize: "12px",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.56)",
-            }}
-          >
-            Unclassified
-          </div>
+                <div className="flex flex-1 flex-col gap-4 p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-300">
+                        Featured Asset
+                      </p>
+                      <h2 className="mt-2 text-3xl font-extrabold leading-none">
+                        {asset.name}
+                      </h2>
+                      <p className="mt-2 text-sm text-slate-400">{asset.id}</p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-white">
+                      {asset.status === "Coming soon" ? "Soon" : "View"}
+                    </span>
+                  </div>
+
+                  <p className="text-sm font-medium leading-6 text-slate-200">
+                    {asset.subtitle}
+                  </p>
+
+                  <p className="text-sm leading-7 text-slate-400">
+                    {asset.category}
+                  </p>
+
+                  <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm text-slate-300">
+                    <span>Open Asset Page</span>
+                    <span className="font-semibold text-white">
+                      /naval/{asset.slug}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300/30 bg-gradient-to-r from-amber-300/12 via-yellow-200/8 to-amber-300/12 px-3 py-3 shadow-[0_0_28px_rgba(251,191,36,0.12)]">
+                <div className="inline-flex items-center rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.22em] text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.16)]">
+                  LIVE NAVAL EDIT
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleEdit(asset)}
+                    className="rounded-2xl border border-amber-200/70 bg-gradient-to-r from-amber-300/30 via-yellow-200/20 to-amber-300/30 px-5 py-2.5 text-sm font-extrabold tracking-[0.04em] text-amber-50 shadow-[0_0_0_1px_rgba(255,220,120,0.18),0_0_28px_rgba(251,191,36,0.24)] transition duration-200 hover:-translate-y-[1px] hover:border-amber-100/90 hover:from-amber-300/40 hover:to-yellow-200/30 hover:shadow-[0_0_0_1px_rgba(255,235,160,0.28),0_0_36px_rgba(251,191,36,0.34)]"
+                  >
+                    Edit Naval Data
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleReset(asset.slug)}
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </section>
+
       </div>
+      <ClassificationBadge label="Unclassified" />
     </main>
   );
 }
 
-const navButtonStyle = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: "44px",
-  padding: "0 16px",
-  borderRadius: "14px",
-  border: "1px solid rgba(125,211,252,0.35)",
-  background: "rgba(14, 22, 38, 0.72)",
-  color: "white",
-  textDecoration: "none",
-  fontSize: "14px",
-  fontWeight: 600,
-} as const;
-
-const approvedBadgeStyle = {
-  padding: "7px 12px",
-  borderRadius: "999px",
-  fontSize: "12px",
-  fontWeight: 700,
-  color: "#dcfce7",
-  background: "rgba(34,197,94,0.16)",
-  border: "1px solid rgba(34,197,94,0.42)",
-} as const;
-
-const neutralBadgeStyle = {
-  padding: "7px 12px",
-  borderRadius: "999px",
-  fontSize: "12px",
-  fontWeight: 700,
-  color: "#e5e7eb",
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.15)",
-} as const;
-
-const infoBadgeStyle = {
-  padding: "7px 12px",
-  borderRadius: "999px",
-  fontSize: "12px",
-  fontWeight: 700,
-  color: "#c4f1ff",
-  background: "rgba(14,165,233,0.14)",
-  border: "1px solid rgba(56,189,248,0.35)",
-} as const;
-
-const darkBadgeStyle = {
-  padding: "7px 12px",
-  borderRadius: "999px",
-  fontSize: "12px",
-  fontWeight: 700,
-  color: "white",
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.15)",
-} as const;
+function QuickPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-cyan-300/15 bg-white/[0.04] p-4">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-bold text-white">{value}</p>
+    </div>
+  );
+}
