@@ -605,22 +605,17 @@ function TentStage3D({
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* Dark base plane */}
+      {/* Exterior floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.38, 0]} receiveShadow>
         <planeGeometry args={[32, 32]} />
-        <meshStandardMaterial color="#1a1a2e" roughness={1} metalness={0} />
+        <meshStandardMaterial color="#0d0d1a" roughness={1} metalness={0} />
       </mesh>
 
-      {/* Blue carpet inside tent area */}
+      {/* Interior carpet */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.372, 0]} receiveShadow>
         <planeGeometry args={[12, 12]} />
-        <meshStandardMaterial color="#001a5e" emissive="#000d30" emissiveIntensity={0.45} roughness={0.9} metalness={0} />
+        <meshStandardMaterial color="#001040" emissive="#000820" emissiveIntensity={0.45} roughness={0.9} metalness={0} />
       </mesh>
-
-      {/* Hex grid — full area subtle, tent interior bright */}
-      <HexGrid hexSize={1.6} rows={9} opacity={0.4} color="#0088cc" />
-      <HexGrid hexSize={3.2} rows={4} opacity={0.3} />
-      <HexGrid hexSize={1.6} rows={4} opacity={0.9} color="#00ffff" />
 
       {/* Blue ground glow under the tent */}
       <pointLight position={[0, -1.3, 0]} color="#0044ff" intensity={2.0} distance={18} />
