@@ -362,10 +362,14 @@ function DynamicItem({
   item,
   isSelected,
   onSelect,
+  activeTool,
+  draggingId,
 }: {
   item: SceneItem;
   isSelected: boolean;
   onSelect: () => void;
+  activeTool: string;
+  draggingId: { current: string | null };
 }) {
   const modelPath = itemModelMap[item.type] ?? FALLBACK_MODEL;
   const gltf = useGLTF(modelPath);
@@ -378,6 +382,13 @@ function DynamicItem({
         rotation={[0, item.rotationY, 0]}
         scale={item.scale}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        onPointerDown={(e) => {
+          if (activeTool === "Move") {
+            e.stopPropagation();
+            onSelect();
+            draggingId.current = item.id;
+          }
+        }}
       >
         <primitive object={cloned} castShadow />
       </group>
@@ -403,7 +414,7 @@ const CAM_PRESETS = {
 
 type CameraMode = keyof typeof CAM_PRESETS;
 
-function CameraRig({ mode }: { mode: CameraMode }) {
+function CameraRig({ mode, draggingId }: { mode: CameraMode; draggingId: { current: string | null } }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const animating = useRef(false);
@@ -411,7 +422,9 @@ function CameraRig({ mode }: { mode: CameraMode }) {
   useEffect(() => { animating.current = true; }, [mode]);
 
   useFrame(() => {
-    if (!animating.current || !controlsRef.current) return;
+    if (!controlsRef.current) return;
+    controlsRef.current.enabled = draggingId.current === null;
+    if (!animating.current) return;
     const { pos, look } = CAM_PRESETS[mode];
     camera.position.lerp(pos, 0.12);
     controlsRef.current.target.lerp(look, 0.12);
@@ -465,17 +478,60 @@ function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85, color = "#00e5ff" }:
   );
 }
 
+function DragHandler({
+  draggingId,
+  onMoveItem,
+}: {
+  draggingId: { current: string | null };
+  onMoveItem: (id: string, x: number, z: number) => void;
+}) {
+  const { camera, gl } = useThree();
+  const floorPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.38), []);
+  const ray = useMemo(() => new THREE.Raycaster(), []);
+  const onMoveRef = useRef(onMoveItem);
+  onMoveRef.current = onMoveItem;
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      if (!draggingId.current) return;
+      const rect = gl.domElement.getBoundingClientRect();
+      const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      ray.setFromCamera({ x: nx, y: ny }, camera);
+      const hit = new THREE.Vector3();
+      if (ray.ray.intersectPlane(floorPlane, hit)) {
+        onMoveRef.current(draggingId.current, hit.x, hit.z);
+      }
+    };
+    const onUp = () => { draggingId.current = null; };
+    gl.domElement.addEventListener("pointermove", onMove);
+    gl.domElement.addEventListener("pointerup", onUp);
+    return () => {
+      gl.domElement.removeEventListener("pointermove", onMove);
+      gl.domElement.removeEventListener("pointerup", onUp);
+    };
+  }, [camera, gl, floorPlane, ray, draggingId]);
+
+  return null;
+}
+
 function TentStage3D({
   items,
   selectedId,
   onSelect,
   cameraMode,
+  activeTool,
+  onMoveItem,
 }: {
   items: SceneItem[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   cameraMode: CameraMode;
+  activeTool: string;
+  onMoveItem: (id: string, x: number, z: number) => void;
 }) {
+  const draggingId = useRef<string | null>(null);
+
   return (
     <Canvas
       shadows
@@ -530,16 +586,20 @@ function TentStage3D({
               item={item}
               isSelected={item.id === selectedId}
               onSelect={() => onSelect(item.id)}
+              activeTool={activeTool}
+              draggingId={draggingId}
             />
           ))}
         </>
       </Suspense>
 
+      <DragHandler draggingId={draggingId} onMoveItem={onMoveItem} />
+
       {/* Invisible deselect plane — clicking empty floor deselects */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -1.37, 0]}
-        onClick={(e) => { e.stopPropagation(); onSelect(null); }}
+        onClick={(e) => { e.stopPropagation(); if (!draggingId.current) onSelect(null); }}
       >
         <planeGeometry args={[32, 32]} />
         <meshBasicMaterial transparent opacity={0} />
@@ -567,7 +627,7 @@ function TentStage3D({
         resolution={1024}
       />
 
-      <CameraRig mode={cameraMode} />
+      <CameraRig mode={cameraMode} draggingId={draggingId} />
     </Canvas>
   );
 }
@@ -599,12 +659,20 @@ export default function TentsLayoutPage() {
       {
         id: newId,
         type,
-        position: [Math.cos(angle) * radius, -0.93, Math.sin(angle) * radius],
+        position: [Math.cos(angle) * radius, -1.38, Math.sin(angle) * radius],
         rotationY: 0,
         scale: 0.8,
       },
     ]);
     setSelectedItemId(newId);
+  }
+
+  function moveItem(id: string, x: number, z: number) {
+    setSceneItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, position: [x, item.position[1], z] } : item
+      )
+    );
   }
 
   function updateItemX(id: string, x: number) {
@@ -1384,6 +1452,8 @@ export default function TentsLayoutPage() {
                   selectedId={selectedItemId}
                   onSelect={setSelectedItemId}
                   cameraMode={cameraMode}
+                  activeTool={activeTool}
+                  onMoveItem={moveItem}
                 />
               </div>
 
