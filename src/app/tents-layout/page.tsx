@@ -600,13 +600,13 @@ function TentStage3D({
       {/* Exterior floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.38, 0]} receiveShadow>
         <planeGeometry args={[32, 32]} />
-        <meshStandardMaterial color="#0d0d1a" roughness={1} metalness={0} />
+        <meshStandardMaterial color="#12122a" roughness={1} metalness={0} />
       </mesh>
 
       {/* Interior carpet — polished blue */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.372, 0]} receiveShadow>
         <planeGeometry args={[12, 12]} />
-        <meshStandardMaterial color="#001855" emissive="#001040" emissiveIntensity={0.8} roughness={0.1} metalness={0.3} />
+        <meshStandardMaterial color="#0033aa" emissive="#001f6e" emissiveIntensity={0.6} roughness={0.1} metalness={0.3} />
       </mesh>
 
       {/* Blue ground glow under the tent */}
