@@ -398,7 +398,7 @@ function DynamicItem({
 
 const CAM_PRESETS = {
   overview: { pos: new THREE.Vector3(14, 11, 14), look: new THREE.Vector3(0, -1, 0) },
-  tent:     { pos: new THREE.Vector3(0, -0.2, 6), look: new THREE.Vector3(0, -1, 0) },
+  tent:     { pos: new THREE.Vector3(0, -0.8, 3), look: new THREE.Vector3(0, -1, -2) },
 } as const;
 
 type CameraMode = keyof typeof CAM_PRESETS;
@@ -429,10 +429,8 @@ function CameraRig({ mode }: { mode: CameraMode }) {
       ref={controlsRef}
       enablePan={true}
       enableZoom={true}
-      minDistance={3}
-      maxDistance={22}
-      minPolarAngle={0.25}
-      maxPolarAngle={1.45}
+      minDistance={0.5}
+      maxDistance={25}
       target={[0, -1, 0]}
     />
   );
