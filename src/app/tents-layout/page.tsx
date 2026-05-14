@@ -215,7 +215,19 @@ const TENT_MODEL_PATH = "/models/inventory/tent-20-30-iai-blue-01.glb";
 
 function TentModel3D() {
   const gltf = useGLTF(TENT_MODEL_PATH);
-  const cloned = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  const cloned = useMemo(() => {
+    const scene = gltf.scene.clone(true);
+    scene.traverse((child: any) => {
+      if (child.isMesh && child.material) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat: any) => {
+          mat.emissive = new THREE.Color("#001a44");
+          mat.emissiveIntensity = 0.55;
+        });
+      }
+    });
+    return scene;
+  }, [gltf.scene]);
 
   return (
     <primitive
@@ -426,7 +438,7 @@ function CameraRig({ mode }: { mode: CameraMode }) {
   );
 }
 
-function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85 }: { hexSize?: number; rows?: number; opacity?: number }) {
+function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85, color = "#00e5ff" }: { hexSize?: number; rows?: number; opacity?: number; color?: string }) {
   const geometry = useMemo(() => {
     const positions: number[] = [];
     for (let q = -rows; q <= rows; q++) {
@@ -450,7 +462,7 @@ function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85 }: { hexSize?: number
 
   return (
     <lineSegments geometry={geometry} position={[0, -1.36, 0]}>
-      <lineBasicMaterial color="#00e5ff" transparent opacity={opacity} />
+      <lineBasicMaterial color={color} transparent opacity={opacity} />
     </lineSegments>
   );
 }
@@ -542,8 +554,11 @@ function TentStage3D({
       </mesh>
 
       {/* Hexagonal neon grid — fine inner + bright outer ring */}
-      <HexGrid hexSize={1.6} rows={9} />
+      <HexGrid hexSize={1.6} rows={9} opacity={1.0} color="#22ffff" />
       <HexGrid hexSize={3.2} rows={4} opacity={0.6} />
+
+      {/* Blue ground glow under the tent */}
+      <pointLight position={[0, -1.3, 0]} color="#0044ff" intensity={2.0} distance={18} />
 
       <ContactShadows
         position={[0, -1.36, 0]}
