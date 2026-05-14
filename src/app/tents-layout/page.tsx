@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -478,6 +478,16 @@ function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85, color = "#00e5ff" }:
   );
 }
 
+function FloorLogo({ position, rotY = 0 }: { position: [number, number, number]; rotY?: number }) {
+  const texture = useTexture("/covers/iai-white.png");
+  return (
+    <mesh position={position} rotation={[-Math.PI / 2, rotY, 0]}>
+      <planeGeometry args={[3, 3]} />
+      <meshBasicMaterial map={texture} transparent opacity={0.25} blending={THREE.AdditiveBlending} depthWrite={false} />
+    </mesh>
+  );
+}
+
 function DragHandler({
   draggingId,
   onMoveItem,
@@ -545,18 +555,10 @@ function TentStage3D({
       <directionalLight position={[-5, 4, -4]} intensity={0.5} />
 
       {/* Corner spotlights — dramatic downlighting */}
-      <spotLight position={[-11, 14, -11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
-      <spotLight position={[ 11, 14, -11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
-      <spotLight position={[-11, 14,  11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
-      <spotLight position={[ 11, 14,  11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
-
-      {/* Volumetric spotlight beam cones */}
-      {([[-11, -11], [11, -11], [-11, 11], [11, 11]] as [number, number][]).map(([x, z], i) => (
-        <mesh key={i} position={[x, 6.32, z]}>
-          <cylinderGeometry args={[0.3, 4.2, 15.4, 24, 1, true]} />
-          <meshBasicMaterial color="#00ccff" transparent opacity={0.055} side={THREE.DoubleSide} />
-        </mesh>
-      ))}
+      <spotLight position={[-10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
+      <spotLight position={[ 10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
+      <spotLight position={[-10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
+      <spotLight position={[ 10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
 
       <Suspense
         fallback={
@@ -580,6 +582,8 @@ function TentStage3D({
       >
         <>
           <TentModel3D />
+          <FloorLogo position={[0, -1.36, 6]} />
+          <FloorLogo position={[0, -1.36, -6]} rotY={Math.PI} />
           {items.map((item) => (
             <DynamicItem
               key={item.id}
@@ -611,10 +615,10 @@ function TentStage3D({
         <meshStandardMaterial color="#0d0d1a" roughness={1} metalness={0} />
       </mesh>
 
-      {/* Interior carpet */}
+      {/* Interior carpet — polished blue */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.372, 0]} receiveShadow>
         <planeGeometry args={[12, 12]} />
-        <meshStandardMaterial color="#001040" emissive="#000820" emissiveIntensity={0.45} roughness={0.9} metalness={0} />
+        <meshStandardMaterial color="#001855" emissive="#001040" emissiveIntensity={0.8} roughness={0.1} metalness={0.3} />
       </mesh>
 
       {/* Blue ground glow under the tent */}
