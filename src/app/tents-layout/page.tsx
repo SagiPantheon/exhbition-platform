@@ -1,63 +1,66 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import * as THREE from "three";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 const leftItems = [
-  "Missile System",
-  "Launcher",
-  "Vehicle",
-  "Radar",
-  "Flag Set",
-  "Screen Stand",
+  "מערכת טילים",
+  "משגר",
+  "רכב",
+  'מכ"ם',
+  "דגל",
+  "עמדת מסך",
 ];
 
 const rightItems = [
-  "Table",
-  "Chair",
-  "Sofa",
-  "Display Screen",
-  "Coffee Bar",
-  "Lectern",
-  "Projector",
-  "Speaker",
+  "שולחן",
+  "כיסא",
+  "ספה",
+  "מסך",
+  "בר קפה",
+  "דוכן",
+  "מקרן",
+  "רמקול",
 ];
 
 const previewMap: Record<string, string> = {
-  "Missile System": "/images/air/arrow-3-launcher-showcase.png",
-  "Launcher": "/images/air/arrow-3-launcher-showcase.png",
-  "Vehicle": "/images/air/lora-showcase.png",
-  "Radar": "/images/air/mmr-radar-showcase.png",
-  "Flag Set": "/inventory/flag-pair-iai-israel-01.png",
-  "Screen Stand": "/inventory/sign-stand-silver-a4-01.png",
-  "Control Desk": "/inventory/sign-stand-black-a4-01.png",
-  "Drone": "/images/air/arrow-3-launcher-showcase.png",
+  "מערכת טילים": "/images/air/arrow-3-launcher-showcase.png",
+  "משגר":        "/images/air/arrow-3-launcher-showcase.png",
+  "רכב":         "/images/air/lora-showcase.png",
+  'מכ"ם':        "/images/air/mmr-radar-showcase.png",
+  "דגל":         "/inventory/flag-pair-iai-israel-01.png",
+  "עמדת מסך":    "/inventory/sign-stand-silver-a4-01.png",
+  "דוכן שליטה":  "/inventory/sign-stand-black-a4-01.png",
+  'כטב"ם':       "/images/air/arrow-3-launcher-showcase.png",
 
-  "Table": "/inventory/table-cover-iai-blue-01.png",
-  "Chair": "/inventory/chair-folding-white-01.png",
-  "Sofa": "/inventory/sofa-01.png",
-  "Display Screen": "/inventory/sign-stand-black-a4-01.png",
-  "Coffee Bar": "/inventory/lectern-acrylic-01.png",
-  "Lectern": "/inventory/lectern-acrylic-01.png",
-  "Projector": "/inventory/projector-01.png",
-  "Speaker": "/inventory/speaker-01.png",
+  "שולחן": "/inventory/table-cover-iai-blue-01.png",
+  "כיסא":  "/inventory/chair-folding-white-01.png",
+  "ספה":   "/inventory/sofa-01.png",
+  "מסך":   "/inventory/sign-stand-black-a4-01.png",
+  "בר קפה": "/inventory/lectern-acrylic-01.png",
+  "דוכן":  "/inventory/lectern-acrylic-01.png",
+  "מקרן":  "/inventory/projector-01.png",
+  "רמקול": "/inventory/speaker-01.png",
 };
 
 type SceneItem = {
   id: string;
   type: string;
   position: [number, number, number];
+  rotationY: number;
+  scale: number;
 };
 
 const statusItems = [
-  ["Tent 25x15", "Active template"],
-  ["25m", "Length"],
-  ["15m", "Width"],
-  ["375m²", "Area"],
-  ["42", "Elements"],
-  ["96%", "Readiness"],
+  ["אוהל 25x15", "תבנית פעילה"],
+  ["25m", "אורך"],
+  ["15m", "רוחב"],
+  ["375m²", "שטח"],
+  ["42", "רכיבים"],
+  ["96%", "מוכנות"],
 ];
 
 function TopPill({
@@ -170,6 +173,44 @@ function SideActionCard({ title }: { title: string }) {
 }
 
 
+function SliderControl({
+  label,
+  min,
+  max,
+  step,
+  value,
+  onChange,
+}: {
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: "130px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(180,220,255,0.8)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+          {label}
+        </span>
+        <span style={{ fontSize: "12px", fontWeight: 800, color: "#00e5ff", fontVariantNumeric: "tabular-nums" }}>
+          {value.toFixed(2)}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        style={{ width: "100%", accentColor: "#00e5ff", cursor: "pointer" }}
+      />
+    </div>
+  );
+}
+
 const TENT_MODEL_PATH = "/models/inventory/tent-20-30-iai-blue-01.glb";
 
 function TentModel3D() {
@@ -181,7 +222,7 @@ function TentModel3D() {
       object={cloned}
       position={[0, -1.45, 0]}
       rotation={[0, 0.62, 0]}
-      scale={4.8}
+      scale={9.6}
     />
   );
 }
@@ -284,16 +325,147 @@ function InventorySet3D() {
   );
 }
 
-function DynamicItem({ item }: { item: SceneItem }) {
+const itemModelMap: Record<string, string> = {
+  "מערכת טילים": "/models/air/arrow-3-launcher.glb",
+  "משגר":        "/models/air/arrow-3-launcher.glb",
+  "רכב":         "/models/land/zmag-showcase-3d.glb",
+  'מכ"ם':        "/models/air/mmr.glb",
+  "דגל":         "/models/inventory/flag-pair-iai-israel-01.glb",
+  "עמדת מסך":    "/models/inventory/lightbox-vertical-iai-01.glb",
+  "דוכן שליטה":  "/models/inventory/lightbox-horizontal-iai-01.glb",
+  'כטב"ם':       "/models/air/wanderb-showcase-3d.glb",
+  "שולחן":       "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "כיסא":        "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "ספה":         "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "מסך":         "/models/inventory/lightbox-vertical-iai-01.glb",
+  "בר קפה":      "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "דוכן":        "/models/inventory/lightbox-vertical-iai-01.glb",
+  "מקרן":        "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "רמקול":       "/models/inventory/lightbox-vertical-iai-01.glb",
+};
+
+const FALLBACK_MODEL = "/models/inventory/flag-pair-iai-israel-01.glb";
+
+function DynamicItem({
+  item,
+  isSelected,
+  onSelect,
+}: {
+  item: SceneItem;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const modelPath = itemModelMap[item.type] ?? FALLBACK_MODEL;
+  const gltf = useGLTF(modelPath);
+  const cloned = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+
   return (
-    <mesh position={item.position} castShadow receiveShadow>
-      <boxGeometry args={[0.6, 0.9, 0.6]} />
-      <meshStandardMaterial color="#22d3ee" emissive="#0e7490" emissiveIntensity={0.4} roughness={0.5} metalness={0.3} />
-    </mesh>
+    <>
+      <group
+        position={item.position}
+        rotation={[0, item.rotationY, 0]}
+        scale={item.scale}
+        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+      >
+        <primitive object={cloned} castShadow />
+      </group>
+
+      {/* Selection ring sits on the floor in world space — unaffected by item scale */}
+      {isSelected && (
+        <mesh
+          position={[item.position[0], -1.35, item.position[2]]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[0.9, 1.25, 48]} />
+          <meshBasicMaterial color="#00e5ff" transparent opacity={0.9} />
+        </mesh>
+      )}
+    </>
   );
 }
 
-function TentStage3D({ items }: { items: SceneItem[] }) {
+const CAM_PRESETS = {
+  overview: { pos: new THREE.Vector3(14, 11, 14), look: new THREE.Vector3(0, -1, 0) },
+  tent:     { pos: new THREE.Vector3(0, -0.2, 6), look: new THREE.Vector3(0, -1, 0) },
+} as const;
+
+type CameraMode = keyof typeof CAM_PRESETS;
+
+function CameraRig({ mode }: { mode: CameraMode }) {
+  const { camera } = useThree();
+  const controlsRef = useRef<any>(null);
+  const animating = useRef(false);
+
+  useEffect(() => { animating.current = true; }, [mode]);
+
+  useFrame(() => {
+    if (!animating.current || !controlsRef.current) return;
+    const { pos, look } = CAM_PRESETS[mode];
+    camera.position.lerp(pos, 0.07);
+    controlsRef.current.target.lerp(look, 0.07);
+    controlsRef.current.update();
+    if (camera.position.distanceTo(pos) < 0.08) {
+      camera.position.copy(pos);
+      controlsRef.current.target.copy(look);
+      controlsRef.current.update();
+      animating.current = false;
+    }
+  });
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      enablePan={true}
+      enableZoom={true}
+      minDistance={3}
+      maxDistance={22}
+      minPolarAngle={0.25}
+      maxPolarAngle={1.45}
+      target={[0, -1, 0]}
+    />
+  );
+}
+
+function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85 }: { hexSize?: number; rows?: number; opacity?: number }) {
+  const geometry = useMemo(() => {
+    const positions: number[] = [];
+    for (let q = -rows; q <= rows; q++) {
+      for (let s = Math.max(-rows, -q - rows); s <= Math.min(rows, -q + rows); s++) {
+        const cx = hexSize * (3 / 2) * q;
+        const cz = hexSize * (Math.sqrt(3) * s + (Math.sqrt(3) / 2) * q);
+        for (let i = 0; i < 6; i++) {
+          const a1 = (Math.PI / 3) * i - Math.PI / 6;
+          const a2 = (Math.PI / 3) * (i + 1) - Math.PI / 6;
+          positions.push(
+            cx + hexSize * Math.cos(a1), 0, cz + hexSize * Math.sin(a1),
+            cx + hexSize * Math.cos(a2), 0, cz + hexSize * Math.sin(a2)
+          );
+        }
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    return geo;
+  }, [hexSize, rows]);
+
+  return (
+    <lineSegments geometry={geometry} position={[0, -1.36, 0]}>
+      <lineBasicMaterial color="#00e5ff" transparent opacity={opacity} />
+    </lineSegments>
+  );
+}
+
+function TentStage3D({
+  items,
+  selectedId,
+  onSelect,
+  cameraMode,
+}: {
+  items: SceneItem[];
+  selectedId: string | null;
+  onSelect: (id: string | null) => void;
+  cameraMode: CameraMode;
+}) {
   return (
     <Canvas
       shadows
@@ -302,16 +474,23 @@ function TentStage3D({ items }: { items: SceneItem[] }) {
       style={{ width: "100%", height: "100%" }}
     >
       <PerspectiveCamera makeDefault position={[12, 10, 12]} fov={40} />
-      <ambientLight intensity={1.25} />
-      <directionalLight
-        position={[7, 10, 6]}
-        intensity={2.2}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-      />
-      <directionalLight position={[-5, 4, -4]} intensity={0.7} />
-      <spotLight position={[0, 8, 0]} intensity={0.45} angle={0.34} penumbra={1} />
+      <ambientLight intensity={1.4} />
+      <directionalLight position={[7, 10, 6]} intensity={1.6} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
+      <directionalLight position={[-5, 4, -4]} intensity={0.5} />
+
+      {/* Corner spotlights — dramatic downlighting */}
+      <spotLight position={[-11, 14, -11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
+      <spotLight position={[ 11, 14, -11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
+      <spotLight position={[-11, 14,  11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
+      <spotLight position={[ 11, 14,  11]} intensity={3.5} angle={0.32} penumbra={0.9} color="#b0d8ff" castShadow />
+
+      {/* Volumetric spotlight beam cones */}
+      {([[-11, -11], [11, -11], [-11, 11], [11, 11]] as [number, number][]).map(([x, z], i) => (
+        <mesh key={i} position={[x, 6.32, z]}>
+          <cylinderGeometry args={[0.3, 4.2, 15.4, 24, 1, true]} />
+          <meshBasicMaterial color="#00ccff" transparent opacity={0.055} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
 
       <Suspense
         fallback={
@@ -328,7 +507,7 @@ function TentStage3D({ items }: { items: SceneItem[] }) {
                 whiteSpace: "nowrap",
               }}
             >
-              Loading tent model…
+              טוען מודל אוהל…
             </div>
           </Html>
         }
@@ -336,10 +515,25 @@ function TentStage3D({ items }: { items: SceneItem[] }) {
         <>
           <TentModel3D />
           {items.map((item) => (
-            <DynamicItem key={item.id} item={item} />
+            <DynamicItem
+              key={item.id}
+              item={item}
+              isSelected={item.id === selectedId}
+              onSelect={() => onSelect(item.id)}
+            />
           ))}
         </>
       </Suspense>
+
+      {/* Invisible deselect plane — clicking empty floor deselects */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -1.37, 0]}
+        onClick={(e) => { e.stopPropagation(); onSelect(null); }}
+      >
+        <planeGeometry args={[32, 32]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
 
       {/* Dark base plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.38, 0]} receiveShadow>
@@ -347,10 +541,9 @@ function TentStage3D({ items }: { items: SceneItem[] }) {
         <meshStandardMaterial color="#040b18" roughness={1} metalness={0} />
       </mesh>
 
-      {/* Neon grid — primary cyan lines */}
-      <gridHelper args={[32, 32, "#00c8ff", "#0a2a40"]} position={[0, -1.37, 0]} />
-      {/* Second coarser grid — brighter accent for 4-unit sections */}
-      <gridHelper args={[32, 8, "#22d3ee", "#0d3050"]} position={[0, -1.36, 0]} />
+      {/* Hexagonal neon grid — fine inner + bright outer ring */}
+      <HexGrid hexSize={1.6} rows={9} />
+      <HexGrid hexSize={3.2} rows={4} opacity={0.6} />
 
       <ContactShadows
         position={[0, -1.36, 0]}
@@ -361,40 +554,85 @@ function TentStage3D({ items }: { items: SceneItem[] }) {
         resolution={1024}
       />
 
-      <OrbitControls
-        enablePan={true}
-        enableZoom={true}
-        minDistance={8}
-        maxDistance={22}
-        minPolarAngle={0.25}
-        maxPolarAngle={1.35}
-        target={[0, -1, 0]}
-      />
+      <CameraRig mode={cameraMode} />
     </Canvas>
   );
 }
 
 useGLTF.preload(TENT_MODEL_PATH);
+useGLTF.preload("/models/air/arrow-3-launcher.glb");
+useGLTF.preload("/models/land/zmag-showcase-3d.glb");
+useGLTF.preload("/models/air/mmr.glb");
+useGLTF.preload("/models/air/wanderb-showcase-3d.glb");
+useGLTF.preload("/models/inventory/flag-pair-iai-israel-01.glb");
+useGLTF.preload("/models/inventory/lightbox-vertical-iai-01.glb");
+useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
 
 export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [activeTool, setActiveTool] = useState("Select");
+  const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
+
+  const selectedItem = sceneItems.find((i) => i.id === selectedItemId) ?? null;
 
   function addItem(type: string) {
     const angle = Math.random() * Math.PI * 2;
-    const radius = 5.5 + Math.random() * 4.5; // ring 5.5–10 units out from tent center
+    const radius = 5.5 + Math.random() * 4.5;
+    const newId = `${type}-${Date.now()}`;
     setSceneItems((prev) => [
       ...prev,
       {
-        id: `${type}-${Date.now()}`,
+        id: newId,
         type,
-        position: [
-          Math.cos(angle) * radius,
-          -0.93,  // box center: floor at -1.38 + half-height 0.45
-          Math.sin(angle) * radius,
-        ],
+        position: [Math.cos(angle) * radius, -0.93, Math.sin(angle) * radius],
+        rotationY: 0,
+        scale: 0.8,
       },
     ]);
+    setSelectedItemId(newId);
+  }
+
+  function updateItemX(id: string, x: number) {
+    setSceneItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, position: [x, item.position[1], item.position[2]] }
+          : item
+      )
+    );
+  }
+
+  function updateItemZ(id: string, z: number) {
+    setSceneItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, position: [item.position[0], item.position[1], z] }
+          : item
+      )
+    );
+  }
+
+  function updateItemScale(id: string, scale: number) {
+    setSceneItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, scale } : item))
+    );
+  }
+
+  function rotateItem(id: string) {
+    setSceneItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, rotationY: item.rotationY + Math.PI / 2 }
+          : item
+      )
+    );
+  }
+
+  function deleteItem(id: string) {
+    setSceneItems((prev) => prev.filter((item) => item.id !== id));
+    setSelectedItemId(null);
   }
 
   return (
@@ -402,10 +640,11 @@ export default function TentsLayoutPage() {
       style={{
         minHeight: "100vh",
         background:
-          "radial-gradient(circle at top, rgba(56,189,248,0.12), transparent 24%), linear-gradient(180deg, #050b16 0%, #040914 100%)",
+          "radial-gradient(circle at top, rgba(0,120,200,0.08), transparent 20%), linear-gradient(180deg, #020710 0%, #01040c 100%)",
         color: "#eaf4ff",
       }}
     >
+
       <div
         style={{
           maxWidth: focusMode ? "100vw" : "1880px",
@@ -438,7 +677,7 @@ export default function TentsLayoutPage() {
                 letterSpacing: "0.06em",
               }}
             >
-              EXHIBITION HUB
+              מרכז תצוגה
             </div>
 
             {!focusMode ? (
@@ -450,7 +689,7 @@ export default function TentsLayoutPage() {
                   color: "rgba(180,220,255,0.68)",
                 }}
               >
-                Tents / Layout
+                אוהלים / פריסה
               </div>
             ) : null}
           </div>
@@ -469,10 +708,10 @@ export default function TentsLayoutPage() {
             {!focusMode ? (
               <>
                 <span style={{ color: "rgba(234,244,255,0.74)", fontSize: "13px" }}>
-                  Dashboard
+                  לוח בקרה
                 </span>
                 <span style={{ color: "rgba(234,244,255,0.74)", fontSize: "13px" }}>
-                  Planning
+                  תכנון
                 </span>
               </>
             ) : null}
@@ -495,7 +734,7 @@ export default function TentsLayoutPage() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Exit Focus
+                  יציאה
                 </button>
 
                 <button
@@ -513,7 +752,7 @@ export default function TentsLayoutPage() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  ← Back
+                  → חזרה
                 </button>
 
                 <a
@@ -530,7 +769,7 @@ export default function TentsLayoutPage() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Home
+                  בית
                 </a>
               </>
             ) : (
@@ -550,7 +789,7 @@ export default function TentsLayoutPage() {
                   whiteSpace: "nowrap",
                 }}
               >
-                Focus Mode
+                מצב מיקוד
               </button>
             )}
           </div>
@@ -573,18 +812,18 @@ export default function TentsLayoutPage() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-              <span style={{ color: "rgba(180,220,255,0.76)" }}>Layout Planning</span>
+              <span style={{ color: "rgba(180,220,255,0.76)" }}>תכנון פריסה</span>
               <span style={{ color: "rgba(125,211,252,0.7)" }}>•</span>
-              <strong style={{ fontSize: "18px" }}>Tent 25x15</strong>
+              <strong style={{ fontSize: "18px" }}>אוהל 25x15</strong>
               <span style={{ color: "rgba(180,220,255,0.7)" }}>
-                Main operational shell rebuilt cleanly
+                מעטפת תפעולית ראשית
               </span>
             </div>
 
             <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              <TopPill label="Preview" />
-              <TopPill label="Save" />
-              <TopPill label="Export Plan" active />
+              <TopPill label="תצוגה מקדימה" />
+              <TopPill label="שמירה" />
+              <TopPill label="ייצוא תוכנית" active />
             </div>
           </section>
         ) : null}
@@ -604,9 +843,9 @@ export default function TentsLayoutPage() {
               flexWrap: "wrap",
             }}
           >
-            <TopPill label="1. Scene Setup" active />
-            <TopPill label="2. Assets & Content" />
-            <TopPill label="3. Review & Presentation" />
+            <TopPill label="1. הגדרת סצנה" active />
+            <TopPill label="2. נכסים ותוכן" />
+            <TopPill label="3. סקירה ומצגת" />
           </section>
         ) : null}
 
@@ -650,7 +889,7 @@ export default function TentsLayoutPage() {
                       color: "#f8fbff",
                     }}
                   >
-                    Exhibit Library
+                    ספריית תצוגה
                   </div>
                   {sceneItems.length > 0 && (
                     <div style={{
@@ -662,7 +901,7 @@ export default function TentsLayoutPage() {
                       borderRadius: "999px",
                       padding: "2px 8px",
                     }}>
-                      {sceneItems.length} in scene
+                      {sceneItems.length} בסצנה
                     </div>
                   )}
                 </div>
@@ -698,7 +937,7 @@ export default function TentsLayoutPage() {
                   flexWrap: "wrap",
                 }}
               >
-                {["All", "Space", "Air", "Land", "Naval"].map((tag, idx) => (
+                {["הכל", "חלל", "אוויר", "יבשה", "ים"].map((tag, idx) => (
                   <div
                     key={tag}
                     style={{
@@ -735,20 +974,22 @@ export default function TentsLayoutPage() {
                 }}
               >
                 {[
-                  "Missile System",
-                  "Launcher",
-                  "Vehicle",
-                  "Radar",
-                  "Flag Set",
-                  "Screen Stand",
-                  "Control Desk",
-                  "Drone"
+                  "מערכת טילים",
+                  "משגר",
+                  "רכב",
+                  'מכ"ם',
+                  "דגל",
+                  "עמדת מסך",
+                  "דוכן שליטה",
+                  'כטב"ם',
                 ].map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => addItem(item)}
                     style={{
+                      position: "relative",
+                      zIndex: 10,
                       minHeight: "126px",
                       borderRadius: "16px",
                       border: "1px solid rgba(148,163,184,0.16)",
@@ -839,7 +1080,7 @@ export default function TentsLayoutPage() {
                 position: "absolute",
                 inset: 0,
                 background:
-                  "radial-gradient(circle at 50% 44%, rgba(37,99,235,0.26), transparent 38%)",
+                  "radial-gradient(circle at 50% 44%, rgba(20,60,140,0.18), transparent 40%)",
                 pointerEvents: "none",
               }}
             />
@@ -863,28 +1104,70 @@ export default function TentsLayoutPage() {
                   background: "rgba(8,16,32,0.78)",
                   boxShadow: "0 10px 28px rgba(0,0,0,0.22)",
                   flexWrap: "wrap",
+                  alignItems: "center",
                 }}
               >
-                {["Select", "Move", "Rotate", "Zoom", "View"].map((tool, idx) => (
-                  <div
-                    key={tool}
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: "11px",
-                      border: idx === 0
-                        ? "1px solid rgba(56,189,248,0.50)"
-                        : "1px solid rgba(148,163,184,0.18)",
-                      background: idx === 0
-                        ? "rgba(34,211,238,0.14)"
-                        : "rgba(255,255,255,0.03)",
-                      color: "#f8fbff",
-                      fontSize: "13px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {tool}
-                  </div>
-                ))}
+                {["Select", "Move", "Rotate", "Zoom", "View"].map((tool) => {
+                  const isActive = activeTool === tool;
+                  return (
+                    <button
+                      key={tool}
+                      type="button"
+                      onClick={() => setActiveTool(tool)}
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: "11px",
+                        border: isActive
+                          ? "1px solid rgba(0,229,255,0.60)"
+                          : "1px solid rgba(148,163,184,0.18)",
+                        background: isActive
+                          ? "rgba(0,229,255,0.16)"
+                          : "rgba(255,255,255,0.03)",
+                        color: isActive ? "#00e5ff" : "#f8fbff",
+                        fontSize: "13px",
+                        fontWeight: isActive ? 800 : 700,
+                        cursor: "pointer",
+                        transition: "all 150ms ease",
+                      }}
+                    >
+                      {tool}
+                    </button>
+                  );
+                })}
+
+                {/* Separator */}
+                <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+
+                {/* Camera preset buttons */}
+                {(["overview", "tent"] as CameraMode[]).map((mode) => {
+                  const label = mode === "overview" ? "🌐 סקירה" : "⛺ כניסה לאוהל";
+                  const isActive = cameraMode === mode;
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setCameraMode(mode)}
+                      style={{
+                        padding: "8px 14px",
+                        borderRadius: "11px",
+                        border: isActive
+                          ? "1px solid rgba(56,189,248,0.60)"
+                          : "1px solid rgba(148,163,184,0.18)",
+                        background: isActive
+                          ? "rgba(56,189,248,0.16)"
+                          : "rgba(255,255,255,0.03)",
+                        color: isActive ? "#7dd3fc" : "#f8fbff",
+                        fontSize: "12px",
+                        fontWeight: isActive ? 800 : 700,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        transition: "all 150ms ease",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -1083,7 +1366,12 @@ export default function TentsLayoutPage() {
                   pointerEvents: "auto",
                 }}
               >
-                <TentStage3D items={sceneItems} />
+                <TentStage3D
+                  items={sceneItems}
+                  selectedId={selectedItemId}
+                  onSelect={setSelectedItemId}
+                  cameraMode={cameraMode}
+                />
               </div>
 
               <div
@@ -1106,7 +1394,7 @@ export default function TentsLayoutPage() {
                   boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
                 }}
               >
-                Tent 3D Loaded
+                אוהל נטען
               </div>
             </div>
           </section>
@@ -1141,7 +1429,7 @@ export default function TentsLayoutPage() {
                       color: "#f8fbff",
                     }}
                   >
-                    Interior & Inventory
+                    פנים ומלאי
                   </div>
                   {sceneItems.length > 0 && (
                     <div style={{
@@ -1153,7 +1441,7 @@ export default function TentsLayoutPage() {
                       borderRadius: "999px",
                       padding: "2px 8px",
                     }}>
-                      {sceneItems.length} in scene
+                      {sceneItems.length} בסצנה
                     </div>
                   )}
                 </div>
@@ -1189,7 +1477,7 @@ export default function TentsLayoutPage() {
                   flexWrap: "wrap",
                 }}
               >
-                {["All", "Furniture", "Media", "VIP", "Service"].map((tag, idx) => (
+                {["הכל", "ריהוט", "מדיה", "VIP", "שירות"].map((tag, idx) => (
                   <div
                     key={tag}
                     style={{
@@ -1226,20 +1514,22 @@ export default function TentsLayoutPage() {
                 }}
               >
                 {[
-                  "Table",
-                  "Chair",
-                  "Sofa",
-                  "Display Screen",
-                  "Coffee Bar",
-                  "Lectern",
-                  "Projector",
-                  "Speaker"
+                  "שולחן",
+                  "כיסא",
+                  "ספה",
+                  "מסך",
+                  "בר קפה",
+                  "דוכן",
+                  "מקרן",
+                  "רמקול",
                 ].map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => addItem(item)}
                     style={{
+                      position: "relative",
+                      zIndex: 10,
                       minHeight: "126px",
                       borderRadius: "16px",
                       border: "1px solid rgba(148,163,184,0.16)",
@@ -1312,6 +1602,147 @@ export default function TentsLayoutPage() {
             </aside>
           ) : null}
         </section>
+        {/* ITEM CONTROL PANEL */}
+        {selectedItem !== null && (
+          <section
+            style={{
+              marginTop: "14px",
+              borderRadius: "20px",
+              border: "1px solid rgba(0,229,255,0.28)",
+              background:
+                "linear-gradient(180deg, rgba(0,30,55,0.96) 0%, rgba(4,12,26,0.98) 100%)",
+              padding: "16px 20px",
+              boxShadow: "0 0 32px rgba(0,229,255,0.10)",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "20px",
+            }}
+          >
+            {/* Name badge */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                minWidth: "160px",
+              }}
+            >
+              <div
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "999px",
+                  background: "#00e5ff",
+                  boxShadow: "0 0 8px #00e5ff",
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 800,
+                  color: "#f0faff",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {selectedItem.type}
+              </span>
+            </div>
+
+            {/* X slider */}
+            <SliderControl
+              label="X"
+              min={-10}
+              max={10}
+              step={0.1}
+              value={selectedItem.position[0]}
+              onChange={(v) => updateItemX(selectedItemId!, v)}
+            />
+
+            {/* Z slider */}
+            <SliderControl
+              label="Z"
+              min={-10}
+              max={10}
+              step={0.1}
+              value={selectedItem.position[2]}
+              onChange={(v) => updateItemZ(selectedItemId!, v)}
+            />
+
+            {/* Scale slider */}
+            <SliderControl
+              label="גודל"
+              min={0.3}
+              max={2.0}
+              step={0.05}
+              value={selectedItem.scale}
+              onChange={(v) => updateItemScale(selectedItemId!, v)}
+            />
+
+            {/* Actions */}
+            <div style={{ display: "flex", gap: "8px", marginLeft: "auto", flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => rotateItem(selectedItemId!)}
+                style={{
+                  padding: "9px 16px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(0,229,255,0.40)",
+                  background: "rgba(0,229,255,0.10)",
+                  color: "#00e5ff",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                ↺ סיבוב 90°
+              </button>
+              <button
+                type="button"
+                onClick={() => deleteItem(selectedItemId!)}
+                style={{
+                  padding: "9px 16px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(239,68,68,0.40)",
+                  background: "rgba(239,68,68,0.10)",
+                  color: "#fca5a5",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                מחיקה
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* CLEAR ALL + BOTTOM STATUS */}
+        {sceneItems.length > 0 && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
+            <button
+              type="button"
+              onClick={() => { setSceneItems([]); setSelectedItemId(null); }}
+              style={{
+                padding: "9px 18px",
+                borderRadius: "12px",
+                border: "1px solid rgba(239,68,68,0.38)",
+                background: "rgba(239,68,68,0.10)",
+                color: "#fca5a5",
+                fontSize: "13px",
+                fontWeight: 700,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              נקה הכל
+            </button>
+          </div>
+        )}
+
         {/* BOTTOM STATUS */}
         <section
           style={{
@@ -1360,7 +1791,7 @@ export default function TentsLayoutPage() {
                   marginBottom: "5px",
                 }}
               >
-                {label === "Elements" ? sceneItems.length : value}
+                {label === "רכיבים" ? sceneItems.length : value}
               </div>
 
               <div
