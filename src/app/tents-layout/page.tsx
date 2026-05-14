@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF, useTexture } from "@react-three/drei";
+import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -478,16 +478,6 @@ function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85, color = "#00e5ff" }:
   );
 }
 
-function FloorLogo({ position, rotY = 0 }: { position: [number, number, number]; rotY?: number }) {
-  const texture = useTexture("/covers/iai-white.png");
-  return (
-    <mesh position={position} rotation={[-Math.PI / 2, rotY, 0]}>
-      <planeGeometry args={[3, 3]} />
-      <meshBasicMaterial map={texture} transparent opacity={0.25} blending={THREE.AdditiveBlending} depthWrite={false} />
-    </mesh>
-  );
-}
-
 function DragHandler({
   draggingId,
   onMoveItem,
@@ -582,8 +572,6 @@ function TentStage3D({
       >
         <>
           <TentModel3D />
-          <FloorLogo position={[0, -1.36, 6]} />
-          <FloorLogo position={[0, -1.36, -6]} rotY={Math.PI} />
           {items.map((item) => (
             <DynamicItem
               key={item.id}
