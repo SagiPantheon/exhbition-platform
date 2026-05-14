@@ -398,7 +398,7 @@ function DynamicItem({
 
 const CAM_PRESETS = {
   overview: { pos: new THREE.Vector3(14, 11, 14), look: new THREE.Vector3(0, -1, 0) },
-  tent:     { pos: new THREE.Vector3(0, -0.8, 3), look: new THREE.Vector3(0, -1, -2) },
+  tent:     { pos: new THREE.Vector3(0, 2, 8),    look: new THREE.Vector3(0, -0.5, 0) },
 } as const;
 
 type CameraMode = keyof typeof CAM_PRESETS;
@@ -413,8 +413,8 @@ function CameraRig({ mode }: { mode: CameraMode }) {
   useFrame(() => {
     if (!animating.current || !controlsRef.current) return;
     const { pos, look } = CAM_PRESETS[mode];
-    camera.position.lerp(pos, 0.07);
-    controlsRef.current.target.lerp(look, 0.07);
+    camera.position.lerp(pos, 0.12);
+    controlsRef.current.target.lerp(look, 0.12);
     controlsRef.current.update();
     if (camera.position.distanceTo(pos) < 0.08) {
       camera.position.copy(pos);
