@@ -75,15 +75,10 @@ export default function AirPage() {
               </h1>
 
               <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 md:text-base">
-                A live operational air-assets catalog built for faster exhibition
-                review, clearer navigation, and stronger presentation of defense,
-                strike, radar, and related systems.
+                Browse the current air asset collection in one clear catalog.
+                Each page opens a fuller view with dimensions, display logic,
+                and exhibition-ready presentation details.
               </p>
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                <InfoCallout label="3D-ready route" value="Key assets can open in richer presentation flows" />
-                <InfoCallout label="Operational filtering" value="Mission, category, and search-based access" />
-              </div>
 
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
@@ -111,8 +106,8 @@ export default function AirPage() {
 
             <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
               <QuickPill label="Category" value="Air" />
-              <QuickPill label="Visible Items" value={`${filteredAssets.length}`} />
-              <QuickPill label="Total Assets" value={`${liveAirAssets.length}`} />
+              <QuickPill label="Items" value={`${filteredAssets.length} Assets`} />
+              <QuickPill label="Experience" value="Friendly Catalog" />
               <QuickPill label="Status" value="Ready" />
             </div>
           </div>
@@ -172,15 +167,19 @@ export default function AirPage() {
         ) : (
           <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
             {filteredAssets.map((asset: any) => (
-              <AirAssetCard
+              <div
                 key={asset.slug}
-                asset={asset}
-                locale="en"
-                basePath="/air"
-                featuredLabel="Featured Asset"
-                viewLabel="View"
-                badgesAlign="end"
-              />
+                className="rounded-[28px] border border-white/8 bg-white/[0.02] p-3 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
+              >
+                <AirAssetCard
+                  asset={asset}
+                  locale="en"
+                  basePath="/air"
+                  featuredLabel="Featured Asset"
+                  viewLabel="View"
+                  badgesAlign="end"
+                />
+              </div>
             ))}
           </section>
         )}
@@ -229,15 +228,3 @@ function QuickPill({ label, value }: { label: string; value: string }) {
   );
 }
 
-function InfoCallout({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.06] px-4 py-3">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300">
-        {label}
-      </p>
-      <p className="mt-1 text-sm leading-6 text-cyan-50/90">
-        {value}
-      </p>
-    </div>
-  );
-}
