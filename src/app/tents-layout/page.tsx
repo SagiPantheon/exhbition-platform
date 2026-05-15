@@ -6,13 +6,38 @@ import * as THREE from "three";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
-const leftItems = [
-  "מערכת טילים",
-  "משגר",
-  "רכב",
-  'מכ"ם',
-  "דגל",
-  "עמדת מסך",
+type ExhibitItem = {
+  slug: string;
+  section: "space" | "air" | "land" | "naval";
+  displayName: string;
+  image: string;
+  model3d: string;
+};
+
+const EXHIBIT_ITEMS: ExhibitItem[] = [
+  // Space
+  { slug: "mcs",          section: "space", displayName: "MCS",              image: "/images/space/mcs-showcase.png",          model3d: "/models/space/mcs-showcase-3d.glb" },
+  { slug: "optsat-500",   section: "space", displayName: "OPTSAT-500",        image: "/images/space/optsat-500-showcase.png",    model3d: "/models/space/optsat-500-showcase-3d.glb" },
+  { slug: "optsar-550",   section: "space", displayName: "OPTSAR-550",        image: "/images/space/optsar-550-showcase.png",    model3d: "/models/space/optsar-550-showcase-3d.glb" },
+  { slug: "optsat-3000",  section: "space", displayName: "OPTSAT 3000",       image: "/images/space/optsat-3000-showcase.png",   model3d: "/models/space/optsat-3000-showcase-3d.glb" },
+  { slug: "tecsar",       section: "space", displayName: "TECSAR",            image: "/images/space/tecsar-showcase.png",        model3d: "/models/space/tecsar-showcase-3d.glb" },
+  { slug: "beresheet",    section: "space", displayName: "בראשית",            image: "/images/space/beresheet-showcase.png",     model3d: "/models/space/beresheet-showcase-3d.glb" },
+  { slug: "shavit",       section: "space", displayName: "שביט",              image: "/images/space/shavit-showcase.png",        model3d: "/models/space/shavit-showcase-3d.glb" },
+  // Air
+  { slug: "arrow-2",           section: "air", displayName: "Arrow-2",          image: "/images/air/arrow-2-showcase.png",          model3d: "/models/air/arrow-2-showcase-3d.glb" },
+  { slug: "arrow-3-missile",   section: "air", displayName: "Arrow-3",          image: "/images/air/arrow-3-showcase.png",          model3d: "/models/air/arrow-3-showcase-3d.glb" },
+  { slug: "arrow-3-launcher",  section: "air", displayName: "Arrow-3 Launcher", image: "/images/air/arrow-3-launcher-showcase.png", model3d: "/models/air/arrow-3-launcher.glb" },
+  { slug: "lora",              section: "air", displayName: "LORA",             image: "/images/air/lora-showcase.png",             model3d: "/models/air/lora-showcase-3d.glb" },
+  { slug: "mmr",               section: "air", displayName: "MMR",              image: "/images/air/mmr-showcase.png",              model3d: "/models/air/mmr-showcase-3d.glb" },
+  { slug: "heron",             section: "air", displayName: "Heron",            image: "/images/air/heron-showcase.png",            model3d: "/models/air/heron-showcase-3d.glb" },
+  { slug: "wanderb",           section: "air", displayName: "WanderB",          image: "/images/air/wanderb-showcase.png",          model3d: "/models/air/wanderb-showcase-3d.glb" },
+  { slug: "wanderb2",          section: "air", displayName: "WanderB 2",        image: "/images/air/wanderb2-showcase.png",         model3d: "/models/air/wanderb2-showcase-3d.glb" },
+  // Land
+  { slug: "zmag",       section: "land", displayName: "ZMAG",       image: "/images/land/zmag-showcase.png",       model3d: "/models/land/zmag-showcase-3d.glb" },
+  { slug: "3dcapture",  section: "land", displayName: "3DCAPTURE",  image: "/images/land/3dcapture-showcase.png",  model3d: "/models/land/3dcapture-showcase-3d.glb" },
+  { slug: "panda",      section: "land", displayName: "PANDA",      image: "/images/land/panda-showcase.png",      model3d: "/models/land/panda-showcase-3d.glb" },
+  // Naval
+  { slug: "katana", section: "naval", displayName: "KATANA", image: "/images/naval/katana.png", model3d: "/models/naval/katana-showcase.glb" },
 ];
 
 const rightItems = [
@@ -27,23 +52,14 @@ const rightItems = [
 ];
 
 const previewMap: Record<string, string> = {
-  "מערכת טילים": "/images/air/arrow-3-launcher-showcase.png",
-  "משגר":        "/images/air/mmr-showcase.png",
-  "רכב":         "/images/land/zmag-showcase.png",
-  'מכ"ם':        "/images/air/mmr-showcase.png",
-  "דגל":         "/inventory/flag-pair-iai-israel-01.png",
-  "עמדת מסך":    "/inventory/sign-stand-silver-a4-01.png",
-  "דוכן שליטה":  "/inventory/sign-stand-black-a4-01.png",
-  'כטב"ם':       "/images/air/wanderb-showcase.png",
-
-  "שולחן": "/inventory/table-cover-iai-blue-01.png",
-  "כיסא":  "/inventory/chair-folding-white-01.png",
-  "ספה":   "/inventory/sofa-01.png",
-  "מסך":   "/inventory/sign-stand-black-a4-01.png",
+  "שולחן":  "/inventory/table-cover-iai-blue-01.png",
+  "כיסא":   "/inventory/chair-folding-white-01.png",
+  "ספה":    "/inventory/sofa-01.png",
+  "מסך":    "/inventory/sign-stand-black-a4-01.png",
   "בר קפה": "/inventory/lectern-acrylic-01.png",
-  "דוכן":  "/inventory/lectern-acrylic-01.png",
-  "מקרן":  "/inventory/projector-01.png",
-  "רמקול": "/inventory/speaker-01.png",
+  "דוכן":   "/inventory/lectern-acrylic-01.png",
+  "מקרן":   "/inventory/projector-01.png",
+  "רמקול":  "/inventory/speaker-01.png",
 };
 
 type SceneItem = {
@@ -211,9 +227,9 @@ function SliderControl({
   );
 }
 
-function SidebarItemCard({ item, onAdd }: { item: string; onAdd: () => void }) {
+function SidebarItemCard({ item, image, onAdd }: { item: string; image?: string; onAdd: () => void }) {
   const [hovered, setHovered] = useState(false);
-  const imgSrc = previewMap[item] || "";
+  const imgSrc = image ?? previewMap[item] ?? "";
 
   return (
     <div
@@ -442,22 +458,35 @@ function InventorySet3D() {
 }
 
 const itemModelMap: Record<string, string> = {
-  "מערכת טילים": "/models/air/arrow-3-launcher.glb",
-  "משגר":        "/models/air/arrow-3-launcher.glb",
-  "רכב":         "/models/land/zmag-showcase-3d.glb",
-  'מכ"ם':        "/models/air/mmr.glb",
-  "דגל":         "/models/inventory/flag-pair-iai-israel-01.glb",
-  "עמדת מסך":    "/models/inventory/lightbox-vertical-iai-01.glb",
-  "דוכן שליטה":  "/models/inventory/lightbox-horizontal-iai-01.glb",
-  'כטב"ם':       "/models/air/wanderb-showcase-3d.glb",
-  "שולחן":       "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "כיסא":        "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "ספה":         "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "מסך":         "/models/inventory/lightbox-vertical-iai-01.glb",
-  "בר קפה":      "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "דוכן":        "/models/inventory/lightbox-vertical-iai-01.glb",
-  "מקרן":        "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "רמקול":       "/models/inventory/lightbox-vertical-iai-01.glb",
+  // Exhibits — keyed by slug
+  "mcs":               "/models/space/mcs-showcase-3d.glb",
+  "optsat-500":        "/models/space/optsat-500-showcase-3d.glb",
+  "optsar-550":        "/models/space/optsar-550-showcase-3d.glb",
+  "optsat-3000":       "/models/space/optsat-3000-showcase-3d.glb",
+  "tecsar":            "/models/space/tecsar-showcase-3d.glb",
+  "beresheet":         "/models/space/beresheet-showcase-3d.glb",
+  "shavit":            "/models/space/shavit-showcase-3d.glb",
+  "arrow-2":           "/models/air/arrow-2-showcase-3d.glb",
+  "arrow-3-missile":   "/models/air/arrow-3-showcase-3d.glb",
+  "arrow-3-launcher":  "/models/air/arrow-3-launcher.glb",
+  "lora":              "/models/air/lora-showcase-3d.glb",
+  "mmr":               "/models/air/mmr-showcase-3d.glb",
+  "heron":             "/models/air/heron-showcase-3d.glb",
+  "wanderb":           "/models/air/wanderb-showcase-3d.glb",
+  "wanderb2":          "/models/air/wanderb2-showcase-3d.glb",
+  "zmag":              "/models/land/zmag-showcase-3d.glb",
+  "3dcapture":         "/models/land/3dcapture-showcase-3d.glb",
+  "panda":             "/models/land/panda-showcase-3d.glb",
+  "katana":            "/models/naval/katana-showcase.glb",
+  // Inventory — keyed by Hebrew name
+  "שולחן":  "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "כיסא":   "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "ספה":    "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "מסך":    "/models/inventory/lightbox-vertical-iai-01.glb",
+  "בר קפה": "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "דוכן":   "/models/inventory/lightbox-vertical-iai-01.glb",
+  "מקרן":   "/models/inventory/lightbox-horizontal-iai-01.glb",
+  "רמקול":  "/models/inventory/lightbox-vertical-iai-01.glb",
 };
 
 const FALLBACK_MODEL = "/models/inventory/flag-pair-iai-israel-01.glb";
@@ -790,11 +819,9 @@ function TentStage3D({
 }
 
 useGLTF.preload(TENT_MODEL_PATH);
-useGLTF.preload("/models/air/arrow-3-launcher.glb");
-useGLTF.preload("/models/land/zmag-showcase-3d.glb");
-useGLTF.preload("/models/air/mmr.glb");
-useGLTF.preload("/models/air/wanderb-showcase-3d.glb");
-useGLTF.preload("/models/inventory/flag-pair-iai-israel-01.glb");
+// Exhibit models
+EXHIBIT_ITEMS.forEach((e) => useGLTF.preload(e.model3d));
+// Inventory models
 useGLTF.preload("/models/inventory/lightbox-vertical-iai-01.glb");
 useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
 
@@ -804,8 +831,17 @@ export default function TentsLayoutPage() {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState("Select");
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
+  const [activeSection, setActiveSection] = useState<"all" | "space" | "air" | "land" | "naval">("all");
+
+  const filteredExhibits = useMemo(
+    () => activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection),
+    [activeSection]
+  );
 
   const selectedItem = sceneItems.find((i) => i.id === selectedItemId) ?? null;
+  const selectedDisplayName = selectedItem
+    ? (EXHIBIT_ITEMS.find((e) => e.slug === selectedItem.type)?.displayName ?? selectedItem.type)
+    : null;
 
   function addItem(type: string) {
     const angle = Math.random() * Math.PI * 2;
@@ -1175,26 +1211,36 @@ export default function TentsLayoutPage() {
                   flexWrap: "wrap",
                 }}
               >
-                {["הכל", "חלל", "אוויר", "יבשה", "ים"].map((tag, idx) => (
-                  <div
-                    key={tag}
-                    style={{
-                      padding: "7px 10px",
-                      borderRadius: "11px",
-                      border: idx === 0
-                        ? "1px solid rgba(56,189,248,0.42)"
-                        : "1px solid rgba(148,163,184,0.18)",
-                      background: idx === 0
-                        ? "rgba(34,211,238,0.12)"
-                        : "rgba(255,255,255,0.03)",
-                      color: "#f8fbff",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {tag}
-                  </div>
-                ))}
+                {(["הכל", "חלל", "אוויר", "יבשה", "ים"] as const).map((tag) => {
+                  const sectionMap: Record<string, "all" | "space" | "air" | "land" | "naval"> = {
+                    "הכל": "all", "חלל": "space", "אוויר": "air", "יבשה": "land", "ים": "naval",
+                  };
+                  const sec = sectionMap[tag];
+                  const isActive = activeSection === sec;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setActiveSection(sec)}
+                      style={{
+                        padding: "7px 10px",
+                        borderRadius: "11px",
+                        border: isActive
+                          ? "1px solid rgba(56,189,248,0.42)"
+                          : "1px solid rgba(148,163,184,0.18)",
+                        background: isActive
+                          ? "rgba(34,211,238,0.12)"
+                          : "rgba(255,255,255,0.03)",
+                        color: "#f8fbff",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
               </div>
 
               <div
@@ -1209,19 +1255,17 @@ export default function TentsLayoutPage() {
                   gap: "10px",
                   flex: 1,
                   alignContent: "start",
+                  overflowY: "auto",
+                  maxHeight: "calc(100vh - 420px)",
                 }}
               >
-                {[
-                  "מערכת טילים",
-                  "משגר",
-                  "רכב",
-                  'מכ"ם',
-                  "דגל",
-                  "עמדת מסך",
-                  "דוכן שליטה",
-                  'כטב"ם',
-                ].map((item) => (
-                  <SidebarItemCard key={item} item={item} onAdd={() => addItem(item)} />
+                {filteredExhibits.map((exhibit) => (
+                  <SidebarItemCard
+                    key={exhibit.slug}
+                    item={exhibit.displayName}
+                    image={exhibit.image}
+                    onAdd={() => addItem(exhibit.slug)}
+                  />
                 ))}
               </div>
             </aside>
@@ -1709,7 +1753,7 @@ export default function TentsLayoutPage() {
                   letterSpacing: "0.04em",
                 }}
               >
-                {selectedItem.type}
+                {selectedDisplayName}
               </span>
             </div>
 
