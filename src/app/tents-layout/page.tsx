@@ -693,7 +693,7 @@ function TentStage3D({
       gl={{ antialias: true, alpha: true }}
       style={{ width: "100%", height: "100%" }}
     >
-      <PerspectiveCamera makeDefault position={[12, 10, 12]} fov={40} />
+      <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
       <ambientLight intensity={1.4} />
       <directionalLight position={[7, 10, 6]} intensity={1.6} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
       <directionalLight position={[-5, 4, -4]} intensity={0.5} />
@@ -1356,7 +1356,8 @@ export default function TentsLayoutPage() {
               style={{
                 position: "relative",
                 zIndex: 1,
-                height: focusMode ? "calc(100vh - 300px)" : "585px",
+                height: focusMode ? "calc(100vh - 300px)" : "calc(100vh - 280px)",
+                minHeight: "600px",
                 borderRadius: "26px",
                 overflow: "hidden",
                 background:
