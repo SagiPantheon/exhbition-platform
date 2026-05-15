@@ -28,13 +28,13 @@ const rightItems = [
 
 const previewMap: Record<string, string> = {
   "מערכת טילים": "/images/air/arrow-3-launcher-showcase.png",
-  "משגר":        "/images/air/arrow-3-launcher-showcase.png",
-  "רכב":         "/images/air/lora-showcase.png",
-  'מכ"ם':        "/images/air/mmr-radar-showcase.png",
+  "משגר":        "/images/air/mmr-showcase.png",
+  "רכב":         "/images/land/zmag-showcase.png",
+  'מכ"ם':        "/images/air/mmr-showcase.png",
   "דגל":         "/inventory/flag-pair-iai-israel-01.png",
   "עמדת מסך":    "/inventory/sign-stand-silver-a4-01.png",
   "דוכן שליטה":  "/inventory/sign-stand-black-a4-01.png",
-  'כטב"ם':       "/images/air/arrow-3-launcher-showcase.png",
+  'כטב"ם':       "/images/air/wanderb-showcase.png",
 
   "שולחן": "/inventory/table-cover-iai-blue-01.png",
   "כיסא":  "/inventory/chair-folding-white-01.png",
@@ -338,7 +338,7 @@ function TentModel3D() {
       object={cloned}
       position={[0, -1.45, 0]}
       rotation={[0, 0.62, 0]}
-      scale={9.6}
+      scale={12}
     />
   );
 }
@@ -587,7 +587,7 @@ function HexBorder() {
     const pts: number[] = [];
     for (let i = 0; i < 6; i++) {
       const a = (Math.PI / 3) * i - Math.PI / 6;
-      pts.push(13 * Math.cos(a), 0, 13 * Math.sin(a));
+      pts.push(16 * Math.cos(a), 0, 16 * Math.sin(a));
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
@@ -598,7 +598,7 @@ function HexBorder() {
     const pts: number[] = [];
     for (let i = 0; i < 6; i++) {
       const a = (Math.PI / 3) * i - Math.PI / 6;
-      pts.push(13.3 * Math.cos(a), 0, 13.3 * Math.sin(a));
+      pts.push(16.3 * Math.cos(a), 0, 16.3 * Math.sin(a));
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
