@@ -717,6 +717,15 @@ function DragHandler({
   return null;
 }
 
+function CaptureSetup({ captureRef }: { captureRef: React.MutableRefObject<(() => string) | null> }) {
+  const { gl } = useThree();
+  useEffect(() => {
+    captureRef.current = () => gl.domElement.toDataURL("image/png");
+    return () => { captureRef.current = null; };
+  }, [gl, captureRef]);
+  return null;
+}
+
 function TentStage3D({
   items,
   selectedId,
@@ -725,6 +734,7 @@ function TentStage3D({
   activeTool,
   onMoveItem,
   tentType,
+  captureRef,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -733,6 +743,7 @@ function TentStage3D({
   activeTool: string;
   onMoveItem: (id: string, x: number, z: number) => void;
   tentType: string;
+  captureRef: React.MutableRefObject<(() => string) | null>;
 }) {
   const draggingId = useRef<string | null>(null);
 
@@ -740,7 +751,7 @@ function TentStage3D({
     <Canvas
       shadows
       dpr={[1, 1.5]}
-      gl={{ antialias: true, alpha: true }}
+      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
       style={{ width: "100%", height: "100%" }}
     >
       <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
@@ -838,6 +849,7 @@ function TentStage3D({
       />
 
       <CameraRig mode={cameraMode} draggingId={draggingId} />
+      <CaptureSetup captureRef={captureRef} />
     </Canvas>
   );
 }
@@ -965,10 +977,34 @@ export default function TentsLayoutPage() {
     );
   }
 
+  const captureRef = useRef<(() => string) | null>(null);
+
   function saveScene() {
     localStorage.setItem("tentScene", JSON.stringify(sceneItems));
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2000);
+  }
+
+  function handleExportWhatsApp() {
+    const dataUrl = captureRef.current?.();
+    if (dataUrl) {
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "תכנית-תצוגה.png";
+      a.click();
+    }
+
+    const tentLabel =
+      tentType === "30x20" ? "אוהל 30×20" :
+      tentType === "open"  ? "שטח פתוח"   : "אוהל 25×15";
+    const dims = tentType === "30x20" ? "30m × 20m" : "25m × 15m";
+    const itemNames = sceneItems
+      .map((si) => EXHIBIT_ITEMS.find((e) => e.slug === si.type)?.displayName ?? si.type)
+      .join(", ");
+    const msg = encodeURIComponent(
+      `תכנית תצוגה:\n${tentLabel} | ${dims}\nפריטים: ${itemNames || "אין"}`
+    );
+    window.open(`https://wa.me/972XXXXXXXXX?text=${msg}`, "_blank");
   }
 
   function deleteItem(id: string) {
@@ -1180,6 +1216,27 @@ export default function TentsLayoutPage() {
                 }}
               >
                 שמירה
+              </button>
+              <button
+                type="button"
+                onClick={handleExportWhatsApp}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(37,211,102,0.40)",
+                  background: "rgba(37,211,102,0.10)",
+                  color: "#4ade80",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "background 150ms ease",
+                }}
+              >
+                <span style={{ fontSize: "15px" }}>📲</span> שלח ב-WhatsApp
               </button>
               <TopPill label="ייצוא תוכנית" active />
             </div>
@@ -1660,6 +1717,7 @@ export default function TentsLayoutPage() {
                   activeTool={activeTool}
                   onMoveItem={moveItem}
                   tentType={tentType}
+                  captureRef={captureRef}
                 />
               </div>
 
