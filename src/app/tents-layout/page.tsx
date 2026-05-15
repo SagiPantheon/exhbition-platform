@@ -512,7 +512,7 @@ function DynamicItem({
 }
 
 const CAM_PRESETS = {
-  overview: { pos: new THREE.Vector3(14, 11, 14), look: new THREE.Vector3(0, -1, 0) },
+  overview: { pos: new THREE.Vector3(10, 8, 10), look: new THREE.Vector3(0, -1, 0) },
   tent:     { pos: new THREE.Vector3(0, 2, 8),    look: new THREE.Vector3(0, -0.5, 0) },
 } as const;
 
@@ -770,10 +770,10 @@ function TentStage3D({
       <HexBorder />
 
       {/* Physical spotlight fixtures at corners */}
-      <SpotFixture position={[-10, -1.38, -10]} />
-      <SpotFixture position={[ 10, -1.38, -10]} />
-      <SpotFixture position={[-10, -1.38,  10]} />
-      <SpotFixture position={[ 10, -1.38,  10]} />
+      <SpotFixture position={[-8, -1.38, -8]} />
+      <SpotFixture position={[ 8, -1.38, -8]} />
+      <SpotFixture position={[-8, -1.38,  8]} />
+      <SpotFixture position={[ 8, -1.38,  8]} />
 
       <ContactShadows
         position={[0, -1.36, 0]}
