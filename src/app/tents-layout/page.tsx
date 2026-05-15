@@ -22,9 +22,9 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 //    Copy the Template ID → EMAILJS_TEMPLATE_ID
 // 4. Dashboard → Account → API Keys → Public Key → EMAILJS_PUBLIC_KEY
 // ──────────────────────────────────────────────────────────────────────────────
-const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
-const EMAILJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+const EMAILJS_SERVICE_ID  = "service_kqc6auo";
+const EMAILJS_TEMPLATE_ID = "template_4et8z95";
+const EMAILJS_PUBLIC_KEY  = "u4ZFljZ4yJe2cuKZV";
 
 async function sendExhibitionEmail(params: {
   exhibitionName: string;
