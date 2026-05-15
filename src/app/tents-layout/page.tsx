@@ -1010,6 +1010,12 @@ export default function TentsLayoutPage() {
       `${title}\n${tentLabel} | ${dims}\n\n${numberedItems}\n\n${date}`
     );
     window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
+
+    const mailSubject = encodeURIComponent(title);
+    const mailBody = encodeURIComponent(
+      `${title}\n${tentLabel} | ${dims}\n\n${numberedItems}\n\n${date}`
+    );
+    window.location.href = `mailto:samiel2@iai.co.il?subject=${mailSubject}&body=${mailBody}`;
   }
 
   function deleteItem(id: string) {
