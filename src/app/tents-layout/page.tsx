@@ -478,6 +478,56 @@ function HexGrid({ hexSize = 1.6, rows = 9, opacity = 0.85, color = "#00e5ff" }:
   );
 }
 
+function HexBorder() {
+  const mainGeo = useMemo(() => {
+    const pts: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      const a = (Math.PI / 3) * i - Math.PI / 6;
+      pts.push(13 * Math.cos(a), 0, 13 * Math.sin(a));
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    return geo;
+  }, []);
+
+  const glowGeo = useMemo(() => {
+    const pts: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      const a = (Math.PI / 3) * i - Math.PI / 6;
+      pts.push(13.3 * Math.cos(a), 0, 13.3 * Math.sin(a));
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    return geo;
+  }, []);
+
+  return (
+    <>
+      <lineLoop geometry={mainGeo} position={[0, -1.35, 0]}>
+        <lineBasicMaterial color="#00e5ff" />
+      </lineLoop>
+      <lineLoop geometry={glowGeo} position={[0, -1.35, 0]}>
+        <lineBasicMaterial color="#00e5ff" transparent opacity={0.3} />
+      </lineLoop>
+    </>
+  );
+}
+
+function SpotFixture({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.2, 0]}>
+        <cylinderGeometry args={[0.12, 0.16, 0.4, 12]} />
+        <meshStandardMaterial color="#1a1a2a" metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 0.44, 0]}>
+        <cylinderGeometry args={[0.07, 0.07, 0.06, 12]} />
+        <meshStandardMaterial color="#00e5ff" emissive="#00e5ff" emissiveIntensity={5.0} roughness={0.1} metalness={0.1} />
+      </mesh>
+    </group>
+  );
+}
+
 function DragHandler({
   draggingId,
   onMoveItem,
@@ -603,14 +653,23 @@ function TentStage3D({
         <meshStandardMaterial color="#12122a" roughness={1} metalness={0} />
       </mesh>
 
-      {/* Interior carpet — polished blue */}
+      {/* Full carpet — polished royal blue */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.372, 0]} receiveShadow>
-        <planeGeometry args={[12, 12]} />
+        <planeGeometry args={[32, 32]} />
         <meshStandardMaterial color="#0033aa" emissive="#001f6e" emissiveIntensity={0.6} roughness={0.1} metalness={0.3} />
       </mesh>
 
       {/* Blue ground glow under the tent */}
       <pointLight position={[0, -1.3, 0]} color="#0044ff" intensity={2.0} distance={18} />
+
+      {/* Hexagonal neon border ring */}
+      <HexBorder />
+
+      {/* Physical spotlight fixtures at corners */}
+      <SpotFixture position={[-10, -1.38, -10]} />
+      <SpotFixture position={[ 10, -1.38, -10]} />
+      <SpotFixture position={[-10, -1.38,  10]} />
+      <SpotFixture position={[ 10, -1.38,  10]} />
 
       <ContactShadows
         position={[0, -1.36, 0]}
@@ -1315,54 +1374,6 @@ export default function TentsLayoutPage() {
                 }}
               />
 
-              <div
-                style={{
-                  position: "absolute",
-                  left: "5.5%",
-                  bottom: "9.5%",
-                  width: "16px",
-                  height: "16px",
-                  borderRadius: "999px",
-                  background: "#67e8f9",
-                  boxShadow: "0 0 34px rgba(103,232,249,0.98)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  right: "5.5%",
-                  bottom: "9.5%",
-                  width: "16px",
-                  height: "16px",
-                  borderRadius: "999px",
-                  background: "#67e8f9",
-                  boxShadow: "0 0 34px rgba(103,232,249,0.98)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  left: "8.5%",
-                  top: "17%",
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "999px",
-                  background: "rgba(103,232,249,0.95)",
-                  boxShadow: "0 0 28px rgba(103,232,249,0.98)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  right: "8.5%",
-                  top: "17%",
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "999px",
-                  background: "rgba(103,232,249,0.95)",
-                  boxShadow: "0 0 28px rgba(103,232,249,0.98)",
-                }}
-              />
 
               <div
                 style={{
