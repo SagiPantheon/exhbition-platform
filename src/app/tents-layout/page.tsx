@@ -37,7 +37,7 @@ async function sendExhibitionEmail(params: {
     EMAILJS_SERVICE_ID,
     EMAILJS_TEMPLATE_ID,
     {
-      to_email:        "samiel2@iai.co.il",
+      to_email:        "amiel.sagi@gmail.com",
       exhibition_name: params.exhibitionName || "תכנית תצוגה",
       tent_info:       params.tentInfo,
       items_list:      params.itemsList,
