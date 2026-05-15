@@ -841,11 +841,22 @@ export default function TentsLayoutPage() {
   const [activeTool, setActiveTool] = useState("Select");
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
   const [activeSection, setActiveSection] = useState<"all" | "space" | "air" | "land" | "naval">("all");
+  const [activeInventoryFilter, setActiveInventoryFilter] = useState<"הכל" | "ריהוט" | "מדיה" | "VIP" | "שירות">("הכל");
 
   const filteredExhibits = useMemo(
     () => activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection),
     [activeSection]
   );
+
+  const INVENTORY_ALL = ["שולחן", "כיסא", "ספה", "מסך", "בר קפה", "דוכן", "מקרן", "רמקול"] as const;
+  const INVENTORY_FILTER_MAP: Record<string, string[]> = {
+    "הכל":   ["שולחן", "כיסא", "ספה", "מסך", "בר קפה", "דוכן", "מקרן", "רמקול"],
+    "ריהוט": ["שולחן", "כיסא", "ספה", "בר קפה"],
+    "מדיה":  ["מסך", "מקרן", "רמקול"],
+    "VIP":   ["ספה", "בר קפה", "דוכן"],
+    "שירות": ["דוכן", "מקרן", "רמקול"],
+  };
+  const filteredInventory = INVENTORY_FILTER_MAP[activeInventoryFilter] ?? INVENTORY_ALL;
 
   const selectedItem = sceneItems.find((i) => i.id === selectedItemId) ?? null;
   const selectedDisplayName = selectedItem
@@ -1327,18 +1338,18 @@ export default function TentsLayoutPage() {
               >
                 {["Select", "Move", "Rotate", "Zoom", "View"].map((tool) => {
                   const isActive = activeTool === tool;
-                  const isDisabled = tool === "Zoom";
+                  const isDisabled = false;
                   const tooltips: Record<string, string> = {
                     Select: "בחר פריט בסצנה",
                     Move: "גרור פריט על הרצפה",
                     Rotate: "סובב פריט נבחר 45°",
-                    Zoom: "זום — גלגל עכבר",
+                    Zoom: "זום — תצוגת אוהל",
                     View: "חזור למבט כללי",
                   };
                   function handleToolClick() {
-                    if (isDisabled) return;
                     setActiveTool(tool);
                     if (tool === "Rotate" && selectedItemId) rotateItem(selectedItemId);
+                    if (tool === "Zoom") setCameraMode("tent");
                     if (tool === "View") setCameraMode("overview");
                   }
                   return (
@@ -1598,26 +1609,32 @@ export default function TentsLayoutPage() {
                   flexWrap: "wrap",
                 }}
               >
-                {["הכל", "ריהוט", "מדיה", "VIP", "שירות"].map((tag, idx) => (
-                  <div
-                    key={tag}
-                    style={{
-                      padding: "7px 10px",
-                      borderRadius: "11px",
-                      border: idx === 0
-                        ? "1px solid rgba(56,189,248,0.42)"
-                        : "1px solid rgba(148,163,184,0.18)",
-                      background: idx === 0
-                        ? "rgba(34,211,238,0.12)"
-                        : "rgba(255,255,255,0.03)",
-                      color: "#f8fbff",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {tag}
-                  </div>
-                ))}
+                {(["הכל", "ריהוט", "מדיה", "VIP", "שירות"] as const).map((tag) => {
+                  const isActive = activeInventoryFilter === tag;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setActiveInventoryFilter(tag)}
+                      style={{
+                        padding: "7px 10px",
+                        borderRadius: "11px",
+                        border: isActive
+                          ? "1px solid rgba(56,189,248,0.42)"
+                          : "1px solid rgba(148,163,184,0.18)",
+                        background: isActive
+                          ? "rgba(34,211,238,0.12)"
+                          : "rgba(255,255,255,0.03)",
+                        color: "#f8fbff",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
               </div>
 
               <div
@@ -1634,16 +1651,7 @@ export default function TentsLayoutPage() {
                   alignContent: "start",
                 }}
               >
-                {[
-                  "שולחן",
-                  "כיסא",
-                  "ספה",
-                  "מסך",
-                  "בר קפה",
-                  "דוכן",
-                  "מקרן",
-                  "רמקול",
-                ].map((item) => (
+                {filteredInventory.map((item) => (
                   <SidebarItemCard key={item} item={item} onAdd={() => addItem(item)} />
                 ))}
               </div>
