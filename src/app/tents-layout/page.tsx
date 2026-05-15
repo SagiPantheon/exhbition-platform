@@ -649,13 +649,20 @@ function HexBorder() {
 function SpotFixture({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <mesh position={[0, 0.2, 0]}>
-        <cylinderGeometry args={[0.12, 0.16, 0.4, 12]} />
+      {/* Wide base ring */}
+      <mesh position={[0, 0.04, 0]}>
+        <cylinderGeometry args={[0.38, 0.44, 0.08, 16]} />
+        <meshStandardMaterial color="#0d0d1e" metalness={0.9} roughness={0.2} />
+      </mesh>
+      {/* Main body */}
+      <mesh position={[0, 0.32, 0]}>
+        <cylinderGeometry args={[0.14, 0.20, 0.56, 14]} />
         <meshStandardMaterial color="#1a1a2a" metalness={0.8} roughness={0.3} />
       </mesh>
-      <mesh position={[0, 0.44, 0]}>
-        <cylinderGeometry args={[0.07, 0.07, 0.06, 12]} />
-        <meshStandardMaterial color="#00e5ff" emissive="#00e5ff" emissiveIntensity={5.0} roughness={0.1} metalness={0.1} />
+      {/* Tall emissive cyan column */}
+      <mesh position={[0, 0.8, 0]}>
+        <cylinderGeometry args={[0.06, 0.06, 0.8, 12]} />
+        <meshStandardMaterial color="#00e5ff" emissive="#00e5ff" emissiveIntensity={6.0} roughness={0.05} metalness={0.1} />
       </mesh>
     </group>
   );
@@ -798,11 +805,13 @@ function TentStage3D({
       {/* Hexagonal neon border ring */}
       <HexBorder />
 
-      {/* Physical spotlight fixtures at corners */}
-      <SpotFixture position={[-8, -1.38, -8]} />
-      <SpotFixture position={[ 8, -1.38, -8]} />
-      <SpotFixture position={[-8, -1.38,  8]} />
-      <SpotFixture position={[ 8, -1.38,  8]} />
+      {/* Spotlight fixtures at hexagon corners — radius 16, angle = (PI/3)*i - PI/6 */}
+      <SpotFixture position={[ 13.86, -1.38,  -8.0]} />
+      <SpotFixture position={[ 13.86, -1.38,   8.0]} />
+      <SpotFixture position={[  0.0,  -1.38,  16.0]} />
+      <SpotFixture position={[-13.86, -1.38,   8.0]} />
+      <SpotFixture position={[-13.86, -1.38,  -8.0]} />
+      <SpotFixture position={[  0.0,  -1.38, -16.0]} />
 
       <ContactShadows
         position={[0, -1.36, 0]}
@@ -1467,74 +1476,6 @@ export default function TentsLayoutPage() {
               />
 
 
-              <div
-                style={{
-                  position: "absolute",
-                  left: "7.5%",
-                  bottom: "10.5%",
-                  width: "0",
-                  height: "0",
-                  borderLeft: "26px solid transparent",
-                  borderRight: "8px solid transparent",
-                  borderTop: "58px solid rgba(190,242,255,0.32)",
-                  filter: "blur(1px)",
-                  opacity: 0.75,
-                  transform: "rotate(16deg)",
-                  transformOrigin: "bottom center",
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  right: "7.5%",
-                  bottom: "10.5%",
-                  width: "0",
-                  height: "0",
-                  borderLeft: "8px solid transparent",
-                  borderRight: "26px solid transparent",
-                  borderTop: "58px solid rgba(190,242,255,0.32)",
-                  filter: "blur(1px)",
-                  opacity: 0.75,
-                  transform: "rotate(-16deg)",
-                  transformOrigin: "bottom center",
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  left: "13%",
-                  top: "18.5%",
-                  width: "0",
-                  height: "0",
-                  borderLeft: "20px solid transparent",
-                  borderRight: "4px solid transparent",
-                  borderTop: "46px solid rgba(190,242,255,0.20)",
-                  filter: "blur(1px)",
-                  opacity: 0.55,
-                  transform: "rotate(132deg)",
-                  transformOrigin: "bottom center",
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  right: "13%",
-                  top: "18.5%",
-                  width: "0",
-                  height: "0",
-                  borderLeft: "4px solid transparent",
-                  borderRight: "20px solid transparent",
-                  borderTop: "46px solid rgba(190,242,255,0.20)",
-                  filter: "blur(1px)",
-                  opacity: 0.55,
-                  transform: "rotate(-132deg)",
-                  transformOrigin: "bottom center",
-                  pointerEvents: "none",
-                }}
-              />
 
               <div
                 style={{
