@@ -1649,6 +1649,8 @@ export default function TentsLayoutPage() {
                   gap: "10px",
                   flex: 1,
                   alignContent: "start",
+                  overflowY: "auto",
+                  maxHeight: "calc(100vh - 420px)",
                 }}
               >
                 {filteredInventory.map((item) => (
