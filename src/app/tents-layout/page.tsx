@@ -333,7 +333,7 @@ function SidebarItemCard({ item, image, onAdd }: { item: string; image?: string;
 
 const TENT_MODEL_PATH = "/models/inventory/tent-20-30-iai-blue-01.glb";
 
-function TentModel3D() {
+function TentModel3D({ tentScale = 12 }: { tentScale?: number }) {
   const gltf = useGLTF(TENT_MODEL_PATH);
   const cloned = useMemo(() => {
     const scene = gltf.scene.clone(true);
@@ -354,11 +354,31 @@ function TentModel3D() {
       object={cloned}
       position={[0, -1.45, 0]}
       rotation={[0, 0.62, 0]}
-      scale={12}
+      scale={tentScale}
     />
   );
 }
 
+
+function OpenAreaOutline() {
+  const geo = useMemo(() => {
+    const w = 12.5, d = 7.5;
+    const pts = [
+      -w, 0, -d,  w, 0, -d,
+       w, 0, -d,  w, 0,  d,
+       w, 0,  d, -w, 0,  d,
+      -w, 0,  d, -w, 0, -d,
+    ];
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    return g;
+  }, []);
+  return (
+    <lineSegments geometry={geo} position={[0, -1.37, 0]}>
+      <lineBasicMaterial color="#00e5ff" transparent opacity={0.55} />
+    </lineSegments>
+  );
+}
 
 function InventoryTable3D({ position = [0, 0, 0] }) {
   return (
@@ -542,7 +562,7 @@ function DynamicItem({
 
 const CAM_PRESETS = {
   overview: { pos: new THREE.Vector3(10, 8, 10), look: new THREE.Vector3(0, -1, 0) },
-  tent:     { pos: new THREE.Vector3(0, 2, 8),    look: new THREE.Vector3(0, -0.5, 0) },
+  tent:     { pos: new THREE.Vector3(0, 0, 5),   look: new THREE.Vector3(0, -0.3, -1) },
 } as const;
 
 type CameraMode = keyof typeof CAM_PRESETS;
@@ -712,6 +732,7 @@ function TentStage3D({
   cameraMode,
   activeTool,
   onMoveItem,
+  tentType,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -719,6 +740,7 @@ function TentStage3D({
   cameraMode: CameraMode;
   activeTool: string;
   onMoveItem: (id: string, x: number, z: number) => void;
+  tentType: string;
 }) {
   const draggingId = useRef<string | null>(null);
 
@@ -761,7 +783,8 @@ function TentStage3D({
         }
       >
         <>
-          <TentModel3D />
+          {tentType !== "open" && <TentModel3D tentScale={tentType === "30x20" ? 15 : 12} />}
+          {tentType === "open" && <OpenAreaOutline />}
           {items.map((item) => (
             <DynamicItem
               key={item.id}
@@ -842,6 +865,9 @@ export default function TentsLayoutPage() {
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
   const [activeSection, setActiveSection] = useState<"all" | "space" | "air" | "land" | "naval">("all");
   const [activeInventoryFilter, setActiveInventoryFilter] = useState<"הכל" | "ריהוט" | "מדיה" | "VIP" | "שירות">("הכל");
+  const [tentType, setTentType] = useState<"25x15" | "30x20" | "open">("25x15");
+  const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
+  const [toastVisible, setToastVisible] = useState(false);
 
   const filteredExhibits = useMemo(
     () => activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection),
@@ -918,10 +944,16 @@ export default function TentsLayoutPage() {
     setSceneItems((prev) =>
       prev.map((item) =>
         item.id === id
-          ? { ...item, rotationY: item.rotationY + Math.PI / 2 }
+          ? { ...item, rotationY: item.rotationY + Math.PI / 4 }
           : item
       )
     );
+  }
+
+  function saveScene() {
+    localStorage.setItem("tentScene", JSON.stringify(sceneItems));
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 2000);
   }
 
   function deleteItem(id: string) {
@@ -1108,17 +1140,79 @@ export default function TentsLayoutPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
               <span style={{ color: "rgba(180,220,255,0.76)" }}>תכנון פריסה</span>
               <span style={{ color: "rgba(125,211,252,0.7)" }}>•</span>
-              <strong style={{ fontSize: "18px" }}>אוהל 25x15</strong>
-              <span style={{ color: "rgba(180,220,255,0.7)" }}>
-                מעטפת תפעולית ראשית
-              </span>
+              <strong style={{ fontSize: "18px" }}>
+                {tentType === "open" ? "שטח פתוח" : tentType === "30x20" ? "אוהל 30×20" : "אוהל 25×15"}
+              </strong>
+              <span style={{ color: "rgba(180,220,255,0.7)" }}>מעטפת תפעולית ראשית</span>
             </div>
 
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
               <TopPill label="תצוגה מקדימה" />
-              <TopPill label="שמירה" />
+              <button
+                type="button"
+                onClick={saveScene}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(148,163,184,0.18)",
+                  background: "rgba(255,255,255,0.03)",
+                  color: "#f8fbff",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "background 150ms ease",
+                }}
+              >
+                שמירה
+              </button>
               <TopPill label="ייצוא תוכנית" active />
             </div>
+          </section>
+        ) : null}
+
+        {/* TENT SELECTOR */}
+        {!focusMode ? (
+          <section
+            style={{
+              borderRadius: "18px",
+              border: "1px solid rgba(125,211,252,0.14)",
+              background: "linear-gradient(180deg, rgba(7,13,26,0.86) 0%, rgba(5,10,20,0.94) 100%)",
+              padding: "10px 14px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              flexWrap: "wrap",
+            }}
+          >
+            <span style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.18em", color: "rgba(180,220,255,0.6)", marginInlineEnd: "4px" }}>
+              סוג מבנה
+            </span>
+            {([
+              { id: "25x15", label: "אוהל 25×15" },
+              { id: "30x20", label: "אוהל 30×20" },
+              { id: "open",  label: "שטח פתוח"  },
+            ] as const).map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTentType(id)}
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: "11px",
+                  border: tentType === id ? "1px solid rgba(56,189,248,0.48)" : "1px solid rgba(148,163,184,0.18)",
+                  background: tentType === id ? "rgba(34,211,238,0.14)" : "rgba(255,255,255,0.03)",
+                  color: "#f8fbff",
+                  fontSize: "13px",
+                  fontWeight: tentType === id ? 800 : 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 150ms ease",
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </section>
         ) : null}
 
@@ -1128,8 +1222,7 @@ export default function TentsLayoutPage() {
             style={{
               borderRadius: "18px",
               border: "1px solid rgba(125,211,252,0.14)",
-              background:
-                "linear-gradient(180deg, rgba(7,13,26,0.86) 0%, rgba(5,10,20,0.94) 100%)",
+              background: "linear-gradient(180deg, rgba(7,13,26,0.86) 0%, rgba(5,10,20,0.94) 100%)",
               padding: "10px 14px",
               display: "flex",
               alignItems: "center",
@@ -1137,9 +1230,35 @@ export default function TentsLayoutPage() {
               flexWrap: "wrap",
             }}
           >
-            <TopPill label="1. הגדרת סצנה" active />
-            <TopPill label="2. נכסים ותוכן" />
-            <TopPill label="3. סקירה ומצגת" />
+            {([
+              { step: 1 as const, label: "1. הגדרת סצנה" },
+              { step: 2 as const, label: "2. נכסים ותוכן" },
+              { step: 3 as const, label: "3. סקירה ומצגת" },
+            ]).map(({ step, label }) => (
+              <button
+                key={step}
+                type="button"
+                onClick={() => {
+                  setActiveStep(step);
+                  if (step === 3) setFocusMode(true);
+                  if (step !== 3) setFocusMode(false);
+                }}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "12px",
+                  border: activeStep === step ? "1px solid rgba(56,189,248,0.48)" : "1px solid rgba(148,163,184,0.18)",
+                  background: activeStep === step ? "rgba(34,211,238,0.14)" : "rgba(255,255,255,0.03)",
+                  color: "#f8fbff",
+                  fontSize: "13px",
+                  fontWeight: activeStep === step ? 800 : 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 150ms ease",
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </section>
         ) : null}
 
@@ -1503,6 +1622,7 @@ export default function TentsLayoutPage() {
                   cameraMode={cameraMode}
                   activeTool={activeTool}
                   onMoveItem={moveItem}
+                  tentType={tentType}
                 />
               </div>
 
@@ -1866,6 +1986,31 @@ export default function TentsLayoutPage() {
           ))}
         </section>
       </div>
+
+      {/* Save toast */}
+      {toastVisible && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "32px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9999,
+            padding: "12px 24px",
+            borderRadius: "14px",
+            border: "1px solid rgba(0,229,255,0.40)",
+            background: "rgba(0,20,40,0.96)",
+            color: "#00e5ff",
+            fontSize: "14px",
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(0,229,255,0.14)",
+            pointerEvents: "none",
+          }}
+        >
+          נשמר בהצלחה ✓
+        </div>
+      )}
     </main>
   );
 }
