@@ -815,7 +815,7 @@ function TentStage3D({
       </mesh>
 
       {/* Blue ground glow under the tent */}
-      <pointLight position={[0, -1.3, 0]} color="#0044ff" intensity={2.0} distance={18} />
+      <pointLight position={[0, -1.3, 0]} color="#0022aa" intensity={0.8} distance={18} />
 
       {/* Hexagonal neon border ring */}
       <HexBorder />
