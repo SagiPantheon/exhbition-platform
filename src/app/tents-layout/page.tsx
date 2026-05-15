@@ -874,6 +874,7 @@ export default function TentsLayoutPage() {
   const [toastVisible, setToastVisible] = useState(false);
   const [exhibitSearch, setExhibitSearch] = useState("");
   const [inventorySearch, setInventorySearch] = useState("");
+  const [exhibitionName, setExhibitionName] = useState("");
 
   const filteredExhibits = useMemo(() => {
     const bySection = activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection);
@@ -998,11 +999,15 @@ export default function TentsLayoutPage() {
       tentType === "30x20" ? "אוהל 30×20" :
       tentType === "open"  ? "שטח פתוח"   : "אוהל 25×15";
     const dims = tentType === "30x20" ? "30m × 20m" : "25m × 15m";
-    const itemNames = sceneItems
-      .map((si) => EXHIBIT_ITEMS.find((e) => e.slug === si.type)?.displayName ?? si.type)
-      .join(", ");
+    const title = exhibitionName.trim() || "תכנית תצוגה";
+    const numberedItems = sceneItems.length
+      ? sceneItems
+          .map((si, i) => `${i + 1}. ${EXHIBIT_ITEMS.find((e) => e.slug === si.type)?.displayName ?? si.type}`)
+          .join("\n")
+      : "אין פריטים";
+    const date = new Date().toLocaleDateString("he-IL");
     const msg = encodeURIComponent(
-      `תכנית תצוגה:\n${tentLabel} | ${dims}\nפריטים: ${itemNames || "אין"}`
+      `${title}\n${tentLabel} | ${dims}\n\n${numberedItems}\n\n${date}`
     );
     window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
   }
@@ -1285,6 +1290,27 @@ export default function TentsLayoutPage() {
                 {label}
               </button>
             ))}
+
+            <input
+              type="text"
+              value={exhibitionName}
+              onChange={(e) => setExhibitionName(e.target.value)}
+              placeholder="שם התערוכה..."
+              dir="rtl"
+              style={{
+                padding: "7px 12px",
+                borderRadius: "11px",
+                border: "1px solid rgba(125,211,252,0.18)",
+                background: "rgba(255,255,255,0.04)",
+                color: "#f0faff",
+                fontSize: "13px",
+                outline: "none",
+                minWidth: "160px",
+                transition: "border-color 150ms ease",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,255,0.55)")}
+              onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,211,252,0.18)")}
+            />
           </section>
         ) : null}
 
