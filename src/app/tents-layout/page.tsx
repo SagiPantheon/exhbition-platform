@@ -860,11 +860,14 @@ export default function TentsLayoutPage() {
   const [tentType, setTentType] = useState<"25x15" | "30x20" | "open">("25x15");
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
   const [toastVisible, setToastVisible] = useState(false);
+  const [exhibitSearch, setExhibitSearch] = useState("");
+  const [inventorySearch, setInventorySearch] = useState("");
 
-  const filteredExhibits = useMemo(
-    () => activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection),
-    [activeSection]
-  );
+  const filteredExhibits = useMemo(() => {
+    const bySection = activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection);
+    const q = exhibitSearch.trim().toLowerCase();
+    return q ? bySection.filter((e) => e.displayName.toLowerCase().includes(q)) : bySection;
+  }, [activeSection, exhibitSearch]);
 
   const INVENTORY_ALL = ["שולחן", "כיסא", "ספה", "מסך", "בר קפה", "דוכן", "מקרן", "רמקול"] as const;
   const INVENTORY_FILTER_MAP: Record<string, string[]> = {
@@ -874,7 +877,11 @@ export default function TentsLayoutPage() {
     "VIP":   ["ספה", "בר קפה", "דוכן"],
     "שירות": ["דוכן", "מקרן", "רמקול"],
   };
-  const filteredInventory = INVENTORY_FILTER_MAP[activeInventoryFilter] ?? INVENTORY_ALL;
+  const filteredInventory = useMemo(() => {
+    const byFilter = INVENTORY_FILTER_MAP[activeInventoryFilter] ?? INVENTORY_ALL;
+    const q = inventorySearch.trim().toLowerCase();
+    return q ? byFilter.filter((item) => item.toLowerCase().includes(q)) : byFilter;
+  }, [activeInventoryFilter, inventorySearch]);
 
   const statusItems = useMemo(() => {
     const cfg = {
@@ -1390,6 +1397,28 @@ export default function TentsLayoutPage() {
                 })}
               </div>
 
+              <input
+                type="text"
+                value={exhibitSearch}
+                onChange={(e) => setExhibitSearch(e.target.value)}
+                placeholder="חפש תצוגה..."
+                dir="rtl"
+                style={{
+                  width: "100%",
+                  padding: "9px 12px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(125,211,252,0.18)",
+                  background: "rgba(255,255,255,0.04)",
+                  color: "#f0faff",
+                  fontSize: "13px",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  transition: "border-color 150ms ease",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,255,0.55)")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,211,252,0.18)")}
+              />
+
               <div
                 style={{
                   borderRadius: "22px",
@@ -1764,6 +1793,28 @@ export default function TentsLayoutPage() {
                   );
                 })}
               </div>
+
+              <input
+                type="text"
+                value={inventorySearch}
+                onChange={(e) => setInventorySearch(e.target.value)}
+                placeholder="חפש פריט..."
+                dir="rtl"
+                style={{
+                  width: "100%",
+                  padding: "9px 12px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(125,211,252,0.18)",
+                  background: "rgba(255,255,255,0.04)",
+                  color: "#f0faff",
+                  fontSize: "13px",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  transition: "border-color 150ms ease",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,255,0.55)")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,211,252,0.18)")}
+              />
 
               <div
                 style={{
