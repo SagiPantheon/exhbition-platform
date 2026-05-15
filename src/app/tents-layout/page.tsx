@@ -211,6 +211,110 @@ function SliderControl({
   );
 }
 
+function SidebarItemCard({ item, onAdd }: { item: string; onAdd: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  const imgSrc = previewMap[item] || "";
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        zIndex: hovered ? 20 : 10,
+        borderRadius: "16px",
+        border: `1px solid ${hovered ? "rgba(0,229,255,0.38)" : "rgba(148,163,184,0.16)"}`,
+        background: hovered
+          ? "linear-gradient(180deg, rgba(0,229,255,0.07) 0%, rgba(0,229,255,0.02) 100%)"
+          : "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)",
+        display: "flex",
+        flexDirection: "column",
+        transition: "border-color 150ms ease, background 150ms ease",
+      }}
+    >
+      {/* Image */}
+      <div
+        style={{
+          width: "100%",
+          height: "90px",
+          borderRadius: "14px 14px 0 0",
+          overflow: "hidden",
+          backgroundColor: "rgba(10,18,40,0.85)",
+          backgroundImage: imgSrc ? `url("${imgSrc}")` : "none",
+          backgroundSize: "contain",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          flexShrink: 0,
+        }}
+      />
+
+      {/* Name */}
+      <div
+        style={{
+          padding: "8px 6px 4px",
+          textAlign: "center",
+          fontSize: "13px",
+          fontWeight: 800,
+          color: "#f0faff",
+          lineHeight: 1.2,
+          direction: "rtl",
+        }}
+      >
+        {item}
+      </div>
+
+      {/* Add button */}
+      <button
+        type="button"
+        onClick={onAdd}
+        style={{
+          margin: "4px 8px 8px",
+          borderRadius: "10px",
+          border: "1px solid rgba(0,229,255,0.50)",
+          background: hovered ? "rgba(0,229,255,0.22)" : "rgba(0,229,255,0.12)",
+          color: "#00e5ff",
+          fontSize: "11px",
+          fontWeight: 800,
+          padding: "7px 4px",
+          cursor: "pointer",
+          letterSpacing: "0.04em",
+          transition: "background 150ms ease",
+          whiteSpace: "nowrap",
+        }}
+      >
+        הוסף לתצוגה
+      </button>
+
+      {/* Hover preview popup */}
+      {hovered && imgSrc && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "calc(100% + 8px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "168px",
+            height: "130px",
+            borderRadius: "14px",
+            border: "1px solid rgba(0,229,255,0.28)",
+            background: "rgba(4,10,24,0.97)",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.7), 0 0 24px rgba(0,229,255,0.1)",
+            overflow: "hidden",
+            zIndex: 200,
+            pointerEvents: "none",
+          }}
+        >
+          <img
+            src={imgSrc}
+            alt={item}
+            style={{ width: "100%", height: "100%", objectFit: "contain", padding: "10px" }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 const TENT_MODEL_PATH = "/models/inventory/tent-20-30-iai-blue-01.glb";
 
 function TentModel3D() {
@@ -1117,80 +1221,7 @@ export default function TentsLayoutPage() {
                   "דוכן שליטה",
                   'כטב"ם',
                 ].map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => addItem(item)}
-                    style={{
-                      position: "relative",
-                      zIndex: 10,
-                      minHeight: "126px",
-                      borderRadius: "16px",
-                      border: "1px solid rgba(148,163,184,0.16)",
-                      background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)",
-                      padding: "12px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      textAlign: "left",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "62px",
-                        borderRadius: "14px",
-                        border: "1px solid rgba(148,163,184,0.14)",
-                        backgroundImage: `linear-gradient(180deg, rgba(5,10,20,0.12), rgba(5,10,20,0.36)), url("${previewMap[item] || ""}")`,
-                        backgroundColor: "rgba(15,23,42,0.72)",
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
-                      }}
-                    />
-
-                    <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "flex-end",
-                        justifyContent: "space-between",
-                        gap: "10px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: "#f8fbff",
-                          fontWeight: 700,
-                          fontSize: "13px",
-                          lineHeight: 1.1,
-                        }}
-                      >
-                        {item}
-                      </span>
-
-                      <span
-                        style={{
-                          width: "24px",
-                          height: "24px",
-                          borderRadius: "999px",
-                          border: "1px solid rgba(103,232,249,0.42)",
-                          color: "#67e8f9",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                          fontWeight: 800,
-                        }}
-                      >
-                        +
-                      </span>
-                    </div>
-                  </button>
+                  <SidebarItemCard key={item} item={item} onAdd={() => addItem(item)} />
                 ))}
               </div>
             </aside>
@@ -1243,11 +1274,26 @@ export default function TentsLayoutPage() {
               >
                 {["Select", "Move", "Rotate", "Zoom", "View"].map((tool) => {
                   const isActive = activeTool === tool;
+                  const isDisabled = tool === "Zoom";
+                  const tooltips: Record<string, string> = {
+                    Select: "בחר פריט בסצנה",
+                    Move: "גרור פריט על הרצפה",
+                    Rotate: "סובב פריט נבחר 45°",
+                    Zoom: "זום — גלגל עכבר",
+                    View: "חזור למבט כללי",
+                  };
+                  function handleToolClick() {
+                    if (isDisabled) return;
+                    setActiveTool(tool);
+                    if (tool === "Rotate" && selectedItemId) rotateItem(selectedItemId);
+                    if (tool === "View") setCameraMode("overview");
+                  }
                   return (
                     <button
                       key={tool}
                       type="button"
-                      onClick={() => setActiveTool(tool)}
+                      onClick={handleToolClick}
+                      title={tooltips[tool]}
                       style={{
                         padding: "8px 12px",
                         borderRadius: "11px",
@@ -1257,10 +1303,11 @@ export default function TentsLayoutPage() {
                         background: isActive
                           ? "rgba(0,229,255,0.16)"
                           : "rgba(255,255,255,0.03)",
-                        color: isActive ? "#00e5ff" : "#f8fbff",
+                        color: isActive ? "#00e5ff" : isDisabled ? "rgba(248,251,255,0.3)" : "#f8fbff",
                         fontSize: "13px",
                         fontWeight: isActive ? 800 : 700,
-                        cursor: "pointer",
+                        cursor: isDisabled ? "not-allowed" : "pointer",
+                        opacity: isDisabled ? 0.45 : 1,
                         transition: "all 150ms ease",
                       }}
                     >
@@ -1611,80 +1658,7 @@ export default function TentsLayoutPage() {
                   "מקרן",
                   "רמקול",
                 ].map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => addItem(item)}
-                    style={{
-                      position: "relative",
-                      zIndex: 10,
-                      minHeight: "126px",
-                      borderRadius: "16px",
-                      border: "1px solid rgba(148,163,184,0.16)",
-                      background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)",
-                      padding: "12px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      textAlign: "left",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "62px",
-                        borderRadius: "14px",
-                        border: "1px solid rgba(148,163,184,0.14)",
-                        backgroundImage: `linear-gradient(180deg, rgba(5,10,20,0.12), rgba(5,10,20,0.36)), url("${previewMap[item] || ""}")`,
-                        backgroundColor: "rgba(15,23,42,0.72)",
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
-                      }}
-                    />
-
-                    <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "flex-end",
-                        justifyContent: "space-between",
-                        gap: "10px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: "#f8fbff",
-                          fontWeight: 700,
-                          fontSize: "13px",
-                          lineHeight: 1.1,
-                        }}
-                      >
-                        {item}
-                      </span>
-
-                      <span
-                        style={{
-                          width: "24px",
-                          height: "24px",
-                          borderRadius: "999px",
-                          border: "1px solid rgba(103,232,249,0.42)",
-                          color: "#67e8f9",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                          fontWeight: 800,
-                        }}
-                      >
-                        +
-                      </span>
-                    </div>
-                  </button>
+                  <SidebarItemCard key={item} item={item} onAdd={() => addItem(item)} />
                 ))}
               </div>
             </aside>
