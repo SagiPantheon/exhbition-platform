@@ -54,12 +54,12 @@ const rightItems = [
 const previewMap: Record<string, string> = {
   "שולחן":  "/inventory/table-cover-iai-blue-01.png",
   "כיסא":   "/inventory/chair-folding-white-01.png",
-  "ספה":    "/inventory/sofa-01.png",
-  "מסך":    "/inventory/sign-stand-black-a4-01.png",
-  "בר קפה": "/inventory/lectern-acrylic-01.png",
+  "ספה":    "/inventory/podium-square-130x130x90-01.png",
+  "מסך":    "/inventory/lightbox-vertical-multidomain-01.jpeg",
+  "בר קפה": "/inventory/podium-square-100x100x90-01.png",
   "דוכן":   "/inventory/lectern-acrylic-01.png",
-  "מקרן":   "/inventory/projector-01.png",
-  "רמקול":  "/inventory/speaker-01.png",
+  "מקרן":   "/inventory/lightbox-horizontal-multidomain-01.jpeg",
+  "רמקול":  "/inventory/stanchion-black-01.png",
 };
 
 type SceneItem = {
