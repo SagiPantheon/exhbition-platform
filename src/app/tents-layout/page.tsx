@@ -3,8 +3,50 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import emailjs from "@emailjs/browser";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+
+// ─── EmailJS setup ────────────────────────────────────────────────────────────
+// 1. Sign up at https://www.emailjs.com/ (free tier: 200 emails/month)
+// 2. Dashboard → Email Services → Add New Service (Gmail / Outlook / SMTP)
+//    Copy the Service ID → EMAILJS_SERVICE_ID
+// 3. Dashboard → Email Templates → Create Template
+//    Use these template variables:
+//      {{exhibition_name}}  — subject / header
+//      {{tent_info}}        — e.g. "אוהל 25×15 | 25m × 15m"
+//      {{items_list}}       — numbered list of scene items
+//      {{date}}             — send date
+//    In the HTML body add: <img src="{{canvas_image}}" style="max-width:100%"/>
+//    Set "To Email" to: samiel2@iai.co.il
+//    Copy the Template ID → EMAILJS_TEMPLATE_ID
+// 4. Dashboard → Account → API Keys → Public Key → EMAILJS_PUBLIC_KEY
+// ──────────────────────────────────────────────────────────────────────────────
+const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+const EMAILJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+
+async function sendExhibitionEmail(params: {
+  exhibitionName: string;
+  tentInfo: string;
+  itemsList: string;
+  date: string;
+  canvasDataUrl: string;
+}) {
+  return emailjs.send(
+    EMAILJS_SERVICE_ID,
+    EMAILJS_TEMPLATE_ID,
+    {
+      to_email:        "samiel2@iai.co.il",
+      exhibition_name: params.exhibitionName || "תכנית תצוגה",
+      tent_info:       params.tentInfo,
+      items_list:      params.itemsList,
+      date:            params.date,
+      canvas_image:    params.canvasDataUrl,
+    },
+    EMAILJS_PUBLIC_KEY,
+  );
+}
 
 type ExhibitItem = {
   slug: string;
@@ -1011,11 +1053,13 @@ export default function TentsLayoutPage() {
     );
     window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
 
-    const mailSubject = encodeURIComponent(title);
-    const mailBody = encodeURIComponent(
-      `${title}\n${tentLabel} | ${dims}\n\n${numberedItems}\n\n${date}`
-    );
-    window.location.href = `mailto:samiel2@iai.co.il?subject=${mailSubject}&body=${mailBody}`;
+    sendExhibitionEmail({
+      exhibitionName: title,
+      tentInfo:       `${tentLabel} | ${dims}`,
+      itemsList:      numberedItems,
+      date,
+      canvasDataUrl:  captureRef.current?.() ?? "",
+    }).catch(console.error);
   }
 
   function deleteItem(id: string) {
