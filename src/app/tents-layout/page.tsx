@@ -1004,7 +1004,7 @@ export default function TentsLayoutPage() {
     const msg = encodeURIComponent(
       `תכנית תצוגה:\n${tentLabel} | ${dims}\nפריטים: ${itemNames || "אין"}`
     );
-    window.open(`https://wa.me/972XXXXXXXXX?text=${msg}`, "_blank");
+    window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
   }
 
   function deleteItem(id: string) {
