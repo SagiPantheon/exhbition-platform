@@ -70,14 +70,6 @@ type SceneItem = {
   scale: number;
 };
 
-const statusItems = [
-  ["אוהל 25x15", "תבנית פעילה"],
-  ["25m", "אורך"],
-  ["15m", "רוחב"],
-  ["375m²", "שטח"],
-  ["42", "רכיבים"],
-  ["96%", "מוכנות"],
-];
 
 function TopPill({
   label,
@@ -883,6 +875,22 @@ export default function TentsLayoutPage() {
     "שירות": ["דוכן", "מקרן", "רמקול"],
   };
   const filteredInventory = INVENTORY_FILTER_MAP[activeInventoryFilter] ?? INVENTORY_ALL;
+
+  const statusItems = useMemo(() => {
+    const cfg = {
+      "25x15": { name: "אוהל 25x15", length: "25m", width: "15m", area: "375m²" },
+      "30x20": { name: "אוהל 30x20", length: "30m", width: "20m", area: "600m²" },
+      "open":  { name: "שטח פתוח",   length: "25m", width: "15m", area: "375m²" },
+    }[tentType];
+    return [
+      [cfg.name,   "תבנית פעילה"],
+      [cfg.length, "אורך"],
+      [cfg.width,  "רוחב"],
+      [cfg.area,   "שטח"],
+      ["0",        "רכיבים"],
+      ["96%",      "מוכנות"],
+    ];
+  }, [tentType]);
 
   const selectedItem = sceneItems.find((i) => i.id === selectedItemId) ?? null;
   const selectedDisplayName = selectedItem
