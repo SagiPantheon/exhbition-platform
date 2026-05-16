@@ -1028,7 +1028,7 @@ export default function TentsLayoutPage() {
     setTimeout(() => setToastVisible(false), 2000);
   }
 
-  async function handleExportWhatsApp() {
+  function buildExportData() {
     const tentLabel =
       tentType === "30x20" ? "אוהל 30×20" :
       tentType === "open"  ? "שטח פתוח"   : "אוהל 25×15";
@@ -1040,6 +1040,19 @@ export default function TentsLayoutPage() {
           .join("\n")
       : "אין פריטים";
     const date = new Date().toLocaleDateString("he-IL");
+    return { tentLabel, dims, title, numberedItems, date };
+  }
+
+  function handleWhatsApp() {
+    const { tentLabel, dims, title, numberedItems, date } = buildExportData();
+    const msg = encodeURIComponent(
+      `${title}\n${tentLabel} | ${dims}\n\n${numberedItems}\n\n${date}`
+    );
+    window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
+  }
+
+  async function handleEmail() {
+    const { tentLabel, dims, title, numberedItems, date } = buildExportData();
 
     try {
       await sendExhibitionEmail({
@@ -1061,11 +1074,6 @@ export default function TentsLayoutPage() {
       a.download = "תכנית-תצוגה.png";
       a.click();
     }
-
-    const msg = encodeURIComponent(
-      `${title}\n${tentLabel} | ${dims}\n\n${numberedItems}\n\n${date}`
-    );
-    window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
   }
 
   function deleteItem(id: string) {
@@ -1280,7 +1288,7 @@ export default function TentsLayoutPage() {
               </button>
               <button
                 type="button"
-                onClick={handleExportWhatsApp}
+                onClick={handleWhatsApp}
                 style={{
                   padding: "8px 14px",
                   borderRadius: "12px",
@@ -1297,7 +1305,28 @@ export default function TentsLayoutPage() {
                   transition: "background 150ms ease",
                 }}
               >
-                <span style={{ fontSize: "15px" }}>📲</span> שלח ב-WhatsApp
+                📱 WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={handleEmail}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(96,165,250,0.40)",
+                  background: "rgba(96,165,250,0.10)",
+                  color: "#60a5fa",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "background 150ms ease",
+                }}
+              >
+                📧 מייל
               </button>
               <TopPill label="ייצוא תוכנית" active />
             </div>
