@@ -1054,6 +1054,7 @@ export default function TentsLayoutPage() {
   async function handleEmail() {
     const { tentLabel, dims, title, numberedItems, date } = buildExportData();
 
+    console.log("sendExhibitionEmail called");
     try {
       await sendExhibitionEmail({
         exhibitionName: title,
@@ -1064,7 +1065,7 @@ export default function TentsLayoutPage() {
       });
     } catch (err) {
       console.error(err);
-      alert("שגיאה בשליחת המייל. אנא נסה שוב.");
+      alert("שגיאה: " + JSON.stringify(err));
     }
 
     const dataUrl = captureRef.current?.();
