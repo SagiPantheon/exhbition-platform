@@ -762,7 +762,7 @@ function DragHandler({
 function CaptureSetup({ captureRef }: { captureRef: React.MutableRefObject<(() => string) | null> }) {
   const { gl } = useThree();
   useEffect(() => {
-    captureRef.current = () => gl.domElement.toDataURL("image/png");
+    captureRef.current = () => gl.domElement.toDataURL("image/jpeg", 0.4);
     return () => { captureRef.current = null; };
   }, [gl, captureRef]);
   return null;
@@ -1072,7 +1072,7 @@ export default function TentsLayoutPage() {
     if (dataUrl) {
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = "תכנית-תצוגה.png";
+      a.download = "תכנית-תצוגה.jpg";
       a.click();
     }
   }
