@@ -1028,15 +1028,7 @@ export default function TentsLayoutPage() {
     setTimeout(() => setToastVisible(false), 2000);
   }
 
-  function handleExportWhatsApp() {
-    const dataUrl = captureRef.current?.();
-    if (dataUrl) {
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = "תכנית-תצוגה.png";
-      a.click();
-    }
-
+  async function handleExportWhatsApp() {
     const tentLabel =
       tentType === "30x20" ? "אוהל 30×20" :
       tentType === "open"  ? "שטח פתוח"   : "אוהל 25×15";
@@ -1048,18 +1040,32 @@ export default function TentsLayoutPage() {
           .join("\n")
       : "אין פריטים";
     const date = new Date().toLocaleDateString("he-IL");
+
+    try {
+      await sendExhibitionEmail({
+        exhibitionName: title,
+        tentInfo:       `${tentLabel} | ${dims}`,
+        itemsList:      numberedItems,
+        date,
+        canvasDataUrl:  captureRef.current?.() ?? "",
+      });
+    } catch (err) {
+      console.error(err);
+      alert("שגיאה בשליחת המייל. אנא נסה שוב.");
+    }
+
+    const dataUrl = captureRef.current?.();
+    if (dataUrl) {
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "תכנית-תצוגה.png";
+      a.click();
+    }
+
     const msg = encodeURIComponent(
       `${title}\n${tentLabel} | ${dims}\n\n${numberedItems}\n\n${date}`
     );
     window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
-
-    sendExhibitionEmail({
-      exhibitionName: title,
-      tentInfo:       `${tentLabel} | ${dims}`,
-      itemsList:      numberedItems,
-      date,
-      canvasDataUrl:  captureRef.current?.() ?? "",
-    }).catch(console.error);
   }
 
   function deleteItem(id: string) {
