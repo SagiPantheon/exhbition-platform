@@ -188,14 +188,14 @@ export default function AirAssetCard({
             <div className="absolute left-[14px] right-[14px] top-[14px] bottom-[14px] overflow-hidden rounded-[22px] border border-cyan-300/18">
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,14,26,0.76)_0%,rgba(9,16,31,0.96)_100%)]" />
 
-              <div className="relative h-full w-full p-2 md:p-3">
+              <div className="relative h-full w-full p-2 md:p-3 bg-[#070b17]">
                 {hasImage ? (
                   <Image
                     src={asset.image as string}
                     alt={title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    className="select-none object-cover w-full h-full object-center transition duration-500 group-hover:scale-[1.02]"
+                    className="select-none object-contain object-center transition duration-500 group-hover:scale-[1.02]"
                     priority={false}
                   />
                 ) : (
