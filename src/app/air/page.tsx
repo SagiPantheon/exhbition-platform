@@ -5,6 +5,7 @@ import Link from "next/link";
 import AirAssetCard from "../../components/cards/AirAssetCard";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 import { getAllAirAssets } from "../../lib/air-utils";
+import { useSectionAssets } from "../../hooks/useSectionAssets";
 
 type MissionFilter = "defense" | "strike";
 type CategoryFilter =
@@ -16,12 +17,46 @@ type CategoryFilter =
   | "radar"
   | "communications";
 
+const baseAirAssets = getAllAirAssets();
+
 export default function AirPage() {
   const [activeMission, setActiveMission] = useState<MissionFilter>("defense");
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const liveAirAssets = getAllAirAssets();
+  const { assets: liveAirAssets, saveAsset, removeAsset } = useSectionAssets("air", baseAirAssets);
+
+  function handleEdit(asset: any) {
+    const titleEn = window.prompt("Title EN", asset.title?.en);
+    if (titleEn === null) return;
+    const titleHe = window.prompt("Title HE", asset.title?.he);
+    if (titleHe === null) return;
+    const subtitleEn = window.prompt("Subtitle EN", asset.subtitle?.en);
+    if (subtitleEn === null) return;
+    const subtitleHe = window.prompt("Subtitle HE", asset.subtitle?.he);
+    if (subtitleHe === null) return;
+    const statusEn = window.prompt("Status EN", asset.status?.en);
+    if (statusEn === null) return;
+    const statusHe = window.prompt("Status HE", asset.status?.he);
+    if (statusHe === null) return;
+    const configEn = window.prompt("Config EN", asset.config?.en);
+    if (configEn === null) return;
+    const configHe = window.prompt("Config HE", asset.config?.he);
+    if (configHe === null) return;
+    saveAsset({
+      ...asset,
+      title: { en: titleEn, he: titleHe },
+      subtitle: { en: subtitleEn, he: subtitleHe },
+      status: { en: statusEn, he: statusHe },
+      config: { en: configEn, he: configHe },
+    });
+  }
+
+  function handleReset(slug: string) {
+    const ok = window.confirm("Reset this Air asset back to its original base data?");
+    if (!ok) return;
+    removeAsset(slug);
+  }
 
   const filteredAssets = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -179,6 +214,34 @@ export default function AirPage() {
                   viewLabel="View"
                   badgesAlign="end"
                 />
+
+                <div
+                  data-air-edit-bar
+                  className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300/30 bg-gradient-to-r from-amber-300/12 via-yellow-200/8 to-amber-300/12 px-3 py-3 shadow-[0_0_28px_rgba(251,191,36,0.12)]"
+                >
+                  <div
+                    data-air-edit-marker
+                    className="inline-flex items-center rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.22em] text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.16)]"
+                  >
+                    LIVE AIR EDIT
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(asset)}
+                      className="rounded-2xl border border-amber-200/70 bg-gradient-to-r from-amber-300/30 via-yellow-200/20 to-amber-300/30 px-5 py-2.5 text-sm font-extrabold tracking-[0.04em] text-amber-50 shadow-[0_0_0_1px_rgba(255,220,120,0.18),0_0_28px_rgba(251,191,36,0.24)] transition duration-200 hover:-translate-y-[1px] hover:border-amber-100/90 hover:from-amber-300/40 hover:to-yellow-200/30 hover:shadow-[0_0_0_1px_rgba(255,235,160,0.28),0_0_36px_rgba(251,191,36,0.34)]"
+                    >
+                      Edit Air Data
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleReset(asset.slug)}
+                      className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </section>

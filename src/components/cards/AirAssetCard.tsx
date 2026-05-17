@@ -32,6 +32,11 @@ type Props = {
   locale?: "en" | "he";
   href?: string;
   className?: string;
+  basePath?: string;
+  featuredLabel?: string;
+  viewLabel?: string;
+  badgesAlign?: "end" | "center";
+  openLabel?: string;
 };
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -156,6 +161,11 @@ export default function AirAssetCard({
   locale = "en",
   href,
   className,
+  basePath,
+  featuredLabel,
+  viewLabel,
+  badgesAlign = "end",
+  openLabel,
 }: Props) {
   const variant = getVariant(asset);
   const isHebrew = locale === "he";
@@ -165,10 +175,13 @@ export default function AirAssetCard({
   const status = asset.status[locale];
   const config = asset.config[locale];
   const resolvedHref =
-    href ?? (locale === "he" ? `/he/air/${asset.slug}` : `/air/${asset.slug}`);
+    href ?? (basePath
+      ? `${basePath}/${asset.slug}`
+      : locale === "he" ? `/he/air/${asset.slug}` : `/air/${asset.slug}`);
   const displayType = getDisplayTypeLabel(locale, asset, variant);
   const specs = getSpecsForCard(asset, locale);
   const hasImage = Boolean(asset.image && asset.image.trim().length > 0);
+  const badgesAlignClass = badgesAlign === "center" ? "justify-center" : "justify-end";
 
   return (
     <article
@@ -219,7 +232,7 @@ export default function AirAssetCard({
             <div
               className={cx(
                 "mb-5 flex flex-wrap gap-2",
-                isHebrew ? "justify-end" : "justify-start"
+                badgesAlignClass
               )}
             >
               <Badge tone="green">{status}</Badge>
@@ -229,7 +242,7 @@ export default function AirAssetCard({
 
             <div className="mb-5">
               <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-300">
-                {getFeaturedLabel(locale)}
+                {featuredLabel ?? getFeaturedLabel(locale)}
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-white">{title}</h2>
@@ -255,7 +268,7 @@ export default function AirAssetCard({
 
             <div className="mt-5">
               <span className="inline-flex min-h-[44px] items-center justify-center rounded-[14px] border border-cyan-300/35 bg-cyan-400/10 px-4 text-sm font-semibold text-cyan-100 transition group-hover:bg-cyan-400/18">
-                {getViewLabel(locale)}
+                {viewLabel ?? getViewLabel(locale)}
               </span>
             </div>
           </div>
