@@ -432,5 +432,93 @@ export const autoAirAssets = [
       "visualLanguage": { "en": "Air-defense radar showcase", "he": "תצוגת מכ״ם הגנ״א" },
       "platform": { "en": "Self-standing", "he": "עצמאי" }
     }
+  },
+  {
+    "slug": "megapop",
+    "code": "AR-AUTO-018",
+    "image": "/images/air/megapop-showcase.png",
+    "missionType": "strike",
+    "assetCategory": "missile",
+    "title": { "en": "MEGAPOP", "he": "מגה-פופ" },
+    "subtitle": { "en": "Precision strike munition for premium exhibition presentation.", "he": "תחמושת תקיפה מדויקת לתצוגת פרימיום בתערוכה." },
+    "description": { "en": "Prepared for premium strike missile exhibition display and operational presentation.", "he": "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    "status": { "en": "Approved", "he": "מאושר" },
+    "config": { "en": "Missile display", "he": "תצוגת טיל" },
+    "scale": "1:1",
+    "specs": { "length": "TBD", "width": "TBD", "height": "TBD", "weight": "TBD", "standDiameter": "N/A", "standWeight": "N/A" },
+    "readiness": {
+      "environment": { "en": "Indoor / Outdoor", "he": "פנים / חוץ" },
+      "displayMethod": { "en": "Static display", "he": "תצוגה סטטית" },
+      "support": { "en": "Self-standing", "he": "עצמאי" },
+      "presentationLevel": { "en": "Premium", "he": "פרימיום" },
+      "visualLanguage": { "en": "Strike missile showcase", "he": "תצוגת טיל תקיפה" },
+      "platform": { "en": "Self-standing", "he": "עצמאי" }
+    }
+  },
+  {
+    "slug": "pop1000",
+    "code": "AR-AUTO-019",
+    "image": "/images/air/pop1000-showcase.png",
+    "missionType": "strike",
+    "assetCategory": "missile",
+    "title": { "en": "POP 1000", "he": "פופ 1000" },
+    "subtitle": { "en": "Precision strike munition for premium exhibition presentation.", "he": "תחמושת תקיפה מדויקת לתצוגת פרימיום בתערוכה." },
+    "description": { "en": "Prepared for premium strike missile exhibition display and operational presentation.", "he": "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    "status": { "en": "Approved", "he": "מאושר" },
+    "config": { "en": "Missile display", "he": "תצוגת טיל" },
+    "scale": "1:1",
+    "specs": { "length": "TBD", "width": "TBD", "height": "TBD", "weight": "TBD", "standDiameter": "N/A", "standWeight": "N/A" },
+    "readiness": {
+      "environment": { "en": "Indoor / Outdoor", "he": "פנים / חוץ" },
+      "displayMethod": { "en": "Static display", "he": "תצוגה סטטית" },
+      "support": { "en": "Self-standing", "he": "עצמאי" },
+      "presentationLevel": { "en": "Premium", "he": "פרימיום" },
+      "visualLanguage": { "en": "Strike missile showcase", "he": "תצוגת טיל תקיפה" },
+      "platform": { "en": "Self-standing", "he": "עצמאי" }
+    }
+  },
+  {
+    "slug": "minipop",
+    "code": "AR-AUTO-020",
+    "image": "/images/air/minipop-showcase.png",
+    "missionType": "strike",
+    "assetCategory": "missile",
+    "title": { "en": "MINIPOP", "he": "מיני-פופ" },
+    "subtitle": { "en": "Compact precision strike munition for premium exhibition presentation.", "he": "תחמושת תקיפה מדויקת קומפקטית לתצוגת פרימיום בתערוכה." },
+    "description": { "en": "Prepared for premium strike missile exhibition display and operational presentation.", "he": "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    "status": { "en": "Approved", "he": "מאושר" },
+    "config": { "en": "Missile display", "he": "תצוגת טיל" },
+    "scale": "1:1",
+    "specs": { "length": "TBD", "width": "TBD", "height": "TBD", "weight": "TBD", "standDiameter": "N/A", "standWeight": "N/A" },
+    "readiness": {
+      "environment": { "en": "Indoor / Outdoor", "he": "פנים / חוץ" },
+      "displayMethod": { "en": "Static display", "he": "תצוגה סטטית" },
+      "support": { "en": "Self-standing", "he": "עצמאי" },
+      "presentationLevel": { "en": "Premium", "he": "פרימיום" },
+      "visualLanguage": { "en": "Strike missile showcase", "he": "תצוגת טיל תקיפה" },
+      "platform": { "en": "Self-standing", "he": "עצמאי" }
+    }
+  },
+  {
+    "slug": "arrow-launcher",
+    "code": "AR-AUTO-021",
+    "image": "/images/air/arrow-launcher-showcase.png",
+    "missionType": "defense",
+    "assetCategory": "launcher",
+    "title": { "en": "Arrow Launcher", "he": "משגר חץ" },
+    "subtitle": { "en": "Air-defense launcher for premium exhibition presentation.", "he": "משגר הגנ״א לתצוגת פרימיום בתערוכה." },
+    "description": { "en": "Prepared for premium launcher exhibition display and operational air-defense presentation.", "he": "מוכן לתצוגת משגר פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    "status": { "en": "Approved", "he": "מאושר" },
+    "config": { "en": "Launcher display", "he": "תצוגת משגר" },
+    "scale": "1:1",
+    "specs": { "length": "TBD", "width": "TBD", "height": "TBD", "weight": "TBD", "standDiameter": "N/A", "standWeight": "N/A" },
+    "readiness": {
+      "environment": { "en": "Indoor / Outdoor", "he": "פנים / חוץ" },
+      "displayMethod": { "en": "Static display", "he": "תצוגה סטטית" },
+      "support": { "en": "Self-standing", "he": "עצמאי" },
+      "presentationLevel": { "en": "Premium", "he": "פרימיום" },
+      "visualLanguage": { "en": "Air-defense launcher showcase", "he": "תצוגת משגר הגנ״א" },
+      "platform": { "en": "Self-standing", "he": "עצמאי" }
+    }
   }
 ];
