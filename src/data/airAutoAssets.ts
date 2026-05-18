@@ -354,7 +354,7 @@ export const autoAirAssets = [
     "code": "AR-AUTO-017",
     "image": "/images/air/microwami-showcase.png",
     "missionType": "defense",
-    "assetCategory": "radar",
+    "assetCategory": "quadcopter",
     "title": { "en": "MICROWAMI", "he": "מיקרוואמי" },
     "subtitle": { "en": "Microwave radar system for premium exhibition presentation.", "he": "מערכת מכ״ם מיקרוגל לתצוגת פרימיום בתערוכה." },
     "description": { "en": "Prepared for premium radar exhibition display and operational air-defense presentation.", "he": "מוכן לתצוגת מכ״ם פרימיום ולהצגה מבצעית בתחום ההגנה." },
