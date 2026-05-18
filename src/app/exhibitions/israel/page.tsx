@@ -14,7 +14,7 @@ type CatalogAsset = {
   id: string
   titleHe: string
   titleEn: string
-  category: 'space' | 'air' | 'land' | 'water'
+  category: 'space' | 'air' | 'land' | 'naval'
   href: string
 }
 
@@ -53,26 +53,52 @@ const DRAFT_KEY = 'israel-exhibitions-board-draft-v1'
 const IS_EDITING_KEY = 'israel-exhibitions-board-is-editing-v1'
 
 const assetCatalog: CatalogAsset[] = [
-  { id: 'space-tecsar', titleHe: 'טקסאר', titleEn: 'Tecsar', category: 'space', href: '/space/tecsar' },
-  { id: 'space-beresheet', titleHe: 'בראשית', titleEn: 'Beresheet', category: 'space', href: '/space/beresheet' },
-  { id: 'space-shavit', titleHe: 'שביט', titleEn: 'Shavit', category: 'space', href: '/space/shavit' },
-  { id: 'space-optsat-500', titleHe: 'OPTSAT 500', titleEn: 'OPTSAT 500', category: 'space', href: '/space/optsat-500' },
-  { id: 'space-optsar-550', titleHe: 'OptSar 550', titleEn: 'OptSar 550', category: 'space', href: '/space/optsar-550' },
-  { id: 'space-opsat-3000', titleHe: 'OPSAT 3000', titleEn: 'OPSAT 3000', category: 'space', href: '/space/opsat-3000' },
-  { id: 'space-mcs', titleHe: 'MCS', titleEn: 'MCS', category: 'space', href: '/space/mcs' },
+  // Space
+  { id: 'space-tecsar',     titleHe: 'טקסאר',      titleEn: 'Tecsar',      category: 'space', href: '/space/tecsar'     },
+  { id: 'space-beresheet',  titleHe: 'בראשית',     titleEn: 'Beresheet',   category: 'space', href: '/space/beresheet'  },
+  { id: 'space-shavit',     titleHe: 'שביט',       titleEn: 'Shavit',      category: 'space', href: '/space/shavit'     },
+  { id: 'space-optsat-500', titleHe: 'OPTSAT 500', titleEn: 'OPTSAT 500',  category: 'space', href: '/space/optsat-500' },
+  { id: 'space-optsar-550', titleHe: 'OPTSAR 550', titleEn: 'OPTSAR 550',  category: 'space', href: '/space/optsar-550' },
+  { id: 'space-optsat-3000',titleHe: 'OPTSAT 3000',titleEn: 'OPTSAT 3000', category: 'space', href: '/space/optsat-3000'},
+  { id: 'space-mcs',        titleHe: 'MCS',        titleEn: 'MCS',         category: 'space', href: '/space/mcs'        },
 
-  { id: 'air-arrow-3-launcher', titleHe: 'משגר חץ 3', titleEn: 'Arrow 3 Launcher', category: 'air', href: '/air/arrow-3-launcher' },
-  { id: 'air-heron', titleHe: 'הרון', titleEn: 'Heron', category: 'air', href: '/air' },
-  { id: 'air-wonderb', titleHe: 'וונדר בי', titleEn: 'WonderB', category: 'air', href: '/air' },
-  { id: 'air-super-heron', titleHe: 'סופר הרון', titleEn: 'Super Heron', category: 'air', href: '/air' },
+  // Air — manual assets
+  { id: 'air-lora',            titleHe: 'לורה',          titleEn: 'LORA',            category: 'air', href: '/air/lora'            },
+  { id: 'air-arrow-2',         titleHe: 'חץ 2',          titleEn: 'Arrow-2',         category: 'air', href: '/air/arrow-2'         },
+  { id: 'air-arrow-3-missile', titleHe: 'חץ 3',          titleEn: 'Arrow-3',         category: 'air', href: '/air/arrow-3-missile' },
+  { id: 'air-heron',           titleHe: 'הרון',          titleEn: 'Heron',           category: 'air', href: '/air/heron'           },
+  { id: 'air-wanderb',         titleHe: 'וונדר בי',      titleEn: 'WanderB',         category: 'air', href: '/air/wanderb'         },
 
+  // Air — auto assets
+  { id: 'air-mmr',           titleHe: 'מכ״ם MMR',    titleEn: 'MMR',           category: 'air', href: '/air/mmr'           },
+  { id: 'air-arrow-4',       titleHe: 'חץ 4',         titleEn: 'Arrow 4',       category: 'air', href: '/air/arrow-4'       },
+  { id: 'air-thunder-vtol',  titleHe: 'ת׳אנדר VTOL',  titleEn: 'Thunder VTOL',  category: 'air', href: '/air/thunder-vtol'  },
+  { id: 'air-harop',         titleHe: 'הרופ',          titleEn: 'HAROP',         category: 'air', href: '/air/harop'         },
+  { id: 'air-mini-harpy',    titleHe: 'מיני הרפי',     titleEn: 'Mini Harpy',    category: 'air', href: '/air/mini-harpy'    },
+  { id: 'air-lahat',         titleHe: 'להט',           titleEn: 'LAHAT',         category: 'air', href: '/air/lahat'         },
+  { id: 'air-lahat-alfa',    titleHe: 'להט אלפא',      titleEn: 'LAHAT ALFA',    category: 'air', href: '/air/lahat-alfa'    },
+  { id: 'air-barak-launcher',titleHe: 'משגר ברק',      titleEn: 'Barak Launcher',category: 'air', href: '/air/barak-launcher'},
+  { id: 'air-elm-2058',      titleHe: 'מכ״ם ELM-2058', titleEn: 'ELM-2058',      category: 'air', href: '/air/elm-2058'      },
+  { id: 'air-wasp',          titleHe: 'צרעה',          titleEn: 'WASP',          category: 'air', href: '/air/wasp'          },
+  { id: 'air-rotem',         titleHe: 'רותם',          titleEn: 'ROTEM',         category: 'air', href: '/air/rotem'         },
+  { id: 'air-apus25',        titleHe: 'אפוס 25',       titleEn: 'APUS 25',       category: 'air', href: '/air/apus25'        },
+  { id: 'air-apus60',        titleHe: 'אפוס 60',       titleEn: 'APUS 60',       category: 'air', href: '/air/apus60'        },
+  { id: 'air-pointblank',    titleHe: 'פוינטבלנק',     titleEn: 'POINTBLANK',    category: 'air', href: '/air/pointblank'    },
+  { id: 'air-microwami',     titleHe: 'מיקרוואמי',     titleEn: 'MICROWAMI',     category: 'air', href: '/air/microwami'     },
+  { id: 'air-megapop',       titleHe: 'מגה-פופ',       titleEn: 'MEGAPOP',       category: 'air', href: '/air/megapop'       },
+  { id: 'air-pop1000',       titleHe: 'פופ 1000',      titleEn: 'POP 1000',      category: 'air', href: '/air/pop1000'       },
+  { id: 'air-minipop',       titleHe: 'מיני-פופ',      titleEn: 'MINIPOP',       category: 'air', href: '/air/minipop'       },
+  { id: 'air-arrow-launcher',titleHe: 'משגר חץ',       titleEn: 'Arrow Launcher',category: 'air', href: '/air/arrow-launcher'},
+
+  // Land
   { id: 'land-asset-01', titleHe: 'מוצג יבשתי 1', titleEn: 'Land Asset 1', category: 'land', href: '/land' },
   { id: 'land-asset-02', titleHe: 'מוצג יבשתי 2', titleEn: 'Land Asset 2', category: 'land', href: '/land' },
   { id: 'land-asset-03', titleHe: 'מוצג יבשתי 3', titleEn: 'Land Asset 3', category: 'land', href: '/land' },
 
-  { id: 'naval-asset-01', titleHe: 'מוצג ימי 1', titleEn: 'Naval Asset 1', category: 'water', href: '/water' },
-  { id: 'naval-asset-02', titleHe: 'מוצג ימי 2', titleEn: 'Naval Asset 2', category: 'water', href: '/water' },
-  { id: 'naval-asset-03', titleHe: 'מוצג ימי 3', titleEn: 'Naval Asset 3', category: 'water', href: '/water' },
+  // Naval
+  { id: 'naval-asset-01', titleHe: 'מוצג ימי 1', titleEn: 'Naval Asset 1', category: 'naval', href: '/naval' },
+  { id: 'naval-asset-02', titleHe: 'מוצג ימי 2', titleEn: 'Naval Asset 2', category: 'naval', href: '/naval' },
+  { id: 'naval-asset-03', titleHe: 'מוצג ימי 3', titleEn: 'Naval Asset 3', category: 'naval', href: '/naval' },
 ]
 
 const initialExhibitions: IsraelExhibition[] = initialIsraelExhibitions
