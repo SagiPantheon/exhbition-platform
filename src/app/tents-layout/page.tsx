@@ -26,6 +26,19 @@ const EMAILJS_SERVICE_ID  = "service_sp9ss0u";
 const EMAILJS_TEMPLATE_ID = "template_4et8z95";
 const EMAILJS_PUBLIC_KEY  = "u4ZFljZ4yJe2cuKZV";
 
+async function uploadToImgbb(base64: string): Promise<string> {
+  const apiKey = "1b07032c9c2cb8e803460234f5245932";
+  const base64Data = base64.replace(/^data:image\/\w+;base64,/, "");
+  const formData = new FormData();
+  formData.append("image", base64Data);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json();
+  return data.data.url;
+}
+
 async function sendExhibitionEmail(params: {
   exhibitionName: string;
   tentInfo: string;
@@ -33,6 +46,7 @@ async function sendExhibitionEmail(params: {
   date: string;
   canvasDataUrl: string;
 }) {
+  const imageUrl = await uploadToImgbb(params.canvasDataUrl);
   return emailjs.send(
     EMAILJS_SERVICE_ID,
     EMAILJS_TEMPLATE_ID,
@@ -42,7 +56,7 @@ async function sendExhibitionEmail(params: {
       tent_info:       params.tentInfo,
       items_list:      params.itemsList,
       date:            params.date,
-      canvas_image:    params.canvasDataUrl,
+      canvas_image:    imageUrl,
     },
     EMAILJS_PUBLIC_KEY,
   );
@@ -74,6 +88,32 @@ const EXHIBIT_ITEMS: ExhibitItem[] = [
   { slug: "heron",             section: "air", displayName: "Heron",            image: "/images/air/heron-showcase.png",            model3d: "/models/air/heron-showcase-3d.glb" },
   { slug: "wanderb",           section: "air", displayName: "WanderB",          image: "/images/air/wanderb-showcase.png",          model3d: "/models/air/wanderb-showcase-3d.glb" },
   { slug: "wanderb2",          section: "air", displayName: "WanderB 2",        image: "/images/air/wanderb2-showcase.png",         model3d: "/models/air/wanderb2-showcase-3d.glb" },
+
+  // New Air
+  { slug: "arrow-4",          section: "air", displayName: "Arrow-4",         image: "/images/air/arrow-4-showcase.png",          model3d: "/models/air/arrow-4-showcase-3d.glb" },
+  { slug: "thunder-vtol",     section: "air", displayName: "Thunder",          image: "/images/air/Thunderb-showcase.png",          model3d: "/models/air/thunder-showcase-3d.glb" },
+  { slug: "harop",            section: "air", displayName: "Harop",            image: "/images/air/harop-showcase.png",             model3d: "/models/air/harop-showcase-3d.glb" },
+  { slug: "mini-harpy",       section: "air", displayName: "Mini Harpy",       image: "/images/air/mini-harpy-showcase.png",        model3d: "/models/air/mini-harpy-showcase-3d.glb" },
+  { slug: "lahat",            section: "air", displayName: "LAHAT",            image: "/images/air/lahat-showcase.png",             model3d: "/models/air/lahat-showcase-3d.glb" },
+  { slug: "lahat-alfa",       section: "air", displayName: "LAHAT ALFA",       image: "/images/air/lahat-alfa-showcase.png",        model3d: "/models/air/lahat-alfa-showcase-3d.glb" },
+  { slug: "barak-launcher",   section: "air", displayName: "Barak Launcher",   image: "/images/air/barak-launcher-showcase.png",   model3d: "/models/air/barak-launcher-showcase-3d.glb" },
+  { slug: "arrow-launcher",   section: "air", displayName: "Arrow Launcher",   image: "/images/air/arrow-launcher-showcase.png",   model3d: "/models/air/arrow-launcher-showcase-3d.glb" },
+  { slug: "elm-2058",         section: "air", displayName: "ELM-2058",         image: "/images/air/elm-2058-showcase.png",          model3d: "/models/air/elm-2058-showcase-3d.glb" },
+  { slug: "wasp",             section: "air", displayName: "WASP",             image: "/images/air/wasp-showcase.png",              model3d: "/models/air/wasp-showcase-3d.glb" },
+  { slug: "minipop",          section: "air", displayName: "MiniPOP",          image: "/images/air/minipop-showcase.png",           model3d: "/models/air/minipop-showcase-3d.glb" },
+  { slug: "megapop",          section: "air", displayName: "MegaPOP",          image: "/images/air/megapop-showcase.png",           model3d: "/models/air/megapop-showcase-3d.glb" },
+  { slug: "pop1000",          section: "air", displayName: "POP-1000",         image: "/images/air/pop1000-showcase.png",           model3d: "/models/air/pop1000-showcase-3d.glb" },
+  { slug: "pointblank",       section: "air", displayName: "Point Blank",      image: "/images/air/pointblank-showcase.png",        model3d: "/models/air/pointblank-showcase-3d.glb" },
+  { slug: "microwami",        section: "air", displayName: "Micro WAMI",       image: "/images/air/microwami-showcase.png",         model3d: "/models/air/microwami-showcase-3d.glb" },
+  { slug: "rotem",            section: "air", displayName: "Rotem",            image: "/images/air/rotem-showcase.png",             model3d: "/models/air/rotem-showcase-3d.glb" },
+  { slug: "apus25",           section: "air", displayName: "APUS-25",          image: "/images/air/apus25-showcase.png",            model3d: "/models/air/apus25-showcase-3d.glb" },
+  { slug: "apus60",           section: "air", displayName: "APUS-60",          image: "/images/air/apus60-showcase.png",            model3d: "/models/air/apus60-showcase-3d.glb" },
+  { slug: "777",              section: "air", displayName: "777",              image: "/images/air/777-showcase.png",               model3d: "/models/air/777-showcase-3d.glb" },
+  { slug: "b767",             section: "air", displayName: "B767",             image: "/images/air/b767-showcase.png",              model3d: "/models/air/b767-showcase-3d.glb" },
+  // New Land
+  { slug: "robattle",         section: "land", displayName: "RoBattle",        image: "/images/land/robattle-showcase.png",         model3d: "/models/land/robattle-showcase-3d.glb" },
+  // Naval
+  { slug: "katana",           section: "naval", displayName: "Katana",         image: "/images/naval/katana.png",                   model3d: "/models/naval/katana-showcase-3d.glb" },
   // Land
   { slug: "zmag",       section: "land", displayName: "ZMAG",       image: "/images/land/zmag-showcase.png",       model3d: "/models/land/zmag-showcase-3d.glb" },
   { slug: "3dcapture",  section: "land", displayName: "3DCAPTURE",  image: "/images/land/3dcapture-showcase.png",  model3d: "/models/land/3dcapture-showcase-3d.glb" },
