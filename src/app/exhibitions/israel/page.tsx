@@ -91,14 +91,13 @@ const assetCatalog: CatalogAsset[] = [
   { id: 'air-arrow-launcher',titleHe: 'משגר חץ',       titleEn: 'Arrow Launcher',category: 'air', href: '/air/arrow-launcher'},
 
   // Land
-  { id: 'land-asset-01', titleHe: 'מוצג יבשתי 1', titleEn: 'Land Asset 1', category: 'land', href: '/land' },
-  { id: 'land-asset-02', titleHe: 'מוצג יבשתי 2', titleEn: 'Land Asset 2', category: 'land', href: '/land' },
-  { id: 'land-asset-03', titleHe: 'מוצג יבשתי 3', titleEn: 'Land Asset 3', category: 'land', href: '/land' },
+  { id: 'land-zmag',      titleHe: 'זמג',       titleEn: 'ZMAG',      category: 'land', href: '/land/zmag'      },
+  { id: 'land-3dcapture', titleHe: '3DCAPTURE',  titleEn: '3DCAPTURE', category: 'land', href: '/land/3dcapture' },
+  { id: 'land-panda',     titleHe: 'פנדה',       titleEn: 'PANDA',     category: 'land', href: '/land/panda'     },
+  { id: 'land-robattle',  titleHe: 'רובאטל',     titleEn: 'ROBATTLE',  category: 'land', href: '/land/robattle'  },
 
   // Naval
-  { id: 'naval-asset-01', titleHe: 'מוצג ימי 1', titleEn: 'Naval Asset 1', category: 'naval', href: '/naval' },
-  { id: 'naval-asset-02', titleHe: 'מוצג ימי 2', titleEn: 'Naval Asset 2', category: 'naval', href: '/naval' },
-  { id: 'naval-asset-03', titleHe: 'מוצג ימי 3', titleEn: 'Naval Asset 3', category: 'naval', href: '/naval' },
+  { id: 'naval-katana', titleHe: 'קטנה', titleEn: 'KATANA', category: 'naval', href: '/naval/katana' },
 ]
 
 const initialExhibitions: IsraelExhibition[] = initialIsraelExhibitions
