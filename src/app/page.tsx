@@ -102,7 +102,7 @@ export default function HomePage() {
           <aside style={{ width: 140, flexShrink: 0, borderRight: "1px solid rgba(0,200,255,0.08)", background: "#010812", display: "flex", flexDirection: "column", padding: "16px 0" }}>
             {[
               { label: "Hub", icon: "⊙", href: "/", active: false },
-              { label: "Global Exhibit Bank", icon: "◈", href: "#main", active: true },
+              { label: "Global Exhibit Bank", icon: "◈", href: "/dashboard", active: true },
               { label: "Divisions", icon: "⬡", href: "/global-exhibit-bank", active: false },
               { label: "Systems", icon: "≡", href: "/global-exhibit-bank", active: false },
               { label: "Layouts", icon: "⊞", href: "/tents-layout", active: false },
@@ -339,9 +339,10 @@ export default function HomePage() {
             </div>
 
             {/* FOOTER BUTTONS */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               {[
                 { icon: "👁", label: "View All Exhibits", href: "/global-exhibit-bank", primary: true },
+                { icon: "◈", label: "Global Exhibit Bank", href: "/dashboard", primary: true },
                 { icon: "📂", label: "Open Selected Division", href: "/global-exhibit-bank/division?divisionId=missiles-space-defense", primary: false },
                 { icon: "⬇", label: "Export Summary", href: "#", primary: false },
                 { icon: "⊞", label: "Go to Layouts", href: "/tents-layout", primary: false },
