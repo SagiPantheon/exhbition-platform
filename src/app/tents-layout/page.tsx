@@ -763,7 +763,7 @@ function HexBorder() {
   );
 }
 
-function SpotFixture({ position }: { position: [number, number, number] }) {
+function SpotFixture({ position, dramaticLight }: { position: [number, number, number]; dramaticLight: boolean }) {
   return (
     <group position={position}>
       {/* Wide base ring */}
@@ -781,6 +781,18 @@ function SpotFixture({ position }: { position: [number, number, number] }) {
         <cylinderGeometry args={[0.06, 0.06, 0.8, 12]} />
         <meshStandardMaterial color="#00e5ff" emissive="#00e5ff" emissiveIntensity={6.0} roughness={0.05} metalness={0.1} />
       </mesh>
+      {/* Warm downlight from top of pole */}
+      <spotLight
+        position={[0, 1.2, 0]}
+        color={dramaticLight ? "#FFFFFF" : "#FFE4A0"}
+        intensity={dramaticLight ? 60 : 8}
+        angle={dramaticLight ? 0.25 : 0.35}
+        penumbra={dramaticLight ? 0.1 : 0.3}
+        distance={dramaticLight ? 50 : 35}
+        castShadow
+      >
+        <object3D attach="target" position={[0, -3, 0]} />
+      </spotLight>
     </group>
   );
 }
@@ -840,6 +852,7 @@ function TentStage3D({
   onMoveItem,
   tentType,
   captureRef,
+  dramaticLight,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -849,6 +862,7 @@ function TentStage3D({
   onMoveItem: (id: string, x: number, z: number) => void;
   tentType: string;
   captureRef: React.MutableRefObject<(() => string) | null>;
+  dramaticLight: boolean;
 }) {
   const draggingId = useRef<string | null>(null);
 
@@ -860,9 +874,9 @@ function TentStage3D({
       style={{ width: "100%", height: "100%" }}
     >
       <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
-      <ambientLight intensity={1.4} />
-      <directionalLight position={[7, 10, 6]} intensity={1.6} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
-      <directionalLight position={[-5, 4, -4]} intensity={0.5} />
+      <ambientLight intensity={dramaticLight ? 0.2 : 0.5} />
+      <directionalLight position={[7, 10, 6]} intensity={dramaticLight ? 0.3 : 0.8} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
+      <directionalLight position={[-5, 4, -4]} intensity={dramaticLight ? 0.1 : 0.25} />
 
       {/* Corner spotlights — dramatic downlighting */}
       <spotLight position={[-10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
@@ -937,12 +951,12 @@ function TentStage3D({
       <HexBorder />
 
       {/* Spotlight fixtures at hexagon corners — radius 16, angle = (PI/3)*i - PI/6 */}
-      <SpotFixture position={[ 13.86, -1.38,  -8.0]} />
-      <SpotFixture position={[ 13.86, -1.38,   8.0]} />
-      <SpotFixture position={[  0.0,  -1.38,  16.0]} />
-      <SpotFixture position={[-13.86, -1.38,   8.0]} />
-      <SpotFixture position={[-13.86, -1.38,  -8.0]} />
-      <SpotFixture position={[  0.0,  -1.38, -16.0]} />
+      <SpotFixture position={[ 13.86, -1.38,  -8.0]} dramaticLight={dramaticLight} />
+      <SpotFixture position={[ 13.86, -1.38,   8.0]} dramaticLight={dramaticLight} />
+      <SpotFixture position={[  0.0,  -1.38,  16.0]} dramaticLight={dramaticLight} />
+      <SpotFixture position={[-13.86, -1.38,   8.0]} dramaticLight={dramaticLight} />
+      <SpotFixture position={[-13.86, -1.38,  -8.0]} dramaticLight={dramaticLight} />
+      <SpotFixture position={[  0.0,  -1.38, -16.0]} dramaticLight={dramaticLight} />
 
       <ContactShadows
         position={[0, -1.36, 0]}
@@ -966,6 +980,7 @@ useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
 
 export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
+  const [dramaticLight, setDramaticLight] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
 
   useEffect(() => {
@@ -1804,6 +1819,34 @@ export default function TentsLayoutPage() {
                     </button>
                   );
                 })}
+
+                {/* Separator */}
+                <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+
+                {/* Dramatic light toggle */}
+                <button
+                  type="button"
+                  onClick={() => setDramaticLight((v) => !v)}
+                  title={dramaticLight ? "מצב תאורה רגיל" : "מצב תאורה דרמטי"}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "11px",
+                    border: dramaticLight
+                      ? "1px solid rgba(255,200,60,0.60)"
+                      : "1px solid rgba(148,163,184,0.18)",
+                    background: dramaticLight
+                      ? "rgba(255,200,60,0.14)"
+                      : "rgba(255,255,255,0.03)",
+                    color: dramaticLight ? "#ffe680" : "#f8fbff",
+                    fontSize: "13px",
+                    fontWeight: dramaticLight ? 800 : 700,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  {dramaticLight ? "☀️ רגיל" : "💡 בטמן"}
+                </button>
               </div>
             </div>
 
@@ -1896,6 +1939,7 @@ export default function TentsLayoutPage() {
                   onMoveItem={moveItem}
                   tentType={tentType}
                   captureRef={captureRef}
+                  dramaticLight={dramaticLight}
                 />
               </div>
 
