@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { exhibitDivisions, exhibitBankSummary } from "../../data/globalExhibitBank"
@@ -18,6 +19,15 @@ const NAV_ITEMS = [
   { label: "Layouts",            href: "/tents-layout",  icon: "⊡" },
   { label: "Reports",            href: "/exhibitions/israel", icon: "⊟" },
 ]
+
+// ─── Division cover images ────────────────────────────────────────────────────
+
+const DIVISION_COVER_MAP: Record<string, string> = {
+  "missiles-space-defense": "/covers/bg-missiles.png",
+  aviation:                  "/covers/bg-air.png",
+  elta:                      "/covers/bg-elta.png",
+  uav:                       "/covers/bg-land.png",
+}
 
 // ─── Division accent palette ───────────────────────────────────────────────────
 
@@ -102,6 +112,7 @@ const carouselItems = buildCarouselItems()
 export default function DashboardPage() {
   const totalAssets =
     airAssets.length + autoAirAssets.length + spaceAssets.length + landAssets.length
+  const [hoveredDivId, setHoveredDivId] = useState<string | null>(null)
 
   return (
     <div className="flex min-h-screen bg-[#070b17] text-white">
@@ -149,7 +160,7 @@ export default function DashboardPage() {
       <main className="flex-1 overflow-auto px-8 py-8">
 
         {/* Header */}
-        <section className="mb-8 rounded-[34px] border border-cyan-300/20 bg-[radial-gradient(circle_at_top_left,rgba(32,80,170,0.30),rgba(11,18,39,1)_55%)] p-8 shadow-[0_0_50px_rgba(24,119,242,0.12)]">
+        <section className="mb-8 rounded-[34px] border border-cyan-300/20 p-8 shadow-[0_0_50px_rgba(24,119,242,0.12)]" style={{ backgroundImage: "linear-gradient(90deg, rgba(2,8,20,0.80) 0%, rgba(2,8,20,0.40) 60%, transparent 100%), url('/covers/bg-global-bank.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
               <p className="text-[11px] uppercase tracking-[0.35em] text-cyan-300">Exhibition Platform</p>
@@ -174,8 +185,23 @@ export default function DashboardPage() {
             return (
               <div
                 key={div.id}
-                className={`group relative overflow-hidden rounded-[28px] border ${s.border} bg-[#0b1227] shadow-[0_18px_48px_rgba(0,0,0,0.34)] transition duration-300 hover:-translate-y-1`}
+                className={`group relative overflow-hidden rounded-[28px] border ${s.border} bg-[#0b1227] transition duration-300 hover:-translate-y-1`}
+                style={{
+                  ...(DIVISION_COVER_MAP[div.id] ? {
+                    backgroundImage: `url(${DIVISION_COVER_MAP[div.id]})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "right top",
+                  } : {}),
+                  boxShadow: hoveredDivId === div.id
+                    ? "0 0 35px rgba(0,200,255,0.55), 0 0 70px rgba(0,140,255,0.25)"
+                    : "0 0 20px rgba(0,180,255,0.35), 0 0 40px rgba(0,120,255,0.15), inset 0 0 30px rgba(0,150,255,0.08)",
+                  transition: "box-shadow 0.3s ease, transform 0.3s ease",
+                }}
+                onMouseEnter={() => setHoveredDivId(div.id)}
+                onMouseLeave={() => setHoveredDivId(null)}
               >
+                {/* overlay — light enough to show the cover photo */}
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(2,8,20,0.25) 0%, rgba(3,10,24,0.45) 50%, rgba(4,12,28,0.70) 100%)" }} />
                 <div className={`absolute inset-0 ${s.headerBg} pointer-events-none`} />
 
                 <div className="relative p-6">
@@ -212,7 +238,7 @@ export default function DashboardPage() {
                       <span className={`font-bold ${s.badge}`}>{div.readiness}%</span>
                     </div>
                     <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <div className={`h-full rounded-full ${s.bar}`} style={{ width: `${div.readiness}%` }} />
+                      <div className="h-full rounded-full" style={{ width: `${div.readiness}%`, background: "#00D4FF", boxShadow: "0 0 8px rgba(0,200,255,0.8)" }} />
                     </div>
                   </div>
 

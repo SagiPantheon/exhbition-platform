@@ -154,7 +154,7 @@ export default function SpaceAssetPage() {
         </button>
       </div>
 
-      <SpaceAssetPageTemplate asset={asset} />
+      <SpaceAssetPageTemplate asset={asset} locale="en" />
     </>
   );
 }

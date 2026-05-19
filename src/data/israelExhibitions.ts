@@ -21,7 +21,7 @@ type ExhibitionAssetRef = {
   notes: string
 }
 
-type IsraelExhibition = {
+export type IsraelExhibition = {
   id: string
   nameHe: string
   nameEn: string

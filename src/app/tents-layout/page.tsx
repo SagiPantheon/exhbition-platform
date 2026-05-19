@@ -82,32 +82,32 @@ const EXHIBIT_ITEMS: ExhibitItem[] = [
   // Air
   { slug: "arrow-2",           section: "air", displayName: "Arrow-2",          image: "/images/air/arrow-2-showcase.png",          model3d: "/models/air/arrow-2-showcase-3d.glb" },
   { slug: "arrow-3-missile",   section: "air", displayName: "Arrow-3",          image: "/images/air/arrow-3-showcase.png",          model3d: "/models/air/arrow-3-showcase-3d.glb" },
-  { slug: "arrow-3-launcher",  section: "air", displayName: "Arrow-3 Launcher", image: "/images/air/arrow-3-launcher-showcase.png", model3d: "/models/air/arrow-3-launcher.glb" },
+  { slug: "arrow-3-launcher",  section: "air", displayName: "Arrow-3 Launcher", image: "/images/air/arrow-3-launcher-showcase.png", model3d: "" },
   { slug: "lora",              section: "air", displayName: "LORA",             image: "/images/air/lora-showcase.png",             model3d: "/models/air/lora-showcase-3d.glb" },
   { slug: "mmr",               section: "air", displayName: "MMR",              image: "/images/air/mmr-showcase.png",              model3d: "/models/air/mmr-showcase-3d.glb" },
   { slug: "heron",             section: "air", displayName: "Heron",            image: "/images/air/heron-showcase.png",            model3d: "/models/air/heron-showcase-3d.glb" },
   { slug: "wanderb",           section: "air", displayName: "WanderB",          image: "/images/air/wanderb-showcase.png",          model3d: "/models/air/wanderb-showcase-3d.glb" },
-  { slug: "wanderb2",          section: "air", displayName: "WanderB 2",        image: "/images/air/wanderb2-showcase.png",         model3d: "/models/air/wanderb2-showcase-3d.glb" },
+  { slug: "wanderb2",          section: "air", displayName: "WanderB 2",        image: "/images/air/wanderb2-showcase.png",         model3d: "" },
 
   // New Air
   { slug: "arrow-4",          section: "air", displayName: "Arrow-4",         image: "/images/air/arrow-4-showcase.png",          model3d: "/models/air/arrow-4-showcase-3d.glb" },
-  { slug: "thunder-vtol",     section: "air", displayName: "Thunder",          image: "/images/air/Thunderb-showcase.png",          model3d: "/models/air/thunder-showcase-3d.glb" },
+  { slug: "thunder-vtol",     section: "air", displayName: "Thunder",          image: "/images/air/Thunderb-showcase.png",          model3d: "/models/air/thunderb-showcase-3d.glb" },
   { slug: "harop",            section: "air", displayName: "Harop",            image: "/images/air/harop-showcase.png",             model3d: "/models/air/harop-showcase-3d.glb" },
-  { slug: "mini-harpy",       section: "air", displayName: "Mini Harpy",       image: "/images/air/mini-harpy-showcase.png",        model3d: "/models/air/mini-harpy-showcase-3d.glb" },
+  { slug: "mini-harpy",       section: "air", displayName: "Mini Harpy",       image: "/images/air/mini-harpy-showcase.png",        model3d: "/models/air/mini-harop-showcase-3d.glb" },
   { slug: "lahat",            section: "air", displayName: "LAHAT",            image: "/images/air/lahat-showcase.png",             model3d: "/models/air/lahat-showcase-3d.glb" },
   { slug: "lahat-alfa",       section: "air", displayName: "LAHAT ALFA",       image: "/images/air/lahat-alfa-showcase.png",        model3d: "/models/air/lahat-alfa-showcase-3d.glb" },
   { slug: "barak-launcher",   section: "air", displayName: "Barak Launcher",   image: "/images/air/barak-launcher-showcase.png",   model3d: "/models/air/barak-launcher-showcase-3d.glb" },
   { slug: "arrow-launcher",   section: "air", displayName: "Arrow Launcher",   image: "/images/air/arrow-launcher-showcase.png",   model3d: "/models/air/arrow-launcher-showcase-3d.glb" },
-  { slug: "elm-2058",         section: "air", displayName: "ELM-2058",         image: "/images/air/elm-2058-showcase.png",          model3d: "/models/air/elm-2058-showcase-3d.glb" },
+  { slug: "elm-2058",         section: "air", displayName: "ELM-2058",         image: "/images/air/elm-2058-showcase.png",          model3d: "/models/air/elw2058-showcase-3d.glb" },
   { slug: "wasp",             section: "air", displayName: "WASP",             image: "/images/air/wasp-showcase.png",              model3d: "/models/air/wasp-showcase-3d.glb" },
   { slug: "minipop",          section: "air", displayName: "MiniPOP",          image: "/images/air/minipop-showcase.png",           model3d: "/models/air/minipop-showcase-3d.glb" },
   { slug: "megapop",          section: "air", displayName: "MegaPOP",          image: "/images/air/megapop-showcase.png",           model3d: "/models/air/megapop-showcase-3d.glb" },
   { slug: "pop1000",          section: "air", displayName: "POP-1000",         image: "/images/air/pop1000-showcase.png",           model3d: "/models/air/pop1000-showcase-3d.glb" },
-  { slug: "pointblank",       section: "air", displayName: "Point Blank",      image: "/images/air/pointblank-showcase.png",        model3d: "/models/air/pointblank-showcase-3d.glb" },
+  { slug: "pointblank",       section: "air", displayName: "Point Blank",      image: "/images/air/pointblank-showcase.png",        model3d: "/models/air/point-blank-showcase-3d.glb" },
   { slug: "microwami",        section: "air", displayName: "Micro WAMI",       image: "/images/air/microwami-showcase.png",         model3d: "/models/air/microwami-showcase-3d.glb" },
   { slug: "rotem",            section: "air", displayName: "Rotem",            image: "/images/air/rotem-showcase.png",             model3d: "/models/air/rotem-showcase-3d.glb" },
-  { slug: "apus25",           section: "air", displayName: "APUS-25",          image: "/images/air/apus25-showcase.png",            model3d: "/models/air/apus25-showcase-3d.glb" },
-  { slug: "apus60",           section: "air", displayName: "APUS-60",          image: "/images/air/apus60-showcase.png",            model3d: "/models/air/apus60-showcase-3d.glb" },
+  { slug: "apus25",           section: "air", displayName: "APUS-25",          image: "/images/air/apus25-showcase.png",            model3d: "/models/air/apus-25-showcase-3d.glb" },
+  { slug: "apus60",           section: "air", displayName: "APUS-60",          image: "/images/air/apus60-showcase.png",            model3d: "/models/air/apus-60-showcase-3d.glb" },
   { slug: "777",              section: "air", displayName: "777",              image: "/images/air/777-showcase.png",               model3d: "/models/air/777-showcase-3d.glb" },
   { slug: "b767",             section: "air", displayName: "B767",             image: "/images/air/b767-showcase.png",              model3d: "/models/air/b767-showcase-3d.glb" },
   // New Land
@@ -118,8 +118,6 @@ const EXHIBIT_ITEMS: ExhibitItem[] = [
   { slug: "zmag",       section: "land", displayName: "ZMAG",       image: "/images/land/zmag-showcase.png",       model3d: "/models/land/zmag-showcase-3d.glb" },
   { slug: "3dcapture",  section: "land", displayName: "3DCAPTURE",  image: "/images/land/3dcapture-showcase.png",  model3d: "/models/land/3dcapture-showcase-3d.glb" },
   { slug: "panda",      section: "land", displayName: "PANDA",      image: "/images/land/panda-showcase.png",      model3d: "/models/land/panda-showcase-3d.glb" },
-  // Naval
-  { slug: "katana", section: "naval", displayName: "KATANA", image: "/images/naval/katana.png", model3d: "/models/naval/katana-showcase.glb" },
 ];
 
 const rightItems = [
@@ -454,7 +452,7 @@ function OpenAreaOutline() {
   );
 }
 
-function InventoryTable3D({ position = [0, 0, 0] }) {
+function InventoryTable3D({ position = [0, 0, 0] as [number, number, number] }) {
   return (
     <group position={position}>
       <mesh position={[0, 0.78, 0]} castShadow receiveShadow>
@@ -482,7 +480,7 @@ function InventoryTable3D({ position = [0, 0, 0] }) {
   );
 }
 
-function InventoryChair3D({ position = [0, 0, 0], rotationY = 0 }) {
+function InventoryChair3D({ position = [0, 0, 0] as [number, number, number], rotationY = 0 }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
       <mesh position={[0, 0.48, 0]} castShadow receiveShadow>
@@ -515,7 +513,7 @@ function InventoryChair3D({ position = [0, 0, 0], rotationY = 0 }) {
   );
 }
 
-function InventoryScreen3D({ position = [0, 0, 0], rotationY = 0 }) {
+function InventoryScreen3D({ position = [0, 0, 0] as [number, number, number], rotationY = 0 }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
       <mesh position={[0, 0.05, 0]} castShadow receiveShadow>
@@ -552,7 +550,7 @@ function InventorySet3D() {
 }
 
 const itemModelMap: Record<string, string> = {
-  // Exhibits — keyed by slug
+  // Space
   "mcs":               "/models/space/mcs-showcase-3d.glb",
   "optsat-500":        "/models/space/optsat-500-showcase-3d.glb",
   "optsar-550":        "/models/space/optsar-550-showcase-3d.glb",
@@ -560,18 +558,43 @@ const itemModelMap: Record<string, string> = {
   "tecsar":            "/models/space/tecsar-showcase-3d.glb",
   "beresheet":         "/models/space/beresheet-showcase-3d.glb",
   "shavit":            "/models/space/shavit-showcase-3d.glb",
+  // Air — original
   "arrow-2":           "/models/air/arrow-2-showcase-3d.glb",
   "arrow-3-missile":   "/models/air/arrow-3-showcase-3d.glb",
-  "arrow-3-launcher":  "/models/air/arrow-3-launcher.glb",
+  "arrow-3-launcher":  "",
   "lora":              "/models/air/lora-showcase-3d.glb",
   "mmr":               "/models/air/mmr-showcase-3d.glb",
   "heron":             "/models/air/heron-showcase-3d.glb",
   "wanderb":           "/models/air/wanderb-showcase-3d.glb",
-  "wanderb2":          "/models/air/wanderb2-showcase-3d.glb",
+  "wanderb2":          "",
+  // Air — new
+  "arrow-4":           "/models/air/arrow-4-showcase-3d.glb",
+  "thunder-vtol":      "/models/air/thunderb-showcase-3d.glb",
+  "harop":             "/models/air/harop-showcase-3d.glb",
+  "mini-harpy":        "/models/air/mini-harop-showcase-3d.glb",
+  "lahat":             "/models/air/lahat-showcase-3d.glb",
+  "lahat-alfa":        "/models/air/lahat-alfa-showcase-3d.glb",
+  "barak-launcher":    "/models/air/barak-launcher-showcase-3d.glb",
+  "arrow-launcher":    "/models/air/arrow-launcher-showcase-3d.glb",
+  "elm-2058":          "/models/air/elw2058-showcase-3d.glb",
+  "wasp":              "/models/air/wasp-showcase-3d.glb",
+  "minipop":           "/models/air/minipop-showcase-3d.glb",
+  "megapop":           "/models/air/megapop-showcase-3d.glb",
+  "pop1000":           "/models/air/pop1000-showcase-3d.glb",
+  "pointblank":        "/models/air/point-blank-showcase-3d.glb",
+  "microwami":         "/models/air/microwami-showcase-3d.glb",
+  "rotem":             "/models/air/rotem-showcase-3d.glb",
+  "apus25":            "/models/air/apus-25-showcase-3d.glb",
+  "apus60":            "/models/air/apus-60-showcase-3d.glb",
+  "777":               "/models/air/777-showcase-3d.glb",
+  "b767":              "/models/air/b767-showcase-3d.glb",
+  // Land
   "zmag":              "/models/land/zmag-showcase-3d.glb",
   "3dcapture":         "/models/land/3dcapture-showcase-3d.glb",
   "panda":             "/models/land/panda-showcase-3d.glb",
-  "katana":            "/models/naval/katana-showcase.glb",
+  "robattle":          "/models/land/robattle-showcase-3d.glb",
+  // Naval
+  "katana":            "/models/naval/katana-showcase-3d.glb",
   // Inventory — keyed by Hebrew name
   "שולחן":  "/models/inventory/lightbox-horizontal-iai-01.glb",
   "כיסא":   "/models/inventory/lightbox-horizontal-iai-01.glb",
@@ -598,7 +621,7 @@ function DynamicItem({
   activeTool: string;
   draggingId: { current: string | null };
 }) {
-  const modelPath = itemModelMap[item.type] ?? FALLBACK_MODEL;
+  const modelPath = itemModelMap[item.type] || FALLBACK_MODEL;
   const gltf = useGLTF(modelPath);
   const cloned = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
 
@@ -781,7 +804,7 @@ function DragHandler({
       const rect = gl.domElement.getBoundingClientRect();
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      ray.setFromCamera({ x: nx, y: ny }, camera);
+      ray.setFromCamera(new THREE.Vector2(nx, ny), camera);
       const hit = new THREE.Vector3();
       if (ray.ray.intersectPlane(floorPlane, hit)) {
         onMoveRef.current(draggingId.current, hit.x, hit.z);
@@ -937,8 +960,6 @@ function TentStage3D({
 }
 
 useGLTF.preload(TENT_MODEL_PATH);
-// Exhibit models
-EXHIBIT_ITEMS.forEach((e) => useGLTF.preload(e.model3d));
 // Inventory models
 useGLTF.preload("/models/inventory/lightbox-vertical-iai-01.glb");
 useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
@@ -946,6 +967,11 @@ useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
 export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("tentScene")
+    if (saved) try { setSceneItems(JSON.parse(saved)) } catch {}
+  }, [])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState("Select");
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");

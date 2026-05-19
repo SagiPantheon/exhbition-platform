@@ -8,7 +8,7 @@ export type EditableSectionAsset = {
     en?: string;
     he?: string;
   };
-  subtitle?: {
+  subtitle?: string | {
     en?: string;
     he?: string;
   };

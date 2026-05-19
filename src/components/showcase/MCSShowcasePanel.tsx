@@ -248,9 +248,7 @@ function ActionButton({
   );
 }
 
-function Badge() {
-  return null;
-}: {
+function Badge({ text, tone }: {
   text: string;
   tone: "success" | "info" | "neutral";
 }) {

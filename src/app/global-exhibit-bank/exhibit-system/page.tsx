@@ -140,6 +140,8 @@ export default function ExhibitSystemPage() {
     approvalStatus: "Pending detailed system mapping",
     layoutCompatibility: "Future layout compatibility layer",
     relatedSystems: [],
+    spaceSlug: undefined as string | undefined,
+    heroImage: undefined as string | undefined,
   }
 
   const hasSpaceSource = Boolean(record.spaceSlug)

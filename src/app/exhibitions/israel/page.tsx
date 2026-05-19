@@ -35,9 +35,10 @@ type IsraelExhibition = {
   endDate: string
   theme: string
   supplier: string
-  screenSupplier: string
-  exhibitionOwner: string
-  approvingManager: string
+  screenSupplier?: string
+  exhibitionOwner?: string
+  approvingManager?: string
+  inventoryItemIds?: string[]
   brochure: string
   boothType: BoothType
   notes: string
