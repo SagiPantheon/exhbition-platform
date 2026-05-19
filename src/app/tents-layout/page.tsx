@@ -560,7 +560,7 @@ const itemModelMap: Record<string, string> = {
   "shavit":            "/models/space/shavit-showcase-3d.glb",
   // Air — original
   "arrow-2":           "/models/air/arrow-2-showcase-3d.glb",
-  "arrow-3-missile":   "/models/air/arrow-3-showcase-3d.glb",
+  "arrow-3-missile":   "/models/air/arrow-3-showcase.glb",
   "arrow-3-launcher":  "",
   "lora":              "/models/air/lora-showcase-3d.glb",
   "mmr":               "/models/air/mmr-showcase-3d.glb",
@@ -568,7 +568,7 @@ const itemModelMap: Record<string, string> = {
   "wanderb":           "/models/air/wanderb-showcase-3d.glb",
   "wanderb2":          "",
   // Air — new
-  "arrow-4":           "/models/air/arrow-4-showcase-3d.glb",
+  "arrow-4":           "",
   "thunder-vtol":      "/models/air/thunderb-showcase-3d.glb",
   "harop":             "/models/air/harop-showcase-3d.glb",
   "mini-harpy":        "/models/air/mini-harop-showcase-3d.glb",
@@ -577,8 +577,8 @@ const itemModelMap: Record<string, string> = {
   "barak-launcher":    "/models/air/barak-launcher-showcase-3d.glb",
   "arrow-launcher":    "/models/air/arrow-launcher-showcase-3d.glb",
   "elm-2058":          "/models/air/elw2058-showcase-3d.glb",
-  "wasp":              "/models/air/wasp-showcase-3d.glb",
-  "minipop":           "/models/air/minipop-showcase-3d.glb",
+  "wasp":              "",
+  "minipop":           "",
   "megapop":           "/models/air/megapop-showcase-3d.glb",
   "pop1000":           "/models/air/pop1000-showcase-3d.glb",
   "pointblank":        "/models/air/point-blank-showcase-3d.glb",
@@ -594,7 +594,7 @@ const itemModelMap: Record<string, string> = {
   "panda":             "/models/land/panda-showcase-3d.glb",
   "robattle":          "/models/land/robattle-showcase-3d.glb",
   // Naval
-  "katana":            "/models/naval/katana-showcase-3d.glb",
+  "katana":            "/models/naval/katana-showcase.glb",
   // Inventory — keyed by Hebrew name
   "שולחן":  "/models/inventory/lightbox-horizontal-iai-01.glb",
   "כיסא":   "/models/inventory/lightbox-horizontal-iai-01.glb",
