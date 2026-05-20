@@ -883,17 +883,18 @@ export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [dramaticLight, setDramaticLight] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
+  const [tentType, setTentType] = useState<"25x15" | "30x20" | "open">("25x15");
 
   useEffect(() => {
-    const saved = localStorage.getItem("tentScene")
-    if (saved) try { setSceneItems(JSON.parse(saved)) } catch {}
-  }, [])
+    const saved = localStorage.getItem(`tentScene_${tentType}`)
+    if (saved) { try { setSceneItems(JSON.parse(saved)) } catch { setSceneItems([]) } }
+    else { setSceneItems([]) }
+  }, [tentType])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState("Select");
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
   const [activeSection, setActiveSection] = useState<"all" | "space" | "air" | "land" | "naval" | "inventory">("all");
   const [activeInventoryFilter, setActiveInventoryFilter] = useState<"הכל" | "ריהוט" | "מדיה" | "VIP" | "שירות">("הכל");
-  const [tentType, setTentType] = useState<"25x15" | "30x20" | "open">("25x15");
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
   const [toastVisible, setToastVisible] = useState(false);
   const [exhibitSearch, setExhibitSearch] = useState("");
@@ -1011,7 +1012,7 @@ export default function TentsLayoutPage() {
   const captureRef = useRef<(() => string) | null>(null);
 
   function saveScene() {
-    localStorage.setItem("tentScene", JSON.stringify(sceneItems));
+    localStorage.setItem(`tentScene_${tentType}`, JSON.stringify(sceneItems));
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2000);
   }
