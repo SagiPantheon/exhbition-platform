@@ -1001,8 +1001,10 @@ export default function TentsLayoutPage() {
   }
 
   function handleDrop(id: string) {
+    console.log("handleDrop called, id:", id);
     setSceneItems((prev) => {
       const item = prev.find((i) => i.id === id);
+      console.log("item type:", item?.type, "position:", item?.position);
       if (!item) return prev;
 
       const podiums = prev.filter((i) =>
@@ -1010,11 +1012,10 @@ export default function TentsLayoutPage() {
           i.type.includes("podium") ||
           i.type.includes("stand") ||
           i.type.includes("stage") ||
-          i.type.includes("inv-stand") ||
-          i.type.includes("inv-podium") ||
-          i.type.includes("inv-stage")
+          i.type.includes("inv-")
         )
       );
+      console.log("podiums found:", podiums.length, podiums.map((p) => p.type));
 
       let nearest: typeof podiums[0] | null = null;
       let minDist = Infinity;
