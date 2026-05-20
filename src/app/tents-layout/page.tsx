@@ -1709,6 +1709,36 @@ export default function TentsLayoutPage() {
                   );
                 })}
 
+                {/* Rotate 90° one-shot */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!selectedItemId) return;
+                    setSceneItems((prev) =>
+                      prev.map((item) =>
+                        item.id === selectedItemId
+                          ? { ...item, rotationY: item.rotationY + Math.PI / 2 }
+                          : item
+                      )
+                    );
+                  }}
+                  title="סובב 90°"
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "11px",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: selectedItemId ? "rgba(255,255,255,0.03)" : "transparent",
+                    color: selectedItemId ? "#f8fbff" : "rgba(248,251,255,0.3)",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    cursor: selectedItemId ? "pointer" : "not-allowed",
+                    opacity: selectedItemId ? 1 : 0.45,
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  ↻ 90°
+                </button>
+
                 {/* Separator */}
                 <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
 
@@ -1768,7 +1798,7 @@ export default function TentsLayoutPage() {
                     transition: "all 150ms ease",
                   }}
                 >
-                  {dramaticLight ? "☀️ רגיל" : "💡 בטמן"}
+                  {dramaticLight ? "💡 תאורה דרמטית" : "🔆 אור רגיל"}
                 </button>
               </div>
             </div>
@@ -2248,6 +2278,66 @@ export default function TentsLayoutPage() {
           ))}
         </section>
       </div>
+
+      {/* FOCUS MODE — bottom action bar */}
+      {focusMode && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "24px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            display: "flex",
+            gap: "12px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={handleWhatsApp}
+            style={{
+              padding: "12px 22px",
+              borderRadius: "14px",
+              border: "1px solid rgba(37,211,102,0.45)",
+              background: "rgba(10,30,15,0.92)",
+              color: "#4ade80",
+              fontSize: "15px",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            📱 שלח ב-WhatsApp
+          </button>
+          <button
+            type="button"
+            onClick={handleEmail}
+            style={{
+              padding: "12px 22px",
+              borderRadius: "14px",
+              border: "1px solid rgba(96,165,250,0.45)",
+              background: "rgba(8,16,40,0.92)",
+              color: "#60a5fa",
+              fontSize: "15px",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            ✉️ שלח במייל
+          </button>
+        </div>
+      )}
 
       {/* Save toast */}
       {toastVisible && (
