@@ -887,8 +887,19 @@ export default function TentsLayoutPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem(`tentScene_${tentType}`)
-    if (saved) { try { setSceneItems(JSON.parse(saved)) } catch { setSceneItems([]) } }
-    else { setSceneItems([]) }
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        setSceneItems(parsed.items ?? parsed)
+        setExhibitionName(parsed.name ?? "")
+      } catch {
+        setSceneItems([])
+        setExhibitionName("")
+      }
+    } else {
+      setSceneItems([])
+      setExhibitionName("")
+    }
   }, [tentType])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState("Select");
@@ -1012,7 +1023,7 @@ export default function TentsLayoutPage() {
   const captureRef = useRef<(() => string) | null>(null);
 
   function saveScene() {
-    localStorage.setItem(`tentScene_${tentType}`, JSON.stringify(sceneItems));
+    localStorage.setItem(`tentScene_${tentType}`, JSON.stringify({ items: sceneItems, name: exhibitionName }));
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2000);
   }
