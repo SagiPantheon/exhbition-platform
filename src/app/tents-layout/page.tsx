@@ -775,9 +775,16 @@ function TentStage3D({
       style={{ width: "100%", height: "100%" }}
     >
       <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
-      <ambientLight intensity={dramaticLight ? 0.2 : 0.5} />
-      <directionalLight position={[7, 10, 6]} intensity={dramaticLight ? 0.3 : 0.8} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
+      <ambientLight intensity={dramaticLight ? 0.2 : 1.2} />
+      <directionalLight position={[7, 10, 6]} intensity={dramaticLight ? 0.3 : 1.8} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
       <directionalLight position={[-5, 4, -4]} intensity={dramaticLight ? 0.1 : 0.25} />
+      {!dramaticLight && (
+        <>
+          <pointLight position={[0, -0.5, 0]}   intensity={2}   color="#FFE4A0" distance={20} />
+          <pointLight position={[5, -0.5, 5]}    intensity={1.5} color="#FFE4A0" distance={15} />
+          <pointLight position={[-5, -0.5, -5]}  intensity={1.5} color="#FFE4A0" distance={15} />
+        </>
+      )}
 
       {/* Corner spotlights — dramatic downlighting */}
       <spotLight position={[-10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
