@@ -69,10 +69,10 @@ export const masterExhibits: MasterExhibit[] = [
 
   // ── INVENTORY (25) ────────────────────────────────────────────────────────
   // Legacy 6 — mapped to lightbox models
-  { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "", hasModel: true },
-  { slug: "inv-chair",      division: "inventory", nameEn: "Chair",       nameHe: "כיסא",   model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/chair.PNG", hasModel: true },
-  { slug: "inv-sofa",       division: "inventory", nameEn: "Sofa",        nameHe: "ספה",    model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "", hasModel: true },
-  { slug: "inv-coffee-bar", division: "inventory", nameEn: "Coffee Bar",  nameHe: "בר קפה", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "", hasModel: true },
+  { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "", hasModel: true },
+  { slug: "inv-chair",      division: "inventory", nameEn: "Chair",       nameHe: "כיסא",   model3d: "",                                                  image: "/inventory/chair.PNG", hasModel: false },
+  { slug: "inv-sofa",       division: "inventory", nameEn: "Sofa",        nameHe: "ספה",    model3d: "",                                                  image: "", hasModel: false },
+  { slug: "inv-coffee-bar", division: "inventory", nameEn: "Coffee Bar",  nameHe: "בר קפה", model3d: "",                                                  image: "", hasModel: false },
   { slug: "inv-stand",      division: "inventory", nameEn: "Stand",       nameHe: "דוכן",   model3d: "/models/inventory/lightbox-vertical-iai.glb",      image: "/inventory/podium-rect-35x75x90-01.png", hasModel: true },
   { slug: "inv-projector",  division: "inventory", nameEn: "Lightbox",    nameHe: "לייטבוקס", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/lightbox-vertical-globe-01.png", hasModel: true },
   // New 19
@@ -95,6 +95,9 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-magnetic-sign", division: "inventory", nameEn: "Magnetic Signage",nameHe: "שילוט מגנטי",   model3d: "/models/inventory/magnetic-signage-01.glb",        image: "/inventory/magnetic-desk.PNG", hasModel: true },
   { slug: "inv-logo-blue",     division: "inventory", nameEn: "Large Blue Logo", nameHe: "לוגו כחול גדול",model3d: "/models/inventory/logo-blue-large-01.glb",         image: "/inventory/logo-iai-large-2m-01.png", hasModel: true },
   { slug: "inv-white-tent",    division: "inventory", nameEn: "White Tent",      nameHe: "אוהל לבן",      model3d: "/models/inventory/tent-white-01.glb",              image: "/inventory/tent-25x15-white-01.png", hasModel: true },
+  { slug: "inv-table-3d",     division: "inventory", nameEn: "Table 3D",        nameHe: "שולחן תלת מימד", model3d: "/models/inventory/table-3d.glb",                   image: "", hasModel: true },
+  { slug: "inv-wood-sign",    division: "inventory", nameEn: "Wood Signage",    nameHe: "שילוט עץ",       model3d: "/models/inventory/wood-signage-iai.glb",            image: "", hasModel: true },
+  { slug: "inv-tent-main",    division: "inventory", nameEn: "Main Tent",       nameHe: "אוהל ראשי",      model3d: "/models/inventory/tent-20-30-iai-01.glb",           image: "", hasModel: true },
 ];
 
 export function getMasterExhibit(slug: string): MasterExhibit | undefined {
