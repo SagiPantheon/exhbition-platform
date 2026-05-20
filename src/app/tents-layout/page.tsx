@@ -963,16 +963,20 @@ export default function TentsLayoutPage() {
     const angle = Math.random() * Math.PI * 2;
     const radius = 5.5 + Math.random() * 4.5;
     const newId = `${type}-${Date.now()}`;
-    setSceneItems((prev) => [
-      ...prev,
-      {
-        id: newId,
-        type,
-        position: [Math.cos(angle) * radius, -1.38, Math.sin(angle) * radius],
-        rotationY: 0,
-        scale: 0.8,
-      },
-    ]);
+    setSceneItems((prev) => {
+      const existing = prev.find((item) => item.type === type);
+      const scale = existing ? existing.scale : 0.8;
+      return [
+        ...prev,
+        {
+          id: newId,
+          type,
+          position: [Math.cos(angle) * radius, -1.38, Math.sin(angle) * radius],
+          rotationY: 0,
+          scale,
+        },
+      ];
+    });
     setSelectedItemId(newId);
   }
 
