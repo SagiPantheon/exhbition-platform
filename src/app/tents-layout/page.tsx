@@ -596,6 +596,7 @@ function CameraRig({ mode, draggingId }: { mode: CameraMode; draggingId: { curre
       minDistance={0.5}
       maxDistance={25}
       target={[0, -1, 0]}
+      onChange={() => invalidate()}
     />
   );
 }
