@@ -568,11 +568,11 @@ const CAM_PRESETS = {
 type CameraMode = keyof typeof CAM_PRESETS;
 
 function CameraRig({ mode, draggingId }: { mode: CameraMode; draggingId: { current: string | null } }) {
-  const { camera } = useThree();
+  const { camera, invalidate } = useThree();
   const controlsRef = useRef<any>(null);
   const animating = useRef(false);
 
-  useEffect(() => { animating.current = true; }, [mode]);
+  useEffect(() => { animating.current = true; invalidate(); }, [mode]);
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -582,6 +582,7 @@ function CameraRig({ mode, draggingId }: { mode: CameraMode; draggingId: { curre
     camera.position.lerp(pos, 0.12);
     controlsRef.current.target.lerp(look, 0.12);
     controlsRef.current.update();
+    invalidate();
     if (camera.position.distanceTo(pos) < 0.08) {
       camera.position.copy(pos);
       controlsRef.current.target.copy(look);
@@ -692,7 +693,6 @@ function SpotFixture({ position, dramaticLight }: { position: [number, number, n
         angle={dramaticLight ? 0.25 : 0.35}
         penumbra={dramaticLight ? 0.1 : 0.3}
         distance={dramaticLight ? 50 : 35}
-        castShadow
       >
         <object3D attach="target" position={[0, -3, 0]} />
       </spotLight>
@@ -772,6 +772,7 @@ function TentStage3D({
   return (
     <Canvas
       shadows
+      frameloop="demand"
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
       style={{ width: "100%", height: "100%" }}
@@ -782,10 +783,10 @@ function TentStage3D({
       <directionalLight position={[-5, 4, -4]} intensity={dramaticLight ? 0.1 : 0.25} />
 
       {/* Corner spotlights — dramatic downlighting */}
-      <spotLight position={[-10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
-      <spotLight position={[ 10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
-      <spotLight position={[-10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
-      <spotLight position={[ 10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" castShadow />
+      <spotLight position={[-10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
+      <spotLight position={[ 10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
+      <spotLight position={[-10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
+      <spotLight position={[ 10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
 
       <Suspense
         fallback={
