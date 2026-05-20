@@ -6,6 +6,7 @@ import * as THREE from "three";
 import emailjs from "@emailjs/browser";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { masterExhibits } from "../../data/masterExhibits";
 
 // ─── EmailJS setup ────────────────────────────────────────────────────────────
 // 1. Sign up at https://www.emailjs.com/ (free tier: 200 emails/month)
@@ -62,83 +63,13 @@ async function sendExhibitionEmail(params: {
   );
 }
 
-type ExhibitItem = {
-  slug: string;
-  section: "space" | "air" | "land" | "naval" | "inventory";
-  displayName: string;
-  image: string;
-  model3d: string;
-};
-
-const EXHIBIT_ITEMS: ExhibitItem[] = [
-  // Space
-  { slug: "mcs",          section: "space", displayName: "MCS",              image: "/images/space/mcs-showcase.png",          model3d: "/models/space/mcs-showcase-3d.glb" },
-  { slug: "optsat-500",   section: "space", displayName: "OPTSAT-500",        image: "/images/space/optsat-500-showcase.png",    model3d: "/models/space/optsat-500-showcase-3d.glb" },
-  { slug: "optsar-550",   section: "space", displayName: "OPTSAR-550",        image: "/images/space/optsar-550-showcase.png",    model3d: "/models/space/optsar-550-showcase-3d.glb" },
-  { slug: "optsat-3000",  section: "space", displayName: "OPTSAT 3000",       image: "/images/space/optsat-3000-showcase.png",   model3d: "/models/space/optsat-3000-showcase-3d.glb" },
-  { slug: "tecsar",       section: "space", displayName: "TECSAR",            image: "/images/space/tecsar-showcase.png",        model3d: "/models/space/tecsar-showcase-3d.glb" },
-  { slug: "beresheet",    section: "space", displayName: "בראשית",            image: "/images/space/beresheet-showcase.png",     model3d: "/models/space/beresheet-showcase-3d.glb" },
-  { slug: "shavit",       section: "space", displayName: "שביט",              image: "/images/space/shavit-showcase.png",        model3d: "/models/space/shavit-showcase-3d.glb" },
-  // Air
-  { slug: "arrow-2",           section: "air", displayName: "חץ 2",            image: "/images/air/arrow-2-showcase.png",          model3d: "/models/air/arrow-2-showcase-3d.glb" },
-  { slug: "arrow-3-missile",   section: "air", displayName: "חץ 3",            image: "/images/air/arrow-3-showcase.png",          model3d: "/models/air/arrow-3-showcase-3d.glb" },
-  { slug: "arrow-3-launcher",  section: "air", displayName: "מפעיל חץ 3",      image: "/images/air/arrow-3-launcher-showcase.png", model3d: "" },
-  { slug: "lora",              section: "air", displayName: "לורה",            image: "/images/air/lora-showcase.png",             model3d: "/models/air/lora-showcase-3d.glb" },
-  { slug: "mmr",               section: "air", displayName: "MMR",             image: "/images/air/mmr-showcase.png",              model3d: "/models/air/mmr-showcase-3d.glb" },
-  { slug: "heron",             section: "air", displayName: "הרון",            image: "/images/air/heron-showcase.png",            model3d: "/models/air/heron-showcase-3d.glb" },
-  { slug: "wanderb",           section: "air", displayName: "וונדר B",         image: "/images/air/wanderb-showcase.png",          model3d: "/models/air/wanderb-showcase-3d.glb" },
-  { slug: "wanderb2",          section: "air", displayName: "וונדר B2",        image: "/images/air/wanderb2-showcase.png",         model3d: "" },
-
-  // New Air
-  { slug: "arrow-4",          section: "air", displayName: "חץ 4",            image: "/images/air/arrow-4-showcase.png",          model3d: "/models/air/arrow-4-showcase-3d.glb" },
-  { slug: "thunder-vtol",     section: "air", displayName: "תאנדר",           image: "/images/air/Thunderb-showcase.png",         model3d: "/models/air/thunderb-showcase-3d.glb" },
-  { slug: "harop",            section: "air", displayName: "הארופ",           image: "/images/air/harop-showcase.png",            model3d: "/models/air/harop-showcase-3d.glb" },
-  { slug: "mini-harpy",       section: "air", displayName: "מיני הארפי",      image: "/images/air/mini-harpy-showcase.png",       model3d: "/models/air/mini-harop-showcase-3d.glb" },
-  { slug: "lahat",            section: "air", displayName: "להט",             image: "/images/air/lahat-showcase.png",            model3d: "/models/air/lahat-showcase-3d.glb" },
-  { slug: "lahat-alfa",       section: "air", displayName: "להט אלפא",        image: "/images/air/lahat-alfa-showcase.png",       model3d: "/models/air/lahat-alfa-showcase-3d.glb" },
-  { slug: "barak-launcher",   section: "air", displayName: "מפעיל ברק",       image: "/images/air/barak-launcher-showcase.png",  model3d: "/models/air/barak-launcher-showcase-3d.glb" },
-  { slug: "arrow-launcher",   section: "air", displayName: "מפעיל חץ",        image: "/images/air/arrow-launcher-showcase.png",  model3d: "/models/air/arrow-launcher-showcase-3d.glb" },
-  { slug: "elm-2058",         section: "air", displayName: "ELM-2058",        image: "/images/air/elm-2058-showcase.png",         model3d: "/models/air/elw2058-showcase-3d.glb" },
-  { slug: "wasp",             section: "air", displayName: "WASP",            image: "/images/air/wasp-showcase.png",             model3d: "/models/air/wasp-showcase-3d.glb" },
-  { slug: "minipop",          section: "air", displayName: "מיניפופ",         image: "/images/air/minipop-showcase.png",          model3d: "/models/air/minipop-showcase-3d.glb" },
-  { slug: "megapop",          section: "air", displayName: "מגהפופ",          image: "/images/air/megapop-showcase.png",          model3d: "/models/air/megapop-showcase-3d.glb" },
-  { slug: "pop1000",          section: "air", displayName: "פופ 1000",        image: "/images/air/pop1000-showcase.png",          model3d: "/models/air/pop1000-showcase-3d.glb" },
-  { slug: "pointblank",       section: "air", displayName: "פוינט בלנק",      image: "/images/air/pointblank-showcase.png",       model3d: "/models/air/point-blank-showcase-3d.glb" },
-  { slug: "microwami",        section: "air", displayName: "מיקרו WAMI",      image: "/images/air/microwami-showcase.png",        model3d: "/models/air/microwami-showcase-3d.glb" },
-  { slug: "rotem",            section: "air", displayName: "רותם",            image: "/images/air/rotem-showcase.png",            model3d: "/models/air/rotem-showcase-3d.glb" },
-  { slug: "apus25",           section: "air", displayName: "APUS 25",         image: "/images/air/apus25-showcase.png",           model3d: "/models/air/apus-25-showcase-3d.glb" },
-  { slug: "apus60",           section: "air", displayName: "APUS 60",         image: "/images/air/apus60-showcase.png",           model3d: "/models/air/apus-60-showcase-3d.glb" },
-  { slug: "777",              section: "air", displayName: "בואינג 777",      image: "/images/air/777-showcase.png",              model3d: "/models/air/777-showcase-3d.glb" },
-  { slug: "b767",             section: "air", displayName: "בואינג 767",      image: "/images/air/b767-showcase.png",             model3d: "/models/air/b767-showcase-3d.glb" },
-  // New Land
-  { slug: "robattle",         section: "land", displayName: "רובטל",          image: "/images/land/robattle-showcase.png",        model3d: "/models/land/robattle-showcase-3d.glb" },
-  // Naval
-  { slug: "katana",           section: "naval", displayName: "Katana",         image: "/images/naval/katana.png",                   model3d: "/models/naval/katana-showcase-3d.glb" },
-  // Land
-  { slug: "zmag",       section: "land", displayName: "ZMAG",       image: "/images/land/zmag-showcase.png",       model3d: "/models/land/zmag-showcase-3d.glb" },
-  { slug: "3dcapture",  section: "land", displayName: "3DCAPTURE",  image: "/images/land/3dcapture-showcase.png",  model3d: "/models/land/3dcapture-showcase-3d.glb" },
-  { slug: "panda",      section: "land", displayName: "PANDA",      image: "/images/land/panda-showcase.png",      model3d: "/models/land/panda-showcase-3d.glb" },
-  // Inventory
-  { slug: "במה כחולה",       section: "inventory", displayName: "במה כחולה",       image: "", model3d: "/models/inventory/stage-blue-01.glb" },
-  { slug: "מסך",             section: "inventory", displayName: "מסך",             image: "", model3d: "/models/inventory/screen-stand-iai-01.glb" },
-  { slug: "לוגו לבן",        section: "inventory", displayName: "לוגו לבן",        image: "", model3d: "/models/inventory/logo-white-iai-01.glb" },
-  { slug: "רמקול",           section: "inventory", displayName: "רמקול",           image: "", model3d: "/models/inventory/loudspeaker-iai.glb" },
-  { slug: "כיסא מתקפל",      section: "inventory", displayName: "כיסא מתקפל",      image: "", model3d: "/models/inventory/folding-chair-iai.glb" },
-  { slug: "דגל סיני",        section: "inventory", displayName: "דגל סיני",        image: "", model3d: "/models/inventory/flag-china-01.glb" },
-  { slug: "רשת הסוואה",      section: "inventory", displayName: "רשת הסוואה",      image: "", model3d: "/models/inventory/camouflage-iai-01.glb" },
-  { slug: "שער מתנפח",       section: "inventory", displayName: "שער מתנפח",       image: "", model3d: "/models/inventory/inflatable-arch-01.glb" },
-  { slug: "עמודי תור",       section: "inventory", displayName: "עמודי תור",       image: "", model3d: "/models/inventory/queue-poles-01.glb" },
-  { slug: "מתקן טלפונים",    section: "inventory", displayName: "מתקן טלפונים",    image: "", model3d: "/models/inventory/phone-storage-01.glb" },
-  { slug: "במה קטנה",        section: "inventory", displayName: "במה קטנה",        image: "", model3d: "/models/inventory/stage-blue-1m-01.glb" },
-  { slug: "קורסא",           section: "inventory", displayName: "קורסא",           image: "", model3d: "/models/inventory/armchair-01.glb" },
-  { slug: "אוהל מתנפח",      section: "inventory", displayName: "אוהל מתנפח",      image: "", model3d: "/models/inventory/inflatable-tent-01.glb" },
-  { slug: "לייטבוקס 2",      section: "inventory", displayName: "לייטבוקס 2",      image: "", model3d: "/models/inventory/ligthbox-horizontal-iai-02.glb" },
-  { slug: "פודיום",          section: "inventory", displayName: "פודיום",          image: "", model3d: "/models/inventory/acrylic-podium-iai.glb" },
-  { slug: "שילוט דיגיטלי",   section: "inventory", displayName: "שילוט דיגיטלי",   image: "", model3d: "/models/inventory/digital-signage-01.glb" },
-  { slug: "שילוט מגנטי",     section: "inventory", displayName: "שילוט מגנטי",     image: "", model3d: "/models/inventory/magnetic-signage-01.glb" },
-  { slug: "לוגו כחול גדול",  section: "inventory", displayName: "לוגו כחול גדול",  image: "", model3d: "/models/inventory/logo-blue-large-01.glb" },
-  { slug: "אוהל לבן",        section: "inventory", displayName: "אוהל לבן",        image: "", model3d: "/models/inventory/tent-white-01.glb" },
-];
+const EXHIBIT_ITEMS = masterExhibits.map((e) => ({
+  slug: e.slug,
+  section: e.division,
+  displayName: e.nameHe,
+  image: e.image,
+  model3d: e.model3d,
+}));
 
 const rightItems = [
   "שולחן",
@@ -569,80 +500,14 @@ function InventorySet3D() {
   );
 }
 
-const itemModelMap: Record<string, string> = {
-  // Space
-  "mcs":               "/models/space/mcs-showcase-3d.glb",
-  "optsat-500":        "/models/space/optsat-500-showcase-3d.glb",
-  "optsar-550":        "/models/space/optsar-550-showcase-3d.glb",
-  "optsat-3000":       "/models/space/optsat-3000-showcase-3d.glb",
-  "tecsar":            "/models/space/tecsar-showcase-3d.glb",
-  "beresheet":         "/models/space/beresheet-showcase-3d.glb",
-  "shavit":            "/models/space/shavit-showcase-3d.glb",
-  // Air — original
-  "arrow-2":           "/models/air/arrow-2-showcase-3d.glb",
-  "arrow-3-missile":   "/models/air/arrow-3-showcase-3d.glb",
-  "arrow-3-launcher":  "",
-  "lora":              "/models/air/lora-showcase-3d.glb",
-  "mmr":               "/models/air/mmr-showcase-3d.glb",
-  "heron":             "/models/air/heron-showcase-3d.glb",
-  "wanderb":           "/models/air/wanderb-showcase-3d.glb",
-  "wanderb2":          "",
-  // Air — new
-  "arrow-4":           "",
-  "thunder-vtol":      "/models/air/thunderb-showcase-3d.glb",
-  "harop":             "/models/air/harop-showcase-3d.glb",
-  "mini-harpy":        "/models/air/mini-harop-showcase-3d.glb",
-  "lahat":             "/models/air/lahat-showcase-3d.glb",
-  "lahat-alfa":        "/models/air/lahat-alfa-showcase-3d.glb",
-  "barak-launcher":    "/models/air/barak-launcher-showcase-3d.glb",
-  "arrow-launcher":    "/models/air/arrow-launcher-showcase-3d.glb",
-  "elm-2058":          "/models/air/elw2058-showcase-3d.glb",
-  "wasp":              "",
-  "minipop":           "",
-  "megapop":           "/models/air/megapop-showcase-3d.glb",
-  "pop1000":           "/models/air/pop1000-showcase-3d.glb",
-  "pointblank":        "/models/air/point-blank-showcase-3d.glb",
-  "microwami":         "/models/air/microwami-showcase-3d.glb",
-  "rotem":             "/models/air/rotem-showcase-3d.glb",
-  "apus25":            "/models/air/apus-25-showcase-3d.glb",
-  "apus60":            "/models/air/apus-60-showcase-3d.glb",
-  "777":               "/models/air/777-showcase-3d.glb",
-  "b767":              "/models/air/b767-showcase-3d.glb",
-  // Land
-  "zmag":              "/models/land/zmag-showcase-3d.glb",
-  "3dcapture":         "/models/land/3dcapture-showcase-3d.glb",
-  "panda":             "/models/land/panda-showcase-3d.glb",
-  "robattle":          "/models/land/robattle-showcase-3d.glb",
-  // Naval
-  "katana":            "/models/naval/katana-showcase.glb",
-  // Inventory — keyed by Hebrew name (legacy)
-  "שולחן":  "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "כיסא":   "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "ספה":    "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "בר קפה": "/models/inventory/lightbox-horizontal-iai-01.glb",
-  "דוכן":   "/models/inventory/lightbox-vertical-iai.glb",
-  "מקרן":   "/models/inventory/lightbox-horizontal-iai-01.glb",
-  // Inventory — new items
-  "במה כחולה":      "/models/inventory/stage-blue-01.glb",
-  "מסך":            "/models/inventory/screen-stand-iai-01.glb",
-  "לוגו לבן":       "/models/inventory/logo-white-iai-01.glb",
-  "רמקול":          "/models/inventory/loudspeaker-iai.glb",
-  "כיסא מתקפל":     "/models/inventory/folding-chair-iai.glb",
-  "דגל סיני":       "/models/inventory/flag-china-01.glb",
-  "רשת הסוואה":     "/models/inventory/camouflage-iai-01.glb",
-  "שער מתנפח":      "/models/inventory/inflatable-arch-01.glb",
-  "עמודי תור":      "/models/inventory/queue-poles-01.glb",
-  "מתקן טלפונים":   "/models/inventory/phone-storage-01.glb",
-  "במה קטנה":       "/models/inventory/stage-blue-1m-01.glb",
-  "קורסא":          "/models/inventory/armchair-01.glb",
-  "אוהל מתנפח":     "/models/inventory/inflatable-tent-01.glb",
-  "לייטבוקס 2":     "/models/inventory/ligthbox-horizontal-iai-02.glb",
-  "פודיום":         "/models/inventory/acrylic-podium-iai.glb",
-  "שילוט דיגיטלי":  "/models/inventory/digital-signage-01.glb",
-  "שילוט מגנטי":    "/models/inventory/magnetic-signage-01.glb",
-  "לוגו כחול גדול": "/models/inventory/logo-blue-large-01.glb",
-  "אוהל לבן":       "/models/inventory/tent-white-01.glb",
-};
+const itemModelMap: Record<string, string> = Object.fromEntries([
+  // slug → model for all exhibit items
+  ...masterExhibits.map((e): [string, string] => [e.slug, e.hasModel ? e.model3d : ""]),
+  // Hebrew nameHe → model for inventory panel items (keyed by display name)
+  ...masterExhibits
+    .filter((e) => e.division === "inventory")
+    .map((e): [string, string] => [e.nameHe, e.hasModel ? e.model3d : ""]),
+]);
 
 const FALLBACK_MODEL = "/models/inventory/flags-iai-01.glb";
 
