@@ -82,16 +82,11 @@ const rightItems = [
   "רמקול",
 ];
 
-const previewMap: Record<string, string> = {
-  "שולחן":  "/inventory/table-cover-iai-blue-01.png",
-  "כיסא":   "/inventory/chair-folding-white-01.png",
-  "ספה":    "/inventory/podium-square-130x130x90-01.png",
-  "מסך":    "/inventory/lightbox-vertical-multidomain-01.jpeg",
-  "בר קפה": "/inventory/podium-square-100x100x90-01.png",
-  "דוכן":   "/inventory/lectern-acrylic-01.png",
-  "מקרן":   "/inventory/lightbox-horizontal-multidomain-01.jpeg",
-  "רמקול":  "/inventory/stanchion-black-01.png",
-};
+const previewMap: Record<string, string> = Object.fromEntries(
+  masterExhibits
+    .filter((e) => e.division === "inventory" && e.image)
+    .map((e) => [e.nameHe, e.image])
+);
 
 type SceneItem = {
   id: string;
