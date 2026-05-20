@@ -74,11 +74,11 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-sofa",       division: "inventory", nameEn: "Sofa",        nameHe: "ספה",    model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "", hasModel: true },
   { slug: "inv-coffee-bar", division: "inventory", nameEn: "Coffee Bar",  nameHe: "בר קפה", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "", hasModel: true },
   { slug: "inv-stand",      division: "inventory", nameEn: "Stand",       nameHe: "דוכן",   model3d: "/models/inventory/lightbox-vertical-iai.glb",      image: "/inventory/podium-rect-35x75x90-01.png", hasModel: true },
-  { slug: "inv-projector",  division: "inventory", nameEn: "Projector",   nameHe: "מקרן",   model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "", hasModel: true },
+  { slug: "inv-projector",  division: "inventory", nameEn: "Lightbox",    nameHe: "לייטבוקס", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/lightbox-vertical-globe-01.png", hasModel: true },
   // New 19
   { slug: "inv-stage-blue",    division: "inventory", nameEn: "Blue Stage",      nameHe: "במה כחולה",     model3d: "/models/inventory/stage-blue-01.glb",              image: "/inventory/stage-130-130.PNG", hasModel: true },
   { slug: "inv-screen",        division: "inventory", nameEn: "Screen Stand",    nameHe: "מסך",           model3d: "/models/inventory/screen-stand-iai-01.glb",        image: "/inventory/screen-stand.PNG", hasModel: true },
-  { slug: "inv-logo-white",    division: "inventory", nameEn: "White Logo",      nameHe: "לוגו לבן",      model3d: "/models/inventory/logo-white-iai-01.glb",          image: "/inventory/small-logo.png", hasModel: true },
+  { slug: "inv-logo-white",    division: "inventory", nameEn: "White Logo",      nameHe: "לוגו לבן",      model3d: "/models/inventory/logo-white-iai-01.glb",          image: "", hasModel: true },
   { slug: "inv-loudspeaker",   division: "inventory", nameEn: "Speaker",         nameHe: "רמקול",         model3d: "/models/inventory/loudspeaker-iai.glb",            image: "/inventory/loudspeaker.PNG", hasModel: true },
   { slug: "inv-folding-chair", division: "inventory", nameEn: "Folding Chair",   nameHe: "כיסא מתקפל",    model3d: "/models/inventory/folding-chair-iai.glb",          image: "/inventory/chair-folding-white-01.png", hasModel: true },
   { slug: "inv-flag-china",    division: "inventory", nameEn: "China Flag",      nameHe: "דגל סיני",      model3d: "/models/inventory/flag-china-01.glb",              image: "", hasModel: true },

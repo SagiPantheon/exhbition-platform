@@ -63,13 +63,15 @@ async function sendExhibitionEmail(params: {
   );
 }
 
-const EXHIBIT_ITEMS = masterExhibits.map((e) => ({
-  slug: e.slug,
-  section: e.division,
-  displayName: e.nameHe,
-  image: e.image,
-  model3d: e.model3d,
-}));
+const EXHIBIT_ITEMS = masterExhibits
+  .filter((e) => e.division !== "inventory")
+  .map((e) => ({
+    slug: e.slug,
+    section: e.division,
+    displayName: e.nameHe,
+    image: e.image,
+    model3d: e.model3d,
+  }));
 
 const rightItems = [
   "שולחן",
