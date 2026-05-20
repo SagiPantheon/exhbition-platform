@@ -701,9 +701,11 @@ function SpotFixture({ position, dramaticLight }: { position: [number, number, n
 function DragHandler({
   draggingId,
   onMoveItem,
+  onDrop,
 }: {
   draggingId: { current: string | null };
   onMoveItem: (id: string, x: number, z: number) => void;
+  onDrop?: (id: string) => void;
 }) {
   const { camera, gl } = useThree();
   const floorPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.38), []);
@@ -723,7 +725,7 @@ function DragHandler({
         onMoveRef.current(draggingId.current, hit.x, hit.z);
       }
     };
-    const onUp = () => { draggingId.current = null; };
+    const onUp = () => { if (draggingId.current) onDrop?.(draggingId.current); draggingId.current = null; };
     gl.domElement.addEventListener("pointermove", onMove);
     gl.domElement.addEventListener("pointerup", onUp);
     return () => {
@@ -751,6 +753,7 @@ function TentStage3D({
   cameraMode,
   activeTool,
   onMoveItem,
+  onDrop,
   tentType,
   captureRef,
   dramaticLight,
@@ -761,6 +764,7 @@ function TentStage3D({
   cameraMode: CameraMode;
   activeTool: string;
   onMoveItem: (id: string, x: number, z: number) => void;
+  onDrop?: (id: string) => void;
   tentType: string;
   captureRef: React.MutableRefObject<(() => string) | null>;
   dramaticLight: boolean;
@@ -829,7 +833,7 @@ function TentStage3D({
         </>
       </Suspense>
 
-      <DragHandler draggingId={draggingId} onMoveItem={onMoveItem} />
+      <DragHandler draggingId={draggingId} onMoveItem={onMoveItem} onDrop={onDrop} />
 
       {/* Invisible deselect plane — clicking empty floor deselects */}
       <mesh
@@ -994,6 +998,46 @@ export default function TentsLayoutPage() {
         item.id === id ? { ...item, position: [x, item.position[1], z] } : item
       )
     );
+  }
+
+  function handleDrop(id: string) {
+    setSceneItems((prev) => {
+      const item = prev.find((i) => i.id === id);
+      if (!item) return prev;
+
+      const podiums = prev.filter((i) =>
+        i.id !== id && (
+          i.type.includes("podium") ||
+          i.type.includes("stand") ||
+          i.type.includes("stage") ||
+          i.type.includes("inv-stand") ||
+          i.type.includes("inv-podium") ||
+          i.type.includes("inv-stage")
+        )
+      );
+
+      let nearest: typeof podiums[0] | null = null;
+      let minDist = Infinity;
+      for (const p of podiums) {
+        const dx = item.position[0] - p.position[0];
+        const dz = item.position[2] - p.position[2];
+        const dist = Math.sqrt(dx * dx + dz * dz);
+        if (dist < 1.8 && dist < minDist) {
+          minDist = dist;
+          nearest = p;
+        }
+      }
+
+      if (nearest) {
+        const n = nearest;
+        return prev.map((i) =>
+          i.id === id
+            ? { ...i, position: [n.position[0], -0.45, n.position[2]] as [number, number, number] }
+            : i
+        );
+      }
+      return prev;
+    });
   }
 
   function updateItemX(id: string, x: number) {
@@ -1747,6 +1791,38 @@ export default function TentsLayoutPage() {
                   ↻ 90°
                 </button>
 
+                {/* Height up/down */}
+                {(() => {
+                  const btnStyle = {
+                    padding: "8px 11px",
+                    borderRadius: "11px",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: selectedItemId ? "rgba(255,255,255,0.03)" : "transparent",
+                    color: selectedItemId ? "#f8fbff" : "rgba(248,251,255,0.3)",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    cursor: selectedItemId ? "pointer" : "not-allowed",
+                    opacity: selectedItemId ? 1 : 0.45,
+                    transition: "all 150ms ease",
+                  };
+                  const moveUp = () => setSceneItems((prev) => prev.map((item) =>
+                    item.id === selectedItemId
+                      ? { ...item, position: [item.position[0], item.position[1] + 0.3, item.position[2]] }
+                      : item
+                  ));
+                  const moveDown = () => setSceneItems((prev) => prev.map((item) =>
+                    item.id === selectedItemId
+                      ? { ...item, position: [item.position[0], Math.max(-1.38, item.position[1] - 0.3), item.position[2]] }
+                      : item
+                  ));
+                  return (
+                    <div style={{ display: "flex", gap: "4px" }}>
+                      <button type="button" onClick={moveUp}   title="הרם" style={btnStyle}>⬆</button>
+                      <button type="button" onClick={moveDown} title="הורד" style={btnStyle}>⬇</button>
+                    </div>
+                  );
+                })()}
+
                 {/* Separator */}
                 <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
 
@@ -1898,6 +1974,7 @@ export default function TentsLayoutPage() {
                   cameraMode={cameraMode}
                   activeTool={activeTool}
                   onMoveItem={moveItem}
+                  onDrop={handleDrop}
                   tentType={tentType}
                   captureRef={captureRef}
                   dramaticLight={dramaticLight}
