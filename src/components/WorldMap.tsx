@@ -1,207 +1,165 @@
-"use client";
+"use client"
+import { useState, useEffect, useRef } from "react"
+import { ComposableMap, Geographies, Geography, Line, Marker } from "react-simple-maps"
 
-import { useState } from "react";
-import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
+const ISRAEL: [number, number] = [34.8, 31.0]
 
-const GEO_URL =
-  "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+const COUNTRIES: Record<string, { name: string; coords: [number, number] }> = {
+  GR: { name: "Greece", coords: [21.8, 39.0] },
+  AT: { name: "Austria", coords: [14.5, 47.5] },
+  SK: { name: "Slovakia", coords: [19.5, 48.7] },
+  DE: { name: "Germany", coords: [10.4, 51.1] },
+  FR: { name: "France", coords: [2.2, 46.2] },
+  GB: { name: "United Kingdom", coords: [-3.4, 55.4] },
+  US: { name: "United States", coords: [-95.7, 37.1] },
+  IN: { name: "India", coords: [78.9, 20.6] },
+  SG: { name: "Singapore", coords: [103.8, 1.4] },
+  AE: { name: "UAE", coords: [53.8, 23.4] },
+}
 
 const ALPHA2_TO_NUMERIC: Record<string, string> = {
-  GR: "300",
-  AT: "40",
-  SK: "703",
-  DE: "276",
-  FR: "250",
-  GB: "826",
-  US: "840",
-  IN: "356",
-  SG: "702",
-  AE: "784",
-};
+  GR:"300", AT:"040", SK:"703", DE:"276", FR:"250",
+  GB:"826", US:"840", IN:"356", SG:"702", AE:"784"
+}
 
-const COUNTRY_MARKERS: Record<string, { coords: [number, number]; name: string }> = {
-  GR: { coords: [21.8, 39.0], name: "Greece" },
-  AT: { coords: [14.5, 47.5], name: "Austria" },
-  SK: { coords: [19.5, 48.7], name: "Slovakia" },
-  DE: { coords: [10.4, 51.1], name: "Germany" },
-  FR: { coords: [2.2, 46.2], name: "France" },
-  GB: { coords: [-3.4, 55.4], name: "United Kingdom" },
-  US: { coords: [-95.7, 37.1], name: "United States" },
-  IN: { coords: [78.9, 20.6], name: "India" },
-  SG: { coords: [103.8, 1.4], name: "Singapore" },
-  AE: { coords: [53.8, 23.4], name: "UAE" },
-};
+export default function WorldMap({ activeIso }: { activeIso: string | null }) {
+  const [progress, setProgress] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-const NUMERIC_TO_ALPHA2 = Object.fromEntries(
-  Object.entries(ALPHA2_TO_NUMERIC).map(([a2, num]) => [num, a2])
-);
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    setProgress(0)
+    if (!activeIso || !COUNTRIES[activeIso]) return
+    intervalRef.current = setInterval(() => {
+      setProgress(p => p >= 1 ? 0 : p + 0.005)
+    }, 30)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [activeIso])
 
-type WorldMapProps = {
-  activeIso: string | null;
-};
+  const dest = activeIso ? COUNTRIES[activeIso]?.coords : null
 
-type Tooltip = { content: string; x: number; y: number } | null;
+  const arcPoints: [number, number][] = []
+  if (dest) {
+    for (let i = 0; i <= 80; i++) {
+      const t = i / 80
+      const lng = ISRAEL[0] + (dest[0] - ISRAEL[0]) * t
+      const lat = ISRAEL[1] + (dest[1] - ISRAEL[1]) * t + Math.sin(t * Math.PI) * 10
+      arcPoints.push([lng, lat])
+    }
+  }
 
-export default function WorldMap({ activeIso }: WorldMapProps) {
-  const [tooltip, setTooltip] = useState<Tooltip>(null);
-
-  const activeNumeric = activeIso ? ALPHA2_TO_NUMERIC[activeIso] : null;
-
-  function scrollToCard(iso: string) {
-    const el = document.getElementById(`country-${iso}`);
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  let planeCoords: [number, number] | null = null
+  let planeAngle = 0
+  if (dest && arcPoints.length > 1) {
+    const idx = Math.min(Math.floor(progress * 80), 79)
+    planeCoords = arcPoints[idx]
+    const next = arcPoints[Math.min(idx + 1, 80)]
+    planeAngle = Math.atan2(
+      -(next[1] - arcPoints[idx][1]),
+      next[0] - arcPoints[idx][0]
+    ) * 180 / Math.PI
   }
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "450px",
-        background: "#0b1120",
-        overflow: "hidden",
-        borderRadius: "16px",
-      }}
-    >
+    <div style={{
+      position: "relative",
+      width: "100%",
+      height: "500px",
+      background: "radial-gradient(ellipse at center, #0a1628 0%, #050B1A 100%)",
+      borderRadius: "24px",
+      border: "1px solid rgba(0,212,255,0.2)",
+      boxShadow: "0 0 80px rgba(11,110,253,0.12), 0 0 0 1px rgba(0,212,255,0.05), inset 0 0 80px rgba(0,0,0,0.5)",
+      overflow: "hidden",
+    }}>
+      {/* Grid overlay */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1,
+        backgroundImage: "linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }} />
+
       <ComposableMap
         projection="geoNaturalEarth1"
-        projectionConfig={{ scale: 200, center: [10, 15] }}
-        style={{ width: "100%", height: "100%" }}
+        projectionConfig={{ scale: 185, center: [10, 10] }}
+        style={{ width: "100%", height: "100%", position: "relative", zIndex: 2 }}
       >
         <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
-            geographies.map((geo) => {
-              const id = String(geo.id);
-              const active = activeNumeric !== null && id === activeNumeric;
-              const alpha2 = NUMERIC_TO_ALPHA2[id];
-              const isKnown = Boolean(alpha2 && COUNTRY_MARKERS[alpha2]);
-
-              return (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  onClick={() => {
-                    if (alpha2 && COUNTRY_MARKERS[alpha2]) scrollToCard(alpha2);
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isKnown) return;
-                    const container = (e.target as SVGElement)
-                      .closest("div")
-                      ?.getBoundingClientRect();
-                    if (!container) return;
-                    setTooltip({
-                      content: COUNTRY_MARKERS[alpha2].name,
-                      x: e.clientX - container.left + 12,
-                      y: e.clientY - container.top - 32,
-                    });
-                  }}
-                  onMouseMove={(e) => {
-                    if (!isKnown) return;
-                    const container = (e.target as SVGElement)
-                      .closest("div")
-                      ?.getBoundingClientRect();
-                    if (!container) return;
-                    setTooltip((prev) =>
-                      prev
-                        ? { ...prev, x: e.clientX - container.left + 12, y: e.clientY - container.top - 32 }
-                        : prev
-                    );
-                  }}
-                  onMouseLeave={() => setTooltip(null)}
-                  style={{
-                    default: {
-                      fill: active ? "#0B6EFD" : "#1e293b",
-                      stroke: "#0b1120",
-                      strokeWidth: 0.5,
-                      outline: "none",
-                      filter: active
-                        ? "drop-shadow(0 0 8px rgba(11,110,253,0.85))"
-                        : "none",
-                      cursor: isKnown ? "pointer" : "default",
-                    },
-                    hover: {
-                      fill: active ? "#3b82f6" : "#334155",
-                      stroke: "#0b1120",
-                      strokeWidth: 0.5,
-                      outline: "none",
-                      filter: active
-                        ? "drop-shadow(0 0 14px rgba(59,130,246,0.95))"
-                        : "none",
-                      cursor: isKnown ? "pointer" : "default",
-                    },
-                    pressed: {
-                      fill: active ? "#1d4ed8" : "#1e293b",
-                      stroke: "#0b1120",
-                      strokeWidth: 0.5,
-                      outline: "none",
-                    },
-                  }}
-                />
-              );
-            })
-          }
+          {({ geographies }) => geographies.map(geo => {
+            const numeric = geo.properties.id ?? geo.id
+            const iso = Object.entries(ALPHA2_TO_NUMERIC).find(([, v]) => v === String(numeric))?.[0]
+            const isActive = iso === activeIso
+            const isKnown = !!iso && !!COUNTRIES[iso]
+            return (
+              <Geography
+                key={geo.rsmKey}
+                geography={geo}
+                fill={isActive ? "#0B6EFD" : isKnown ? "#1a3a5c" : "#162a45"}
+                stroke="#050B1A"
+                strokeWidth={0.3}
+                style={{
+                  default: { filter: isActive ? "drop-shadow(0 0 8px rgba(11,110,253,0.8))" : "none", outline: "none" },
+                  hover: { fill: isActive ? "#2563eb" : isKnown ? "#254d6e" : "#1e3a55", outline: "none" },
+                  pressed: { outline: "none" },
+                }}
+              />
+            )
+          })}
         </Geographies>
 
-        {Object.entries(COUNTRY_MARKERS).map(([iso, marker]) => (
-          <Marker
-            key={iso}
-            coordinates={marker.coords}
-            onClick={() => scrollToCard(iso)}
-            style={{ cursor: "pointer" }}
-          >
+        {dest && arcPoints.length > 1 && (
+          <Line
+            coordinates={arcPoints}
+            stroke="#00d4ff"
+            strokeWidth={1.8}
+            strokeDasharray="6 3"
+            strokeOpacity={0.9}
+            fill="none"
+          />
+        )}
+
+        {planeCoords && (
+          <Marker coordinates={planeCoords}>
             <text
               textAnchor="middle"
-              style={{
-                fontSize: "7px",
-                fontWeight: 800,
-                fill: iso === activeIso ? "#ffffff" : "rgba(148,163,184,0.7)",
-                letterSpacing: "0.04em",
-                pointerEvents: "none",
-                textShadow: "0 0 4px rgba(0,0,0,0.9)",
-              }}
-            >
-              {marker.name}
+              dominantBaseline="middle"
+              transform={`rotate(${planeAngle})`}
+              style={{ fontSize: "14px", userSelect: "none", pointerEvents: "none", fill: "#00d4ff" }}
+            >✈</text>
+          </Marker>
+        )}
+
+        <Marker coordinates={ISRAEL}>
+          <circle r={5} fill="#00d4ff" style={{ filter: "drop-shadow(0 0 6px #00d4ff)" }} />
+          <text textAnchor="middle" dy={-10} style={{ fontSize: "8px", fill: "#00d4ff", fontWeight: 700, letterSpacing: "0.1em" }}>ISRAEL</text>
+        </Marker>
+
+        {activeIso && COUNTRIES[activeIso] && (
+          <Marker coordinates={COUNTRIES[activeIso].coords}>
+            <circle r={4} fill="#0B6EFD" style={{ filter: "drop-shadow(0 0 8px #0B6EFD)" }} />
+            <text textAnchor="middle" dy={-12} style={{ fontSize: "9px", fontWeight: 800, fill: "white", letterSpacing: "0.08em" }}>
+              {COUNTRIES[activeIso].name}
             </text>
           </Marker>
-        ))}
+        )}
       </ComposableMap>
 
-      {tooltip && (
-        <div
-          style={{
-            position: "absolute",
-            left: tooltip.x,
-            top: tooltip.y,
-            background: "rgba(0,0,0,0.82)",
-            color: "#ffffff",
-            padding: "6px 12px",
-            borderRadius: "8px",
-            fontSize: "13px",
-            fontWeight: 700,
-            pointerEvents: "none",
-            whiteSpace: "nowrap",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-            zIndex: 10,
-          }}
-        >
-          {tooltip.content}
+      {/* Status bar */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        padding: "12px 20px",
+        background: "linear-gradient(0deg, rgba(5,11,26,0.95) 0%, transparent 100%)",
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        zIndex: 3,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#00d4ff", boxShadow: "0 0 8px #00d4ff" }} />
+          <span style={{ fontSize: "10px", color: "rgba(0,212,255,0.7)", letterSpacing: "0.15em", textTransform: "uppercase" }}>IAI GLOBAL OPERATIONS</span>
         </div>
-      )}
-
-      <div
-        style={{
-          position: "absolute",
-          bottom: "14px",
-          right: "18px",
-          fontSize: "11px",
-          fontWeight: 700,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "rgba(148,163,184,0.5)",
-        }}
-      >
-        {activeIso ? `${COUNTRY_MARKERS[activeIso]?.name ?? activeIso} selected` : "Click a card to highlight"}
+        <span style={{ fontSize: "11px", fontWeight: 800, color: "#00d4ff", letterSpacing: "0.14em" }}>
+          {activeIso ? COUNTRIES[activeIso]?.name?.toUpperCase() : "SELECT A COUNTRY"}
+        </span>
       </div>
     </div>
-  );
+  )
 }
