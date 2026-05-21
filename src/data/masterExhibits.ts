@@ -73,7 +73,7 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
   { slug: "inv-chair",      division: "inventory", nameEn: "Chair",       nameHe: "כיסא",   model3d: "/models/inventory/armchair-01.glb",                image: "/inventory/chair.PNG", hasModel: true },
   { slug: "inv-stand",      division: "inventory", nameEn: "Stand",       nameHe: "דוכן",   model3d: "/models/inventory/lightbox-vertical-iai.glb",      image: "/inventory/podium-rect-35x75x90-01.png", hasModel: true },
-  { slug: "inv-projector",  division: "inventory", nameEn: "Lightbox",    nameHe: "לייטבוקס", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/lightbox-vertical-globe-01.png", hasModel: true },
+  { slug: "inv-lightbox-v", division: "inventory", nameEn: "Lightbox Vertical", nameHe: "לייטבוקס אנכי", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/lightbox-vertical-globe-01.png", hasModel: true },
   // New 19
   { slug: "inv-stage-blue",    division: "inventory", nameEn: "Blue Stage",      nameHe: "במה כחולה",     model3d: "/models/inventory/stage-blue-01.glb",              image: "/inventory/stage-130-130.PNG", hasModel: true },
   { slug: "inv-screen",        division: "inventory", nameEn: "Screen Stand",    nameHe: "מסך",           model3d: "/models/inventory/screen-stand-iai-01.glb",        image: "/inventory/screen-stand.PNG", hasModel: true },
