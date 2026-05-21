@@ -23,7 +23,7 @@ export const masterExhibits: MasterExhibit[] = [
   // ── AIR — original (9, not in airAutoAssets) ───────────────────────────────
   { slug: "arrow-2",          division: "air", nameEn: "Arrow 2",          nameHe: "חץ 2",         model3d: "/models/air/arrow-2-showcase-3d.glb",        image: "/images/air/arrow-2-showcase.png",          hasModel: true  },
   { slug: "arrow-3-missile",  division: "air", nameEn: "Arrow 3",          nameHe: "חץ 3",         model3d: "/models/air/arrow-3-showcase-3d.glb",        image: "/images/air/arrow-3-showcase.png",          hasModel: true  },
-  { slug: "arrow-3-launcher", division: "air", nameEn: "Arrow 3 Launcher", nameHe: "מפעיל חץ 3",   model3d: "",                                           image: "/images/air/arrow-3-launcher-showcase.png", hasModel: false },
+
   { slug: "lora",             division: "air", nameEn: "LORA",             nameHe: "לורה",         model3d: "/models/air/lora-showcase-3d.glb",           image: "/images/air/lora-showcase.png",             hasModel: true  },
   { slug: "wanderb",          division: "air", nameEn: "WanderB",          nameHe: "וונדר B",      model3d: "/models/air/wanderb-showcase-3d.glb",        image: "/images/air/wanderb-showcase.png",          hasModel: true  },
   { slug: "777",              division: "air", nameEn: "Boeing 777",       nameHe: "בואינג 777",   model3d: "/models/air/777-showcase-3d.glb",            image: "/images/air/777-showcase.png",              hasModel: true  },
