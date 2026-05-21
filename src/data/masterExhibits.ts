@@ -71,9 +71,7 @@ export const masterExhibits: MasterExhibit[] = [
   // ── INVENTORY (25) ────────────────────────────────────────────────────────
   // Legacy 6 — mapped to lightbox models
   { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
-  { slug: "inv-chair",      division: "inventory", nameEn: "Chair",       nameHe: "כיסא",   model3d: "",                                                  image: "/inventory/chair.PNG", hasModel: false },
-  { slug: "inv-sofa",       division: "inventory", nameEn: "Sofa",        nameHe: "ספה",    model3d: "",                                                  image: "", hasModel: false },
-  { slug: "inv-coffee-bar", division: "inventory", nameEn: "Coffee Bar",  nameHe: "בר קפה", model3d: "",                                                  image: "", hasModel: false },
+  { slug: "inv-chair",      division: "inventory", nameEn: "Chair",       nameHe: "כיסא",   model3d: "/models/inventory/armchair-01.glb",                image: "/inventory/chair.PNG", hasModel: true },
   { slug: "inv-stand",      division: "inventory", nameEn: "Stand",       nameHe: "דוכן",   model3d: "/models/inventory/lightbox-vertical-iai.glb",      image: "/inventory/podium-rect-35x75x90-01.png", hasModel: true },
   { slug: "inv-projector",  division: "inventory", nameEn: "Lightbox",    nameHe: "לייטבוקס", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/lightbox-vertical-globe-01.png", hasModel: true },
   // New 19
@@ -88,7 +86,6 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-queue-poles",   division: "inventory", nameEn: "Queue Poles",     nameHe: "עמודי תור",     model3d: "/models/inventory/queue-poles-01.glb",             image: "/inventory/stanchion-black-01.png", hasModel: true },
   { slug: "inv-phone-storage", division: "inventory", nameEn: "Phone Storage",   nameHe: "מתקן טלפונים",  model3d: "/models/inventory/phone-storage-01.glb",           image: "/inventory/desk-phone.PNG", hasModel: true },
   { slug: "inv-stage-small",   division: "inventory", nameEn: "Small Stage",     nameHe: "במה קטנה",      model3d: "/models/inventory/stage-blue-1m-01.glb",           image: "/inventory/stage-50-50.PNG", hasModel: true },
-  { slug: "inv-armchair",      division: "inventory", nameEn: "Armchair",        nameHe: "קורסא",         model3d: "/models/inventory/armchair-01.glb",                image: "", hasModel: true },
   { slug: "inv-inflatable-tent",division: "inventory",nameEn: "Inflatable Tent", nameHe: "אוהל מתנפח",    model3d: "/models/inventory/inflatable-tent-01.glb",         image: "/inventory/tent-dome-iai-blue-01.png", hasModel: true },
   { slug: "inv-lightbox2",     division: "inventory", nameEn: "Lightbox 2",      nameHe: "לייטבוקס 2",    model3d: "/models/inventory/ligthbox-horizontal-iai-02.glb", image: "/inventory/lightbox-horizontal-multidomain-01.jpeg", hasModel: true },
   { slug: "inv-podium",        division: "inventory", nameEn: "Podium",          nameHe: "פודיום",        model3d: "/models/inventory/acrylic-podium-iai.glb",         image: "/inventory/lectern-acrylic-01.png", hasModel: true },
