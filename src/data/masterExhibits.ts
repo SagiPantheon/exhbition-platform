@@ -62,9 +62,11 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "3dcapture", division: "land", nameEn: "3DCAPTURE", nameHe: "3DCAPTURE", model3d: "/models/land/3dcapture-showcase-3d.glb", image: "/images/land/3dcapture-showcase.png", hasModel: true },
   { slug: "panda",     division: "land", nameEn: "PANDA",     nameHe: "PANDA",     model3d: "/models/land/panda-showcase-3d.glb",     image: "/images/land/panda-showcase.png",     hasModel: true },
   { slug: "robattle",  division: "land", nameEn: "RoBattle",  nameHe: "רובטל",     model3d: "/models/land/robattle-showcase-3d.glb",  image: "/images/land/robattle-showcase.png",  hasModel: true },
+  { slug: "trailer",   division: "land", nameEn: "Trailer",   nameHe: "נגרר",      model3d: "/models/land/trailer-showcase-3d.glb",   image: "",                                    hasModel: true },
 
   // ── NAVAL (1) ──────────────────────────────────────────────────────────────
-  { slug: "katana", division: "naval", nameEn: "Katana", nameHe: "קתנה", model3d: "/models/naval/katana-showcase.glb", image: "/images/naval/katana.png", hasModel: true },
+  { slug: "katana",    division: "naval", nameEn: "Katana",    nameHe: "קתנה",  model3d: "/models/naval/katana-showcase.glb",      image: "/images/naval/katana.png",       hasModel: true },
+  { slug: "submarine", division: "naval", nameEn: "Submarine", nameHe: "צוללת", model3d: "/models/naval/submarine-showcase-3d.glb", image: "/images/naval/submarine.PNG",    hasModel: true },
 
   // ── INVENTORY (25) ────────────────────────────────────────────────────────
   // Legacy 6 — mapped to lightbox models
