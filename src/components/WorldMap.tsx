@@ -55,18 +55,17 @@ export default function WorldMap({ activeIso }: WorldMapProps) {
   return (
     <div
       style={{
-        borderRadius: "24px",
-        overflow: "hidden",
-        background: "#0b1120",
-        height: "550px",
-        border: "1px solid rgba(99,179,237,0.18)",
-        boxShadow: "0 0 48px rgba(11,110,253,0.08)",
         position: "relative",
+        width: "100%",
+        height: "450px",
+        background: "#0b1120",
+        overflow: "hidden",
+        borderRadius: "16px",
       }}
     >
       <ComposableMap
         projection="geoNaturalEarth1"
-        projectionConfig={{ scale: 160, center: [15, 20] }}
+        projectionConfig={{ scale: 160, center: [10, 20] }}
         style={{ width: "100%", height: "100%" }}
       >
         <Geographies geography={GEO_URL}>

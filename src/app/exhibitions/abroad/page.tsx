@@ -173,10 +173,19 @@ export default function AbroadExhibitionsPage() {
           />
         </div>
 
-        <section style={{ marginTop: "40px" }}>
-          <WorldMap activeIso={activeIso} />
-        </section>
+      </div>
 
+      <section>
+        <WorldMap activeIso={activeIso} />
+      </section>
+
+      <div
+        style={{
+          maxWidth: "1320px",
+          margin: "0 auto",
+          padding: "0 24px 72px",
+        }}
+      >
         <section style={{ marginTop: "34px" }}>
           <div
             style={{
