@@ -32,24 +32,20 @@ const COUNTRY_MARKERS: Record<string, { coords: [number, number]; name: string }
   AE: { coords: [53.8, 23.4], name: "UAE" },
 };
 
+const NUMERIC_TO_ALPHA2 = Object.fromEntries(
+  Object.entries(ALPHA2_TO_NUMERIC).map(([a2, num]) => [num, a2])
+);
+
 type WorldMapProps = {
-  highlightedIsoCodes: string[];
+  activeIso: string | null;
 };
 
 type Tooltip = { content: string; x: number; y: number } | null;
 
-export default function WorldMap({ highlightedIsoCodes }: WorldMapProps) {
+export default function WorldMap({ activeIso }: WorldMapProps) {
   const [tooltip, setTooltip] = useState<Tooltip>(null);
 
-  const numericSet = new Set(
-    highlightedIsoCodes.map((c) => ALPHA2_TO_NUMERIC[c]).filter(Boolean)
-  );
-
-  const numericToAlpha2 = Object.fromEntries(
-    highlightedIsoCodes
-      .filter((c) => ALPHA2_TO_NUMERIC[c])
-      .map((c) => [ALPHA2_TO_NUMERIC[c], c])
-  );
+  const activeNumeric = activeIso ? ALPHA2_TO_NUMERIC[activeIso] : null;
 
   function scrollToCard(iso: string) {
     const el = document.getElementById(`country-${iso}`);
@@ -77,70 +73,65 @@ export default function WorldMap({ highlightedIsoCodes }: WorldMapProps) {
           {({ geographies }) =>
             geographies.map((geo) => {
               const id = String(geo.id);
-              const active = numericSet.has(id);
-              const alpha2 = numericToAlpha2[id];
-              const label = alpha2 ? COUNTRY_MARKERS[alpha2]?.name : undefined;
+              const active = activeNumeric !== null && id === activeNumeric;
+              const alpha2 = NUMERIC_TO_ALPHA2[id];
+              const isKnown = Boolean(alpha2 && COUNTRY_MARKERS[alpha2]);
 
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  onClick={() => active && alpha2 && scrollToCard(alpha2)}
+                  onClick={() => {
+                    if (alpha2 && COUNTRY_MARKERS[alpha2]) scrollToCard(alpha2);
+                  }}
                   onMouseEnter={(e) => {
-                    if (!label) return;
-                    const rect = (e.target as SVGElement)
-                      .closest("svg")
-                      ?.getBoundingClientRect();
+                    if (!isKnown) return;
                     const container = (e.target as SVGElement)
                       .closest("div")
                       ?.getBoundingClientRect();
-                    if (!rect || !container) return;
+                    if (!container) return;
                     setTooltip({
-                      content: label,
+                      content: COUNTRY_MARKERS[alpha2].name,
                       x: e.clientX - container.left + 12,
                       y: e.clientY - container.top - 32,
                     });
                   }}
                   onMouseMove={(e) => {
-                    if (!label) return;
+                    if (!isKnown) return;
                     const container = (e.target as SVGElement)
                       .closest("div")
                       ?.getBoundingClientRect();
                     if (!container) return;
                     setTooltip((prev) =>
                       prev
-                        ? {
-                            ...prev,
-                            x: e.clientX - container.left + 12,
-                            y: e.clientY - container.top - 32,
-                          }
+                        ? { ...prev, x: e.clientX - container.left + 12, y: e.clientY - container.top - 32 }
                         : prev
                     );
                   }}
                   onMouseLeave={() => setTooltip(null)}
                   style={{
                     default: {
-                      fill: active ? "#0B6EFD" : "#1e2d45",
+                      fill: active ? "#0B6EFD" : "#1e293b",
                       stroke: "#0b1120",
                       strokeWidth: 0.5,
                       outline: "none",
                       filter: active
-                        ? "drop-shadow(0 0 6px rgba(11,110,253,0.75))"
+                        ? "drop-shadow(0 0 8px rgba(11,110,253,0.85))"
                         : "none",
-                      cursor: active ? "pointer" : "default",
+                      cursor: isKnown ? "pointer" : "default",
                     },
                     hover: {
-                      fill: active ? "#3b82f6" : "#263349",
+                      fill: active ? "#3b82f6" : "#334155",
                       stroke: "#0b1120",
                       strokeWidth: 0.5,
                       outline: "none",
                       filter: active
-                        ? "drop-shadow(0 0 12px rgba(59,130,246,0.95))"
+                        ? "drop-shadow(0 0 14px rgba(59,130,246,0.95))"
                         : "none",
-                      cursor: active ? "pointer" : "default",
+                      cursor: isKnown ? "pointer" : "default",
                     },
                     pressed: {
-                      fill: active ? "#1d4ed8" : "#1e2d45",
+                      fill: active ? "#1d4ed8" : "#1e293b",
                       stroke: "#0b1120",
                       strokeWidth: 0.5,
                       outline: "none",
@@ -152,32 +143,28 @@ export default function WorldMap({ highlightedIsoCodes }: WorldMapProps) {
           }
         </Geographies>
 
-        {highlightedIsoCodes.map((iso) => {
-          const marker = COUNTRY_MARKERS[iso];
-          if (!marker) return null;
-          return (
-            <Marker
-              key={iso}
-              coordinates={marker.coords}
-              onClick={() => scrollToCard(iso)}
-              style={{ cursor: "pointer" }}
+        {Object.entries(COUNTRY_MARKERS).map(([iso, marker]) => (
+          <Marker
+            key={iso}
+            coordinates={marker.coords}
+            onClick={() => scrollToCard(iso)}
+            style={{ cursor: "pointer" }}
+          >
+            <text
+              textAnchor="middle"
+              style={{
+                fontSize: "7px",
+                fontWeight: 800,
+                fill: iso === activeIso ? "#ffffff" : "rgba(148,163,184,0.7)",
+                letterSpacing: "0.04em",
+                pointerEvents: "none",
+                textShadow: "0 0 4px rgba(0,0,0,0.9)",
+              }}
             >
-              <text
-                textAnchor="middle"
-                style={{
-                  fontSize: "7px",
-                  fontWeight: 800,
-                  fill: "#ffffff",
-                  letterSpacing: "0.04em",
-                  pointerEvents: "none",
-                  textShadow: "0 0 4px rgba(0,0,0,0.9)",
-                }}
-              >
-                {marker.name}
-              </text>
-            </Marker>
-          );
-        })}
+              {marker.name}
+            </text>
+          </Marker>
+        ))}
       </ComposableMap>
 
       {tooltip && (
@@ -214,7 +201,7 @@ export default function WorldMap({ highlightedIsoCodes }: WorldMapProps) {
           color: "rgba(148,163,184,0.5)",
         }}
       >
-        Click a country to scroll
+        {activeIso ? `${COUNTRY_MARKERS[activeIso]?.name ?? activeIso} selected` : "Click a card to highlight"}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { abroadFlagCards } from "../../../data/abroadFlags";
 
@@ -83,6 +84,8 @@ function StatCard({
 }
 
 export default function AbroadExhibitionsPage() {
+  const [activeIso, setActiveIso] = useState<string | null>(null);
+
   return (
     <main
       style={{
@@ -171,9 +174,7 @@ export default function AbroadExhibitionsPage() {
         </div>
 
         <section style={{ marginTop: "40px" }}>
-          <WorldMap
-            highlightedIsoCodes={abroadFlagCards.map((c) => c.isoCode)}
-          />
+          <WorldMap activeIso={activeIso} />
         </section>
 
         <section style={{ marginTop: "34px" }}>
@@ -234,21 +235,31 @@ export default function AbroadExhibitionsPage() {
               gap: "18px",
             }}
           >
-            {abroadFlagCards.map((item) => (
+            {abroadFlagCards.map((item) => {
+              const isActive = activeIso === item.isoCode;
+              return (
               <article
                 key={item.slug}
                 id={`country-${item.isoCode}`}
+                onClick={() => setActiveIso(item.isoCode)}
                 style={{
                   borderRadius: "28px",
-                  border: "1px solid rgba(148,163,184,0.16)",
-                  background:
-                    "linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(8,13,26,0.98) 100%)",
+                  border: isActive
+                    ? "1px solid rgba(59,130,246,0.7)"
+                    : "1px solid rgba(148,163,184,0.16)",
+                  background: isActive
+                    ? "linear-gradient(180deg, rgba(11,110,253,0.12) 0%, rgba(8,13,26,0.98) 100%)"
+                    : "linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(8,13,26,0.98) 100%)",
                   padding: "22px",
-                  boxShadow: "0 22px 60px rgba(0,0,0,0.24)",
+                  boxShadow: isActive
+                    ? "0 0 32px rgba(11,110,253,0.22), 0 22px 60px rgba(0,0,0,0.24)"
+                    : "0 22px 60px rgba(0,0,0,0.24)",
                   display: "flex",
                   flexDirection: "column",
                   gap: "14px",
                   minHeight: "250px",
+                  cursor: "pointer",
+                  transition: "border 0.2s, box-shadow 0.2s, background 0.2s",
                 }}
               >
                 <div
@@ -323,7 +334,8 @@ export default function AbroadExhibitionsPage() {
                   Future country hub
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>
