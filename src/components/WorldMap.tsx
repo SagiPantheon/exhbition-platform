@@ -65,7 +65,7 @@ export default function WorldMap({ activeIso }: WorldMapProps) {
     >
       <ComposableMap
         projection="geoNaturalEarth1"
-        projectionConfig={{ scale: 160, center: [10, 20] }}
+        projectionConfig={{ scale: 200, center: [10, 15] }}
         style={{ width: "100%", height: "100%" }}
       >
         <Geographies geography={GEO_URL}>
