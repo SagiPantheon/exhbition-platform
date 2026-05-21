@@ -1,5 +1,6 @@
 export type AbroadFlagCard = {
   slug: string;
+  isoCode: string;
   flag: string;
   country: string;
   countryHe: string;
@@ -12,6 +13,7 @@ export type AbroadFlagCard = {
 export const abroadFlagCards: AbroadFlagCard[] = [
   {
     slug: "greece",
+    isoCode: "GR",
     flag: "🇬🇷",
     country: "Greece",
     countryHe: "יוון",
@@ -22,6 +24,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "austria",
+    isoCode: "AT",
     flag: "🇦🇹",
     country: "Austria",
     countryHe: "אוסטריה",
@@ -32,6 +35,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "slovakia",
+    isoCode: "SK",
     flag: "🇸🇰",
     country: "Slovakia",
     countryHe: "סלובקיה",
@@ -42,6 +46,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "germany",
+    isoCode: "DE",
     flag: "🇩🇪",
     country: "Germany",
     countryHe: "גרמניה",
@@ -52,6 +57,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "france",
+    isoCode: "FR",
     flag: "🇫🇷",
     country: "France",
     countryHe: "צרפת",
@@ -62,6 +68,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "united-kingdom",
+    isoCode: "GB",
     flag: "🇬🇧",
     country: "United Kingdom",
     countryHe: "בריטניה",
@@ -72,6 +79,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "usa",
+    isoCode: "US",
     flag: "🇺🇸",
     country: "United States",
     countryHe: "ארצות הברית",
@@ -82,6 +90,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "india",
+    isoCode: "IN",
     flag: "🇮🇳",
     country: "India",
     countryHe: "הודו",
@@ -92,6 +101,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "singapore",
+    isoCode: "SG",
     flag: "🇸🇬",
     country: "Singapore",
     countryHe: "סינגפור",
@@ -102,6 +112,7 @@ export const abroadFlagCards: AbroadFlagCard[] = [
   },
   {
     slug: "uae",
+    isoCode: "AE",
     flag: "🇦🇪",
     country: "United Arab Emirates",
     countryHe: "איחוד האמירויות",

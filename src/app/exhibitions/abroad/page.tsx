@@ -1,4 +1,31 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import { abroadFlagCards } from "../../../data/abroadFlags";
+
+const WorldMap = dynamic(() => import("../../../components/WorldMap"), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        borderRadius: "24px",
+        height: "400px",
+        background: "#0b1120",
+        border: "1px solid rgba(99,179,237,0.18)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "rgba(148,163,184,0.5)",
+        fontSize: "14px",
+        fontWeight: 700,
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+      }}
+    >
+      Loading map…
+    </div>
+  ),
+});
 
 function StatCard({
   label,
@@ -143,6 +170,12 @@ export default function AbroadExhibitionsPage() {
           />
         </div>
 
+        <section style={{ marginTop: "40px" }}>
+          <WorldMap
+            highlightedIsoCodes={abroadFlagCards.map((c) => c.isoCode)}
+          />
+        </section>
+
         <section style={{ marginTop: "34px" }}>
           <div
             style={{
@@ -204,6 +237,7 @@ export default function AbroadExhibitionsPage() {
             {abroadFlagCards.map((item) => (
               <article
                 key={item.slug}
+                id={`country-${item.isoCode}`}
                 style={{
                   borderRadius: "28px",
                   border: "1px solid rgba(148,163,184,0.16)",
