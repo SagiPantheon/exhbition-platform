@@ -25,9 +25,9 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "arrow-3-missile",  division: "air", nameEn: "Arrow 3",          nameHe: "חץ 3",         model3d: "/models/air/arrow-3-showcase-3d.glb",        image: "/images/air/arrow-3-showcase.png",          hasModel: true  },
   { slug: "arrow-3-launcher", division: "air", nameEn: "Arrow 3 Launcher", nameHe: "מפעיל חץ 3",   model3d: "",                                           image: "/images/air/arrow-3-launcher-showcase.png", hasModel: false },
   { slug: "lora",             division: "air", nameEn: "LORA",             nameHe: "לורה",         model3d: "/models/air/lora-showcase-3d.glb",           image: "/images/air/lora-showcase.png",             hasModel: true  },
-  { slug: "heron",            division: "air", nameEn: "Heron",            nameHe: "הרון",         model3d: "/models/air/heron-showcase-3d.glb",          image: "/images/air/heron-showcase.png",            hasModel: true  },
+  { slug: "heron",            division: "air", nameEn: "Heron",            nameHe: "הרון",         model3d: "/models/air/heron-showcase-3d.glb",          image: "",                                          hasModel: true  },
   { slug: "wanderb",          division: "air", nameEn: "WanderB",          nameHe: "וונדר B",      model3d: "/models/air/wanderb-showcase-3d.glb",        image: "/images/air/wanderb-showcase.png",          hasModel: true  },
-  { slug: "wanderb2",         division: "air", nameEn: "WanderB 2",        nameHe: "וונדר B2",     model3d: "",                                           image: "/images/air/wanderb2-showcase.png",         hasModel: false },
+  { slug: "wanderb2",         division: "air", nameEn: "WanderB 2",        nameHe: "וונדר B2",     model3d: "",                                           image: "",                                          hasModel: false },
   { slug: "777",              division: "air", nameEn: "Boeing 777",       nameHe: "בואינג 777",   model3d: "/models/air/777-showcase-3d.glb",            image: "/images/air/777-showcase.png",              hasModel: true  },
   { slug: "b767",             division: "air", nameEn: "Boeing 767",       nameHe: "בואינג 767",   model3d: "/models/air/b767-showcase-3d.glb",           image: "/images/air/b767-showcase.png",             hasModel: true  },
 
@@ -57,6 +57,7 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "kc140",         division: "air", nameEn: "KC-140",        nameHe: "KC-140",       model3d: "/models/air/kc140-showcase-3d.glb",          image: "/images/air/kc140-showcase.PNG",          hasModel: true  },
   { slug: "othello",       division: "air", nameEn: "Othello",       nameHe: "אותלו",        model3d: "/models/air/othello-showcase-3d.glb",        image: "/images/air/Othello-showcase.PNG",        hasModel: true  },
   { slug: "quadcopter2",   division: "air", nameEn: "Quadcopter 2",  nameHe: "קוואדקופטר 2", model3d: "/models/air/quadcopter2-showcase-3d.glb",    image: "/images/air/quadcopter2-showcase.PNG",    hasModel: true  },
+  { slug: "quadcopter3",   division: "air", nameEn: "Quadcopter 3",  nameHe: "קוואדקופטר 3", model3d: "/models/air/quadcopter3-showcase-3d.glb",    image: "/images/air/quadcopter3-showcase.PNG",    hasModel: true  },
 
   // ── LAND (4) ───────────────────────────────────────────────────────────────
   { slug: "zmag",      division: "land", nameEn: "ZMAG",      nameHe: "ZMAG",      model3d: "/models/land/zmag-showcase-3d.glb",      image: "/images/land/zmag-showcase.png",      hasModel: true },
