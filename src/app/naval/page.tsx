@@ -1,9 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { navalAssets } from "../../data/navalAssets";
+import { masterExhibits } from "../../data/masterExhibits";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
+
+const navalAssets = masterExhibits
+  .filter((e) => e.division === "naval")
+  .map((e, i) => ({
+    id: `naval-${String(i + 1).padStart(3, "0")}`,
+    slug: e.slug,
+    name: e.nameEn,
+    category: "Naval asset",
+    subtitle: `${e.nameEn} — naval exhibition asset.`,
+    image: e.image,
+    model3d: e.model3d,
+    status: "Approved",
+    displayType: "Naval display",
+    scale: "1:1",
+  }));
 
 type NavalAsset = typeof navalAssets[number];
 

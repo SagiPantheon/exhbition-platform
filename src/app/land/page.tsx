@@ -1,9 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { landAssets } from "../../data/landAssets";
+import { masterExhibits } from "../../data/masterExhibits";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
+
+const landAssets = masterExhibits
+  .filter((e) => e.division === "land")
+  .map((e, i) => ({
+    id: `land-${String(i + 1).padStart(3, "0")}`,
+    slug: e.slug,
+    name: e.nameEn,
+    category: "Land asset",
+    subtitle: `${e.nameEn} — land exhibition asset.`,
+    image: e.image,
+    model3d: e.model3d,
+    status: "Approved",
+    displayType: "Land display",
+    scale: "1:1",
+  }));
 
 type LandAsset = typeof landAssets[number];
 
