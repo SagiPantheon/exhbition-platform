@@ -52,11 +52,11 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "apus25",        division: "air", nameEn: "APUS 25",       nameHe: "אפוס 25",      model3d: "/models/air/apus-25-showcase-3d.glb",        image: "/images/air/apus25-showcase.png",        hasModel: true  },
   { slug: "apus60",        division: "air", nameEn: "APUS 60",       nameHe: "אפוס 60",      model3d: "/models/air/apus-60-showcase-3d.glb",        image: "/images/air/apus60-showcase.png",        hasModel: true  },
   // 5 unique to airAutoAssets — paths corrected per disk audit
-  { slug: "eitan",         division: "air", nameEn: "Eitan",         nameHe: "איתן",         model3d: "/models/air/eitan-showcase-3d.glb",          image: "",                                       hasModel: true  },
-  { slug: "heronmk2",      division: "air", nameEn: "Heron Mk2",     nameHe: "הרון Mk2",     model3d: "/models/air/heron-mk2-showcase-3d.glb",      image: "",                                       hasModel: true  },
-  { slug: "kc140",         division: "air", nameEn: "KC-140",        nameHe: "KC-140",       model3d: "/models/air/kc140-showcase-3d.glb",          image: "",                                       hasModel: true  },
-  { slug: "othello",       division: "air", nameEn: "Othello",       nameHe: "אותלו",        model3d: "/models/air/othello-showcase-3d.glb",        image: "",                                       hasModel: true  },
-  { slug: "quadcopter2",   division: "air", nameEn: "Quadcopter 2",  nameHe: "קוואדקופטר 2", model3d: "/models/air/quadcopter2-showcase-3d.glb",    image: "",                                       hasModel: true  },
+  { slug: "eitan",         division: "air", nameEn: "Eitan",         nameHe: "איתן",         model3d: "/models/air/eitan-showcase-3d.glb",          image: "/images/air/Eitan-showcase.PNG",          hasModel: true  },
+  { slug: "heronmk2",      division: "air", nameEn: "Heron Mk2",     nameHe: "הרון Mk2",     model3d: "/models/air/heron-mk2-showcase-3d.glb",      image: "/images/air/HeronMk2-showcase.PNG",       hasModel: true  },
+  { slug: "kc140",         division: "air", nameEn: "KC-140",        nameHe: "KC-140",       model3d: "/models/air/kc140-showcase-3d.glb",          image: "/images/air/kc140-showcase.PNG",          hasModel: true  },
+  { slug: "othello",       division: "air", nameEn: "Othello",       nameHe: "אותלו",        model3d: "/models/air/othello-showcase-3d.glb",        image: "/images/air/Othello-showcase.PNG",        hasModel: true  },
+  { slug: "quadcopter2",   division: "air", nameEn: "Quadcopter 2",  nameHe: "קוואדקופטר 2", model3d: "/models/air/quadcopter2-showcase-3d.glb",    image: "/images/air/quadcopter2-showcase.PNG",    hasModel: true  },
 
   // ── LAND (4) ───────────────────────────────────────────────────────────────
   { slug: "zmag",      division: "land", nameEn: "ZMAG",      nameHe: "ZMAG",      model3d: "/models/land/zmag-showcase-3d.glb",      image: "/images/land/zmag-showcase.png",      hasModel: true },
@@ -69,7 +69,7 @@ export const masterExhibits: MasterExhibit[] = [
 
   // ── INVENTORY (25) ────────────────────────────────────────────────────────
   // Legacy 6 — mapped to lightbox models
-  { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "", hasModel: true },
+  { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
   { slug: "inv-chair",      division: "inventory", nameEn: "Chair",       nameHe: "כיסא",   model3d: "",                                                  image: "/inventory/chair.PNG", hasModel: false },
   { slug: "inv-sofa",       division: "inventory", nameEn: "Sofa",        nameHe: "ספה",    model3d: "",                                                  image: "", hasModel: false },
   { slug: "inv-coffee-bar", division: "inventory", nameEn: "Coffee Bar",  nameHe: "בר קפה", model3d: "",                                                  image: "", hasModel: false },
@@ -95,9 +95,9 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-magnetic-sign", division: "inventory", nameEn: "Magnetic Signage",nameHe: "שילוט מגנטי",   model3d: "/models/inventory/magnetic-signage-01.glb",        image: "/inventory/magnetic-desk.PNG", hasModel: true },
   { slug: "inv-logo-blue",     division: "inventory", nameEn: "Large Blue Logo", nameHe: "לוגו כחול גדול",model3d: "/models/inventory/logo-blue-large-01.glb",         image: "/inventory/logo-iai-large-2m-01.png", hasModel: true },
   { slug: "inv-white-tent",    division: "inventory", nameEn: "White Tent",      nameHe: "אוהל לבן",      model3d: "/models/inventory/tent-white-01.glb",              image: "/inventory/tent-25x15-white-01.png", hasModel: true },
-  { slug: "inv-table-3d",     division: "inventory", nameEn: "Table 3D",        nameHe: "שולחן תלת מימד", model3d: "/models/inventory/table-3d.glb",                   image: "", hasModel: true },
+  { slug: "inv-table-3d",     division: "inventory", nameEn: "Table 3D",        nameHe: "שולחן תלת מימד", model3d: "/models/inventory/table-3d.glb",                   image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
   { slug: "inv-wood-sign",    division: "inventory", nameEn: "Wood Signage",    nameHe: "שילוט עץ",       model3d: "/models/inventory/wood-signage-iai.glb",            image: "", hasModel: true },
-  { slug: "inv-tent-main",    division: "inventory", nameEn: "Main Tent",       nameHe: "אוהל ראשי",      model3d: "/models/inventory/tent-20-30-iai-01.glb",           image: "", hasModel: true },
+  { slug: "inv-tent-main",    division: "inventory", nameEn: "Main Tent",       nameHe: "אוהל ראשי",      model3d: "/models/inventory/tent-20-30-iai-01.glb",           image: "/inventory/tent-20x30-iai-blue-01.png", hasModel: true },
 ];
 
 export function getMasterExhibit(slug: string): MasterExhibit | undefined {
