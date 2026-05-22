@@ -255,9 +255,13 @@ export default function DashboardPage() {
                   </div>
 
                   {/* CTA */}
-                  <button className={`mt-5 w-full rounded-[14px] border px-4 py-2.5 text-sm font-semibold transition hover:opacity-80 ${s.pill}`}>
+                  <Link
+                    href={`/global-exhibit-bank/division?divisionId=${encodeURIComponent(div.id)}`}
+                    style={{ display: "block", marginTop: "20px" }}
+                    className="w-full px-4 py-3 rounded-xl text-center font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                  >
                     {div.ctaHe}
-                  </button>
+                  </Link>
                 </div>
               </div>
             )
