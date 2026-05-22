@@ -21,7 +21,7 @@ const DIVISION_MAP: Record<string, string> = {
   "missiles-space-defense": "mtach",
   "aviation": "teufa",
   "elta": "elta",
-  "uav": "mtach",
+  "uav": "kataz",
   "mtach": "mtach",
   "aviatsia": "teufa",
   "teufa": "teufa",
