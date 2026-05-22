@@ -679,7 +679,7 @@ export default function DivisionPage() {
                             }}
                           >
                             {EDITABLE_DIVISIONS.map((div) => (
-                              <option key={div} value={div}>{div}</option>
+                              <option key={div} value={div}>{DIVISION_LABELS[div] ?? div}</option>
                             ))}
                           </select>
                         </td>
