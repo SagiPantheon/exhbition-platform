@@ -9,6 +9,13 @@ import { masterExhibits } from "../../../data/masterExhibits"
 const OVERRIDE_KEY = "division-overrides"
 const EDITABLE_DIVISIONS = ["mtach", "elta", "kataz", "aviatsia"]
 
+const DIVISION_LABELS: Record<string, string> = {
+  mtach: "MATAH",
+  elta: "ELTA",
+  kataz: "MALAM",
+  aviatsia: "TEUFA",
+}
+
 // Maps dashboard divisionId → masterExhibits division key
 const DIVISION_MAP: Record<string, string> = {
   "missiles-space-defense": "mtach",
