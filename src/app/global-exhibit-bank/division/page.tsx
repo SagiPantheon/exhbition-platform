@@ -7,23 +7,24 @@ import { exhibitDivisions } from "../../../data/globalExhibitBank"
 import { masterExhibits } from "../../../data/masterExhibits"
 
 const OVERRIDE_KEY = "division-overrides"
-const EDITABLE_DIVISIONS = ["mtach", "elta", "kataz", "aviatsia"]
+const EDITABLE_DIVISIONS = ["mtach", "elta", "kataz", "teufa"]
 
 const DIVISION_LABELS: Record<string, string> = {
   mtach: "MATAH",
   elta: "ELTA",
-  kataz: "MALAM",
-  aviatsia: "TEUFA",
+  kataz: "KATAZ",
+  teufa: "TEUFA",
 }
 
 // Maps dashboard divisionId → masterExhibits division key
 const DIVISION_MAP: Record<string, string> = {
   "missiles-space-defense": "mtach",
-  "aviation": "aviatsia",
+  "aviation": "teufa",
   "elta": "elta",
   "uav": "mtach",
   "mtach": "mtach",
-  "aviatsia": "aviatsia",
+  "aviatsia": "teufa",
+  "teufa": "teufa",
   "kataz": "kataz",
   "air": "air",
   "land": "land",
@@ -37,6 +38,12 @@ const MTACH_TABS: { label: string; value: string }[] = [
   { label: "טילים", value: "tilim" },
   { label: "גילוי", value: "giluy" },
   { label: "מלם",  value: "malam" },
+]
+
+const TEUFA_TABS: { label: string; value: string }[] = [
+  { label: "הכל",      value: "" },
+  { label: "MRO",      value: "mro" },
+  { label: "בדק והסבות", value: "bdek" },
 ]
 
 export default function DivisionPage() {
@@ -343,6 +350,38 @@ export default function DivisionPage() {
         {masterDivision === "mtach" && (
           <section style={{ marginBottom: "18px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
             {MTACH_TABS.map((tab) => {
+              const active = (activeSub ?? "") === tab.value
+              return (
+                <button
+                  key={tab.value}
+                  onClick={() => setActiveSub(tab.value || null)}
+                  style={{
+                    padding: "12px 20px",
+                    borderRadius: "999px",
+                    border: active
+                      ? "1px solid rgba(111, 200, 255, 0.62)"
+                      : "1px solid rgba(95, 168, 255, 0.18)",
+                    background: active
+                      ? "linear-gradient(180deg, rgba(18,47,87,0.96) 0%, rgba(12,28,52,0.96) 100%)"
+                      : "rgba(9,20,40,0.72)",
+                    color: active ? "#8AD8FF" : "#EAF4FF",
+                    fontWeight: 800,
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </section>
+        )}
+
+        {/* Sub-division tabs — teufa only */}
+        {masterDivision === "teufa" && (
+          <section style={{ marginBottom: "18px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            {TEUFA_TABS.map((tab) => {
               const active = (activeSub ?? "") === tab.value
               return (
                 <button

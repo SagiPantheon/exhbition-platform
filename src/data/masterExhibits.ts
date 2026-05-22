@@ -1,4 +1,4 @@
-export type MasterExhibitDivision = "air" | "land" | "naval" | "space" | "inventory" | "aviatsia" | "mtach" | "elta" | "kataz";
+export type MasterExhibitDivision = "air" | "land" | "naval" | "space" | "inventory" | "teufa" | "mtach" | "elta" | "kataz";
 
 export type MasterExhibit = {
   slug: string;
@@ -27,8 +27,8 @@ export const masterExhibits: MasterExhibit[] = [
 
   { slug: "lora",             division: "mtach", subdivision: "tilim", nameEn: "LORA",             nameHe: "לורה",         model3d: "/models/air/lora-showcase-3d.glb",           image: "/images/air/lora-showcase.png",             hasModel: true  },
   { slug: "wanderb",          division: "mtach", subdivision: "tilim", nameEn: "WanderB",          nameHe: "וונדר B",      model3d: "/models/air/wanderb-showcase-3d.glb",        image: "/images/air/wanderb-showcase.png",          hasModel: true  },
-  { slug: "777",              division: "aviatsia",                     nameEn: "Boeing 777",       nameHe: "בואינג 777",   model3d: "/models/air/777-showcase-3d.glb",            image: "/images/air/777-showcase.png",              hasModel: true  },
-  { slug: "b767",             division: "aviatsia",                     nameEn: "Boeing 767",       nameHe: "בואינג 767",   model3d: "/models/air/b767-showcase-3d.glb",           image: "/images/air/b767-showcase.png",             hasModel: true  },
+  { slug: "777",              division: "teufa",                     nameEn: "Boeing 777",       nameHe: "בואינג 777",   model3d: "/models/air/777-showcase-3d.glb",            image: "/images/air/777-showcase.png",              hasModel: true  },
+  { slug: "b767",             division: "teufa",                     nameEn: "Boeing 767",       nameHe: "בואינג 767",   model3d: "/models/air/b767-showcase-3d.glb",           image: "/images/air/b767-showcase.png",             hasModel: true  },
 
   // ── AIR — from airAutoAssets (19 shared + 5 unique) ───────────────────────
   { slug: "mmr",           division: "elta",                         nameEn: "MMR",           nameHe: "מכ״ם MMR",     model3d: "/models/air/mmr-showcase-3d.glb",            image: "/images/air/mmr-showcase.png",           hasModel: true  },
