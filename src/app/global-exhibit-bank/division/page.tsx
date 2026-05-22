@@ -1,22 +1,36 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { exhibitDivisions } from "../../../data/globalExhibitBank"
 import { masterExhibits } from "../../../data/masterExhibits"
 
+const OVERRIDE_KEY = "division-overrides"
+const EDITABLE_DIVISIONS = ["mtach", "elta", "kataz", "aviatsia"]
+
 // Maps dashboard divisionId → masterExhibits division key
 const DIVISION_MAP: Record<string, string> = {
-  "missiles-space-defense": "space",
-  "aviation": "air",
-  "elta": "land",
-  "uav": "air",
+  "missiles-space-defense": "mtach",
+  "aviation": "aviatsia",
+  "elta": "elta",
+  "uav": "mtach",
+  "mtach": "mtach",
+  "aviatsia": "aviatsia",
+  "kataz": "kataz",
   "air": "air",
   "land": "land",
   "naval": "naval",
   "space": "space",
 }
+
+const MTACH_TABS: { label: string; value: string }[] = [
+  { label: "הכל",  value: "" },
+  { label: "חלל",  value: "halal" },
+  { label: "טילים", value: "tilim" },
+  { label: "גילוי", value: "giluy" },
+  { label: "מלם",  value: "malam" },
+]
 
 export default function DivisionPage() {
   const searchParams = useSearchParams()
@@ -30,23 +44,58 @@ export default function DivisionPage() {
 
   const masterDivision = DIVISION_MAP[divisionId] ?? divisionId
 
+  const [overrides, setOverrides] = useState<Record<string, string>>({})
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(OVERRIDE_KEY)
+      if (stored) setOverrides(JSON.parse(stored))
+    } catch {}
+  }, [])
+
   const allExhibits = useMemo(
-    () => masterExhibits.filter((e) => e.division === masterDivision),
-    [masterDivision]
+    () => masterExhibits.filter((e) => (overrides[e.slug] ?? e.division) === masterDivision),
+    [masterDivision, overrides]
   )
 
+  const nonInventoryExhibits = useMemo(
+    () => masterExhibits.filter((e) => e.division !== "inventory"),
+    []
+  )
+
+  function openModal() {
+    setLocalOverrides({ ...overrides })
+    setShowEditModal(true)
+  }
+
+  function saveModal() {
+    try {
+      localStorage.setItem(OVERRIDE_KEY, JSON.stringify(localOverrides))
+    } catch {}
+    setOverrides(localOverrides)
+    setShowEditModal(false)
+  }
+
   const [search, setSearch] = useState("")
+  const [activeSub, setActiveSub] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return allExhibits
-    const q = search.toLowerCase()
-    return allExhibits.filter(
-      (e) =>
-        e.nameEn.toLowerCase().includes(q) ||
-        e.nameHe.includes(q) ||
-        e.slug.includes(q)
-    )
-  }, [allExhibits, search])
+    let result = activeSub
+      ? allExhibits.filter((e) => e.subdivision === activeSub)
+      : allExhibits
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (e) =>
+          e.nameEn.toLowerCase().includes(q) ||
+          e.nameHe.includes(q) ||
+          e.slug.includes(q)
+      )
+    }
+    return result
+  }, [allExhibits, search, activeSub])
 
   if (!division) {
     return (
@@ -212,6 +261,21 @@ export default function DivisionPage() {
             </div>
 
             <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "flex-start" }}>
+              <button
+                onClick={openModal}
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "14px",
+                  border: "1px solid rgba(95, 168, 255, 0.30)",
+                  background: "rgba(18,47,87,0.72)",
+                  color: "#8AD8FF",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  fontSize: "14px",
+                }}
+              >
+                ✏️ ערוך חטיבה
+              </button>
               <Link
                 href="/dashboard"
                 style={{
@@ -267,6 +331,38 @@ export default function DivisionPage() {
             ))}
           </div>
         </section>
+
+        {/* Sub-division tabs — mtach only */}
+        {masterDivision === "mtach" && (
+          <section style={{ marginBottom: "18px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            {MTACH_TABS.map((tab) => {
+              const active = (activeSub ?? "") === tab.value
+              return (
+                <button
+                  key={tab.value}
+                  onClick={() => setActiveSub(tab.value || null)}
+                  style={{
+                    padding: "12px 20px",
+                    borderRadius: "999px",
+                    border: active
+                      ? "1px solid rgba(111, 200, 255, 0.62)"
+                      : "1px solid rgba(95, 168, 255, 0.18)",
+                    background: active
+                      ? "linear-gradient(180deg, rgba(18,47,87,0.96) 0%, rgba(12,28,52,0.96) 100%)"
+                      : "rgba(9,20,40,0.72)",
+                    color: active ? "#8AD8FF" : "#EAF4FF",
+                    fontWeight: 800,
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </section>
+        )}
 
         {/* Search bar */}
         <section style={{ marginBottom: "18px" }}>
@@ -468,6 +564,169 @@ export default function DivisionPage() {
           </section>
         )}
       </div>
+
+      {/* Edit Division Modal */}
+      {showEditModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 1000,
+            background: "rgba(2,6,20,0.82)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowEditModal(false) }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "760px",
+              maxHeight: "80vh",
+              borderRadius: "28px",
+              border: "1px solid rgba(95,168,255,0.22)",
+              background: "linear-gradient(180deg, #091428 0%, #060e1e 100%)",
+              boxShadow: "0 40px 100px rgba(0,0,0,0.6)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+          >
+            {/* Modal header */}
+            <div
+              style={{
+                padding: "22px 26px 18px",
+                borderBottom: "1px solid rgba(95,168,255,0.14)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(153,198,255,0.6)", marginBottom: "6px" }}>
+                  Division Assignment
+                </div>
+                <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#EAF4FF" }}>
+                  ✏️ ערוך חטיבה
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowEditModal(false)}
+                style={{
+                  width: 36, height: 36, borderRadius: "50%",
+                  border: "1px solid rgba(95,168,255,0.20)",
+                  background: "rgba(9,20,40,0.72)",
+                  color: "#EAF4FF",
+                  fontSize: "18px",
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Table */}
+            <div style={{ overflowY: "auto", flex: 1 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ position: "sticky", top: 0, background: "#091428", zIndex: 1 }}>
+                    <th style={{ padding: "12px 24px", textAlign: "left", fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(153,198,255,0.6)", borderBottom: "1px solid rgba(95,168,255,0.12)", fontWeight: 800 }}>
+                      Exhibit
+                    </th>
+                    <th style={{ padding: "12px 24px", textAlign: "left", fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(153,198,255,0.6)", borderBottom: "1px solid rgba(95,168,255,0.12)", fontWeight: 800, width: "180px" }}>
+                      Division
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nonInventoryExhibits.map((exhibit) => {
+                    const current = localOverrides[exhibit.slug] ?? exhibit.division
+                    return (
+                      <tr
+                        key={exhibit.slug}
+                        style={{ borderBottom: "1px solid rgba(95,168,255,0.07)" }}
+                      >
+                        <td style={{ padding: "12px 24px" }}>
+                          <div style={{ fontSize: "15px", fontWeight: 700, color: "#EAF4FF" }}>{exhibit.nameHe}</div>
+                          <div style={{ fontSize: "12px", color: "rgba(153,198,255,0.62)", marginTop: "2px" }}>{exhibit.nameEn}</div>
+                        </td>
+                        <td style={{ padding: "12px 24px" }}>
+                          <select
+                            value={current}
+                            onChange={(e) => setLocalOverrides((prev) => ({ ...prev, [exhibit.slug]: e.target.value }))}
+                            style={{
+                              width: "100%",
+                              padding: "8px 12px",
+                              borderRadius: "10px",
+                              border: "1px solid rgba(95,168,255,0.22)",
+                              background: "rgba(9,20,40,0.82)",
+                              color: "#EAF4FF",
+                              fontSize: "13px",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                              outline: "none",
+                            }}
+                          >
+                            {EDITABLE_DIVISIONS.map((div) => (
+                              <option key={div} value={div}>{div}</option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Modal footer */}
+            <div
+              style={{
+                padding: "18px 26px",
+                borderTop: "1px solid rgba(95,168,255,0.14)",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "12px",
+              }}
+            >
+              <button
+                onClick={() => setShowEditModal(false)}
+                style={{
+                  padding: "11px 22px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(95,168,255,0.18)",
+                  background: "rgba(9,20,40,0.72)",
+                  color: "#EAF4FF",
+                  fontWeight: 700,
+                  fontSize: "14px",
+                  cursor: "pointer",
+                }}
+              >
+                ביטול
+              </button>
+              <button
+                onClick={saveModal}
+                style={{
+                  padding: "11px 22px",
+                  borderRadius: "12px",
+                  border: "none",
+                  background: "linear-gradient(180deg, #8AD8FF 0%, #5FC1FF 100%)",
+                  color: "#04111E",
+                  fontWeight: 900,
+                  fontSize: "14px",
+                  cursor: "pointer",
+                }}
+              >
+                שמור
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
