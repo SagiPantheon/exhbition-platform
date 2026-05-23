@@ -106,6 +106,75 @@ type SignItem = {
   rotationY?: number;
 };
 
+type BracketItem = {
+  id: string;
+  text: string;
+  position: [number, number, number];
+  width: number;
+  color: string;
+  rotationY?: number;
+};
+
+function BracketSign({
+  bracket,
+  isSelected,
+  onSelect,
+  draggingId,
+  activeTool,
+}: {
+  bracket: BracketItem;
+  isSelected: boolean;
+  onSelect: () => void;
+  draggingId: { current: string | null };
+  activeTool: string;
+}) {
+  const hw = bracket.width / 2;
+  const h = 1.2;
+  const lineMesh = useMemo(() => {
+    const points = [
+      new THREE.Vector3(-hw, 0, 0),
+      new THREE.Vector3(-hw, h, 0),
+      new THREE.Vector3(hw, h, 0),
+      new THREE.Vector3(hw, 0, 0),
+    ];
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const mat = new THREE.LineBasicMaterial({ color: bracket.color });
+    return new THREE.Line(geo, mat);
+  }, [hw, bracket.color]);
+
+  return (
+    <group position={bracket.position} rotation={[0, bracket.rotationY ?? 0, 0]}>
+      {/* Hit mesh */}
+      <mesh
+        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        onPointerDown={(e) => { e.stopPropagation(); if (activeTool === "Move") { onSelect(); draggingId.current = bracket.id; } }}
+      >
+        <planeGeometry args={[bracket.width + 0.5, 1.5]} />
+        <meshStandardMaterial transparent opacity={isSelected ? 0.12 : 0} color={bracket.color} />
+      </mesh>
+      <primitive object={lineMesh} />
+      <arrowHelper args={[new THREE.Vector3(0, -1, 0), new THREE.Vector3(-hw, 0, 0), 0.4, bracket.color]} />
+      <arrowHelper args={[new THREE.Vector3(0, -1, 0), new THREE.Vector3(hw, 0, 0), 0.4, bracket.color]} />
+      <Html position={[0, h + 0.1, 0]} center distanceFactor={8} style={{ pointerEvents: "none" }}>
+        <div style={{
+          color: bracket.color,
+          fontSize: "20px",
+          fontWeight: 900,
+          textShadow: `0 0 10px ${bracket.color}, 0 0 20px ${bracket.color}`,
+          whiteSpace: "nowrap",
+          background: "rgba(0,0,0,0.5)",
+          padding: "3px 14px",
+          borderRadius: "6px",
+          pointerEvents: "none",
+          outline: isSelected ? `2px solid ${bracket.color}` : "none",
+        }}>
+          {bracket.text}
+        </div>
+      </Html>
+    </group>
+  );
+}
+
 function SceneInvalidator({ signs }: { signs: SignItem[] }) {
   const { invalidate } = useThree();
   useEffect(() => { invalidate(); }, [signs, invalidate]);
@@ -774,12 +843,16 @@ function DragHandler({
   onMoveItem,
   onMoveSign,
   signIds,
+  onMoveBracket,
+  bracketIds,
   onDrop,
 }: {
   draggingId: { current: string | null };
   onMoveItem: (id: string, x: number, z: number) => void;
   onMoveSign?: (id: string, x: number, z: number) => void;
   signIds?: string[];
+  onMoveBracket?: (id: string, x: number, z: number) => void;
+  bracketIds?: string[];
   onDrop?: (id: string) => void;
 }) {
   const { camera, gl } = useThree();
@@ -791,6 +864,10 @@ function DragHandler({
   onMoveSignRef.current = onMoveSign;
   const signIdsRef = useRef(signIds ?? []);
   signIdsRef.current = signIds ?? [];
+  const onMoveBracketRef = useRef(onMoveBracket);
+  onMoveBracketRef.current = onMoveBracket;
+  const bracketIdsRef = useRef(bracketIds ?? []);
+  bracketIdsRef.current = bracketIds ?? [];
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
@@ -801,7 +878,9 @@ function DragHandler({
       ray.setFromCamera(new THREE.Vector2(nx, ny), camera);
       const hit = new THREE.Vector3();
       if (ray.ray.intersectPlane(floorPlane, hit)) {
-        if (signIdsRef.current.includes(draggingId.current) && onMoveSignRef.current) {
+        if (bracketIdsRef.current.includes(draggingId.current) && onMoveBracketRef.current) {
+          onMoveBracketRef.current(draggingId.current, hit.x, hit.z);
+        } else if (signIdsRef.current.includes(draggingId.current) && onMoveSignRef.current) {
           onMoveSignRef.current(draggingId.current, hit.x, hit.z);
         } else {
           onMoveRef.current(draggingId.current, hit.x, hit.z);
@@ -845,6 +924,10 @@ function TentStage3D({
   selectedSignId,
   onSelectSign,
   onMoveSign,
+  brackets,
+  selectedBracketId,
+  onSelectBracket,
+  onMoveBracket,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -861,9 +944,14 @@ function TentStage3D({
   selectedSignId: string | null;
   onSelectSign: (id: string | null) => void;
   onMoveSign: (id: string, x: number, z: number) => void;
+  brackets: BracketItem[];
+  selectedBracketId: string | null;
+  onSelectBracket: (id: string | null) => void;
+  onMoveBracket: (id: string, x: number, z: number) => void;
 }) {
   const draggingId = useRef<string | null>(null);
   const signIds = useMemo(() => signs.map((s) => s.id), [signs]);
+  const bracketIds = useMemo(() => brackets.map((b) => b.id), [brackets]);
 
   return (
     <Canvas
@@ -945,6 +1033,16 @@ function TentStage3D({
               activeTool={activeTool}
             />
           ))}
+          {tentType === "open" && showSigns && brackets.map((b) => (
+            <BracketSign
+              key={b.id}
+              bracket={b}
+              isSelected={b.id === selectedBracketId}
+              onSelect={() => onSelectBracket(b.id)}
+              draggingId={draggingId}
+              activeTool={activeTool}
+            />
+          ))}
         </>
       </Suspense>
 
@@ -953,6 +1051,8 @@ function TentStage3D({
         onMoveItem={onMoveItem}
         onMoveSign={onMoveSign}
         signIds={signIds}
+        onMoveBracket={onMoveBracket}
+        bracketIds={bracketIds}
         onDrop={onDrop}
       />
 
@@ -1026,15 +1126,18 @@ export default function TentsLayoutPage() {
         setSceneItems(parsed.items ?? parsed)
         setExhibitionName(parsed.name ?? "")
         setSigns(parsed.signs ?? [])
+        setBrackets(parsed.brackets ?? [])
       } catch {
         setSceneItems([])
         setExhibitionName("")
         setSigns([])
+        setBrackets([])
       }
     } else {
       setSceneItems([])
       setExhibitionName("")
       setSigns([])
+      setBrackets([])
     }
   }, [tentType])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -1053,6 +1156,12 @@ export default function TentsLayoutPage() {
   const [signPopupOpen, setSignPopupOpen] = useState(false);
   const [signText, setSignText] = useState("");
   const [signColor, setSignColor] = useState("#00d4ff");
+  const [brackets, setBrackets] = useState<BracketItem[]>([]);
+  const [selectedBracketId, setSelectedBracketId] = useState<string | null>(null);
+  const [bracketPopupOpen, setBracketPopupOpen] = useState(false);
+  const [bracketText, setBracketText] = useState("");
+  const [bracketWidth, setBracketWidth] = useState(4);
+  const [bracketColor, setBracketColor] = useState("#00d4ff");
 
   const filteredExhibits = useMemo(() => {
     const bySection = activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection);
@@ -1133,6 +1242,21 @@ export default function TentsLayoutPage() {
   function handleSelectSign(id: string | null) {
     setSelectedSignId(id);
     if (id !== null) setActiveTool("Move");
+  }
+
+  function handleSelectBracket(id: string | null) {
+    setSelectedBracketId(id);
+    if (id !== null) setActiveTool("Move");
+  }
+
+  function moveBracket(id: string, x: number, z: number) {
+    const clampedX = Math.max(-12, Math.min(12, x));
+    const clampedZ = Math.max(-7, Math.min(7, z));
+    setBrackets((prev) =>
+      prev.map((b) =>
+        b.id === id ? { ...b, position: [clampedX, b.position[1], clampedZ] as [number, number, number] } : b
+      )
+    );
   }
 
   function moveSign(id: string, x: number, z: number) {
@@ -1225,7 +1349,7 @@ export default function TentsLayoutPage() {
   const captureRef = useRef<(() => string) | null>(null);
 
   function saveScene() {
-    localStorage.setItem(`tentScene_${tentType}`, JSON.stringify({ items: sceneItems, name: exhibitionName, signs }));
+    localStorage.setItem(`tentScene_${tentType}`, JSON.stringify({ items: sceneItems, name: exhibitionName, signs, brackets }));
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2000);
   }
@@ -1246,6 +1370,24 @@ export default function TentsLayoutPage() {
     setSigns((prev) => [...prev, newSign]);
     setSignText("");
     setSignPopupOpen(false);
+  }
+
+  function addBracket() {
+    if (!bracketText.trim()) return;
+    const newBracket: BracketItem = {
+      id: crypto.randomUUID(),
+      text: bracketText.trim(),
+      position: [
+        (Math.random() - 0.5) * 8,
+        2.0 + brackets.length * 0.1,
+        (Math.random() - 0.5) * 5,
+      ] as [number, number, number],
+      width: bracketWidth,
+      color: bracketColor,
+    };
+    setBrackets((prev) => [...prev, newBracket]);
+    setBracketText("");
+    setBracketPopupOpen(false);
   }
 
   function buildExportData() {
@@ -2034,6 +2176,31 @@ export default function TentsLayoutPage() {
                   );
                 })()}
 
+                {/* Bracket controls */}
+                {tentType === "open" && selectedBracketId && (() => {
+                  const bStyle = { padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(0,212,255,0.35)", background: "rgba(0,212,255,0.10)", color: "#00d4ff", fontSize: "13px", fontWeight: 700, cursor: "pointer" } as const;
+                  return (
+                    <>
+                      <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+                      {/* Width */}
+                      <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                        <button type="button" title="צמצם רוחב" style={bStyle}
+                          onClick={() => setBrackets((prev) => prev.map((b) => b.id === selectedBracketId ? { ...b, width: Math.max(1, b.width - 0.5) } : b))}>−</button>
+                        <span style={{ color: "#67e8f9", fontSize: "11px", fontWeight: 700, whiteSpace: "nowrap" }}>רוחב</span>
+                        <button type="button" title="הרחב" style={bStyle}
+                          onClick={() => setBrackets((prev) => prev.map((b) => b.id === selectedBracketId ? { ...b, width: Math.min(14, b.width + 0.5) } : b))}>+</button>
+                      </div>
+                      {/* Rotate */}
+                      <button type="button" title="סובב סוגר 45°" style={bStyle}
+                        onClick={() => setBrackets((prev) => prev.map((b) => b.id === selectedBracketId ? { ...b, rotationY: (b.rotationY ?? 0) + Math.PI / 4 } : b))}>↻</button>
+                      {/* Delete */}
+                      <button type="button" title="מחק סוגר"
+                        onClick={() => { setBrackets((prev) => prev.filter((b) => b.id !== selectedBracketId)); setSelectedBracketId(null); }}
+                        style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(255,80,80,0.40)", background: "rgba(255,80,80,0.10)", color: "#f87171", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}>🗑</button>
+                    </>
+                  );
+                })()}
+
                 {/* Separator */}
                 <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
 
@@ -2216,6 +2383,101 @@ export default function TentsLayoutPage() {
                         </div>
                       )}
                     </div>
+
+                    {/* Bracket button */}
+                    <div style={{ position: "relative" }}>
+                      <button
+                        type="button"
+                        onClick={() => setBracketPopupOpen((v) => !v)}
+                        title="הוסף סוגר קבוצה"
+                        style={{
+                          padding: "8px 14px",
+                          borderRadius: "11px",
+                          border: "1px solid rgba(0,212,255,0.50)",
+                          background: "rgba(0,212,255,0.12)",
+                          color: "#00d4ff",
+                          fontSize: "13px",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                          transition: "all 150ms ease",
+                        }}
+                      >
+                        ⌐ הוסף סוגר
+                      </button>
+
+                      {bracketPopupOpen && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "calc(100% + 8px)",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            zIndex: 100,
+                            background: "rgba(6,12,28,0.97)",
+                            border: "1px solid rgba(0,212,255,0.35)",
+                            borderRadius: "14px",
+                            padding: "14px 16px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "10px",
+                            minWidth: "230px",
+                            boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
+                          }}
+                        >
+                          <div style={{ color: "rgba(180,220,255,0.7)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                            סוגר קבוצה
+                          </div>
+                          <input
+                            type="text"
+                            value={bracketText}
+                            onChange={(e) => setBracketText(e.target.value)}
+                            placeholder="שם הקבוצה..."
+                            dir="rtl"
+                            style={{ padding: "7px 10px", borderRadius: "9px", border: "1px solid rgba(0,212,255,0.30)", background: "rgba(255,255,255,0.04)", color: "#f0faff", fontSize: "13px", outline: "none" }}
+                            onKeyDown={(e) => { if (e.key === "Enter") addBracket(); }}
+                          />
+                          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                            <div style={{ color: "rgba(180,220,255,0.6)", fontSize: "11px" }}>
+                              רוחב: {bracketWidth}מ׳
+                            </div>
+                            <input
+                              type="range"
+                              min={2}
+                              max={10}
+                              step={0.5}
+                              value={bracketWidth}
+                              onChange={(e) => setBracketWidth(Number(e.target.value))}
+                              style={{ width: "100%", accentColor: "#00d4ff" }}
+                            />
+                          </div>
+                          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            {(["#00d4ff", "#0B6EFD", "#00ff88", "#ff6b35", "#ffffff"] as const).map((c) => (
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => setBracketColor(c)}
+                                style={{
+                                  width: "26px", height: "26px", borderRadius: "50%",
+                                  background: c,
+                                  border: bracketColor === c ? "2px solid white" : "2px solid transparent",
+                                  cursor: "pointer",
+                                  boxShadow: `0 0 8px ${c}`,
+                                  transition: "border 150ms",
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={addBracket}
+                            style={{ padding: "8px 14px", borderRadius: "9px", border: "1px solid rgba(0,212,255,0.40)", background: "rgba(0,212,255,0.18)", color: "#00d4ff", fontSize: "13px", fontWeight: 800, cursor: "pointer" }}
+                          >
+                            הוסף לסצנה
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
@@ -2317,6 +2579,10 @@ export default function TentsLayoutPage() {
                   selectedSignId={selectedSignId}
                   onSelectSign={handleSelectSign}
                   onMoveSign={moveSign}
+                  brackets={brackets}
+                  selectedBracketId={selectedBracketId}
+                  onSelectBracket={handleSelectBracket}
+                  onMoveBracket={moveBracket}
                 />
               </div>
 
