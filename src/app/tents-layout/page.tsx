@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { ContactShadows, Html, OrbitControls, PerspectiveCamera, Text, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import emailjs from "@emailjs/browser";
 
@@ -98,6 +98,39 @@ type SceneItem = {
   scale: number;
 };
 
+type SignItem = {
+  id: string;
+  text: string;
+  position: [number, number, number];
+  color: string;
+};
+
+function NeonSign({ sign }: { sign: SignItem }) {
+  return (
+    <group position={sign.position}>
+      <mesh>
+        <planeGeometry args={[4, 0.8]} />
+        <meshStandardMaterial
+          color={sign.color}
+          emissive={sign.color}
+          emissiveIntensity={2}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      <Text
+        position={[0, 0, 0.01]}
+        fontSize={0.35}
+        color="white"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/inter.woff"
+      >
+        {sign.text}
+      </Text>
+    </group>
+  );
+}
 
 function TopPill({
   label,
@@ -757,6 +790,7 @@ function TentStage3D({
   tentType,
   captureRef,
   dramaticLight,
+  signs,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -768,6 +802,7 @@ function TentStage3D({
   tentType: string;
   captureRef: React.MutableRefObject<(() => string) | null>;
   dramaticLight: boolean;
+  signs: SignItem[];
 }) {
   const draggingId = useRef<string | null>(null);
 
@@ -829,6 +864,9 @@ function TentStage3D({
               activeTool={activeTool}
               draggingId={draggingId}
             />
+          ))}
+          {tentType === "open" && signs.map((sign) => (
+            <NeonSign key={sign.id} sign={sign} />
           ))}
         </>
       </Suspense>
@@ -904,13 +942,16 @@ export default function TentsLayoutPage() {
         const parsed = JSON.parse(saved)
         setSceneItems(parsed.items ?? parsed)
         setExhibitionName(parsed.name ?? "")
+        setSigns(parsed.signs ?? [])
       } catch {
         setSceneItems([])
         setExhibitionName("")
+        setSigns([])
       }
     } else {
       setSceneItems([])
       setExhibitionName("")
+      setSigns([])
     }
   }, [tentType])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -923,6 +964,10 @@ export default function TentsLayoutPage() {
   const [exhibitSearch, setExhibitSearch] = useState("");
   const [inventorySearch, setInventorySearch] = useState("");
   const [exhibitionName, setExhibitionName] = useState("");
+  const [signs, setSigns] = useState<SignItem[]>([]);
+  const [signPopupOpen, setSignPopupOpen] = useState(false);
+  const [signText, setSignText] = useState("");
+  const [signColor, setSignColor] = useState("#00d4ff");
 
   const filteredExhibits = useMemo(() => {
     const bySection = activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection);
@@ -1080,9 +1125,22 @@ export default function TentsLayoutPage() {
   const captureRef = useRef<(() => string) | null>(null);
 
   function saveScene() {
-    localStorage.setItem(`tentScene_${tentType}`, JSON.stringify({ items: sceneItems, name: exhibitionName }));
+    localStorage.setItem(`tentScene_${tentType}`, JSON.stringify({ items: sceneItems, name: exhibitionName, signs }));
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2000);
+  }
+
+  function addSign() {
+    if (!signText.trim()) return;
+    const newSign: SignItem = {
+      id: crypto.randomUUID(),
+      text: signText.trim(),
+      position: [0, 1.5, 0],
+      color: signColor,
+    };
+    setSigns((prev) => [...prev, newSign]);
+    setSignText("");
+    setSignPopupOpen(false);
   }
 
   function buildExportData() {
@@ -1885,6 +1943,110 @@ export default function TentsLayoutPage() {
                 >
                   {dramaticLight ? "💡 תאורה דרמטית" : "🔆 אור רגיל"}
                 </button>
+
+                {tentType === "open" && (
+                  <>
+                    <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+                    <div style={{ position: "relative" }}>
+                      <button
+                        type="button"
+                        onClick={() => setSignPopupOpen((v) => !v)}
+                        title="הוסף שלט נאון"
+                        style={{
+                          padding: "8px 14px",
+                          borderRadius: "11px",
+                          border: "1px solid rgba(0,212,255,0.50)",
+                          background: "rgba(0,212,255,0.12)",
+                          color: "#00d4ff",
+                          fontSize: "13px",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                          transition: "all 150ms ease",
+                        }}
+                      >
+                        ✦ הוסף שלט
+                      </button>
+
+                      {signPopupOpen && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "calc(100% + 8px)",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            zIndex: 100,
+                            background: "rgba(6,12,28,0.97)",
+                            border: "1px solid rgba(0,212,255,0.35)",
+                            borderRadius: "14px",
+                            padding: "14px 16px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "10px",
+                            minWidth: "220px",
+                            boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
+                          }}
+                        >
+                          <div style={{ color: "rgba(180,220,255,0.7)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                            שלט נאון
+                          </div>
+                          <input
+                            type="text"
+                            value={signText}
+                            onChange={(e) => setSignText(e.target.value)}
+                            placeholder="טקסט השלט..."
+                            dir="rtl"
+                            style={{
+                              padding: "7px 10px",
+                              borderRadius: "9px",
+                              border: "1px solid rgba(0,212,255,0.30)",
+                              background: "rgba(255,255,255,0.04)",
+                              color: "#f0faff",
+                              fontSize: "13px",
+                              outline: "none",
+                            }}
+                            onKeyDown={(e) => { if (e.key === "Enter") addSign(); }}
+                          />
+                          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            {(["#00d4ff", "#0B6EFD", "#00ff88"] as const).map((c) => (
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => setSignColor(c)}
+                                style={{
+                                  width: "26px",
+                                  height: "26px",
+                                  borderRadius: "50%",
+                                  background: c,
+                                  border: signColor === c ? "2px solid white" : "2px solid transparent",
+                                  cursor: "pointer",
+                                  boxShadow: `0 0 8px ${c}`,
+                                  transition: "border 150ms",
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={addSign}
+                            style={{
+                              padding: "8px 14px",
+                              borderRadius: "9px",
+                              border: "1px solid rgba(0,212,255,0.40)",
+                              background: "rgba(0,212,255,0.18)",
+                              color: "#00d4ff",
+                              fontSize: "13px",
+                              fontWeight: 800,
+                              cursor: "pointer",
+                            }}
+                          >
+                            הוסף לסצנה
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -1979,6 +2141,7 @@ export default function TentsLayoutPage() {
                   tentType={tentType}
                   captureRef={captureRef}
                   dramaticLight={dramaticLight}
+                  signs={signs}
                 />
               </div>
 
