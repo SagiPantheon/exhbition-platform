@@ -105,6 +105,12 @@ type SignItem = {
   color: string;
 };
 
+function SceneInvalidator({ signs }: { signs: SignItem[] }) {
+  const { invalidate } = useThree();
+  useEffect(() => { invalidate(); }, [signs, invalidate]);
+  return null;
+}
+
 function NeonSign({ sign }: { sign: SignItem }) {
   return (
     <group position={sign.position}>
@@ -815,6 +821,7 @@ function TentStage3D({
       style={{ width: "100%", height: "100%" }}
     >
       <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
+      <SceneInvalidator signs={signs} />
       <ambientLight intensity={dramaticLight ? 0.2 : 1.2} />
       <directionalLight position={[7, 10, 6]} intensity={dramaticLight ? 0.3 : 1.8} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
       <directionalLight position={[-5, 4, -4]} intensity={dramaticLight ? 0.1 : 0.25} />
@@ -831,6 +838,16 @@ function TentStage3D({
       <spotLight position={[ 10, 16, -10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
       <spotLight position={[-10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
       <spotLight position={[ 10, 16,  10]} intensity={8.0} angle={0.2} penumbra={0.95} color="#4488ff" />
+
+      {/* Open sky area floodlights */}
+      {tentType === "open" && (
+        <>
+          <spotLight position={[-12, 8, -7]} intensity={3} angle={0.4} penumbra={0.5} color="#ffffff" target-position={[0, 0, 0]} />
+          <spotLight position={[ 12, 8, -7]} intensity={3} angle={0.4} penumbra={0.5} color="#ffffff" target-position={[0, 0, 0]} />
+          <spotLight position={[-12, 8,  7]} intensity={3} angle={0.4} penumbra={0.5} color="#ffffff" target-position={[0, 0, 0]} />
+          <spotLight position={[ 12, 8,  7]} intensity={3} angle={0.4} penumbra={0.5} color="#ffffff" target-position={[0, 0, 0]} />
+        </>
+      )}
 
       <Suspense
         fallback={
@@ -1131,6 +1148,7 @@ export default function TentsLayoutPage() {
   }
 
   function addSign() {
+    console.log("addSign called", signText, signs);
     if (!signText.trim()) return;
     const newSign: SignItem = {
       id: crypto.randomUUID(),
