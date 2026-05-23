@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Html, OrbitControls, PerspectiveCamera, Text, useGLTF } from "@react-three/drei";
+import { ContactShadows, Html, OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import emailjs from "@emailjs/browser";
 
@@ -111,29 +111,57 @@ function SceneInvalidator({ signs }: { signs: SignItem[] }) {
   return null;
 }
 
-function NeonSign({ sign }: { sign: SignItem }) {
+function NeonSign({
+  sign,
+  isSelected,
+  onSelect,
+  draggingId,
+  activeTool,
+}: {
+  sign: SignItem;
+  isSelected: boolean;
+  onSelect: () => void;
+  draggingId: { current: string | null };
+  activeTool: string;
+}) {
   return (
-    <group position={sign.position}>
+    <group
+      position={sign.position}
+      onClick={(e) => { e.stopPropagation(); onSelect(); }}
+      onPointerDown={(e) => {
+        if (activeTool === "Move") {
+          e.stopPropagation();
+          onSelect();
+          draggingId.current = sign.id;
+        }
+      }}
+    >
       <mesh>
-        <planeGeometry args={[4, 0.8]} />
+        <planeGeometry args={[5, 0.9]} />
         <meshStandardMaterial
           color={sign.color}
           emissive={sign.color}
-          emissiveIntensity={2}
+          emissiveIntensity={3}
           transparent
-          opacity={0.9}
+          opacity={isSelected ? 0.4 : 0.15}
         />
       </mesh>
-      <Text
-        position={[0, 0, 0.01]}
-        fontSize={0.35}
-        color="white"
-        anchorX="center"
-        anchorY="middle"
-        font="/fonts/inter.woff"
-      >
-        {sign.text}
-      </Text>
+      <Html center distanceFactor={8}>
+        <div style={{
+          color: sign.color,
+          fontSize: "18px",
+          fontWeight: 900,
+          textShadow: `0 0 10px ${sign.color}, 0 0 20px ${sign.color}, 0 0 40px ${sign.color}`,
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+          fontFamily: "sans-serif",
+          letterSpacing: "0.1em",
+          outline: isSelected ? `2px solid ${sign.color}` : "none",
+          borderRadius: "4px",
+        }}>
+          {sign.text}
+        </div>
+      </Html>
     </group>
   );
 }
@@ -740,10 +768,14 @@ function SpotFixture({ position, dramaticLight }: { position: [number, number, n
 function DragHandler({
   draggingId,
   onMoveItem,
+  onMoveSign,
+  signIds,
   onDrop,
 }: {
   draggingId: { current: string | null };
   onMoveItem: (id: string, x: number, z: number) => void;
+  onMoveSign?: (id: string, x: number, z: number) => void;
+  signIds?: string[];
   onDrop?: (id: string) => void;
 }) {
   const { camera, gl } = useThree();
@@ -751,6 +783,10 @@ function DragHandler({
   const ray = useMemo(() => new THREE.Raycaster(), []);
   const onMoveRef = useRef(onMoveItem);
   onMoveRef.current = onMoveItem;
+  const onMoveSignRef = useRef(onMoveSign);
+  onMoveSignRef.current = onMoveSign;
+  const signIdsRef = useRef(signIds ?? []);
+  signIdsRef.current = signIds ?? [];
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
@@ -761,7 +797,11 @@ function DragHandler({
       ray.setFromCamera(new THREE.Vector2(nx, ny), camera);
       const hit = new THREE.Vector3();
       if (ray.ray.intersectPlane(floorPlane, hit)) {
-        onMoveRef.current(draggingId.current, hit.x, hit.z);
+        if (signIdsRef.current.includes(draggingId.current) && onMoveSignRef.current) {
+          onMoveSignRef.current(draggingId.current, hit.x, hit.z);
+        } else {
+          onMoveRef.current(draggingId.current, hit.x, hit.z);
+        }
       }
     };
     const onUp = () => { if (draggingId.current) onDrop?.(draggingId.current); draggingId.current = null; };
@@ -797,6 +837,9 @@ function TentStage3D({
   captureRef,
   dramaticLight,
   signs,
+  selectedSignId,
+  onSelectSign,
+  onMoveSign,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -809,8 +852,12 @@ function TentStage3D({
   captureRef: React.MutableRefObject<(() => string) | null>;
   dramaticLight: boolean;
   signs: SignItem[];
+  selectedSignId: string | null;
+  onSelectSign: (id: string | null) => void;
+  onMoveSign: (id: string, x: number, z: number) => void;
 }) {
   const draggingId = useRef<string | null>(null);
+  const signIds = useMemo(() => signs.map((s) => s.id), [signs]);
 
   return (
     <Canvas
@@ -883,18 +930,31 @@ function TentStage3D({
             />
           ))}
           {tentType === "open" && signs.map((sign) => (
-            <NeonSign key={sign.id} sign={sign} />
+            <NeonSign
+              key={sign.id}
+              sign={sign}
+              isSelected={sign.id === selectedSignId}
+              onSelect={() => onSelectSign(sign.id)}
+              draggingId={draggingId}
+              activeTool={activeTool}
+            />
           ))}
         </>
       </Suspense>
 
-      <DragHandler draggingId={draggingId} onMoveItem={onMoveItem} onDrop={onDrop} />
+      <DragHandler
+        draggingId={draggingId}
+        onMoveItem={onMoveItem}
+        onMoveSign={onMoveSign}
+        signIds={signIds}
+        onDrop={onDrop}
+      />
 
       {/* Invisible deselect plane — clicking empty floor deselects */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -1.37, 0]}
-        onClick={(e) => { e.stopPropagation(); if (!draggingId.current) onSelect(null); }}
+        onClick={(e) => { e.stopPropagation(); if (!draggingId.current) { onSelect(null); onSelectSign(null); } }}
       >
         <planeGeometry args={[32, 32]} />
         <meshBasicMaterial transparent opacity={0} />
@@ -982,6 +1042,7 @@ export default function TentsLayoutPage() {
   const [inventorySearch, setInventorySearch] = useState("");
   const [exhibitionName, setExhibitionName] = useState("");
   const [signs, setSigns] = useState<SignItem[]>([]);
+  const [selectedSignId, setSelectedSignId] = useState<string | null>(null);
   const [signPopupOpen, setSignPopupOpen] = useState(false);
   const [signText, setSignText] = useState("");
   const [signColor, setSignColor] = useState("#00d4ff");
@@ -1058,6 +1119,14 @@ export default function TentsLayoutPage() {
     setSceneItems((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, position: [x, item.position[1], z] } : item
+      )
+    );
+  }
+
+  function moveSign(id: string, x: number, z: number) {
+    setSigns((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, position: [x, s.position[1], z] as [number, number, number] } : s
       )
     );
   }
@@ -1900,6 +1969,37 @@ export default function TentsLayoutPage() {
                   );
                 })()}
 
+                {/* Sign height + delete — visible when a sign is selected */}
+                {tentType === "open" && selectedSignId && (
+                  <>
+                    <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+                    <div style={{ display: "flex", gap: "4px" }}>
+                      <button
+                        type="button"
+                        title="הרם שלט"
+                        onClick={() => setSigns((prev) => prev.map((s) =>
+                          s.id === selectedSignId ? { ...s, position: [s.position[0], s.position[1] + 0.3, s.position[2]] as [number,number,number] } : s
+                        ))}
+                        style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(0,212,255,0.35)", background: "rgba(0,212,255,0.10)", color: "#00d4ff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
+                      >⬆</button>
+                      <button
+                        type="button"
+                        title="הורד שלט"
+                        onClick={() => setSigns((prev) => prev.map((s) =>
+                          s.id === selectedSignId ? { ...s, position: [s.position[0], Math.max(-1.38, s.position[1] - 0.3), s.position[2]] as [number,number,number] } : s
+                        ))}
+                        style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(0,212,255,0.35)", background: "rgba(0,212,255,0.10)", color: "#00d4ff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
+                      >⬇</button>
+                    </div>
+                    <button
+                      type="button"
+                      title="מחק שלט"
+                      onClick={() => { setSigns((prev) => prev.filter((s) => s.id !== selectedSignId)); setSelectedSignId(null); }}
+                      style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(255,80,80,0.40)", background: "rgba(255,80,80,0.10)", color: "#f87171", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
+                    >🗑</button>
+                  </>
+                )}
+
                 {/* Separator */}
                 <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
 
@@ -2160,6 +2260,9 @@ export default function TentsLayoutPage() {
                   captureRef={captureRef}
                   dramaticLight={dramaticLight}
                   signs={signs}
+                  selectedSignId={selectedSignId}
+                  onSelectSign={setSelectedSignId}
+                  onMoveSign={moveSign}
                 />
               </div>
 
