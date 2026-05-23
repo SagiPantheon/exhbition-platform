@@ -63,11 +63,18 @@ async function sendExhibitionEmail(params: {
   );
 }
 
+const DIVISION_TO_SECTION: Record<string, string> = {
+  teufa: "air",
+  mtach: "air",
+  elta:  "air",
+  kataz: "air",
+};
+
 const EXHIBIT_ITEMS = masterExhibits
   .filter((e) => e.division !== "inventory")
   .map((e) => ({
     slug: e.slug,
-    section: e.division,
+    section: DIVISION_TO_SECTION[e.division] ?? e.division,
     displayName: e.nameHe,
     image: e.image,
     model3d: e.model3d,
@@ -96,6 +103,7 @@ type SceneItem = {
   position: [number, number, number];
   rotationY: number;
   scale: number;
+  label?: string;
 };
 
 type SignItem = {
@@ -175,9 +183,9 @@ function BracketSign({
   );
 }
 
-function SceneInvalidator({ signs }: { signs: SignItem[] }) {
+function SceneInvalidator({ signs, snapGlowId, showLabels }: { signs: SignItem[]; snapGlowId: string | null; showLabels: boolean }) {
   const { invalidate } = useThree();
-  useEffect(() => { invalidate(); }, [signs, invalidate]);
+  useEffect(() => { invalidate(); }, [signs, snapGlowId, showLabels, invalidate]);
   return null;
 }
 
@@ -648,6 +656,71 @@ const itemModelMap: Record<string, string> = Object.fromEntries([
 
 const FALLBACK_MODEL = "/models/inventory/flags-iai-01.glb";
 
+const PEDESTAL_DIMS: Record<string, [number, number, number]> = {
+  "בסיס תצוגה קטן":    [0.6, 0.8, 0.6],
+  "בסיס תצוגה בינוני": [0.8, 1.0, 0.8],
+  "בסיס תצוגה גדול":   [1.0, 1.2, 1.0],
+};
+
+function PedestalItem({
+  item,
+  isSelected,
+  snapGlowId,
+  onSelect,
+  activeTool,
+  draggingId,
+}: {
+  item: SceneItem;
+  isSelected: boolean;
+  snapGlowId: string | null;
+  onSelect: () => void;
+  activeTool: string;
+  draggingId: { current: string | null };
+}) {
+  const [w, h, d] = PEDESTAL_DIMS[item.type] ?? [0.6, 0.8, 0.6];
+  const isGlowing = snapGlowId === item.id;
+  return (
+    <>
+      <group
+        position={item.position}
+        rotation={[0, item.rotationY, 0]}
+        scale={item.scale}
+        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        onPointerDown={(e) => {
+          if (activeTool === "Move" || activeTool === "Rotate") {
+            e.stopPropagation();
+            onSelect();
+            draggingId.current = item.id;
+          }
+        }}
+      >
+        <mesh position={[0, h / 2, 0]} castShadow receiveShadow>
+          <boxGeometry args={[w, h, d]} />
+          <meshStandardMaterial color="#ffffff" roughness={0.22} metalness={0.04} />
+        </mesh>
+      </group>
+      {isSelected && (
+        <mesh
+          position={[item.position[0], -1.35, item.position[2]]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[0.9, 1.25, 48]} />
+          <meshBasicMaterial color="#00e5ff" transparent opacity={0.3} />
+        </mesh>
+      )}
+      {isGlowing && (
+        <mesh
+          position={[item.position[0], -1.38 + h / 2, item.position[2]]}
+          rotation={[0, 0, 0]}
+        >
+          <boxGeometry args={[w + 0.08, h + 0.08, d + 0.08]} />
+          <meshBasicMaterial color="#00e5ff" transparent opacity={0.35} />
+        </mesh>
+      )}
+    </>
+  );
+}
+
 function DynamicItem({
   item,
   isSelected,
@@ -673,7 +746,7 @@ function DynamicItem({
         scale={item.scale}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         onPointerDown={(e) => {
-          if (activeTool === "Move") {
+          if (activeTool === "Move" || activeTool === "Rotate") {
             e.stopPropagation();
             onSelect();
             draggingId.current = item.id;
@@ -690,7 +763,7 @@ function DynamicItem({
           rotation={[-Math.PI / 2, 0, 0]}
         >
           <ringGeometry args={[0.9, 1.25, 48]} />
-          <meshBasicMaterial color="#00e5ff" transparent opacity={0.9} />
+          <meshBasicMaterial color="#00e5ff" transparent opacity={0.3} />
         </mesh>
       )}
     </>
@@ -846,6 +919,8 @@ function DragHandler({
   onMoveBracket,
   bracketIds,
   onDrop,
+  activeTool,
+  onRotateItem,
 }: {
   draggingId: { current: string | null };
   onMoveItem: (id: string, x: number, z: number) => void;
@@ -854,6 +929,8 @@ function DragHandler({
   onMoveBracket?: (id: string, x: number, z: number) => void;
   bracketIds?: string[];
   onDrop?: (id: string) => void;
+  activeTool: string;
+  onRotateItem?: (id: string, delta: number) => void;
 }) {
   const { camera, gl } = useThree();
   const floorPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.38), []);
@@ -868,10 +945,23 @@ function DragHandler({
   onMoveBracketRef.current = onMoveBracket;
   const bracketIdsRef = useRef(bracketIds ?? []);
   bracketIdsRef.current = bracketIds ?? [];
+  const activeToolRef = useRef(activeTool);
+  activeToolRef.current = activeTool;
+  const onRotateRef = useRef(onRotateItem);
+  onRotateRef.current = onRotateItem;
+  const lastXRef = useRef<number | null>(null);
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       if (!draggingId.current) return;
+      if (activeToolRef.current === "Rotate") {
+        if (lastXRef.current !== null) {
+          const delta = (e.clientX - lastXRef.current) * 0.012;
+          onRotateRef.current?.(draggingId.current, delta);
+        }
+        lastXRef.current = e.clientX;
+        return;
+      }
       const rect = gl.domElement.getBoundingClientRect();
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -887,7 +977,11 @@ function DragHandler({
         }
       }
     };
-    const onUp = () => { if (draggingId.current) onDrop?.(draggingId.current); draggingId.current = null; };
+    const onUp = () => {
+      if (draggingId.current) onDrop?.(draggingId.current);
+      draggingId.current = null;
+      lastXRef.current = null;
+    };
     gl.domElement.addEventListener("pointermove", onMove);
     gl.domElement.addEventListener("pointerup", onUp);
     return () => {
@@ -921,6 +1015,8 @@ function TentStage3D({
   dramaticLight,
   signs,
   showSigns,
+  showLabels,
+  snapGlowId,
   selectedSignId,
   onSelectSign,
   onMoveSign,
@@ -928,6 +1024,7 @@ function TentStage3D({
   selectedBracketId,
   onSelectBracket,
   onMoveBracket,
+  onRotateItem,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -941,6 +1038,8 @@ function TentStage3D({
   dramaticLight: boolean;
   signs: SignItem[];
   showSigns: boolean;
+  showLabels: boolean;
+  snapGlowId: string | null;
   selectedSignId: string | null;
   onSelectSign: (id: string | null) => void;
   onMoveSign: (id: string, x: number, z: number) => void;
@@ -948,6 +1047,7 @@ function TentStage3D({
   selectedBracketId: string | null;
   onSelectBracket: (id: string | null) => void;
   onMoveBracket: (id: string, x: number, z: number) => void;
+  onRotateItem: (id: string, delta: number) => void;
 }) {
   const draggingId = useRef<string | null>(null);
   const signIds = useMemo(() => signs.map((s) => s.id), [signs]);
@@ -962,7 +1062,7 @@ function TentStage3D({
       style={{ width: "100%", height: "100%" }}
     >
       <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
-      <SceneInvalidator signs={signs} />
+      <SceneInvalidator signs={signs} snapGlowId={snapGlowId} showLabels={showLabels} />
       <ambientLight intensity={dramaticLight ? 0.2 : 1.2} />
       <directionalLight position={[7, 10, 6]} intensity={dramaticLight ? 0.3 : 1.8} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
       <directionalLight position={[-5, 4, -4]} intensity={dramaticLight ? 0.1 : 0.25} />
@@ -1013,16 +1113,28 @@ function TentStage3D({
         <>
           {tentType !== "open" && <TentModel3D tentScale={tentType === "30x20" ? 15 : 12} />}
           {tentType === "open" && <OpenAreaOutline />}
-          {items.map((item) => (
-            <DynamicItem
-              key={item.id}
-              item={item}
-              isSelected={item.id === selectedId}
-              onSelect={() => onSelect(item.id)}
-              activeTool={activeTool}
-              draggingId={draggingId}
-            />
-          ))}
+          {items.map((item) =>
+            PEDESTAL_DIMS[item.type] ? (
+              <PedestalItem
+                key={item.id}
+                item={item}
+                isSelected={item.id === selectedId}
+                snapGlowId={snapGlowId}
+                onSelect={() => onSelect(item.id)}
+                activeTool={activeTool}
+                draggingId={draggingId}
+              />
+            ) : (
+              <DynamicItem
+                key={item.id}
+                item={item}
+                isSelected={item.id === selectedId}
+                onSelect={() => onSelect(item.id)}
+                activeTool={activeTool}
+                draggingId={draggingId}
+              />
+            )
+          )}
           {tentType === "open" && showSigns && signs.map((sign) => (
             <NeonSign
               key={sign.id}
@@ -1046,6 +1158,36 @@ function TentStage3D({
         </>
       </Suspense>
 
+      {/* Item type labels (showLabels toggle) */}
+      {showLabels && items.filter((item) =>
+        !PEDESTAL_DIMS[item.type] && EXHIBIT_ITEMS.some((e) => e.slug === item.type)
+      ).map((item) => (
+        <Html
+          key={`lbl-${item.id}`}
+          position={[item.position[0], item.position[1] + 1.5, item.position[2]]}
+          center
+          style={{ pointerEvents: "none" }}
+        >
+          <div style={{ background: "rgba(0,10,20,0.85)", color: "#00e5ff", padding: "3px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: 700, whiteSpace: "nowrap", border: "1px solid rgba(0,229,255,0.3)", backdropFilter: "blur(4px)" }}>
+            {item.label ?? item.type}
+          </div>
+        </Html>
+      ))}
+
+      {/* Pedestal custom labels (always visible when label set) */}
+      {!showLabels && items.map((item) => item.label ? (
+        <Html
+          key={`plbl-${item.id}`}
+          position={[item.position[0], item.position[1] + 1.5, item.position[2]]}
+          center
+          style={{ pointerEvents: "none" }}
+        >
+          <div style={{ background: "rgba(0,10,20,0.9)", color: "#00e5ff", padding: "4px 10px", borderRadius: "8px", fontSize: "13px", fontWeight: 800, whiteSpace: "nowrap", border: "1px solid #00e5ff", boxShadow: "0 0 10px rgba(0,229,255,0.45)", backdropFilter: "blur(4px)" }}>
+            {item.label}
+          </div>
+        </Html>
+      ) : null)}
+
       <DragHandler
         draggingId={draggingId}
         onMoveItem={onMoveItem}
@@ -1054,6 +1196,8 @@ function TentStage3D({
         onMoveBracket={onMoveBracket}
         bracketIds={bracketIds}
         onDrop={onDrop}
+        activeTool={activeTool}
+        onRotateItem={onRotateItem}
       />
 
       {/* Invisible deselect plane — clicking empty floor deselects */}
@@ -1111,6 +1255,12 @@ useGLTF.preload(TENT_MODEL_PATH);
 // Inventory models
 useGLTF.preload("/models/inventory/lightbox-vertical-iai.glb");
 useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
+useGLTF.preload("/models/inventory/caravan-iai-3d.glb");
+useGLTF.preload("/models/inventory/lightbox-3m-iai.glb");
+useGLTF.preload("/models/air/mini-harpy-showcase-3d.glb");
+useGLTF.preload("/models/air/minipop-showcase-3d.glb");
+useGLTF.preload("/models/inventory/wood-signage-iai.glb");
+useGLTF.preload("/models/air/wasp-showcase-3d.glb");
 
 export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
@@ -1141,6 +1291,20 @@ export default function TentsLayoutPage() {
     }
   }, [tentType])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [snapGlowId, setSnapGlowId] = useState<string | null>(null);
+  const [showLabels, setShowLabels] = useState(false);
+  const [pedestalLabelInput, setPedestalLabelInput] = useState("");
+  const [showExhibitList, setShowExhibitList] = useState(false);
+
+  // Sync pedestal label input when selection changes
+  useEffect(() => {
+    const item = sceneItems.find((i) => i.id === selectedItemId);
+    if (item && PEDESTAL_DIMS[item.type]) {
+      setPedestalLabelInput(item.label ?? "");
+    } else {
+      setPedestalLabelInput("");
+    }
+  }, [selectedItemId]);
   const [activeTool, setActiveTool] = useState("Select");
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
   const [activeSection, setActiveSection] = useState<"all" | "space" | "air" | "land" | "naval" | "inventory">("all");
@@ -1172,14 +1336,16 @@ export default function TentsLayoutPage() {
   const INVENTORY_ALL = [
     "שולחן", "כיסא", "דוכן", "מקרן",
     "במה כחולה", "במה קטנה", "כיסא מתקפל", "קורסא", "פודיום",
-    "מסך", "רמקול", "לוגו לבן", "לוגו כחול גדול", "שילוט דיגיטלי", "שילוט מגנטי", "לייטבוקס 2",
+    "בסיס תצוגה קטן", "בסיס תצוגה בינוני", "בסיס תצוגה גדול",
+    "מסך", "רמקול", "לוגו לבן", "לוגו כחול גדול", "שילוט דיגיטלי", "שילוט מגנטי", "שילוט עץ", "לייטבוקס 2", "לייטבוקס 3 מטר",
+    "קרוואן תצוגה",
     "דגל סיני", "רשת הסוואה", "שער מתנפח", "עמודי תור", "מתקן טלפונים",
     "אוהל מתנפח", "אוהל לבן",
   ] as const;
   const INVENTORY_FILTER_MAP: Record<string, string[]> = {
     "הכל":   [...INVENTORY_ALL],
-    "ריהוט": ["שולחן", "כיסא", "כיסא מתקפל", "קורסא", "במה כחולה", "במה קטנה", "פודיום"],
-    "מדיה":  ["מסך", "מקרן", "רמקול", "לוגו לבן", "לוגו כחול גדול", "שילוט דיגיטלי", "שילוט מגנטי", "לייטבוקס 2"],
+    "ריהוט": ["שולחן", "כיסא", "כיסא מתקפל", "קורסא", "במה כחולה", "במה קטנה", "פודיום", "בסיס תצוגה קטן", "בסיס תצוגה בינוני", "בסיס תצוגה גדול"],
+    "מדיה":  ["מסך", "מקרן", "רמקול", "לוגו לבן", "לוגו כחול גדול", "שילוט דיגיטלי", "שילוט מגנטי", "שילוט עץ", "לייטבוקס 2", "לייטבוקס 3 מטר", "קרוואן תצוגה"],
     "VIP":   ["דוכן", "קורסא", "פודיום"],
     "שירות": ["דוכן", "מקרן", "עמודי תור", "מתקן טלפונים", "דגל סיני", "רשת הסוואה", "שער מתנפח", "אוהל מתנפח", "אוהל לבן"],
   };
@@ -1232,11 +1398,31 @@ export default function TentsLayoutPage() {
   }
 
   function moveItem(id: string, x: number, z: number) {
-    setSceneItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, position: [x, item.position[1], z] } : item
-      )
-    );
+    setSceneItems((prev) => {
+      const moving = prev.find((i) => i.id === id);
+      if (!moving) return prev;
+      if (!PEDESTAL_DIMS[moving.type]) {
+        return prev.map((item) =>
+          item.id === id ? { ...item, position: [x, item.position[1], z] } : item
+        );
+      }
+      // pedestal moving — also carry any item sitting on top of it
+      const oldX = moving.position[0];
+      const oldZ = moving.position[2];
+      const dx = x - oldX;
+      const dz = z - oldZ;
+      return prev.map((item) => {
+        if (item.id === id) return { ...item, position: [x, item.position[1], z] as [number, number, number] };
+        if (!PEDESTAL_DIMS[item.type] && item.position[1] > -1.2) {
+          const cx = item.position[0] - oldX;
+          const cz = item.position[2] - oldZ;
+          if (Math.sqrt(cx * cx + cz * cz) < 0.5) {
+            return { ...item, position: [item.position[0] + dx, item.position[1], item.position[2] + dz] as [number, number, number] };
+          }
+        }
+        return item;
+      });
+    });
   }
 
   function handleSelectSign(id: string | null) {
@@ -1269,44 +1455,56 @@ export default function TentsLayoutPage() {
     );
   }
 
+  const NO_SNAP_TYPES = ["שילוט עץ", "שילוט דיגיטלי", "שילוט מגנטי", "לייטבוקס 2", "לייטבוקס 3 מטר"];
+
   function handleDrop(id: string) {
-    console.log("handleDrop called, id:", id);
     setSceneItems((prev) => {
       const item = prev.find((i) => i.id === id);
-      console.log("item type:", item?.type, "position:", item?.position);
-      if (!item) return prev;
+      if (!item || PEDESTAL_DIMS[item.type]) return prev; // don't snap pedestals to pedestals
+      if (NO_SNAP_TYPES.includes(item.type)) {
+        return prev.map((i) =>
+          i.id === id ? { ...i, position: [i.position[0], -1.38, i.position[2]] as [number, number, number] } : i
+        );
+      }
 
-      const podiums = prev.filter((i) =>
-        i.id !== id && (
-          i.type.includes("podium") ||
-          i.type.includes("stand") ||
-          i.type.includes("stage") ||
-          i.type.includes("inv-")
-        )
-      );
-      console.log("podiums found:", podiums.length, podiums.map((p) => p.type));
-
-      let nearest: typeof podiums[0] | null = null;
+      const pedestals = prev.filter((i) => i.id !== id && PEDESTAL_DIMS[i.type]);
+      let nearest: typeof pedestals[0] | null = null;
       let minDist = Infinity;
-      for (const p of podiums) {
+      for (const p of pedestals) {
         const dx = item.position[0] - p.position[0];
         const dz = item.position[2] - p.position[2];
         const dist = Math.sqrt(dx * dx + dz * dz);
-        if (dist < 1.8 && dist < minDist) {
+        if (dist < 1.5 && dist < minDist) {
           minDist = dist;
           nearest = p;
         }
       }
 
       if (nearest) {
-        const n = nearest;
+        const pedestal = nearest;
+        const occupied = prev.some(
+          (i) => i.id !== id && !PEDESTAL_DIMS[i.type] && i.position[1] > -1.38 + 0.1 &&
+            Math.sqrt((i.position[0] - pedestal.position[0]) ** 2 + (i.position[2] - pedestal.position[2]) ** 2) < 0.5
+        );
+        if (occupied) {
+          return prev.map((i) =>
+            i.id === id ? { ...i, position: [i.position[0], -1.38, i.position[2]] as [number, number, number] } : i
+          );
+        }
+        const pedestalH = PEDESTAL_DIMS[pedestal.type][1];
+        const snapY = -1.38 + pedestalH - 0.6;
+        setSnapGlowId(pedestal.id);
+        setTimeout(() => setSnapGlowId(null), 800);
         return prev.map((i) =>
           i.id === id
-            ? { ...i, position: [n.position[0], -0.45, n.position[2]] as [number, number, number] }
+            ? { ...i, position: [pedestal.position[0], snapY, pedestal.position[2]] as [number, number, number] }
             : i
         );
       }
-      return prev;
+      // no pedestal nearby — reset to floor
+      return prev.map((i) =>
+        i.id === id ? { ...i, position: [i.position[0], -1.38, i.position[2]] as [number, number, number] } : i
+      );
     });
   }
 
@@ -1342,6 +1540,14 @@ export default function TentsLayoutPage() {
         item.id === id
           ? { ...item, rotationY: item.rotationY + Math.PI / 4 }
           : item
+      )
+    );
+  }
+
+  function rotateItemByDelta(id: string, delta: number) {
+    setSceneItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, rotationY: item.rotationY + delta } : item
       )
     );
   }
@@ -1544,6 +1750,23 @@ export default function TentsLayoutPage() {
                   }}
                 >
                   יציאה
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowExhibitList((v) => !v)}
+                  style={{
+                    padding: "7px 12px",
+                    borderRadius: "999px",
+                    border: showExhibitList ? "1px solid rgba(0,229,255,0.55)" : "1px solid rgba(0,229,255,0.28)",
+                    background: showExhibitList ? "rgba(0,229,255,0.18)" : "rgba(0,229,255,0.07)",
+                    color: "#00e5ff",
+                    fontWeight: 800,
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  📋 רשימת תצוגות
                 </button>
 
                 <button
@@ -1978,6 +2201,79 @@ export default function TentsLayoutPage() {
             </aside>
           ) : null}
 
+          {/* Pedestal label panel — shown above canvas when a pedestal is selected */}
+          {selectedItem && PEDESTAL_DIMS[selectedItem.type] && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "10px 16px",
+                marginBottom: "8px",
+                borderRadius: "14px",
+                border: "1px solid rgba(0,229,255,0.30)",
+                background: "rgba(0,15,35,0.88)",
+                direction: "rtl",
+              }}
+            >
+              <span style={{ fontSize: "13px", fontWeight: 700, color: "#67e8f9", whiteSpace: "nowrap" }}>
+                שם הפריט על הבסיס:
+              </span>
+              <input
+                type="text"
+                placeholder="הכנס שם..."
+                value={pedestalLabelInput}
+                onChange={(e) => setPedestalLabelInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setSceneItems((prev) => prev.map((i) =>
+                      i.id === selectedItemId ? { ...i, label: pedestalLabelInput.trim() || undefined } : i
+                    ));
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  maxWidth: "220px",
+                  padding: "7px 12px",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(0,229,255,0.35)",
+                  background: "rgba(0,5,20,0.9)",
+                  color: "#e0f7ff",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  outline: "none",
+                  direction: "rtl",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setSceneItems((prev) => prev.map((i) =>
+                    i.id === selectedItemId ? { ...i, label: pedestalLabelInput.trim() || undefined } : i
+                  ));
+                }}
+                style={{
+                  padding: "7px 16px",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(0,229,255,0.50)",
+                  background: "rgba(0,229,255,0.14)",
+                  color: "#00e5ff",
+                  fontSize: "13px",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                אשר
+              </button>
+              {selectedItem.label && (
+                <span style={{ fontSize: "12px", color: "#94a3b8" }}>
+                  נוכחי: <span style={{ color: "#00e5ff", fontWeight: 700 }}>{selectedItem.label}</span>
+                </span>
+              )}
+            </div>
+          )}
+
           <section
             style={{
               position: "relative",
@@ -2285,6 +2581,25 @@ export default function TentsLayoutPage() {
                     >
                       👁 שלטים
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowLabels((v) => !v)}
+                      title={showLabels ? "הסתר שמות" : "הצג שמות"}
+                      style={{
+                        padding: "8px 14px",
+                        borderRadius: "11px",
+                        border: showLabels ? "1px solid rgba(0,212,255,0.50)" : "1px solid rgba(148,163,184,0.18)",
+                        background: showLabels ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.03)",
+                        color: showLabels ? "#00d4ff" : "rgba(248,251,255,0.5)",
+                        fontSize: "13px",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        transition: "all 150ms ease",
+                      }}
+                    >
+                      🏷 שמות
+                    </button>
                     <div style={{ position: "relative" }}>
                       <button
                         type="button"
@@ -2562,6 +2877,15 @@ export default function TentsLayoutPage() {
                   zIndex: 2,
                   pointerEvents: "auto",
                 }}
+                onWheel={(e) => {
+                  if (!selectedItemId) return;
+                  const delta = e.deltaY > 0 ? -0.05 : 0.05;
+                  setSceneItems((prev) => prev.map((item) =>
+                    item.id === selectedItemId
+                      ? { ...item, scale: Math.max(0.1, Math.min(5, item.scale + delta)) }
+                      : item
+                  ));
+                }}
               >
                 <TentStage3D
                   items={sceneItems}
@@ -2576,6 +2900,8 @@ export default function TentsLayoutPage() {
                   dramaticLight={dramaticLight}
                   signs={signs}
                   showSigns={showSigns}
+                  showLabels={showLabels}
+                  snapGlowId={snapGlowId}
                   selectedSignId={selectedSignId}
                   onSelectSign={handleSelectSign}
                   onMoveSign={moveSign}
@@ -2583,6 +2909,7 @@ export default function TentsLayoutPage() {
                   selectedBracketId={selectedBracketId}
                   onSelectBracket={handleSelectBracket}
                   onMoveBracket={moveBracket}
+                  onRotateItem={rotateItemByDelta}
                 />
               </div>
 
@@ -3026,6 +3353,92 @@ export default function TentsLayoutPage() {
           >
             ✉️ שלח במייל
           </button>
+        </div>
+      )}
+
+      {/* Exhibit list overlay (focus mode) */}
+      {focusMode && showExhibitList && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 2000,
+            background: "rgba(0,5,15,0.72)",
+            backdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={() => setShowExhibitList(false)}
+        >
+          <div
+            style={{
+              background: "linear-gradient(180deg, rgba(0,18,40,0.98) 0%, rgba(2,8,24,0.99) 100%)",
+              border: "1px solid rgba(0,229,255,0.28)",
+              borderRadius: "24px",
+              padding: "32px 36px",
+              minWidth: "400px",
+              maxWidth: "600px",
+              maxHeight: "75vh",
+              overflowY: "auto",
+              boxShadow: "0 0 60px rgba(0,229,255,0.12), 0 24px 64px rgba(0,0,0,0.7)",
+              direction: "rtl",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
+              <div>
+                <div style={{ fontSize: "11px", fontWeight: 600, color: "#67e8f9", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "4px" }}>
+                  IAI EXHIBITION
+                </div>
+                <div style={{ fontSize: "20px", fontWeight: 800, color: "#f0faff", letterSpacing: "0.02em" }}>
+                  פריטים בתצוגה
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowExhibitList(false)}
+                style={{ background: "none", border: "1px solid rgba(148,163,184,0.25)", borderRadius: "50%", width: "36px", height: "36px", color: "#94a3b8", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+              >×</button>
+            </div>
+
+            {/* Count */}
+            <div style={{ fontSize: "13px", color: "#67e8f9", fontWeight: 700, marginBottom: "16px", borderBottom: "1px solid rgba(0,229,255,0.15)", paddingBottom: "12px" }}>
+              {sceneItems.length} פריטים
+            </div>
+
+            {/* Table */}
+            {sceneItems.length === 0 ? (
+              <div style={{ color: "#64748b", fontSize: "14px", textAlign: "center", padding: "24px 0" }}>אין פריטים בתצוגה</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {sceneItems.map((item, idx) => {
+                  const exhibit = masterExhibits.find((e) => e.slug === item.type || e.nameHe === item.type);
+                  const name = exhibit?.nameHe ?? item.type;
+                  const division = exhibit?.division ?? "—";
+                  return (
+                    <div
+                      key={item.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "14px",
+                        padding: "10px 14px",
+                        borderRadius: "12px",
+                        background: "rgba(0,229,255,0.04)",
+                        border: "1px solid rgba(0,229,255,0.10)",
+                      }}
+                    >
+                      <span style={{ fontSize: "11px", color: "#334155", fontWeight: 700, minWidth: "20px", textAlign: "center" }}>{idx + 1}</span>
+                      <span style={{ fontSize: "14px", fontWeight: 800, color: "#e0f7ff", flex: 1 }}>{item.label ? `${name} — ${item.label}` : name}</span>
+                      <span style={{ fontSize: "11px", fontWeight: 600, color: "#67e8f9", background: "rgba(0,229,255,0.10)", padding: "3px 8px", borderRadius: "6px", whiteSpace: "nowrap" }}>{division}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

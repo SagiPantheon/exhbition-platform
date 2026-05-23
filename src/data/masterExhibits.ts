@@ -35,14 +35,14 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "arrow-4",       division: "mtach", subdivision: "tilim", nameEn: "Arrow 4",       nameHe: "חץ 4",         model3d: "",                                           image: "/images/air/arrow-4-showcase.png",       hasModel: false },
   { slug: "thunder-vtol",  division: "kataz",                        nameEn: "Thunder VTOL",  nameHe: "ת׳אנדר VTOL",  model3d: "/models/air/thunderb-showcase-3d.glb",       image: "/images/air/Thunderb-showcase.png",      hasModel: true  },
   { slug: "harop",         division: "mtach", subdivision: "tilim", nameEn: "HAROP",         nameHe: "הרופ",         model3d: "/models/air/harop-showcase-3d.glb",          image: "/images/air/harop-showcase.png",         hasModel: true  },
-  { slug: "mini-harpy",    division: "mtach", subdivision: "tilim", nameEn: "Mini Harpy",    nameHe: "מיני הרפי",    model3d: "/models/air/mini-harop-showcase-3d.glb",     image: "/images/air/mini-harpy-showcase.png",    hasModel: true  },
+  { slug: "mini-harpy",    division: "teufa",                     nameEn: "Mini Harpy",    nameHe: "מיני הרפי",    model3d: "/models/air/mini-harpy-showcase-3d.glb",     image: "/images/air/mini-harpy-showcase.png",    hasModel: true  },
   { slug: "lahat",         division: "mtach", subdivision: "tilim", nameEn: "LAHAT",         nameHe: "להט",          model3d: "/models/air/lahat-showcase-3d.glb",          image: "/images/air/lahat-showcase.png",         hasModel: true  },
   { slug: "lahat-alfa",    division: "mtach", subdivision: "tilim", nameEn: "LAHAT ALFA",    nameHe: "להט אלפא",     model3d: "/models/air/lahat-alfa-showcase-3d.glb",     image: "/images/air/lahat-alfa-showcase.png",    hasModel: true  },
   { slug: "barak-launcher",division: "mtach", subdivision: "tilim", nameEn: "Barak Launcher",nameHe: "משגר ברק",     model3d: "/models/air/barak-launcher-showcase-3d.glb", image: "/images/air/barak-launcher-showcase.png",hasModel: true  },
   { slug: "arrow-launcher",division: "air",                          nameEn: "Arrow Launcher",nameHe: "משגר חץ",      model3d: "/models/air/arrow-launcher-showcase-3d.glb",image: "/images/air/arrow-launcher-showcase.png",hasModel: true  },
   { slug: "elm-2058",      division: "elta",                         nameEn: "ELM-2058",      nameHe: "מכ״ם ELM-2058",model3d: "/models/air/elw2058-showcase-3d.glb",        image: "/images/air/elm-2058-showcase.png",      hasModel: true  },
-  { slug: "wasp",          division: "elta",                         nameEn: "WASP",          nameHe: "צרעה",         model3d: "",                                           image: "/images/air/wasp-showcase.png",          hasModel: false },
-  { slug: "minipop",       division: "mtach", subdivision: "tilim", nameEn: "MINIPOP",       nameHe: "מיני-פופ",     model3d: "",                                           image: "/images/air/minipop-showcase.png",       hasModel: false },
+  { slug: "wasp",          division: "elta",                         nameEn: "WASP",          nameHe: "צרעה",         model3d: "/models/air/wasp-showcase-3d.glb",           image: "/images/air/wasp-showcase.png",          hasModel: true  },
+  { slug: "minipop",       division: "mtach", subdivision: "tilim", nameEn: "MINIPOP",       nameHe: "מיני-פופ",     model3d: "/models/air/minipop-showcase-3d.glb",        image: "/images/air/minipop-showcase.png",       hasModel: true  },
   { slug: "megapop",       division: "mtach", subdivision: "giluy", nameEn: "MEGAPOP",       nameHe: "מגה-פופ",      model3d: "/models/air/megapop-showcase-3d.glb",        image: "/images/air/megapop-showcase.png",       hasModel: true  },
   { slug: "pop1000",       division: "mtach", subdivision: "giluy", nameEn: "POP 1000",      nameHe: "פופ 1000",     model3d: "/models/air/pop1000-showcase-3d.glb",        image: "/images/air/pop1000-showcase.png",       hasModel: true  },
   { slug: "pointblank",    division: "mtach", subdivision: "malam", nameEn: "POINTBLANK",    nameHe: "פוינטבלנק",    model3d: "/models/air/point-blank-showcase-3d.glb",    image: "/images/air/pointblank-showcase.png",    hasModel: true  },
@@ -97,6 +97,8 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-table-3d",     division: "inventory", nameEn: "Table 3D",        nameHe: "שולחן תלת מימד", model3d: "/models/inventory/table-3d.glb",                   image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
   { slug: "inv-wood-sign",    division: "inventory", nameEn: "Wood Signage",    nameHe: "שילוט עץ",       model3d: "/models/inventory/wood-signage-iai.glb",            image: "", hasModel: true },
   { slug: "inv-tent-main",    division: "inventory", nameEn: "Main Tent",       nameHe: "אוהל ראשי",      model3d: "/models/inventory/tent-20-30-iai-01.glb",           image: "/inventory/tent-20x30-iai-blue-01.png", hasModel: true },
+  { slug: "caravan-iai",     division: "inventory", nameEn: "Display Caravan", nameHe: "קרוואן תצוגה",   model3d: "/models/inventory/caravan-iai-3d.glb",              image: "", hasModel: true },
+  { slug: "lightbox-3m",     division: "inventory", nameEn: "Lightbox 3m",     nameHe: "לייטבוקס 3 מטר", model3d: "/models/inventory/lightbox-3m-iai.glb",             image: "", hasModel: true },
 ];
 
 export function getMasterExhibit(slug: string): MasterExhibit | undefined {
