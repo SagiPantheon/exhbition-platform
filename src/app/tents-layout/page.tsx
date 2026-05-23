@@ -103,6 +103,7 @@ type SignItem = {
   text: string;
   position: [number, number, number];
   color: string;
+  rotationY?: number;
 };
 
 function SceneInvalidator({ signs }: { signs: SignItem[] }) {
@@ -127,29 +128,27 @@ function NeonSign({
   return (
     <group
       position={sign.position}
-      onClick={(e) => { e.stopPropagation(); onSelect(); }}
-      onPointerDown={(e) => {
-        if (activeTool === "Move") {
-          e.stopPropagation();
-          onSelect();
-          draggingId.current = sign.id;
-        }
-      }}
+      rotation={[0, sign.rotationY ?? 0, 0]}
     >
-      <mesh>
-        <planeGeometry args={[5, 0.9]} />
-        <meshStandardMaterial
-          color={sign.color}
-          emissive={sign.color}
-          emissiveIntensity={3}
-          transparent
-          opacity={isSelected ? 0.4 : 0.15}
-        />
+      {/* Invisible hit mesh — catches pointer events that Html would swallow */}
+      <mesh
+        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        onPointerDown={(e) => {
+          if (activeTool === "Move") {
+            e.stopPropagation();
+            onSelect();
+            draggingId.current = sign.id;
+          }
+        }}
+      >
+        <planeGeometry args={[6, 1.2]} />
+        <meshStandardMaterial transparent opacity={0} />
       </mesh>
-      <Html center distanceFactor={8}>
+
+      <Html center distanceFactor={8} style={{ pointerEvents: "none" }}>
         <div style={{
           color: sign.color,
-          fontSize: "18px",
+          fontSize: "22px",
           fontWeight: 900,
           textShadow: `0 0 10px ${sign.color}, 0 0 20px ${sign.color}, 0 0 40px ${sign.color}`,
           whiteSpace: "nowrap",
@@ -837,6 +836,7 @@ function TentStage3D({
   captureRef,
   dramaticLight,
   signs,
+  showSigns,
   selectedSignId,
   onSelectSign,
   onMoveSign,
@@ -852,6 +852,7 @@ function TentStage3D({
   captureRef: React.MutableRefObject<(() => string) | null>;
   dramaticLight: boolean;
   signs: SignItem[];
+  showSigns: boolean;
   selectedSignId: string | null;
   onSelectSign: (id: string | null) => void;
   onMoveSign: (id: string, x: number, z: number) => void;
@@ -929,7 +930,7 @@ function TentStage3D({
               draggingId={draggingId}
             />
           ))}
-          {tentType === "open" && signs.map((sign) => (
+          {tentType === "open" && showSigns && signs.map((sign) => (
             <NeonSign
               key={sign.id}
               sign={sign}
@@ -1042,6 +1043,7 @@ export default function TentsLayoutPage() {
   const [inventorySearch, setInventorySearch] = useState("");
   const [exhibitionName, setExhibitionName] = useState("");
   const [signs, setSigns] = useState<SignItem[]>([]);
+  const [showSigns, setShowSigns] = useState(true);
   const [selectedSignId, setSelectedSignId] = useState<string | null>(null);
   const [signPopupOpen, setSignPopupOpen] = useState(false);
   const [signText, setSignText] = useState("");
@@ -1124,9 +1126,11 @@ export default function TentsLayoutPage() {
   }
 
   function moveSign(id: string, x: number, z: number) {
+    const clampedX = Math.max(-12, Math.min(12, x));
+    const clampedZ = Math.max(-7, Math.min(7, z));
     setSigns((prev) =>
       prev.map((s) =>
-        s.id === id ? { ...s, position: [x, s.position[1], z] as [number, number, number] } : s
+        s.id === id ? { ...s, position: [clampedX, s.position[1], clampedZ] as [number, number, number] } : s
       )
     );
   }
@@ -1222,7 +1226,11 @@ export default function TentsLayoutPage() {
     const newSign: SignItem = {
       id: crypto.randomUUID(),
       text: signText.trim(),
-      position: [0, 1.5, 0],
+      position: [
+        (Math.random() - 0.5) * 8,
+        1.5 + signs.length * 0.1,
+        (Math.random() - 0.5) * 5,
+      ] as [number, number, number],
       color: signColor,
     };
     setSigns((prev) => [...prev, newSign]);
@@ -1970,35 +1978,51 @@ export default function TentsLayoutPage() {
                 })()}
 
                 {/* Sign height + delete — visible when a sign is selected */}
-                {tentType === "open" && selectedSignId && (
-                  <>
-                    <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
-                    <div style={{ display: "flex", gap: "4px" }}>
+                {tentType === "open" && selectedSignId && (() => {
+                  const signBtnStyle = { padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(0,212,255,0.35)", background: "rgba(0,212,255,0.10)", color: "#00d4ff", fontSize: "14px", fontWeight: 700, cursor: "pointer" } as const;
+                  const moveS = (dx: number, dy: number, dz: number) => setSigns((prev) => prev.map((s) =>
+                    s.id === selectedSignId ? { ...s, position: [
+                      Math.max(-12, Math.min(12, s.position[0] + dx)),
+                      Math.max(-1.38, s.position[1] + dy),
+                      Math.max(-7, Math.min(7, s.position[2] + dz)),
+                    ] as [number,number,number] } : s
+                  ));
+                  return (
+                    <>
+                      <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+                      {/* Y — height */}
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button type="button" title="הרם שלט"  onClick={() => moveS(0,  0.3, 0)} style={signBtnStyle}>⬆</button>
+                        <button type="button" title="הורד שלט" onClick={() => moveS(0, -0.3, 0)} style={signBtnStyle}>⬇</button>
+                      </div>
+                      {/* X — left/right */}
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button type="button" title="שמאל"  onClick={() => moveS(-0.5, 0, 0)} style={signBtnStyle}>←</button>
+                        <button type="button" title="ימין"  onClick={() => moveS( 0.5, 0, 0)} style={signBtnStyle}>→</button>
+                      </div>
+                      {/* Z — forward/back */}
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button type="button" title="קדימה" onClick={() => moveS(0, 0, -0.5)} style={signBtnStyle}>↑</button>
+                        <button type="button" title="אחורה" onClick={() => moveS(0, 0,  0.5)} style={signBtnStyle}>↓</button>
+                      </div>
+                      {/* Rotate */}
                       <button
                         type="button"
-                        title="הרם שלט"
+                        title="סובב שלט 45°"
                         onClick={() => setSigns((prev) => prev.map((s) =>
-                          s.id === selectedSignId ? { ...s, position: [s.position[0], s.position[1] + 0.3, s.position[2]] as [number,number,number] } : s
+                          s.id === selectedSignId ? { ...s, rotationY: (s.rotationY ?? 0) + Math.PI / 4 } : s
                         ))}
-                        style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(0,212,255,0.35)", background: "rgba(0,212,255,0.10)", color: "#00d4ff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
-                      >⬆</button>
+                        style={signBtnStyle}
+                      >↻</button>
                       <button
                         type="button"
-                        title="הורד שלט"
-                        onClick={() => setSigns((prev) => prev.map((s) =>
-                          s.id === selectedSignId ? { ...s, position: [s.position[0], Math.max(-1.38, s.position[1] - 0.3), s.position[2]] as [number,number,number] } : s
-                        ))}
-                        style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(0,212,255,0.35)", background: "rgba(0,212,255,0.10)", color: "#00d4ff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
-                      >⬇</button>
-                    </div>
-                    <button
-                      type="button"
-                      title="מחק שלט"
-                      onClick={() => { setSigns((prev) => prev.filter((s) => s.id !== selectedSignId)); setSelectedSignId(null); }}
-                      style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(255,80,80,0.40)", background: "rgba(255,80,80,0.10)", color: "#f87171", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
-                    >🗑</button>
-                  </>
-                )}
+                        title="מחק שלט"
+                        onClick={() => { setSigns((prev) => prev.filter((s) => s.id !== selectedSignId)); setSelectedSignId(null); }}
+                        style={{ padding: "8px 11px", borderRadius: "11px", border: "1px solid rgba(255,80,80,0.40)", background: "rgba(255,80,80,0.10)", color: "#f87171", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
+                      >🗑</button>
+                    </>
+                  );
+                })()}
 
                 {/* Separator */}
                 <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
@@ -2065,6 +2089,25 @@ export default function TentsLayoutPage() {
                 {tentType === "open" && (
                   <>
                     <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+                    <button
+                      type="button"
+                      onClick={() => setShowSigns((v) => !v)}
+                      title={showSigns ? "הסתר שלטים" : "הצג שלטים"}
+                      style={{
+                        padding: "8px 14px",
+                        borderRadius: "11px",
+                        border: showSigns ? "1px solid rgba(0,212,255,0.50)" : "1px solid rgba(148,163,184,0.18)",
+                        background: showSigns ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.03)",
+                        color: showSigns ? "#00d4ff" : "rgba(248,251,255,0.5)",
+                        fontSize: "13px",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        transition: "all 150ms ease",
+                      }}
+                    >
+                      👁 שלטים
+                    </button>
                     <div style={{ position: "relative" }}>
                       <button
                         type="button"
@@ -2126,7 +2169,7 @@ export default function TentsLayoutPage() {
                             onKeyDown={(e) => { if (e.key === "Enter") addSign(); }}
                           />
                           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                            {(["#00d4ff", "#0B6EFD", "#00ff88"] as const).map((c) => (
+                            {(["#00d4ff", "#0B6EFD", "#00ff88", "#ff6b35", "#ffffff"] as const).map((c) => (
                               <button
                                 key={c}
                                 type="button"
@@ -2260,6 +2303,7 @@ export default function TentsLayoutPage() {
                   captureRef={captureRef}
                   dramaticLight={dramaticLight}
                   signs={signs}
+                  showSigns={showSigns}
                   selectedSignId={selectedSignId}
                   onSelectSign={setSelectedSignId}
                   onMoveSign={moveSign}
