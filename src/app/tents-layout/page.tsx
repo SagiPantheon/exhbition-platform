@@ -130,33 +130,38 @@ function NeonSign({
       position={sign.position}
       rotation={[0, sign.rotationY ?? 0, 0]}
     >
-      {/* Invisible hit mesh — catches pointer events that Html would swallow */}
       <mesh
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
-        onPointerDown={(e) => {
-          if (activeTool === "Move") {
-            e.stopPropagation();
-            onSelect();
-            draggingId.current = sign.id;
-          }
-        }}
+        onPointerDown={(e) => { e.stopPropagation(); if (activeTool === "Move") { onSelect(); draggingId.current = sign.id; } }}
       >
         <planeGeometry args={[6, 1.2]} />
-        <meshStandardMaterial transparent opacity={0} />
+        <meshStandardMaterial
+          color={sign.color}
+          transparent
+          opacity={isSelected ? 0.25 : 0.08}
+          emissive={sign.color}
+          emissiveIntensity={isSelected ? 1 : 0.3}
+        />
       </mesh>
+
+      <lineSegments visible={isSelected}>
+        <edgesGeometry args={[new THREE.BoxGeometry(6.2, 1.3, 0.01)]} />
+        <lineBasicMaterial color={sign.color} linewidth={2} />
+      </lineSegments>
 
       <Html center distanceFactor={8} style={{ pointerEvents: "none" }}>
         <div style={{
           color: sign.color,
-          fontSize: "22px",
+          fontSize: "26px",
           fontWeight: 900,
           textShadow: `0 0 10px ${sign.color}, 0 0 20px ${sign.color}, 0 0 40px ${sign.color}`,
           whiteSpace: "nowrap",
           pointerEvents: "none",
           fontFamily: "sans-serif",
           letterSpacing: "0.1em",
-          outline: isSelected ? `2px solid ${sign.color}` : "none",
-          borderRadius: "4px",
+          background: "rgba(0,0,0,0.5)",
+          padding: "4px 16px",
+          borderRadius: "6px",
         }}>
           {sign.text}
         </div>
@@ -1123,6 +1128,11 @@ export default function TentsLayoutPage() {
         item.id === id ? { ...item, position: [x, item.position[1], z] } : item
       )
     );
+  }
+
+  function handleSelectSign(id: string | null) {
+    setSelectedSignId(id);
+    if (id !== null) setActiveTool("Move");
   }
 
   function moveSign(id: string, x: number, z: number) {
@@ -2305,7 +2315,7 @@ export default function TentsLayoutPage() {
                   signs={signs}
                   showSigns={showSigns}
                   selectedSignId={selectedSignId}
-                  onSelectSign={setSelectedSignId}
+                  onSelectSign={handleSelectSign}
                   onMoveSign={moveSign}
                 />
               </div>
