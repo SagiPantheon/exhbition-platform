@@ -1,6 +1,9 @@
 "use client"
 
-import { inventoryItems } from "../../../data/inventoryItems"
+import { masterExhibits } from "../../../data/masterExhibits"
+const inventoryItems = masterExhibits
+  .filter((e) => e.division === "inventory")
+  .map((e) => ({ id: e.slug, name: { he: e.nameHe, en: e.nameEn }, image: e.image }))
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
