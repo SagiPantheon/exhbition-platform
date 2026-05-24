@@ -1295,6 +1295,42 @@ export default function TentsLayoutPage() {
   const [showLabels, setShowLabels] = useState(false);
   const [pedestalLabelInput, setPedestalLabelInput] = useState("");
   const [showExhibitList, setShowExhibitList] = useState(false);
+  const [saveScenePanelOpen, setSaveScenePanelOpen] = useState(false);
+  const [saveSceneName, setSaveSceneName] = useState("");
+  const [loadScenePanelOpen, setLoadScenePanelOpen] = useState(false);
+  const [savedScenesList, setSavedScenesList] = useState<string[]>([]);
+  const [sceneSaveToast, setSceneSaveToast] = useState("");
+
+  async function handleSaveScene() {
+    const name = saveSceneName.trim();
+    if (!name) return;
+    const res = await fetch("/api/scenes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, data: sceneItems }),
+    });
+    if (res.ok) {
+      setSaveScenePanelOpen(false);
+      setSaveSceneName("");
+      setSceneSaveToast("נשמר בהצלחה ✓");
+      setTimeout(() => setSceneSaveToast(""), 2500);
+    }
+  }
+
+  async function handleOpenLoadPanel() {
+    const res = await fetch("/api/scenes");
+    const json = await res.json();
+    setSavedScenesList(json.scenes ?? []);
+    setLoadScenePanelOpen(true);
+  }
+
+  async function handleLoadScene(name: string) {
+    const res = await fetch(`/scenes/${name}.json`);
+    const data = await res.json();
+    setSceneItems(data);
+    setSelectedItemId(null);
+    setLoadScenePanelOpen(false);
+  }
 
   // Sync pedestal label input when selection changes
   useEffect(() => {
@@ -1874,6 +1910,40 @@ export default function TentsLayoutPage() {
               </button>
               <button
                 type="button"
+                onClick={() => { setSaveScenePanelOpen((v) => !v); setLoadScenePanelOpen(false); }}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "12px",
+                  border: saveScenePanelOpen ? "1px solid rgba(0,229,255,0.50)" : "1px solid rgba(0,229,255,0.25)",
+                  background: saveScenePanelOpen ? "rgba(0,229,255,0.14)" : "rgba(0,229,255,0.06)",
+                  color: "#00e5ff",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                💾 שמור תצוגה
+              </button>
+              <button
+                type="button"
+                onClick={() => { handleOpenLoadPanel(); setSaveScenePanelOpen(false); }}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "12px",
+                  border: loadScenePanelOpen ? "1px solid rgba(0,229,255,0.50)" : "1px solid rgba(0,229,255,0.25)",
+                  background: loadScenePanelOpen ? "rgba(0,229,255,0.14)" : "rgba(0,229,255,0.06)",
+                  color: "#00e5ff",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                📂 טען תצוגה
+              </button>
+              <button
+                type="button"
                 onClick={handleWhatsApp}
                 style={{
                   padding: "8px 14px",
@@ -2200,6 +2270,52 @@ export default function TentsLayoutPage() {
               </div>
             </aside>
           ) : null}
+
+          {/* Save scene panel */}
+          {saveScenePanelOpen && (
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 16px", marginBottom: "8px", borderRadius: "14px", border: "1px solid rgba(0,229,255,0.30)", background: "rgba(0,15,35,0.90)", direction: "rtl" }}>
+              <span style={{ fontSize: "13px", fontWeight: 700, color: "#67e8f9", whiteSpace: "nowrap" }}>שם התצוגה:</span>
+              <input
+                type="text"
+                placeholder="למשל: תצוגה DSEI..."
+                value={saveSceneName}
+                onChange={(e) => setSaveSceneName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSaveScene(); }}
+                autoFocus
+                style={{ flex: 1, maxWidth: "260px", padding: "7px 12px", borderRadius: "10px", border: "1px solid rgba(0,229,255,0.35)", background: "rgba(0,5,20,0.9)", color: "#e0f7ff", fontSize: "13px", fontWeight: 600, outline: "none", direction: "rtl" }}
+              />
+              <button type="button" onClick={handleSaveScene} style={{ padding: "7px 16px", borderRadius: "10px", border: "1px solid rgba(0,229,255,0.50)", background: "rgba(0,229,255,0.14)", color: "#00e5ff", fontSize: "13px", fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>
+                שמור
+              </button>
+              <button type="button" onClick={() => setSaveScenePanelOpen(false)} style={{ padding: "7px 12px", borderRadius: "10px", border: "1px solid rgba(148,163,184,0.18)", background: "none", color: "#64748b", fontSize: "13px", cursor: "pointer" }}>
+                ביטול
+              </button>
+            </div>
+          )}
+
+          {/* Load scene panel */}
+          {loadScenePanelOpen && (
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 16px", marginBottom: "8px", borderRadius: "14px", border: "1px solid rgba(0,229,255,0.30)", background: "rgba(0,15,35,0.90)", direction: "rtl", flexWrap: "wrap" }}>
+              <span style={{ fontSize: "13px", fontWeight: 700, color: "#67e8f9", whiteSpace: "nowrap" }}>בחר תצוגה:</span>
+              {savedScenesList.length === 0 ? (
+                <span style={{ fontSize: "13px", color: "#64748b" }}>אין תצוגות שמורות</span>
+              ) : (
+                savedScenesList.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => handleLoadScene(name)}
+                    style={{ padding: "7px 14px", borderRadius: "10px", border: "1px solid rgba(0,229,255,0.30)", background: "rgba(0,229,255,0.08)", color: "#67e8f9", fontSize: "13px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+                  >
+                    {name}
+                  </button>
+                ))
+              )}
+              <button type="button" onClick={() => setLoadScenePanelOpen(false)} style={{ padding: "7px 12px", borderRadius: "10px", border: "1px solid rgba(148,163,184,0.18)", background: "none", color: "#64748b", fontSize: "13px", cursor: "pointer", marginRight: "auto" }}>
+                ✕
+              </button>
+            </div>
+          )}
 
           {/* Pedestal label panel — shown above canvas when a pedestal is selected */}
           {selectedItem && PEDESTAL_DIMS[selectedItem.type] && (
@@ -3439,6 +3555,13 @@ export default function TentsLayoutPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Scene saved toast */}
+      {sceneSaveToast && (
+        <div style={{ position: "fixed", bottom: "72px", left: "50%", transform: "translateX(-50%)", zIndex: 9999, padding: "12px 24px", borderRadius: "14px", border: "1px solid rgba(0,229,255,0.50)", background: "rgba(0,20,40,0.96)", color: "#00e5ff", fontSize: "14px", fontWeight: 800, letterSpacing: "0.04em", boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(0,229,255,0.18)", pointerEvents: "none" }}>
+          {sceneSaveToast}
         </div>
       )}
 
