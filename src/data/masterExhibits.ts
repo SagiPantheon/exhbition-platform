@@ -72,7 +72,7 @@ export const masterExhibits: MasterExhibit[] = [
   // ── INVENTORY (25) ────────────────────────────────────────────────────────
   // Legacy 6 — mapped to lightbox models
   { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
-  { slug: "inv-chair",      division: "inventory", nameEn: "Chair",       nameHe: "כיסא מתקפל",   model3d: "/models/inventory/armchair-01.glb",                image: "/inventory/chair-folding-white-01.png", hasModel: true },
+  { slug: "inv-armchair",   division: "inventory", nameEn: "Armchair",    nameHe: "כורסא",        model3d: "/models/inventory/armchair-01.glb",                image: "/inventory/chair.PNG", hasModel: true },
   { slug: "inv-stand",      division: "inventory", nameEn: "White Stage", nameHe: "במה לבנה", model3d: "/models/inventory/lightbox-vertical-iai.glb",    image: "/inventory/stage-white-75-35.png", hasModel: true },
   { slug: "inv-lightbox-v", division: "inventory", nameEn: "Lightbox Vertical", nameHe: "לייטבוקס אנכי", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/lightbox-vertical-01.png", hasModel: true },
   // New 19
@@ -103,6 +103,8 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-pedestal-m",  division: "inventory", nameEn: "Display Base M",  nameHe: "בסיס תצוגה בינוני",model3d: "",                                                 image: "/inventory/podium-square-100x100x90-01.png", hasModel: false },
   { slug: "inv-pedestal-l",  division: "inventory", nameEn: "Display Base L",  nameHe: "בסיס תצוגה גדול", model3d: "",                                                  image: "/inventory/podium-square-100x100x90-01.png", hasModel: false },
   { slug: "inv-flags-pair",  division: "inventory", nameEn: "IAI Israel Flags", nameHe: "דגל תעשייה אווירית", model3d: "/models/inventory/flags-iai-01.glb",              image: "/inventory/flag-pair-iai-israel-01.png", hasModel: true },
+  { slug: "inv-container",   division: "inventory", nameEn: "Display Container", nameHe: "קונטיינר תצוגה",    model3d: "/models/inventory/container-3d.glb",               image: "/inventory/container-3d.PNG", hasModel: true },
+  { slug: "inv-small-table", division: "inventory", nameEn: "Small Table",       nameHe: "שולחן קטן",         model3d: "/models/inventory/small-table.glb",                image: "/inventory/small-table.jpg", hasModel: true },
 ];
 
 export function getMasterExhibit(slug: string): MasterExhibit | undefined {
