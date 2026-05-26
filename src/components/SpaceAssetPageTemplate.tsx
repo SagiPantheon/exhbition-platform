@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { SpaceAsset } from "../data/spaceAssets";
+import type { SpaceAsset } from "../data/masterExhibits";
 import ModelViewer from "./viewer/ModelViewer";
 
 type Props = {

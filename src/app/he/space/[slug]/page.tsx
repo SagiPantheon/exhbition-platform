@@ -2,8 +2,12 @@
 
 import { notFound, useParams } from "next/navigation";
 import SpaceAssetPageTemplate from "../../../../components/SpaceAssetPageTemplate";
-import { spaceAssets, type SpaceAsset } from "../../../../data/spaceAssets";
+import { masterExhibits, toSpaceAsset, type SpaceAsset } from "../../../../data/masterExhibits";
 import { useSectionAssets } from "../../../../hooks/useSectionAssets";
+
+const spaceAssets = masterExhibits
+  .filter((e) => e.division === "mtach" && e.subdivision === "halal")
+  .map(toSpaceAsset);
 
 export default function HebrewSpaceAssetPage() {
   const params = useParams<{ slug: string }>();

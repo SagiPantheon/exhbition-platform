@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { spaceAssets, type SpaceAsset } from "../../data/spaceAssets";
+import { masterExhibits, toSpaceAsset, type SpaceAsset } from "../../data/masterExhibits";
 import { uiText } from "../../data/uiText";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 import SpaceAssetCard from "../../components/cards/SpaceAssetCard";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
+
+const spaceAssets = masterExhibits
+  .filter((e) => e.division === "mtach" && e.subdivision === "halal")
+  .map(toSpaceAsset);
 
 export default function SpacePage() {
   const {

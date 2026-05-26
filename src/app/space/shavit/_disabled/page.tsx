@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import SpaceAssetPageTemplate from "../../../components/SpaceAssetPageTemplate";
-import { getSpaceAssetBySlug } from "../../../data/spaceAssets";
+import { getSpaceAssetBySlug } from "../../../data/masterExhibits";
 
 const slug = "shavit";
 

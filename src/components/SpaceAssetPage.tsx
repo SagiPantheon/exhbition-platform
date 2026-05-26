@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { SpaceAsset } from "../data/spaceAssets";
+import type { SpaceAsset } from "../data/masterExhibits";
 
 type Props = {
   asset: SpaceAsset;
@@ -51,16 +51,16 @@ export default function SpaceAssetPage({ asset, locale = "en" }: Props) {
         visualLanguage: "Visual Language",
       };
 
-  const title = isHe ? asset.titleHe : asset.title;
-  const subtitle = isHe ? asset.subtitleHe : asset.subtitle;
-  const description = isHe ? asset.descriptionHe : asset.description;
-  const status = isHe ? asset.statusHe : asset.status;
-  const config = isHe ? asset.configHe : asset.config;
-  const environment = isHe ? asset.environmentHe : asset.environment;
-  const displayMethod = isHe ? asset.displayMethodHe : asset.displayMethod;
-  const support = isHe ? asset.supportHe : asset.support;
-  const presentationLevel = isHe ? asset.presentationLevelHe : asset.presentationLevel;
-  const visualLanguage = isHe ? asset.visualLanguageHe : asset.visualLanguage;
+  const title = asset.title[locale];
+  const subtitle = asset.subtitle[locale];
+  const description = asset.description[locale];
+  const status = asset.status[locale];
+  const config = asset.config[locale];
+  const environment = asset.readiness.environment[locale];
+  const displayMethod = asset.readiness.displayMethod[locale];
+  const support = asset.readiness.support[locale];
+  const presentationLevel = asset.readiness.presentationLevel[locale];
+  const visualLanguage = asset.readiness.visualLanguage[locale];
 
   const mainHref = isHe ? "/he" : "/";
   const spaceHref = isHe ? "/he/space" : "/space";
@@ -100,7 +100,7 @@ export default function SpaceAssetPage({ asset, locale = "en" }: Props) {
             <div className="overflow-hidden rounded-[24px] border border-cyan-300/20 bg-black/20 p-3">
               <img
                 src={asset.image}
-                alt={`${asset.title} showcase`}
+                alt={`${asset.title[locale]} showcase`}
                 className="h-[760px] w-full rounded-[18px] object-cover object-center"
               />
             </div>
@@ -132,12 +132,12 @@ export default function SpaceAssetPage({ asset, locale = "en" }: Props) {
             <p className="mb-5 text-sm leading-7 text-slate-300">{description}</p>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <StatCard label={labels.overallHeight} value={asset.height} />
-              <StatCard label={labels.mockupWidth} value={asset.width} />
-              <StatCard label={labels.mockupLength} value={asset.length} />
-              <StatCard label={labels.mockupWeight} value={asset.weight} />
-              <StatCard label={labels.standDiameter} value={asset.standDiameter} />
-              <StatCard label={labels.standWeight} value={asset.standWeight} />
+              <StatCard label={labels.overallHeight} value={asset.specs.height} />
+              <StatCard label={labels.mockupWidth} value={asset.specs.width} />
+              <StatCard label={labels.mockupLength} value={asset.specs.length} />
+              <StatCard label={labels.mockupWeight} value={asset.specs.weight} />
+              <StatCard label={labels.standDiameter} value={asset.specs.standDiameter} />
+              <StatCard label={labels.standWeight} value={asset.specs.standWeight} />
             </div>
 
             <div className="mt-5 rounded-2xl border border-cyan-300/15 bg-white/[0.03] p-4">
@@ -189,12 +189,12 @@ export default function SpaceAssetPage({ asset, locale = "en" }: Props) {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
-              <StatCard label={labels.overallHeight} value={asset.height} />
-              <StatCard label={labels.mockupWidth} value={asset.width} />
-              <StatCard label={labels.mockupLength} value={asset.length} />
-              <StatCard label={labels.mockupWeight} value={asset.weight} />
-              <StatCard label={labels.standDiameter} value={asset.standDiameter} />
-              <StatCard label={labels.standWeight} value={asset.standWeight} />
+              <StatCard label={labels.overallHeight} value={asset.specs.height} />
+              <StatCard label={labels.mockupWidth} value={asset.specs.width} />
+              <StatCard label={labels.mockupLength} value={asset.specs.length} />
+              <StatCard label={labels.mockupWeight} value={asset.specs.weight} />
+              <StatCard label={labels.standDiameter} value={asset.specs.standDiameter} />
+              <StatCard label={labels.standWeight} value={asset.specs.standWeight} />
             </div>
 
             <div className="rounded-[30px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.12)]">

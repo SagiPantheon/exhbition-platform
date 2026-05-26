@@ -2,8 +2,12 @@
 
 import { notFound, useParams } from "next/navigation";
 import SpaceAssetPageTemplate from "../../../components/SpaceAssetPageTemplate";
-import { spaceAssets, type SpaceAsset } from "../../../data/spaceAssets";
+import { masterExhibits, toSpaceAsset, type SpaceAsset } from "../../../data/masterExhibits";
 import { useSectionAssets } from "../../../hooks/useSectionAssets";
+
+const spaceAssets = masterExhibits
+  .filter((e) => e.division === "mtach" && e.subdivision === "halal")
+  .map(toSpaceAsset);
 
 export default function SpaceAssetPage() {
   const params = useParams<{ slug: string }>();
@@ -23,7 +27,7 @@ export default function SpaceAssetPage() {
     notFound();
   }
 
-  function handleEdit() {
+  async function handleEdit() {
     const titleEn = window.prompt("Title EN", asset.title.en);
     if (titleEn === null) return;
 
@@ -69,29 +73,41 @@ export default function SpaceAssetPage() {
     const weight = window.prompt("Weight", asset.specs.weight);
     if (weight === null) return;
 
-    const standDiameter = window.prompt("Stand diameter / stand size", asset.specs.standDiameter);
+    const standDiameter = window.prompt("Stand diameter", asset.specs.standDiameter);
     if (standDiameter === null) return;
 
     const standWeight = window.prompt("Stand weight", asset.specs.standWeight);
     if (standWeight === null) return;
 
+    const specs = { ...asset.specs, height, width, length, weight, standDiameter, standWeight };
+
+    // Save to localStorage (instant UI update)
     saveAsset({
       ...asset,
-      title: { en: titleEn, he: titleEn },
-      subtitle: { en: subtitleEn, he: subtitleEn },
-      description: { en: descriptionEn, he: descriptionEn },
-      status: { en: statusEn, he: statusEn },
-      config: { en: configEn, he: configEn },
+      title: { en: titleEn, he: titleHe },
+      subtitle: { en: subtitleEn, he: subtitleHe },
+      description: { en: descriptionEn, he: descriptionHe },
+      status: { en: statusEn, he: statusHe },
+      config: { en: configEn, he: configHe },
       scale,
-      specs: {
-        ...asset.specs,
-        height,
-        width,
-        length,
-        weight,
-        standDiameter,
-        standWeight,
-      },
+      specs,
+    });
+
+    // Persist to exhibit-overrides via API
+    await fetch("/api/exhibits", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug: asset.slug,
+        nameEn: titleEn,
+        nameHe: titleHe,
+        subtitle: { en: subtitleEn, he: subtitleHe },
+        description: { en: descriptionEn, he: descriptionHe },
+        status: { en: statusEn, he: statusHe },
+        config: { en: configEn, he: configHe },
+        scale,
+        specs,
+      }),
     });
   }
 
@@ -101,6 +117,8 @@ export default function SpaceAssetPage() {
     );
     if (!ok) return;
     removeAsset(asset.slug);
+
+    fetch("/api/exhibits?slug=" + encodeURIComponent(asset.slug), { method: "DELETE" });
   }
 
   return (

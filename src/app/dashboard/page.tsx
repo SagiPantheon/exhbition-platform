@@ -6,19 +6,28 @@ import Image from "next/image"
 import { exhibitDivisions, exhibitBankSummary } from "../../data/globalExhibitBank"
 import { airAssets } from "../../data/airAssets"
 import { autoAirAssets } from "../../data/airAutoAssets"
-import { spaceAssets } from "../../data/spaceAssets"
+import { masterExhibits } from "../../data/masterExhibits"
 import { landAssets } from "../../data/landAssets"
 
 // ─── Sidebar nav ──────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Hub",                href: "/",              icon: "⊕" },
-  { label: "Global Exhibit Bank",href: "/dashboard",     icon: "◈", active: true },
-  { label: "Divisions",          href: "/exhibitions",   icon: "⊞" },
-  { label: "Systems",            href: "/air",           icon: "◉" },
-  { label: "Layouts",            href: "/tents-layout",  icon: "⊡" },
-  { label: "Reports",            href: "/exhibitions/israel", icon: "⊟" },
+  { label: "Hub",                href: "/",                   icon: "⊕" },
+  { label: "Global Exhibit Bank",href: "/dashboard",          icon: "◈", active: true },
+  { label: "תערוכות",            href: "/exhibitions",        icon: "⊞" },
+  { label: "מערכות",             href: "/air",                icon: "◉" },
+  { label: "Layouts",            href: "/tents-layout",       icon: "⊡" },
+  { label: "תערוכות בארץ",       href: "/exhibitions/israel", icon: "⊟" },
 ]
+
+// ─── Division → route map ─────────────────────────────────────────────────────
+
+const DIVISION_HREF: Record<string, string> = {
+  "missiles-space-defense": "/space",
+  "aviation":               "/air",
+  "elta":                   "/air",
+  "uav":                    "/land",
+}
 
 // ─── Division cover images ────────────────────────────────────────────────────
 
@@ -80,13 +89,13 @@ function buildCarouselItems() {
       href:     `/air/${a.slug}`,
     }))
 
-  const space = spaceAssets
-    .filter((a: any) => a.image)
-    .map((a: any) => ({
+  const space = masterExhibits
+    .filter((a) => a.division === "mtach" && a.subdivision === "halal" && a.image)
+    .map((a) => ({
       slug:     a.slug,
-      titleEn:  a.title?.en ?? a.slug,
-      titleHe:  a.title?.he ?? "",
-      image:    a.image as string,
+      titleEn:  a.nameEn,
+      titleHe:  a.nameHe,
+      image:    a.image,
       category: "Space",
       href:     `/space/${a.slug}`,
     }))
@@ -110,8 +119,11 @@ const carouselItems = buildCarouselItems()
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const spaceAssetCount = masterExhibits.filter(
+    (e) => e.division === "mtach" && e.subdivision === "halal"
+  ).length
   const totalAssets =
-    airAssets.length + autoAirAssets.length + spaceAssets.length + landAssets.length
+    airAssets.length + autoAirAssets.length + spaceAssetCount + landAssets.length
   const [hoveredDivId, setHoveredDivId] = useState<string | null>(null)
 
   return (
@@ -256,7 +268,7 @@ export default function DashboardPage() {
 
                   {/* CTA */}
                   <Link
-                    href={`/global-exhibit-bank/division?divisionId=${encodeURIComponent(div.id)}`}
+                    href={DIVISION_HREF[div.id] ?? "/air"}
                     style={{ display: "block", marginTop: "20px" }}
                     className="w-full px-4 py-3 rounded-xl text-center font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white transition-colors"
                   >
@@ -315,7 +327,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { label: "Air Assets",   href: "/air",        count: airAssets.length + autoAirAssets.length },
-                  { label: "Space Assets", href: "/space",      count: spaceAssets.length },
+                  { label: "Space Assets", href: "/space",      count: spaceAssetCount },
                   { label: "Land Assets",  href: "/land",       count: landAssets.length },
                   { label: "Tents Layout", href: "/tents-layout", count: null },
                   { label: "Israel Exh.",  href: "/exhibitions/israel", count: null },

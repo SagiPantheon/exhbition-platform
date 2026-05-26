@@ -1,4 +1,4 @@
-import { spaceAssets } from "./spaceAssets";
+import { masterExhibits } from "./masterExhibits";
 import { airAssets } from "./airAssets";
 import { autoAirAssets } from "./airAutoAssets";
 import { landAssets } from "./landAssets";
@@ -24,18 +24,20 @@ function resolveText(value: { en: string; he: string } | string): string {
   return value?.en ?? "";
 }
 
-const spaceExhibits: UnifiedExhibit[] = spaceAssets.map((a) => ({
-  slug: a.slug,
-  section: "space",
-  name: resolveText(a.title),
-  subtitle: resolveText(a.subtitle),
-  image: a.image,
-  model3d: a.model3d,
-  status: resolveText(a.status),
-  scale: a.scale,
-  code: a.code,
-  basePath: "/space",
-}));
+const spaceExhibits: UnifiedExhibit[] = masterExhibits
+  .filter((a) => a.division === "mtach" && a.subdivision === "halal")
+  .map((a) => ({
+    slug: a.slug,
+    section: "space" as const,
+    name: a.nameEn,
+    subtitle: a.subtitle?.en ?? "",
+    image: a.image,
+    model3d: a.model3d || undefined,
+    status: a.status?.en ?? "Approved",
+    scale: a.scale ?? "",
+    code: a.code,
+    basePath: "/space",
+  }));
 
 const seenAirSlugs = new Set<string>();
 const rawAirAssets = [...(Array.isArray(airAssets) ? airAssets : []), ...(Array.isArray(autoAirAssets) ? autoAirAssets : [])];
