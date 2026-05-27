@@ -1,3 +1,16 @@
+import { masterExhibits } from "./masterExhibits"
+
+function divisionStats(division: string) {
+  const exhibits = masterExhibits.filter((e) => e.division === division)
+  const subs = new Set(exhibits.map((e) => e.subdivision).filter((s): s is string => !!s))
+  return { exhibitCount: exhibits.length, subDivisionCount: subs.size }
+}
+
+const mtach  = divisionStats("mtach")
+const teufa  = divisionStats("teufa")
+const elta   = divisionStats("elta")
+const kataz  = divisionStats("kataz")
+
 export type ExhibitDivision = {
   id: string
   titleHe: string
@@ -16,9 +29,9 @@ export const exhibitDivisions: ExhibitDivision[] = [
     id: "missiles-space-defense",
     titleHe: "חטיבת מט״ח",
     titleEn: "Missiles, Space & Defense",
-    subDivisions: ["מלמ", "טילים", "חלל", "הגנה"],
-    exhibitCount: 24,
-    subDivisionCount: 4,
+    subDivisions: ["מלמ", "טילים", "חלל", "הגנה", "תמ״מ"],
+    exhibitCount: mtach.exhibitCount,
+    subDivisionCount: mtach.subDivisionCount,
     readiness: 82,
     descriptionHe: "מעטפת מערכות אסטרטגיות תחת חטיבה אחת",
     ctaHe: "פתח חטיבה",
@@ -28,21 +41,21 @@ export const exhibitDivisions: ExhibitDivision[] = [
     id: "aviation",
     titleHe: "חטיבת תעופה",
     titleEn: "Aviation",
-    subDivisions: ["בדק", "MRO"],
-    exhibitCount: 18,
-    subDivisionCount: 2,
+    subDivisions: [],
+    exhibitCount: teufa.exhibitCount,
+    subDivisionCount: teufa.subDivisionCount,
     readiness: 79,
     descriptionHe: "יכולות תעופה, תחזוקה ותמיכה מבצעית",
     ctaHe: "פתח חטיבה",
-    previewSystems: ["MRO Systems", "Aircraft Support", "Mission Support", "Airframe Services"],
+    previewSystems: ["Boeing 777", "Boeing 767", "KC-135"],
   },
   {
     id: "elta",
     titleHe: "חטיבת אלתא",
     titleEn: "ELTA",
-    subDivisions: ["רובוטיקה", "תקשורת", "מכ״מים"],
-    exhibitCount: 27,
-    subDivisionCount: 3,
+    subDivisions: ['מכ"ם', "SOI", "רובוטיקה", "תקשורת"],
+    exhibitCount: elta.exhibitCount,
+    subDivisionCount: elta.subDivisionCount,
     readiness: 88,
     descriptionHe: "טכנולוגיות מתקדמות במערכת אחת",
     ctaHe: "פתח חטיבה",
@@ -52,17 +65,15 @@ export const exhibitDivisions: ExhibitDivision[] = [
     id: "uav",
     titleHe: "חטיבת כט״צ",
     titleEn: "UAV",
-    subDivisions: ["מלט"],
-    exhibitCount: 12,
-    subDivisionCount: 1,
+    subDivisions: [],
+    exhibitCount: kataz.exhibitCount,
+    subDivisionCount: kataz.subDivisionCount,
     readiness: 84,
     descriptionHe: "מערכות ייעודיות בקו חטיבתי ממוקד",
     ctaHe: "פתח חטיבה",
-    previewSystems: ["UAV Family", "Mission Payload", "Control Segment", "Field Deployment"],
+    previewSystems: ["Heron", "Eitan", "HAROP", "Thunder VTOL"],
   },
 ]
-
-import { masterExhibits } from "./masterExhibits"
 
 const _exhibits = masterExhibits.filter((e) => e.division !== "inventory")
 const _withModel = _exhibits.filter((e) => e.hasModel).length
