@@ -3,6 +3,7 @@ export type SectionKey = "air" | "space" | "land" | "naval";
 export type EditableSectionAsset = {
   id?: string;
   slug: string;
+  code?: string;
   name?: string;
   title?: {
     en?: string;

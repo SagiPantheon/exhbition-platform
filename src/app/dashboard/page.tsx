@@ -4,8 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { exhibitDivisions, exhibitBankSummary } from "../../data/globalExhibitBank"
-import { airAssets } from "../../data/airAssets"
-import { autoAirAssets } from "../../data/airAutoAssets"
 import { masterExhibits } from "../../data/masterExhibits"
 import { landAssets } from "../../data/landAssets"
 
@@ -78,13 +76,13 @@ const DIVISION_STYLES = [
 // ─── Carousel data ─────────────────────────────────────────────────────────────
 
 function buildCarouselItems() {
-  const air = [...airAssets, ...autoAirAssets]
-    .filter((a: any) => a.image)
-    .map((a: any) => ({
+  const air = masterExhibits
+    .filter((a) => a.division !== "inventory" && a.image)
+    .map((a) => ({
       slug:     a.slug,
-      titleEn:  a.title?.en ?? a.slug,
-      titleHe:  a.title?.he ?? "",
-      image:    a.image as string,
+      titleEn:  a.nameEn,
+      titleHe:  a.nameHe,
+      image:    a.image,
       category: "Air",
       href:     `/air/${a.slug}`,
     }))
@@ -122,8 +120,8 @@ export default function DashboardPage() {
   const spaceAssetCount = masterExhibits.filter(
     (e) => e.division === "mtach" && e.subdivision === "halal"
   ).length
-  const totalAssets =
-    airAssets.length + autoAirAssets.length + spaceAssetCount + landAssets.length
+  const airAssetCount = masterExhibits.filter((e) => e.division !== "inventory").length
+  const totalAssets = airAssetCount + spaceAssetCount + landAssets.length
   const [hoveredDivId, setHoveredDivId] = useState<string | null>(null)
 
   return (
@@ -326,7 +324,7 @@ export default function DashboardPage() {
               <p className="mb-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">Quick Links</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: "Air Assets",   href: "/air",        count: airAssets.length + autoAirAssets.length },
+                  { label: "Air Assets",   href: "/air",        count: airAssetCount },
                   { label: "Space Assets", href: "/space",      count: spaceAssetCount },
                   { label: "Land Assets",  href: "/land",       count: landAssets.length },
                   { label: "Tents Layout", href: "/tents-layout", count: null },

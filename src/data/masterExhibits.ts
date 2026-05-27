@@ -100,6 +100,73 @@ export function getSpaceAssetBySlug(slug: string): SpaceAsset | undefined {
   return e ? toSpaceAsset(e) : undefined;
 }
 
+export type AirAsset = {
+  slug: string;
+  code: string;
+  image: string;
+  model3d?: string;
+  title: LocalizedText;
+  subtitle: LocalizedText;
+  description: LocalizedText;
+  status: LocalizedText;
+  config: LocalizedText;
+  scale: string;
+  specs: {
+    height: string;
+    width: string;
+    length: string;
+    weight: string;
+    standDiameter: string;
+    standWeight: string;
+  };
+  readiness: {
+    environment: LocalizedText;
+    displayMethod: LocalizedText;
+    support: LocalizedText;
+    presentationLevel: LocalizedText;
+    visualLanguage: LocalizedText;
+  };
+};
+
+export function toAirAsset(e: MasterExhibit): AirAsset {
+  return {
+    slug: e.slug,
+    code: e.code ?? "",
+    image: e.image,
+    model3d: e.model3d || undefined,
+    title: { en: e.nameEn, he: e.nameHe },
+    subtitle: e.subtitle ?? { en: e.nameEn, he: e.nameHe },
+    description: e.description ?? { en: "", he: "" },
+    status: e.status ?? { en: "Approved", he: "מאושר" },
+    config: e.config ?? { en: "Air display", he: "תצוגת אוויר" },
+    scale: e.scale ?? "1:1",
+    specs: {
+      height: e.specs?.height ?? "TBD",
+      width: e.specs?.width ?? "TBD",
+      length: e.specs?.length ?? "TBD",
+      weight: e.specs?.weight ?? "TBD",
+      standDiameter: e.specs?.standDiameter ?? "N/A",
+      standWeight: e.specs?.standWeight ?? "N/A",
+    },
+    readiness: {
+      environment: e.readiness?.environment ?? { en: "Indoor / Outdoor", he: "פנים / חוץ" },
+      displayMethod: e.readiness?.displayMethod ?? { en: "Static display", he: "תצוגה סטטית" },
+      support: e.readiness?.support ?? { en: "Self-standing", he: "עצמאי" },
+      presentationLevel: e.readiness?.presentationLevel ?? { en: "Standard", he: "סטנדרטי" },
+      visualLanguage: e.readiness?.visualLanguage ?? { en: "Air defense showcase", he: "תצוגת הגנ״א" },
+    },
+  };
+}
+
+export function getAirAssetBySlug(slug: string): AirAsset | undefined {
+  const e = masterExhibits.find((x) => x.slug === slug && x.division !== "inventory");
+  return e ? toAirAsset(e) : undefined;
+}
+
+export function getAllAirAssetSlugs(): string[] {
+  return masterExhibits.filter((e) => e.division !== "inventory").map((e) => e.slug);
+}
+
 export const masterExhibits: MasterExhibit[] = [
   // ── SPACE (7) ──────────────────────────────────────────────────────────────
   {
@@ -173,42 +240,333 @@ export const masterExhibits: MasterExhibit[] = [
     readiness: { environment: { en: "Indoor only", he: "לתצוגת פנים בלבד" }, displayMethod: { en: "Vertical stand", he: "סטנד אנכי" }, support: { en: "Rear support", he: "תמיכת גב אחורית" }, presentationLevel: { en: "Approved showcase", he: "תצוגה מאושרת" }, visualLanguage: { en: "Launcher panel", he: "פאנל משגר" } },
   },
 
-  // ── AIR — original (9, not in airAutoAssets) ───────────────────────────────
-  { slug: "arrow-2",          division: "mtach", subdivision: "tilim", nameEn: "Arrow 2",          nameHe: "חץ 2",         model3d: "/models/air/arrow-2-showcase-3d.glb",        image: "/images/air/arrow-2-showcase.png",          hasModel: true  },
-  { slug: "arrow-3-missile",  division: "mtach", subdivision: "tilim", nameEn: "Arrow 3",          nameHe: "חץ 3",         model3d: "/models/air/arrow-3-showcase-3d.glb",        image: "/images/air/arrow-3-showcase.png",          hasModel: true  },
+  // ── AIR — מט"ח / tilim ────────────────────────────────────────────────────
+  {
+    slug: "arrow-2", division: "mtach", subdivision: "tilim", nameEn: "Arrow 2", nameHe: "חץ 2",
+    model3d: "/models/air/arrow-2-showcase-3d.glb", image: "/images/air/arrow-2-showcase.png", hasModel: true,
+    code: "AR-003",
+    subtitle: { en: "Strategic interceptor missile mock-up for premium exhibition presentation.", he: "דגם טיל יירוט אסטרטגי לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium exhibition display, strategic defense storytelling, and future presentation planning in the missile systems category.", he: "מוכן לתצוגת פרימיום, המחשת מערך הגנה אסטרטגי ותכנון עתידי של הצגה בקטגוריית מערכות טילים." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "7.0 m", width: "0.8 m", height: "7.0 m", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Vertical missile stand", he: "סטנד טיל אנכי" }, support: { en: "Integrated base support", he: "תמיכה מובנית בבסיס" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strategic missile showcase", he: "תצוגת טיל אסטרטגי" } },
+  },
+  {
+    slug: "arrow-3-missile", division: "mtach", subdivision: "tilim", nameEn: "Arrow 3", nameHe: "חץ 3",
+    model3d: "/models/air/arrow-3-showcase-3d.glb", image: "/images/air/arrow-3-showcase.png", hasModel: true,
+    code: "AR-004",
+    subtitle: { en: "Strategic exo-atmospheric interceptor missile mock-up for premium exhibition presentation.", he: "דגם טיל יירוט אקסו-אטמוספרי אסטרטגי לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium exhibition display, strategic missile storytelling, and future presentation planning in the air-defense systems category.", he: "מוכן לתצוגת פרימיום, המחשת מערך טילים אסטרטגי ותכנון עתידי של הצגה בקטגוריית מערכות ההגנה האווירית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "7.0 m", width: "0.8 m", height: "7.0 m", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Vertical missile stand", he: "סטנד טיל אנכי" }, support: { en: "Integrated base support", he: "תמיכה מובנית בבסיס" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Arrow-3 missile showcase", he: "תצוגת טיל חץ 3" } },
+  },
+  {
+    slug: "lora", division: "mtach", subdivision: "tilim", nameEn: "LORA", nameHe: "לורה",
+    model3d: "/models/air/lora-showcase-3d.glb", image: "/images/air/lora-showcase.png", hasModel: true,
+    code: "AR-002",
+    subtitle: { en: "Precision strike missile mock-up for premium exhibition presentation.", he: "דגם טיל תקיפה מדויקת לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium exhibition display, visual impact, and future presentation planning in the strike systems category.", he: "מוכן לתצוגת פרימיום, נוכחות חזותית חזקה ותכנון עתידי של הצגה בקטגוריית מערכות תקיפה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "5.2 m", width: "0.62 m", height: "5.2 m", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Vertical missile stand", he: "סטנד טיל אנכי" }, support: { en: "Integrated base support", he: "תמיכה מובנית בבסיס" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike missile showcase", he: "תצוגת טיל תקיפה" } },
+  },
+  {
+    slug: "wanderb", division: "kataz", subdivision: "", nameEn: "WanderB", nameHe: "וונדר B",
+    model3d: "/models/air/wanderb-showcase-3d.glb", image: "/images/air/wanderb-showcase.png", hasModel: true,
+    code: "AR-006",
+    subtitle: { en: "Compact UAV mock-up for premium exhibition presentation.", he: "דגם כטב״ם קומפקטי לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium exhibition display, tactical unmanned systems storytelling, and future presentation planning in the UAV category.", he: "מוכן לתצוגת פרימיום בתערוכה, להצגת יכולות טקטיות של מערכות בלתי מאוישות, ולתכנון עתידי בקטגוריית הכטב״מים." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static UAV display", he: "תצוגת כטב״ם סטטית" }, support: { en: "Integrated support base", he: "בסיס תמיכה משולב" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Compact UAV showcase", he: "שפת תצוגה של כטב״ם קומפקטי" } },
+  },
+  {
+    slug: "arrow-4", division: "mtach", subdivision: "tilim", nameEn: "Arrow 4", nameHe: "חץ 4",
+    model3d: "", image: "/images/air/arrow-4-showcase.png", hasModel: false,
+    code: "AR-AUTO-004",
+    subtitle: { en: "Next-generation interceptor missile for premium exhibition presentation.", he: "טיל יירוט דור הבא לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium missile exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת טיל פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Air-defense missile showcase", he: "תצוגת טיל הגנ״א" } },
+  },
+  {
+    slug: "harop", division: "mtach", subdivision: "tilim", nameEn: "HAROP", nameHe: "הרופ",
+    model3d: "/models/air/harop-showcase-3d.glb", image: "/images/air/harop-showcase.png", hasModel: true,
+    code: "AR-AUTO-006",
+    subtitle: { en: "Loitering munition for premium exhibition presentation.", he: "תחמושת מתהוגגת לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium loitering munition exhibition display and operational strike presentation.", he: "מוכן לתצוגת תחמושת מתהוגגת פרימיום ולהצגה מבצעית בתחום התקיפה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike UAV showcase", he: "תצוגת כטב״ם תקיפה" } },
+  },
+  {
+    slug: "mini-harpy", division: "mtach", subdivision: "tilim", nameEn: "Mini Harpy", nameHe: "מיני הרפי",
+    model3d: "/models/air/mini-harpy-showcase-3d.glb", image: "/images/air/mini-harpy-showcase.png", hasModel: true,
+    code: "AR-AUTO-007",
+    subtitle: { en: "Compact loitering munition for premium exhibition presentation.", he: "תחמושת מתהוגגת קומפקטית לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium loitering munition exhibition display and operational strike presentation.", he: "מוכן לתצוגת תחמושת מתהוגגת פרימיום ולהצגה מבצעית בתחום התקיפה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike UAV showcase", he: "תצוגת כטב״ם תקיפה" } },
+  },
+  {
+    slug: "lahat", division: "mtach", subdivision: "tilim", nameEn: "LAHAT", nameHe: "להט",
+    model3d: "/models/air/lahat-showcase-3d.glb", image: "/images/air/lahat-showcase.png", hasModel: true,
+    code: "AR-AUTO-008",
+    subtitle: { en: "Laser-homing anti-tank missile for premium exhibition presentation.", he: "טיל נגד טנקים בהנחיית לייזר לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike missile exhibition display and operational presentation.", he: "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike missile showcase", he: "תצוגת טיל תקיפה" } },
+  },
+  {
+    slug: "lahat-alfa", division: "mtach", subdivision: "tilim", nameEn: "LAHAT ALFA", nameHe: "להט אלפא",
+    model3d: "/models/air/lahat-alfa-showcase-3d.glb", image: "/images/air/lahat-alfa-showcase.png", hasModel: true,
+    code: "AR-AUTO-009",
+    subtitle: { en: "Advanced LAHAT variant for premium exhibition presentation.", he: "גרסה מתקדמת של להט לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike missile exhibition display and operational presentation.", he: "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike missile showcase", he: "תצוגת טיל תקיפה" } },
+  },
+  {
+    slug: "barak-launcher", division: "mtach", subdivision: "tilim", nameEn: "Barak Launcher", nameHe: "משגר ברק",
+    model3d: "/models/air/barak-launcher-showcase-3d.glb", image: "/images/air/barak-launcher-showcase.png", hasModel: true,
+    code: "AR-AUTO-010",
+    subtitle: { en: "Air-defense launcher for premium exhibition presentation.", he: "משגר הגנ״א לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium launcher exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת משגר פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Launcher display", he: "תצוגת משגר" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Air-defense launcher showcase", he: "תצוגת משגר הגנ״א" } },
+  },
+  {
+    slug: "arrow-launcher", division: "mtach", subdivision: "tilim", nameEn: "Arrow Launcher", nameHe: "משגר חץ",
+    model3d: "/models/air/arrow-launcher-showcase-3d.glb", image: "/images/air/arrow-launcher-showcase.png", hasModel: true,
+    code: "AR-AUTO-021",
+    subtitle: { en: "Air-defense launcher for premium exhibition presentation.", he: "משגר הגנ״א לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium launcher exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת משגר פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Launcher display", he: "תצוגת משגר" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Air-defense launcher showcase", he: "תצוגת משגר הגנ״א" } },
+  },
+  {
+    slug: "minipop", division: "mtach", subdivision: "giluy", nameEn: "MINIPOP", nameHe: "מיני-פופ",
+    model3d: "/models/air/minipop-showcase-3d.glb", image: "/images/air/minipop-showcase.png", hasModel: true,
+    code: "AR-AUTO-020",
+    subtitle: { en: "Compact precision strike munition for premium exhibition presentation.", he: "תחמושת תקיפה מדויקת קומפקטית לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike missile exhibition display and operational presentation.", he: "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike missile showcase", he: "תצוגת טיל תקיפה" } },
+  },
+  {
+    slug: "megapop", division: "mtach", subdivision: "giluy", nameEn: "MEGAPOP", nameHe: "מגה-פופ",
+    model3d: "/models/air/megapop-showcase-3d.glb", image: "/images/air/megapop-showcase.png", hasModel: true,
+    code: "AR-AUTO-018",
+    subtitle: { en: "Precision strike munition for premium exhibition presentation.", he: "תחמושת תקיפה מדויקת לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike missile exhibition display and operational presentation.", he: "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike missile showcase", he: "תצוגת טיל תקיפה" } },
+  },
+  {
+    slug: "pop1000", division: "mtach", subdivision: "giluy", nameEn: "POP 1000", nameHe: "פופ 1000",
+    model3d: "/models/air/pop1000-showcase-3d.glb", image: "/images/air/pop1000-showcase.png", hasModel: true,
+    code: "AR-AUTO-019",
+    subtitle: { en: "Precision strike munition for premium exhibition presentation.", he: "תחמושת תקיפה מדויקת לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike missile exhibition display and operational presentation.", he: "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike missile showcase", he: "תצוגת טיל תקיפה" } },
+  },
+  {
+    slug: "pointblank", division: "mtach", subdivision: "malam", nameEn: "POINTBLANK", nameHe: "פוינטבלנק",
+    model3d: "/models/air/point-blank-showcase-3d.glb", image: "/images/air/pointblank-showcase.png", hasModel: true,
+    code: "AR-AUTO-016",
+    subtitle: { en: "Precision strike missile for premium exhibition presentation.", he: "טיל תקיפה מדויק לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike missile exhibition display and operational presentation.", he: "מוכן לתצוגת טיל תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Missile display", he: "תצוגת טיל" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike missile showcase", he: "תצוגת טיל תקיפה" } },
+  },
+  {
+    slug: "microwami", division: "mtach", subdivision: "giluy", nameEn: "MICROWAMI", nameHe: "מיקרוואמי",
+    model3d: "/models/air/microwami-showcase-3d.glb", image: "/images/air/microwami-showcase.png", hasModel: true,
+    code: "AR-AUTO-017",
+    subtitle: { en: "Microwave radar system for premium exhibition presentation.", he: "מערכת מכ״ם מיקרוגל לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium radar exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת מכ״ם פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Radar display", he: "תצוגת מכ״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Air-defense radar showcase", he: "תצוגת מכ״ם הגנ״א" } },
+  },
+  {
+    slug: "rotem", division: "mtach", subdivision: "tilim", nameEn: "ROTEM", nameHe: "רותם",
+    model3d: "/models/air/rotem-showcase-3d.glb", image: "/images/air/rotem-showcase.png", hasModel: true,
+    code: "AR-AUTO-013",
+    subtitle: { en: "Loitering attack UAV for premium exhibition presentation.", he: "כטב״ם תקיפה מתהוגג לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike UAV exhibition display and operational presentation.", he: "מוכן לתצוגת כטב״ם תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike UAV showcase", he: "תצוגת כטב״ם תקיפה" } },
+  },
+  {
+    slug: "apus25", division: "kataz", subdivision: "", nameEn: "APUS 25", nameHe: "אפוס 25",
+    model3d: "/models/air/apus-25-showcase-3d.glb", image: "/images/air/apus25-showcase.png", hasModel: true,
+    code: "AR-AUTO-014",
+    subtitle: { en: "Strike UAV mock-up for premium exhibition presentation.", he: "דגם כטב״ם תקיפה לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike UAV exhibition display and operational presentation.", he: "מוכן לתצוגת כטב״ם תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike UAV showcase", he: "תצוגת כטב״ם תקיפה" } },
+  },
+  {
+    slug: "apus60", division: "kataz", subdivision: "", nameEn: "APUS 60", nameHe: "אפוס 60",
+    model3d: "/models/air/apus-60-showcase-3d.glb", image: "/images/air/apus60-showcase.png", hasModel: true,
+    code: "AR-AUTO-015",
+    subtitle: { en: "Strike UAV mock-up for premium exhibition presentation.", he: "דגם כטב״ם תקיפה לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike UAV exhibition display and operational presentation.", he: "מוכן לתצוגת כטב״ם תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike UAV showcase", he: "תצוגת כטב״ם תקיפה" } },
+  },
 
-  { slug: "lora",             division: "mtach", subdivision: "tilim", nameEn: "LORA",             nameHe: "לורה",         model3d: "/models/air/lora-showcase-3d.glb",           image: "/images/air/lora-showcase.png",             hasModel: true  },
-  { slug: "wanderb",          division: "mtach", subdivision: "tilim", nameEn: "WanderB",          nameHe: "וונדר B",      model3d: "/models/air/wanderb-showcase-3d.glb",        image: "/images/air/wanderb-showcase.png",          hasModel: true  },
-  { slug: "777",              division: "teufa",                     nameEn: "Boeing 777",       nameHe: "בואינג 777",   model3d: "/models/air/777-showcase-3d.glb",            image: "/images/air/777-showcase.png",              hasModel: true  },
-  { slug: "b767",             division: "teufa",                     nameEn: "Boeing 767",       nameHe: "בואינג 767",   model3d: "/models/air/b767-showcase-3d.glb",           image: "/images/air/b767-showcase.png",             hasModel: true  },
+  // ── AIR — אלתא ─────────────────────────────────────────────────────────────
+  {
+    slug: "mmr", division: "elta", nameEn: "MMR", nameHe: "מכ״ם MMR",
+    model3d: "/models/air/mmr-showcase-3d.glb", image: "/images/air/mmr-showcase.png", hasModel: true,
+    code: "AR-AUTO-002",
+    subtitle: { en: "Multi-mission radar display for premium exhibition presentation.", he: "מכ״ם רב־משימתי לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium radar exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת מכ״ם פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Radar display", he: "תצוגת מכ״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Air-defense radar showcase", he: "תצוגת מכ״ם הגנ״א" } },
+  },
+  {
+    slug: "elm-2058", division: "elta", nameEn: "ELM-2058", nameHe: "מכ״ם ELM-2058",
+    model3d: "/models/air/elw2058-showcase-3d.glb", image: "/images/air/elm-2058-showcase.png", hasModel: true,
+    code: "AR-AUTO-011",
+    subtitle: { en: "Airborne radar system for premium exhibition presentation.", he: "מערכת מכ״ם אוירית לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium radar exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת מכ״ם פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Radar display", he: "תצוגת מכ״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Air-defense radar showcase", he: "תצוגת מכ״ם הגנ״א" } },
+  },
+  {
+    slug: "wasp", division: "elta", nameEn: "WASP", nameHe: "צרעה",
+    model3d: "/models/air/wasp-showcase-3d.glb", image: "/images/air/wasp-showcase.png", hasModel: true,
+    code: "AR-AUTO-012",
+    subtitle: { en: "Strike UAV mock-up for premium exhibition presentation.", he: "דגם כטב״ם תקיפה לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium strike UAV exhibition display and operational presentation.", he: "מוכן לתצוגת כטב״ם תקיפה פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Strike UAV showcase", he: "תצוגת כטב״ם תקיפה" } },
+  },
+  {
+    slug: "othello", division: "elta", nameEn: "Othello", nameHe: "אותלו",
+    model3d: "/models/air/othello-showcase-3d.glb", image: "/images/air/Othello-showcase.PNG", hasModel: true,
+    code: "AR-AUTO-025",
+    subtitle: { en: "Radar system for premium exhibition presentation.", he: "מערכת מכ״ם לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium radar exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת מכ״ם פרימיום ולהצגה מבצעית בתחום ההגנה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Radar display", he: "תצוגת מכ״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Radar showcase", he: "תצוגת מכ״ם" } },
+  },
+  {
+    slug: "quadcopter2", division: "elta", nameEn: "Quadcopter 2", nameHe: "קוואדקופטר 2",
+    model3d: "/models/air/quadcopter2-showcase-3d.glb", image: "/images/air/quadcopter2-showcase.PNG", hasModel: true,
+    code: "AR-AUTO-026",
+    subtitle: { en: "Quadcopter UAV for premium exhibition presentation.", he: "קוואדקופטר לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium quadcopter exhibition display and operational presentation.", he: "מוכן לתצוגת קוואדקופטר פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Quadcopter display", he: "תצוגת קוואדקופטר" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Quadcopter showcase", he: "תצוגת קוואדקופטר" } },
+  },
+  {
+    slug: "quadcopter3", division: "elta", nameEn: "Quadcopter 3", nameHe: "קוואדקופטר 3",
+    model3d: "/models/air/quadcopter3-showcase-3d.glb", image: "/images/air/quadcopter3-showcase.PNG", hasModel: true,
+    code: "AR-AUTO-027",
+    subtitle: { en: "Quadcopter UAV for premium exhibition presentation.", he: "קוואדקופטר לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium quadcopter exhibition display and operational presentation.", he: "מוכן לתצוגת קוואדקופטר פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Quadcopter display", he: "תצוגת קוואדקופטר" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Quadcopter showcase", he: "תצוגת קוואדקופטר" } },
+  },
 
-  // ── AIR — from airAutoAssets (19 shared + 5 unique) ───────────────────────
-  { slug: "mmr",           division: "elta",                         nameEn: "MMR",           nameHe: "מכ״ם MMR",     model3d: "/models/air/mmr-showcase-3d.glb",            image: "/images/air/mmr-showcase.png",           hasModel: true  },
-  { slug: "arrow-4",       division: "mtach", subdivision: "tilim", nameEn: "Arrow 4",       nameHe: "חץ 4",         model3d: "",                                           image: "/images/air/arrow-4-showcase.png",       hasModel: false },
-  { slug: "thunder-vtol",  division: "kataz",                        nameEn: "Thunder VTOL",  nameHe: "ת׳אנדר VTOL",  model3d: "/models/air/thunderb-showcase-3d.glb",       image: "/images/air/Thunderb-showcase.png",      hasModel: true  },
-  { slug: "harop",         division: "mtach", subdivision: "tilim", nameEn: "HAROP",         nameHe: "הרופ",         model3d: "/models/air/harop-showcase-3d.glb",          image: "/images/air/harop-showcase.png",         hasModel: true  },
-  { slug: "mini-harpy",    division: "mtach", subdivision: "tilim", nameEn: "Mini Harpy",    nameHe: "מיני הרפי",    model3d: "/models/air/mini-harpy-showcase-3d.glb",     image: "/images/air/mini-harpy-showcase.png",    hasModel: true  },
-  { slug: "lahat",         division: "mtach", subdivision: "tilim", nameEn: "LAHAT",         nameHe: "להט",          model3d: "/models/air/lahat-showcase-3d.glb",          image: "/images/air/lahat-showcase.png",         hasModel: true  },
-  { slug: "lahat-alfa",    division: "mtach", subdivision: "tilim", nameEn: "LAHAT ALFA",    nameHe: "להט אלפא",     model3d: "/models/air/lahat-alfa-showcase-3d.glb",     image: "/images/air/lahat-alfa-showcase.png",    hasModel: true  },
-  { slug: "barak-launcher",division: "mtach", subdivision: "tilim", nameEn: "Barak Launcher",nameHe: "משגר ברק",     model3d: "/models/air/barak-launcher-showcase-3d.glb", image: "/images/air/barak-launcher-showcase.png",hasModel: true  },
-  { slug: "arrow-launcher",division: "mtach", subdivision: "tilim", nameEn: "Arrow Launcher",nameHe: "משגר חץ",      model3d: "/models/air/arrow-launcher-showcase-3d.glb",image: "/images/air/arrow-launcher-showcase.png",hasModel: true  },
-  { slug: "elm-2058",      division: "elta",                         nameEn: "ELM-2058",      nameHe: "מכ״ם ELM-2058",model3d: "/models/air/elw2058-showcase-3d.glb",        image: "/images/air/elm-2058-showcase.png",      hasModel: true  },
-  { slug: "wasp",          division: "elta",                         nameEn: "WASP",          nameHe: "צרעה",         model3d: "/models/air/wasp-showcase-3d.glb",           image: "/images/air/wasp-showcase.png",          hasModel: true  },
-  { slug: "minipop",       division: "mtach", subdivision: "tilim", nameEn: "MINIPOP",       nameHe: "מיני-פופ",     model3d: "/models/air/minipop-showcase-3d.glb",        image: "/images/air/minipop-showcase.png",       hasModel: true  },
-  { slug: "megapop",       division: "mtach", subdivision: "giluy", nameEn: "MEGAPOP",       nameHe: "מגה-פופ",      model3d: "/models/air/megapop-showcase-3d.glb",        image: "/images/air/megapop-showcase.png",       hasModel: true  },
-  { slug: "pop1000",       division: "mtach", subdivision: "giluy", nameEn: "POP 1000",      nameHe: "פופ 1000",     model3d: "/models/air/pop1000-showcase-3d.glb",        image: "/images/air/pop1000-showcase.png",       hasModel: true  },
-  { slug: "pointblank",    division: "mtach", subdivision: "malam", nameEn: "POINTBLANK",    nameHe: "פוינטבלנק",    model3d: "/models/air/point-blank-showcase-3d.glb",    image: "/images/air/pointblank-showcase.png",    hasModel: true  },
-  { slug: "microwami",     division: "mtach", subdivision: "giluy", nameEn: "MICROWAMI",     nameHe: "מיקרוואמי",    model3d: "/models/air/microwami-showcase-3d.glb",      image: "/images/air/microwami-showcase.png",     hasModel: true  },
-  { slug: "rotem",         division: "mtach", subdivision: "tilim", nameEn: "ROTEM",         nameHe: "רותם",         model3d: "/models/air/rotem-showcase-3d.glb",          image: "/images/air/rotem-showcase.png",         hasModel: true  },
-  { slug: "apus25",        division: "mtach", subdivision: "tilim", nameEn: "APUS 25",       nameHe: "אפוס 25",      model3d: "/models/air/apus-25-showcase-3d.glb",        image: "/images/air/apus25-showcase.png",        hasModel: true  },
-  { slug: "apus60",        division: "mtach", subdivision: "tilim", nameEn: "APUS 60",       nameHe: "אפוס 60",      model3d: "/models/air/apus-60-showcase-3d.glb",        image: "/images/air/apus60-showcase.png",        hasModel: true  },
-  // 5 unique to airAutoAssets — paths corrected per disk audit
-  { slug: "eitan",         division: "kataz",                      nameEn: "Eitan",         nameHe: "איתן",         model3d: "/models/air/eitan-showcase-3d.glb",          image: "/images/air/Eitan-showcase.PNG",          hasModel: true  },
-  { slug: "heronmk2",      division: "kataz",                      nameEn: "Heron Mk2",     nameHe: "הרון Mk2",     model3d: "/models/air/heron-mk2-showcase-3d.glb",      image: "/images/air/HeronMk2-showcase.PNG",       hasModel: true  },
-  { slug: "kc140",         division: "teufa",                      nameEn: "KC-135",        nameHe: "KC-135",       model3d: "/models/air/kc140-showcase-3d.glb",          image: "/images/air/kc140-showcase.PNG",          hasModel: true  },
-  { slug: "othello",       division: "elta",                       nameEn: "Othello",       nameHe: "אותלו",        model3d: "/models/air/othello-showcase-3d.glb",        image: "/images/air/Othello-showcase.PNG",        hasModel: true  },
-  { slug: "quadcopter2",   division: "elta",                       nameEn: "Quadcopter 2",  nameHe: "קוואדקופטר 2", model3d: "/models/air/quadcopter2-showcase-3d.glb",    image: "/images/air/quadcopter2-showcase.PNG",    hasModel: true  },
-  { slug: "quadcopter3",   division: "elta",                       nameEn: "Quadcopter 3",  nameHe: "קוואדקופטר 3", model3d: "/models/air/quadcopter3-showcase-3d.glb",    image: "/images/air/quadcopter3-showcase.PNG",    hasModel: true  },
+  // ── AIR — כט"צ ─────────────────────────────────────────────────────────────
+  {
+    slug: "heron", division: "kataz", nameEn: "Heron", nameHe: "הרון",
+    model3d: "/models/air/heron-showcase-3d.glb", image: "/images/air/heron-showcase.png", hasModel: true,
+    code: "AR-005",
+    subtitle: { en: "Long-endurance UAV mock-up for premium exhibition presentation.", he: "דגם כטב״ם להרצאת תצוגה פרימיום בתערוכה." },
+    description: { en: "Prepared for premium exhibition display, ISR storytelling, and future presentation planning in the unmanned systems category.", he: "מוכן לתצוגת פרימיום בתערוכה, להצגת יכולות מודיעין, סיור ואיסוף, ולתכנון עתידי בקטגוריית המערכות הבלתי מאוישות." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static UAV display", he: "תצוגת כטב״ם סטטית" }, support: { en: "Integrated support base", he: "בסיס תמיכה משולב" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Unmanned systems showcase", he: "שפת תצוגה של מערכות בלתי מאוישות" } },
+  },
+  {
+    slug: "thunder-vtol", division: "kataz", nameEn: "Thunder VTOL", nameHe: "ת׳אנדר VTOL",
+    model3d: "/models/air/thunderb-showcase-3d.glb", image: "/images/air/Thunderb-showcase.png", hasModel: true,
+    code: "AR-AUTO-005",
+    subtitle: { en: "VTOL UAV mock-up for premium exhibition presentation.", he: "דגם כטב״ם VTOL לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium VTOL UAV exhibition display and operational presentation.", he: "מוכן לתצוגת כטב״ם VTOL פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "VTOL UAV showcase", he: "תצוגת כטב״ם VTOL" } },
+  },
+  {
+    slug: "eitan", division: "kataz", nameEn: "Eitan", nameHe: "איתן",
+    model3d: "/models/air/eitan-showcase-3d.glb", image: "/images/air/Eitan-showcase.PNG", hasModel: true,
+    code: "AR-AUTO-022",
+    subtitle: { en: "UAV for premium exhibition presentation.", he: "כטב״ם לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium UAV exhibition display and operational presentation.", he: "מוכן לתצוגת כטב״ם פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "UAV showcase", he: "תצוגת כטב״ם" } },
+  },
+  {
+    slug: "heronmk2", division: "kataz", nameEn: "Heron Mk2", nameHe: "הרון Mk2",
+    model3d: "/models/air/heron-mk2-showcase-3d.glb", image: "/images/air/HeronMk2-showcase.PNG", hasModel: true,
+    code: "AR-AUTO-023",
+    subtitle: { en: "UAV for premium exhibition presentation.", he: "כטב״ם לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium UAV exhibition display and operational presentation.", he: "מוכן לתצוגת כטב״ם פרימיום ולהצגה מבצעית." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "UAV showcase", he: "תצוגת כטב״ם" } },
+  },
+
+  // ── AIR — תעופה ────────────────────────────────────────────────────────────
+  {
+    slug: "777", division: "teufa", nameEn: "Boeing 777", nameHe: "בואינג 777",
+    model3d: "/models/air/777-showcase-3d.glb", image: "/images/air/777-showcase.png", hasModel: true,
+    code: "TE-001",
+    subtitle: { en: "Wide-body commercial aircraft mock-up for premium exhibition presentation.", he: "דגם מטוס רחב גוף לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium aircraft exhibition display and operational aviation presentation.", he: "מוכן לתצוגת מטוס פרימיום ולהצגה מבצעית בתחום התעופה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Aircraft display", he: "תצוגת מטוס" }, scale: "1:100",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Aviation showcase", he: "תצוגת תעופה" } },
+  },
+  {
+    slug: "b767", division: "teufa", nameEn: "Boeing 767", nameHe: "בואינג 767",
+    model3d: "/models/air/b767-showcase-3d.glb", image: "/images/air/b767-showcase.png", hasModel: true,
+    code: "TE-002",
+    subtitle: { en: "Wide-body commercial aircraft mock-up for premium exhibition presentation.", he: "דגם מטוס רחב גוף לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium aircraft exhibition display and operational aviation presentation.", he: "מוכן לתצוגת מטוס פרימיום ולהצגה מבצעית בתחום התעופה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Aircraft display", he: "תצוגת מטוס" }, scale: "1:100",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Aviation showcase", he: "תצוגת תעופה" } },
+  },
+  {
+    slug: "kc140", division: "teufa", nameEn: "KC-135", nameHe: "KC-135",
+    model3d: "/models/air/kc140-showcase-3d.glb", image: "/images/air/kc140-showcase.PNG", hasModel: true,
+    code: "AR-AUTO-024",
+    subtitle: { en: "Tanker aircraft mock-up for premium exhibition presentation.", he: "דגם מטוס תדלוק לתצוגת פרימיום בתערוכה." },
+    description: { en: "Prepared for premium aircraft exhibition display and operational aviation presentation.", he: "מוכן לתצוגת מטוס פרימיום ולהצגה מבצעית בתחום התעופה." },
+    status: { en: "Approved", he: "מאושר" }, config: { en: "Aircraft display", he: "תצוגת מטוס" }, scale: "1:100",
+    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
+    readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Aviation showcase", he: "תצוגת תעופה" } },
+  },
 
   // ── LAND (4) ───────────────────────────────────────────────────────────────
   { slug: "zmag",      division: "elta",  nameEn: "ZMAG",      nameHe: "ZMAG",      model3d: "/models/land/zmag-showcase-3d.glb",      image: "/images/land/zmag-showcase.png",      hasModel: true },

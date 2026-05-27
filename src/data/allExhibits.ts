@@ -1,6 +1,4 @@
 import { masterExhibits } from "./masterExhibits";
-import { airAssets } from "./airAssets";
-import { autoAirAssets } from "./airAutoAssets";
 import { landAssets } from "./landAssets";
 import { navalAssets } from "./navalAssets";
 
@@ -19,10 +17,6 @@ export type UnifiedExhibit = {
   basePath: string;
 };
 
-function resolveText(value: { en: string; he: string } | string): string {
-  if (typeof value === "string") return value;
-  return value?.en ?? "";
-}
 
 const spaceExhibits: UnifiedExhibit[] = masterExhibits
   .filter((a) => a.division === "mtach" && a.subdivision === "halal")
@@ -39,26 +33,20 @@ const spaceExhibits: UnifiedExhibit[] = masterExhibits
     basePath: "/space",
   }));
 
-const seenAirSlugs = new Set<string>();
-const rawAirAssets = [...(Array.isArray(airAssets) ? airAssets : []), ...(Array.isArray(autoAirAssets) ? autoAirAssets : [])];
-const dedupedAirAssets = rawAirAssets.filter((a) => {
-  if (seenAirSlugs.has(a.slug)) return false;
-  seenAirSlugs.add(a.slug);
-  return true;
-});
-
-const airExhibits: UnifiedExhibit[] = dedupedAirAssets.map((a: any) => ({
-  slug: a.slug,
-  section: "air",
-  name: resolveText(a.title),
-  subtitle: resolveText(a.subtitle),
-  image: a.image ?? "",
-  model3d: a.model3d,
-  status: resolveText(a.status),
-  scale: a.scale ?? "",
-  code: a.code,
-  basePath: "/air",
-}));
+const airExhibits: UnifiedExhibit[] = masterExhibits
+  .filter((a) => a.division !== "inventory" && a.subdivision !== "halal")
+  .map((a) => ({
+    slug: a.slug,
+    section: "air" as const,
+    name: a.nameEn,
+    subtitle: a.subtitle?.en ?? "",
+    image: a.image ?? "",
+    model3d: a.model3d || undefined,
+    status: a.status?.en ?? "Approved",
+    scale: a.scale ?? "",
+    code: a.code,
+    basePath: "/air",
+  }));
 
 const landExhibits: UnifiedExhibit[] = landAssets.map((a) => ({
   slug: a.slug,
