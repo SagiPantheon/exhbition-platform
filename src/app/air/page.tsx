@@ -1,40 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import AirAssetCard from "../../components/cards/AirAssetCard";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 import { masterExhibits, toAirAsset, type AirAsset } from "../../data/masterExhibits";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
 
-type DivisionTab = "mtach" | "elta" | "kataz" | "teufa";
-
-const TABS: { id: DivisionTab; label: string }[] = [
-  { id: "mtach", label: 'מט"ח' },
-  { id: "elta",  label: "אלתא" },
-  { id: "kataz", label: 'כט"צ' },
-  { id: "teufa", label: "תעופה" },
-];
-
 const baseAssets = masterExhibits
-  .filter((e) => e.division !== "inventory")
+  .filter((e) => e.division === "teufa")
   .map(toAirAsset);
 
-const slugToDivision = new Map(
-  masterExhibits
-    .filter((e) => e.division !== "inventory")
-    .map((e) => [e.slug, e.division])
-);
-
 export default function AirPage() {
-  const [activeTab, setActiveTab] = useState<DivisionTab>("mtach");
-
   const { assets: liveAssets, saveAsset, removeAsset } = useSectionAssets("air", baseAssets);
-
-  const tabAssets = useMemo(
-    () => liveAssets.filter((a) => slugToDivision.get(a.slug) === activeTab),
-    [liveAssets, activeTab]
-  );
 
   function handleEdit(asset: AirAsset) {
     const titleEn = window.prompt("Title EN", asset.title.en);
@@ -82,14 +59,14 @@ export default function AirPage() {
       description: { en: "", he: "" },
       status: { en: "Approved", he: "מאושר" },
       config: { en: "Display", he: "תצוגה" },
-      scale: "1:1",
+      scale: "1:100",
       specs: { height: "TBD", width: "TBD", length: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
       readiness: {
         environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" },
         displayMethod: { en: "Static display", he: "תצוגה סטטית" },
         support: { en: "Self-standing", he: "עצמאי" },
         presentationLevel: { en: "Standard", he: "סטנדרטי" },
-        visualLanguage: { en: "Showcase", he: "תצוגה" },
+        visualLanguage: { en: "Aviation showcase", he: "תצוגת תעופה" },
       },
     });
   }
@@ -104,10 +81,10 @@ export default function AirPage() {
                 Exhibition Platform
               </p>
               <h1 className="mt-2 text-4xl font-extrabold md:text-5xl">
-                Air Assets
+                חטיבת תעופה
               </h1>
               <p className="mt-4 text-sm leading-7 text-slate-300 md:text-base">
-                Browse the full catalog of air defense, strike, UAV, radar, and aviation assets — organized by division.
+                Browse all TEUFA division aviation assets — commercial and military aircraft platforms.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link href="/" className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
@@ -116,14 +93,11 @@ export default function AirPage() {
                 <Link href="/space" className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/20">
                   Go to Space
                 </Link>
-                <Link href="/he/air" className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/20">
-                  עברית
-                </Link>
               </div>
             </div>
             <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
-              <QuickPill label="Category" value="Air" />
-              <QuickPill label="Items" value={`${tabAssets.length} Assets`} />
+              <QuickPill label="Division" value="TEUFA" />
+              <QuickPill label="Items" value={`${liveAssets.length} Assets`} />
               <QuickPill label="Experience" value="Friendly Catalog" />
               <QuickPill label="Status" value="Ready" />
             </div>
@@ -131,20 +105,6 @@ export default function AirPage() {
         </section>
 
         <section className="flex flex-wrap items-center gap-3">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`rounded-xl border px-6 py-3 text-sm font-bold transition ${
-                activeTab === tab.id
-                  ? "border-cyan-400/50 bg-cyan-400/15 text-cyan-100"
-                  : "border-white/15 bg-white/5 text-slate-300 hover:bg-white/10"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
           <button
             type="button"
             onClick={handleAddNew}
@@ -154,14 +114,14 @@ export default function AirPage() {
           </button>
         </section>
 
-        {tabAssets.length === 0 ? (
+        {liveAssets.length === 0 ? (
           <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-8 text-center">
-            <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">No assets in this division</p>
-            <h2 className="mt-3 text-2xl font-bold text-white">Switch tabs or add a new exhibit</h2>
+            <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">No assets</p>
+            <h2 className="mt-3 text-2xl font-bold text-white">Add a new exhibit</h2>
           </section>
         ) : (
           <section className="grid gap-8 sm:grid-cols-2 2xl:grid-cols-3">
-            {tabAssets.map((asset: AirAsset) => (
+            {liveAssets.map((asset: AirAsset) => (
               <div
                 key={asset.slug}
                 className="rounded-[28px] border border-white/8 bg-white/[0.02] p-3 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
@@ -176,7 +136,7 @@ export default function AirPage() {
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300/30 bg-gradient-to-r from-amber-300/12 via-yellow-200/8 to-amber-300/12 px-3 py-3 shadow-[0_0_28px_rgba(251,191,36,0.12)]">
                   <div className="inline-flex items-center rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.22em] text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.16)]">
-                    LIVE AIR EDIT
+                    LIVE TEUFA EDIT
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <button

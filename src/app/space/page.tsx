@@ -8,14 +8,15 @@ import ClassificationBadge from "../../components/common/ClassificationBadge";
 import SpaceAssetCard from "../../components/cards/SpaceAssetCard";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
 
-type SubdivisionTab = "all" | "halal" | "tilim" | "giluy" | "malam";
+type SubdivisionTab = "all" | "halal" | "hagana" | "tilim" | "tamam" | "malam";
 
 const TABS: { id: SubdivisionTab; label: string }[] = [
-  { id: "all",   label: "הכל" },
-  { id: "halal", label: "חלל" },
-  { id: "tilim", label: "תילים" },
-  { id: "giluy", label: "גילוי" },
-  { id: "malam", label: 'מל"מ' },
+  { id: "all",    label: "הכל" },
+  { id: "halal",  label: "חלל" },
+  { id: "hagana", label: "הגנה" },
+  { id: "tilim",  label: "טילים" },
+  { id: "tamam",  label: 'תמ"מ' },
+  { id: "malam",  label: 'מל"מ' },
 ];
 
 const baseSpaceAssets = masterExhibits
