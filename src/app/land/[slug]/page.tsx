@@ -1,70 +1,37 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ModelViewer from "../../../components/viewer/ModelViewer";
+import { masterExhibits } from "../../../data/masterExhibits";
 
-const landAssets = [
-  {
-    id: "land-001",
-    slug: "zmag",
-    name: "ZMAG",
-    category: "Light tactical vehicle",
-    subtitle:
-      "Compact tactical ground vehicle for premium land exhibition presentation.",
-    image: "/images/land/zmag-showcase.png",
-    model3d: "/models/land/zmag-showcase-3d.glb",
-    status: "Approved",
-    displayType: "Vehicle display",
-    scale: "1:1",
-    readiness: "Indoor / Outdoor",
-    support: "Self-standing",
-    presentationLevel: "Premium",
-  },
-  {
-    id: "land-002",
-    slug: "3dcapture",
-    name: "3DCAPTURE",
-    category: "Mobile capture platform",
-    subtitle:
-      "Mobile land asset showcase platform with connected 3D presentation support.",
-    image: "/images/land/3dcapture-showcase.png",
-    model3d: "/models/land/3dcapture-showcase-3d.glb",
-    status: "Approved",
-    displayType: "Platform display",
-    scale: "1:1",
-    readiness: "Indoor",
-    support: "Self-standing",
-    presentationLevel: "Premium",
-  },
-
-  {
-    id: "land-003",
-    slug: "panda",
-    name: "PANDA",
-    category: "Armored engineering bulldozer",
-    subtitle:
-      "Heavy armored tracked engineering bulldozer for premium land exhibition presentation.",
-    image: "/images/land/panda-showcase.png",
-    model3d: "/models/land/panda-showcase-3d.glb",
-    status: "Approved",
-    displayType: "Bulldozer display",
-    scale: "1:1",
-    readiness: "Indoor / Outdoor",
-    support: "Self-standing",
-    presentationLevel: "Premium",
-  },
-];
+const katazAssets = masterExhibits
+  .filter((e) => e.division === "kataz")
+  .map((e, i) => ({
+    id: `kataz-${String(i + 1).padStart(3, "0")}`,
+    slug: e.slug,
+    name: e.nameEn,
+    category: "KATAZ asset",
+    subtitle: e.subtitle?.en ?? `${e.nameEn} — KATAZ exhibition asset.`,
+    image: e.image,
+    model3d: e.model3d,
+    status: e.status?.en ?? "Approved",
+    displayType: e.config?.en ?? "UAV display",
+    scale: e.scale ?? "1:1",
+    readiness: e.readiness?.environment?.en ?? "Indoor / Outdoor",
+    support: e.readiness?.support?.en ?? "Self-standing",
+    presentationLevel: e.readiness?.presentationLevel?.en ?? "Premium",
+  }));
 
 export function generateStaticParams() {
-  return landAssets.map((asset) => ({ slug: asset.slug }));
+  return katazAssets.map((asset) => ({ slug: asset.slug }));
 }
 
-export default async function LandAssetPage({
+export default async function KatazAssetPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const asset = landAssets.find((item) => item.slug === slug);
+  const asset = katazAssets.find((item) => item.slug === slug);
 
   if (!asset) notFound();
 
@@ -88,43 +55,10 @@ export default async function LandAssetPage({
             marginBottom: "24px",
           }}
         >
-          <Link
-            href="/land"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "44px",
-              padding: "0 16px",
-              borderRadius: "14px",
-              border: "1px solid rgba(125,211,252,0.35)",
-              background: "rgba(14, 22, 38, 0.72)",
-              color: "white",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 600,
-            }}
-          >
-            ← Back to Land
+          <Link href="/land" style={navButtonStyle}>
+            ← Back to KATAZ
           </Link>
-
-          <Link
-            href="/"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "44px",
-              padding: "0 16px",
-              borderRadius: "14px",
-              border: "1px solid rgba(125,211,252,0.35)",
-              background: "rgba(14, 22, 38, 0.72)",
-              color: "white",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 600,
-            }}
-          >
+          <Link href="/" style={navButtonStyle}>
             Back to Main
           </Link>
         </div>
@@ -162,63 +96,11 @@ export default async function LandAssetPage({
                   marginBottom: "14px",
                 }}
               >
-                <span
-                  style={{
-                    padding: "7px 12px",
-                    borderRadius: "999px",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    color: "#dcfce7",
-                    background: "rgba(34,197,94,0.16)",
-                    border: "1px solid rgba(34,197,94,0.42)",
-                  }}
-                >
-                  {asset.status}
-                </span>
-
-                <span
-                  style={{
-                    padding: "7px 12px",
-                    borderRadius: "999px",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    color: "#c4f1ff",
-                    background: "rgba(14,165,233,0.14)",
-                    border: "1px solid rgba(56,189,248,0.35)",
-                  }}
-                >
-                  {asset.displayType}
-                </span>
-
-                <span
-                  style={{
-                    padding: "7px 12px",
-                    borderRadius: "999px",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    color: "white",
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                  }}
-                >
-                  {asset.scale}
-                </span>
-
-                <span
-                  style={{
-                    padding: "7px 12px",
-                    borderRadius: "999px",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    color: "#c4f1ff",
-                    background: "rgba(14,165,233,0.14)",
-                    border: "1px solid rgba(56,189,248,0.35)",
-                  }}
-                >
-                  3D connected
-                </span>
+                <span style={badgeGreen}>{asset.status}</span>
+                <span style={badgeBlue}>{asset.displayType}</span>
+                <span style={badgeGray}>{asset.scale}</span>
+                <span style={badgeBlue}>3D connected</span>
               </div>
-
               <ModelViewer
                 src={asset.model3d}
                 alt={`${asset.name} 3D model`}
@@ -246,39 +128,15 @@ export default async function LandAssetPage({
               >
                 Featured Asset
               </div>
-
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: "40px",
-                  lineHeight: 1.08,
-                  fontWeight: 700,
-                }}
-              >
+              <h1 style={{ margin: 0, fontSize: "40px", lineHeight: 1.08, fontWeight: 700 }}>
                 {asset.name}
               </h1>
-
-              <div
-                style={{
-                  marginTop: "10px",
-                  fontSize: "15px",
-                  color: "rgba(255,255,255,0.7)",
-                }}
-              >
+              <div style={{ marginTop: "10px", fontSize: "15px", color: "rgba(255,255,255,0.7)" }}>
                 {asset.id} · {asset.category}
               </div>
-
-              <p
-                style={{
-                  marginTop: "18px",
-                  color: "rgba(255,255,255,0.78)",
-                  fontSize: "16px",
-                  lineHeight: 1.7,
-                }}
-              >
+              <p style={{ marginTop: "18px", color: "rgba(255,255,255,0.78)", fontSize: "16px", lineHeight: 1.7 }}>
                 {asset.subtitle}
               </p>
-
               <div style={{ display: "grid", gap: "12px", marginTop: "22px" }}>
                 {[
                   ["Operational Readiness", asset.readiness],
@@ -295,24 +153,10 @@ export default async function LandAssetPage({
                       border: "1px solid rgba(255,255,255,0.10)",
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        letterSpacing: "0.12em",
-                        textTransform: "uppercase",
-                        color: "#93c5fd",
-                        marginBottom: "6px",
-                      }}
-                    >
+                    <div style={{ fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#93c5fd", marginBottom: "6px" }}>
                       {label}
                     </div>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        color: "white",
-                        wordBreak: "break-word",
-                      }}
-                    >
+                    <div style={{ fontSize: "14px", color: "white", wordBreak: "break-word" }}>
                       {value}
                     </div>
                   </div>
@@ -338,3 +182,33 @@ export default async function LandAssetPage({
     </main>
   );
 }
+
+const navButtonStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "44px",
+  padding: "0 16px",
+  borderRadius: "14px",
+  border: "1px solid rgba(125,211,252,0.35)",
+  background: "rgba(14, 22, 38, 0.72)",
+  color: "white",
+  textDecoration: "none",
+  fontSize: "14px",
+  fontWeight: 600,
+} as const;
+
+const badgeGreen = {
+  padding: "7px 12px", borderRadius: "999px", fontSize: "12px", fontWeight: 700,
+  color: "#dcfce7", background: "rgba(34,197,94,0.16)", border: "1px solid rgba(34,197,94,0.42)",
+} as const;
+
+const badgeBlue = {
+  padding: "7px 12px", borderRadius: "999px", fontSize: "12px", fontWeight: 700,
+  color: "#c4f1ff", background: "rgba(14,165,233,0.14)", border: "1px solid rgba(56,189,248,0.35)",
+} as const;
+
+const badgeGray = {
+  padding: "7px 12px", borderRadius: "999px", fontSize: "12px", fontWeight: 700,
+  color: "white", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
+} as const;

@@ -174,8 +174,9 @@ export default function SpacePage() {
             {tabAssets.map((asset: SpaceAsset) => (
               <div
                 key={asset.slug}
-                className="rounded-[28px] border border-white/8 bg-white/[0.02] p-3 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
+                className="flex flex-col rounded-[28px] border border-white/8 bg-white/[0.02] p-3 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
               >
+                <div className="flex-1">
                 <SpaceAssetCard
                   asset={asset}
                   openLabel={uiText.actions.openAssetPage.en}
@@ -185,6 +186,7 @@ export default function SpacePage() {
                   basePath="/space"
                   badgesAlign="end"
                 />
+                </div>
                 <div
                   data-space-edit-bar
                   className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300/30 bg-gradient-to-r from-amber-300/12 via-yellow-200/8 to-amber-300/12 px-3 py-3 shadow-[0_0_28px_rgba(251,191,36,0.12)]"

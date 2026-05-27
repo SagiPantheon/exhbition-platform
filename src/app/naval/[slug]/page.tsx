@@ -1,37 +1,37 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ModelViewer from "../../../components/viewer/ModelViewer";
+import { masterExhibits } from "../../../data/masterExhibits";
 
-const waterAssets = [
-  {
-    id: "water-001",
-    slug: "katana",
-    name: "KATANA",
-    category: "Unmanned defense patrol boat",
-    subtitle:
-      "High-speed unmanned naval platform for premium exhibition presentation.",
-    image: "/images/naval/katana.png",
-    model3d: "/models/naval/katana-showcase.glb",
-    status: "Approved",
-    displayType: "Naval display",
-    scale: "1:1",
-    readiness: "Indoor / Outdoor",
-    support: "Self-standing",
-    presentationLevel: "Premium",
-  },
-];
+const eltaAssets = masterExhibits
+  .filter((e) => e.division === "elta")
+  .map((e, i) => ({
+    id: `elta-${String(i + 1).padStart(3, "0")}`,
+    slug: e.slug,
+    name: e.nameEn,
+    category: "ELTA asset",
+    subtitle: e.subtitle?.en ?? `${e.nameEn} — ELTA exhibition asset.`,
+    image: e.image,
+    model3d: e.model3d,
+    status: e.status?.en ?? "Approved",
+    displayType: e.config?.en ?? "ELTA display",
+    scale: e.scale ?? "1:1",
+    readiness: e.readiness?.environment?.en ?? "Indoor / Outdoor",
+    support: e.readiness?.support?.en ?? "Self-standing",
+    presentationLevel: e.readiness?.presentationLevel?.en ?? "Premium",
+  }));
 
 export function generateStaticParams() {
-  return waterAssets.map((asset) => ({ slug: asset.slug }));
+  return eltaAssets.map((asset) => ({ slug: asset.slug }));
 }
 
-export default async function WaterAssetPage({
+export default async function EltaAssetPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const asset = waterAssets.find((item) => item.slug === slug);
+  const asset = eltaAssets.find((item) => item.slug === slug);
 
   if (!asset) notFound();
 
@@ -56,7 +56,7 @@ export default async function WaterAssetPage({
           }}
         >
           <Link href="/naval" style={navButtonStyle}>
-            ← Back to Naval
+            ← Back to ELTA
           </Link>
           <Link href="/" style={navButtonStyle}>
             Back to Main
@@ -81,9 +81,8 @@ export default async function WaterAssetPage({
               marginBottom: "10px",
             }}
           >
-            Naval Asset Detail
+            ELTA Asset Detail
           </div>
-
           <h1
             style={{
               margin: 0,
@@ -95,7 +94,6 @@ export default async function WaterAssetPage({
           >
             {asset.name}
           </h1>
-
           <p
             style={{
               marginTop: "14px",

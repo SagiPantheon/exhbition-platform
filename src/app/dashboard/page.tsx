@@ -23,7 +23,7 @@ const NAV_ITEMS = [
 const DIVISION_HREF: Record<string, string> = {
   "missiles-space-defense": "/space",
   "aviation":               "/air",
-  "elta":                   "/air",
+  "elta":                   "/naval",
   "uav":                    "/land",
 }
 

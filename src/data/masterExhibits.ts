@@ -95,7 +95,7 @@ export function toSpaceAsset(e: MasterExhibit): SpaceAsset {
 
 export function getSpaceAssetBySlug(slug: string): SpaceAsset | undefined {
   const e = masterExhibits.find(
-    (x) => x.slug === slug && x.division === "mtach" && x.subdivision === "halal"
+    (x) => x.slug === slug && x.division === "mtach"
   );
   return e ? toSpaceAsset(e) : undefined;
 }
@@ -292,7 +292,7 @@ export const masterExhibits: MasterExhibit[] = [
     readiness: { environment: { en: "Indoor / Outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static display", he: "תצוגה סטטית" }, support: { en: "Self-standing", he: "עצמאי" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Air-defense missile showcase", he: "תצוגת טיל הגנ״א" } },
   },
   {
-    slug: "harop", division: "mtach", subdivision: "hagana", nameEn: "HAROP", nameHe: "הרופ",
+    slug: "harop", division: "kataz", subdivision: "", nameEn: "HAROP", nameHe: "הרופ",
     model3d: "/models/air/harop-showcase-3d.glb", image: "/images/air/harop-showcase.png", hasModel: true,
     code: "AR-AUTO-006",
     subtitle: { en: "Loitering munition for premium exhibition presentation.", he: "תחמושת מתהוגגת לתצוגת פרימיום בתערוכה." },
@@ -559,7 +559,7 @@ export const masterExhibits: MasterExhibit[] = [
   },
   {
     slug: "kc140", division: "teufa", nameEn: "KC-135", nameHe: "KC-135",
-    model3d: "/models/air/kc140-showcase-3d.glb", image: "/images/air/kc140-showcase.PNG", hasModel: true,
+    model3d: "/models/air/kc140-showcase-3d.glb", image: "/images/air/kc135-showcase.PNG", hasModel: true,
     code: "AR-AUTO-024",
     subtitle: { en: "Tanker aircraft mock-up for premium exhibition presentation.", he: "דגם מטוס תדלוק לתצוגת פרימיום בתערוכה." },
     description: { en: "Prepared for premium aircraft exhibition display and operational aviation presentation.", he: "מוכן לתצוגת מטוס פרימיום ולהצגה מבצעית בתחום התעופה." },
@@ -570,13 +570,17 @@ export const masterExhibits: MasterExhibit[] = [
 
   // ── LAND (4) ───────────────────────────────────────────────────────────────
   { slug: "zmag",      division: "elta",  subdivision: "robotika", nameEn: "ZMAG",      nameHe: "ZMAG",      model3d: "/models/land/zmag-showcase-3d.glb",      image: "/images/land/zmag-showcase.png",      hasModel: true },
-  { slug: "3dcapture", division: "mtach", subdivision: "tilim", nameEn: "3DCAPTURE", nameHe: "3DCAPTURE", model3d: "/models/land/3dcapture-showcase-3d.glb", image: "/images/land/3dcapture-showcase.png", hasModel: true },
+  { slug: "3dcapture", division: "mtach", subdivision: "tilim", nameEn: "3DCAPTURE", nameHe: "3DCAPTURE", model3d: "/models/land/3dcapture-showcase-3d.glb", image: "/images/land/3dcapture-showcase.png", hasModel: true,
+    subtitle: { en: "Armored tactical vehicle display model", he: "דגם תצוגה של רכב טקטי משוריין" },
+    description: { en: "Indoor exhibition mock-up of the 3D Capture armored tactical vehicle, prepared for multi-platform systems display and operational showcase.", he: "דגם תצוגה פנימי של רכב טקטי 3D Capture משוריין, מוכן להצגת מערכות רב-פלטפורמה." } },
   { slug: "panda",     division: "elta",  subdivision: "robotika", nameEn: "PANDA",     nameHe: "PANDA",     model3d: "/models/land/panda-showcase-3d.glb",     image: "/images/land/panda-showcase.png",     hasModel: true },
   { slug: "robattle",  division: "elta",  subdivision: "robotika", nameEn: "RoBattle",  nameHe: "רובטל",     model3d: "/models/land/robattle-showcase-3d.glb",  image: "/images/land/robattle-showcase.png",  hasModel: true },
   { slug: "trailer",   division: "elta",  subdivision: "soi",      nameEn: "Trailer",   nameHe: "נגרר",      model3d: "/models/land/trailer-showcase-3d.glb",   image: "",                                    hasModel: true },
 
   // ── NAVAL (1) ──────────────────────────────────────────────────────────────
-  { slug: "katana",    division: "mtach", subdivision: "malam",    nameEn: "Katana",    nameHe: "קתנה",  model3d: "/models/naval/katana-showcase.glb",      image: "/images/naval/katana.png",       hasModel: true },
+  { slug: "katana",    division: "mtach", subdivision: "malam",    nameEn: "Katana",    nameHe: "קתנה",  model3d: "/models/naval/katana-showcase.glb",      image: "/images/naval/katana.png",       hasModel: true,
+    subtitle: { en: "Naval unmanned surface vessel display model", he: "דגם תצוגה של כלי שיט אוטונומי" },
+    description: { en: "Prepared for premium naval exhibition display and operational maritime presentation.", he: "מוכן לתצוגת תערוכה ימית פרמיום והצגה מבצעית." } },
   { slug: "submarine", division: "elta",  subdivision: "robotika", nameEn: "Submarine", nameHe: "צוללת", model3d: "/models/naval/submarine-showcase-3d.glb", image: "/images/naval/submarine.PNG",    hasModel: true },
 
   // ── INVENTORY (25) ────────────────────────────────────────────────────────

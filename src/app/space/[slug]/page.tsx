@@ -6,7 +6,7 @@ import { masterExhibits, toSpaceAsset, type SpaceAsset } from "../../../data/mas
 import { useSectionAssets } from "../../../hooks/useSectionAssets";
 
 const spaceAssets = masterExhibits
-  .filter((e) => e.division === "mtach" && e.subdivision === "halal")
+  .filter((e) => e.division === "mtach")
   .map(toSpaceAsset);
 
 export default function SpaceAssetPage() {

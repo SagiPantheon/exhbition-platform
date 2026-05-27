@@ -90,9 +90,6 @@ export default function AirPage() {
                 <Link href="/" className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
                   ← Back to Main
                 </Link>
-                <Link href="/space" className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/20">
-                  Go to Space
-                </Link>
               </div>
             </div>
             <div className="grid min-w-[280px] gap-3 sm:grid-cols-2">
