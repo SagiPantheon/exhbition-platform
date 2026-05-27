@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { abroadFlagCards } from "../../../data/abroadFlags";
+import DivisionSidebar from "../../../components/DivisionSidebar";
 
 const WorldMap = dynamic(() => import("../../../components/WorldMap"), {
   ssr: false,
@@ -87,14 +88,9 @@ export default function AbroadExhibitionsPage() {
   const [activeIso, setActiveIso] = useState<string | null>(null);
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, rgba(14,165,233,0.16), rgba(2,6,23,1) 40%), linear-gradient(180deg, #08111f 0%, #030712 100%)",
-        color: "#e5eefb",
-      }}
-    >
+    <div className="flex min-h-screen" style={{ background: "radial-gradient(circle at top, rgba(14,165,233,0.16), rgba(2,6,23,1) 40%), linear-gradient(180deg, #08111f 0%, #030712 100%)", color: "#e5eefb" }}>
+      <DivisionSidebar activeHref="/exhibitions/abroad" />
+      <main className="flex-1 overflow-auto">
       <div
         style={{
           maxWidth: "1320px",
@@ -348,6 +344,7 @@ export default function AbroadExhibitionsPage() {
           </div>
         </section>
       </div>
-    </main>
+      </main>
+    </div>
   );
 }

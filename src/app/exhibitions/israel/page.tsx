@@ -6,6 +6,7 @@ const inventoryItems = masterExhibits
   .map((e) => ({ id: e.slug, name: { he: e.nameHe, en: e.nameEn }, image: e.image }))
 
 import Link from 'next/link'
+import DivisionSidebar from '../../../components/DivisionSidebar'
 import { useEffect, useMemo, useState } from 'react'
 import { initialIsraelExhibitions } from '../../../data/israelExhibitions'
 
@@ -453,7 +454,9 @@ function removeAssetRef(id: string) {
   }
 
   return (
-    <main className="min-h-screen bg-[#070b17] text-white" dir="rtl">
+    <div className="flex min-h-screen bg-[#070b17] text-white">
+      <DivisionSidebar activeHref="/exhibitions/israel" />
+      <main className="flex-1 overflow-auto" dir="rtl">
       <div className="mx-auto max-w-[1680px] px-6 py-8">
 
         {/* Header */}
@@ -818,7 +821,8 @@ function removeAssetRef(id: string) {
           </section>
         </div>
       </div>
-    </main>
+      </main>
+    </div>
   )
 }
 

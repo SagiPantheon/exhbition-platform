@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { masterExhibits } from "../../data/masterExhibits";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
+import DivisionSidebar from "../../components/DivisionSidebar";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
 
 type SubdivisionTab = "all" | "mkam" | "soi" | "robotika" | "tikshoret";
@@ -75,7 +76,9 @@ export default function NavalPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#070b17] px-4 py-8 text-white md:px-8">
+    <div className="flex min-h-screen bg-[#070b17] text-white">
+      <DivisionSidebar activeHref="/naval" />
+      <main className="flex-1 overflow-auto px-4 py-8 md:px-8">
       <div className="mx-auto flex max-w-[1850px] flex-col gap-8">
 
         <section className="rounded-[34px] border border-cyan-300/20 bg-[radial-gradient(circle_at_top,rgba(32,80,170,0.28),rgba(11,18,39,1)_55%)] p-8 shadow-[0_0_50px_rgba(24,119,242,0.12)] md:p-10">
@@ -219,7 +222,8 @@ export default function NavalPage() {
 
       </div>
       <ClassificationBadge label="Unclassified" />
-    </main>
+      </main>
+    </div>
   );
 }
 

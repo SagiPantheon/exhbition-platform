@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import DivisionSidebar from "../../components/DivisionSidebar";
 import { useEffect, useMemo, useState } from "react";
 import InventoryAddPanel from "../../components/inventory/InventoryAddPanel";
 import { masterExhibits } from "../../data/masterExhibits";
@@ -217,7 +218,9 @@ export default function InventoryPage() {
   if (!isHydrated) return null;
 
   return (
-    <main dir="rtl" style={{ minHeight: "100vh", background: "radial-gradient(circle at 20% 10%, rgba(37,99,235,0.12), transparent 40%), #07111f", color: "#fff", fontFamily: "Heebo, Assistant, sans-serif", padding: "28px 24px 80px" }}>
+    <div className="flex min-h-screen bg-[#07111f] text-white">
+      <DivisionSidebar activeHref="/inventory" />
+      <main className="flex-1 overflow-auto" dir="rtl" style={{ background: "radial-gradient(circle at 20% 10%, rgba(37,99,235,0.12), transparent 40%), #07111f", color: "#fff", fontFamily: "Heebo, Assistant, sans-serif", padding: "28px 24px 80px" }}>
 
       {/* Top nav */}
       <div style={{ maxWidth: 1440, margin: "0 auto 24px", display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -382,7 +385,8 @@ export default function InventoryPage() {
         initialItem={editingItem}
         mode={panelMode}
       />
-    </main>
+      </main>
+    </div>
   );
 }
 

@@ -1,8 +1,11 @@
 import Link from "next/link";
+import DivisionSidebar from "../../components/DivisionSidebar";
 
 export default function ExhibitionsPage() {
   return (
-    <main className="min-h-screen bg-[#06111f] text-white">
+    <div className="flex min-h-screen bg-[#06111f] text-white">
+      <DivisionSidebar activeHref="/exhibitions" />
+      <main className="flex-1 overflow-auto">
       <div className="mx-auto flex min-h-screen w-full max-w-[1700px] flex-col gap-4 px-4 py-4">
         <div className="flex items-center justify-start">
           <Link
@@ -89,6 +92,7 @@ export default function ExhibitionsPage() {
           Unclassified
         </div>
       </div>
-    </main>
+      </main>
+    </div>
   );
 }
