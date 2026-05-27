@@ -92,7 +92,7 @@ export default function AirAssetDetailClient({
                   href="/air"
                   className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  ← Back to Air
+                  ← Back to תעופה
                 </Link>
                 <Link
                   href="/"

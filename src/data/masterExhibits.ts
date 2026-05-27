@@ -559,7 +559,7 @@ export const masterExhibits: MasterExhibit[] = [
   },
   {
     slug: "kc140", division: "teufa", nameEn: "KC-135", nameHe: "KC-135",
-    model3d: "/models/air/kc140-showcase-3d.glb", image: "/images/air/kc135-showcase.PNG", hasModel: true,
+    model3d: "/models/air/kc140-showcase-3d.glb", image: "/images/air/kc-135-showcase.PNG", hasModel: true,
     code: "AR-AUTO-024",
     subtitle: { en: "Tanker aircraft mock-up for premium exhibition presentation.", he: "דגם מטוס תדלוק לתצוגת פרימיום בתערוכה." },
     description: { en: "Prepared for premium aircraft exhibition display and operational aviation presentation.", he: "מוכן לתצוגת מטוס פרימיום ולהצגה מבצעית בתחום התעופה." },
