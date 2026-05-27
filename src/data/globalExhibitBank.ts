@@ -62,8 +62,13 @@ export const exhibitDivisions: ExhibitDivision[] = [
   },
 ]
 
+import { masterExhibits } from "./masterExhibits"
+
+const _exhibits = masterExhibits.filter((e) => e.division !== "inventory")
+const _withModel = _exhibits.filter((e) => e.hasModel).length
+
 export const exhibitBankSummary = {
   totalDivisions: 4,
-  totalExhibits: 81,
-  averageReadiness: 83,
+  totalExhibits: _exhibits.length,
+  averageReadiness: _exhibits.length > 0 ? Math.round((_withModel / _exhibits.length) * 100) : 0,
 }

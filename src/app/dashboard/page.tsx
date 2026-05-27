@@ -107,11 +107,9 @@ const carouselItems = buildCarouselItems()
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const spaceAssetCount = masterExhibits.filter(
-    (e) => e.division === "mtach" && e.subdivision === "halal"
-  ).length
-  const airAssetCount = masterExhibits.filter((e) => e.division !== "inventory").length
-  const totalAssets = airAssetCount + spaceAssetCount + landAssets.length
+  const spaceAssetCount = masterExhibits.filter((e) => e.division === "mtach").length
+  const airAssetCount = masterExhibits.filter((e) => e.division === "teufa").length
+  const totalAssets = masterExhibits.filter((e) => e.division !== "inventory").length
   const [hoveredDivId, setHoveredDivId] = useState<string | null>(null)
 
   return (
