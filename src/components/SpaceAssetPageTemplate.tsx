@@ -62,12 +62,6 @@ export default function SpaceAssetPageTemplate({ asset, locale }: Props) {
           >
             {t.exhibitions}
           </Link>
-          <div className="ml-auto">
-            <QRCodePanel
-              nameEn={asset.title.en}
-              nameHe={asset.title.he}
-            />
-          </div>
         </div>
 
         <section className="grid gap-4 xl:grid-cols-[0.95fr_0.95fr_1.2fr]">
@@ -98,6 +92,13 @@ export default function SpaceAssetPageTemplate({ asset, locale }: Props) {
               >
                 {t.viewExhibitions}
               </Link>
+            </div>
+
+            <div className="mt-4">
+              <QRCodePanel
+                nameEn={asset.title.en}
+                nameHe={asset.title.he}
+              />
             </div>
           </div>
 
