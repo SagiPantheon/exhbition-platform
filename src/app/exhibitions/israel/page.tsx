@@ -58,10 +58,10 @@ type IsraelExhibition = {
   planningItemsCount: number
 }
 
-const STORAGE_KEY = 'israel-exhibitions-board-v5-v2'
-const SELECTED_ID_KEY = 'israel-exhibitions-board-selected-id-v1'
-const DRAFT_KEY = 'israel-exhibitions-board-draft-v1'
-const IS_EDITING_KEY = 'israel-exhibitions-board-is-editing-v1'
+const STORAGE_KEY = 'israel-exhibitions-board-v7'
+const SELECTED_ID_KEY = 'israel-exhibitions-board-selected-id-v7'
+const DRAFT_KEY = 'israel-exhibitions-board-draft-v7'
+const IS_EDITING_KEY = 'israel-exhibitions-board-is-editing-v7'
 
 const assetCatalog: CatalogAsset[] = [
   // Space
