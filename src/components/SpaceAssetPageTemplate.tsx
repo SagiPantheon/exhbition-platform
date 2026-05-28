@@ -65,7 +65,7 @@ export default function SpaceAssetPageTemplate({ asset, locale }: Props) {
         </div>
 
         <section className="grid gap-4 xl:grid-cols-[0.95fr_0.95fr_1.2fr]">
-          <div className="rounded-[30px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.12)]">
+          <div className="flex flex-col rounded-[30px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.12)]">
             <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-300">
               {t.featuredAsset}
             </p>
@@ -94,7 +94,8 @@ export default function SpaceAssetPageTemplate({ asset, locale }: Props) {
               </Link>
             </div>
 
-            <div className="mt-4">
+            {/* QR — bottom-left corner, symmetrical padding */}
+            <div className="mt-auto pt-6">
               <QRCodePanel
                 nameEn={asset.title.en}
                 nameHe={asset.title.he}

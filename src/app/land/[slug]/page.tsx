@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ModelViewer from "../../../components/viewer/ModelViewer";
 import { masterExhibits } from "../../../data/masterExhibits";
+import QRCodePanel from "../../../components/QRCodePanel";
 
 const katazAssets = masterExhibits
   .filter((e) => e.division === "kataz")
@@ -161,6 +162,10 @@ export default async function KatazAssetPage({
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div style={{ marginTop: "24px" }}>
+                <QRCodePanel nameEn={asset.name} nameHe={asset.name} path={`/land/${asset.slug}`} />
               </div>
             </div>
           </div>

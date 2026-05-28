@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ModelViewer from "../../../components/viewer/ModelViewer";
 import { masterExhibits } from "../../../data/masterExhibits";
+import QRCodePanel from "../../../components/QRCodePanel";
 
 const eltaAssets = masterExhibits
   .filter((e) => e.division === "elta")
@@ -149,6 +150,9 @@ export default async function EltaAssetPage({
             <InfoBox label="Support" value={asset.support} />
             <InfoBox label="Presentation Level" value={asset.presentationLevel} />
             <InfoBox label="3D Model" value={asset.model3d} />
+            <div style={{ marginTop: "8px" }}>
+              <QRCodePanel nameEn={asset.name} nameHe={asset.name} path={`/naval/${asset.slug}`} />
+            </div>
           </div>
         </section>
 
