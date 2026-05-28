@@ -104,8 +104,9 @@ export default function DiagnosticsPage() {
   )
 
   const totalBudget = overviewStats.totalBudgetUSD
-  const activeSuppliers = [...new Set(exhibitionsOverview.flatMap(e => e.suppliers))].length
-  const pendingApprovals = exhibitionsOverview.filter(e => e.status === "pending-approval").length
+  const activeSuppliers = overviewStats.activeSuppliers
+  const pendingApprovals = overviewStats.pendingApproval
+  const totalGuests = overviewStats.totalGuests
 
   // Fake assigned exhibits for selected exhibition
   const ASSIGNED: Record<string, {name:string; nameHe:string; div:string; img:string; status:"Ready"|"Approval"|"Pending"}[]> = {
@@ -171,27 +172,34 @@ export default function DiagnosticsPage() {
         <div style={{ display:"flex", gap:12, alignItems:"stretch" }}>
           {/* EN stats */}
           <div style={{ display:"flex", gap:10, flex:1 }}>
-            <StatCard value={overviewStats.total} label="Exhibitions This Year" labelHe="תערוכות בשנה זו" color="#22d3ee" />
-            <StatCard value={fmt(totalBudget)} label="Total Budget (USD)" labelHe="תקציב כולל (דולר)" color="#60a5fa" />
-            <StatCard value={activeSuppliers} label="Suppliers Active" labelHe="ספקים פעילים" color="#a78bfa" />
-            <StatCard value={pendingApprovals} label="Pending Approvals" labelHe="אישורים ממתינים" color="#fbbf24" />
+            <StatCard value={overviewStats.total}    label="Exhibitions 2026"    labelHe="תערוכות 2026"       color="#22d3ee" />
+            <StatCard value={fmt(totalBudget)}        label="Total Budget (USD)"  labelHe="תקציב כולל (דולר)" color="#60a5fa" />
+            <StatCard value={overviewStats.countries} label="Countries"           labelHe="מדינות"             color="#a78bfa" />
+            <StatCard value={activeSuppliers}         label="Suppliers"           labelHe="ספקים"              color="#34d399" />
+            <StatCard value={totalGuests.toLocaleString()} label="Est. Guests"   labelHe="אורחים משוערים"     color="#f97316" />
+            <StatCard value={pendingApprovals}        label="Pending Approval"    labelHe="ממתין לאישור"       color="#fbbf24" />
           </div>
 
           {/* Globe center */}
-          <div style={{ width:180, flexShrink:0, borderRadius:16, border:"1px solid rgba(0,200,255,0.2)",
+          <div style={{ width:160, flexShrink:0, borderRadius:16, border:"1px solid rgba(0,200,255,0.2)",
             background:"radial-gradient(circle at 50% 40%, rgba(0,100,200,0.35), rgba(0,10,40,0.9))",
             display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"12px 8px" }}>
-            <div style={{ fontSize:56, lineHeight:1, filter:"drop-shadow(0 0 16px rgba(0,200,255,0.5))" }}>🌍</div>
-            <p style={{ margin:"8px 0 4px", fontSize:11, fontWeight:700, color:"#22d3ee", letterSpacing:"0.1em", textTransform:"uppercase" }}>Global Presence</p>
-            <p style={{ margin:0, fontSize:9, color:"rgba(255,255,255,0.45)", textAlign:"center", lineHeight:1.6 }}>Israel • Europe<br/>Asia • North America</p>
+            <div style={{ fontSize:48, lineHeight:1, filter:"drop-shadow(0 0 16px rgba(0,200,255,0.5))" }}>🌍</div>
+            <p style={{ margin:"6px 0 3px", fontSize:10, fontWeight:700, color:"#22d3ee", letterSpacing:"0.1em", textTransform:"uppercase" }}>Global Presence</p>
+            <p style={{ margin:0, fontSize:9, color:"rgba(255,255,255,0.45)", textAlign:"center", lineHeight:1.6 }}>
+              {overviewStats.israel} IL · {overviewStats.abroad} Int&apos;l<br/>
+              {overviewStats.completed} done · {overviewStats.active} active
+            </p>
           </div>
 
           {/* HE stats */}
           <div style={{ display:"flex", gap:10, flex:1, direction:"rtl" }}>
-            <StatCard value={overviewStats.total} label="Exhibitions This Year" labelHe="תערוכות בשנה זו" color="#22d3ee" />
-            <StatCard value={fmt(totalBudget)} label="Total Budget (USD)" labelHe="תקציב כולל (דולר)" color="#60a5fa" />
-            <StatCard value={activeSuppliers} label="Suppliers Active" labelHe="ספקים פעילים" color="#a78bfa" />
-            <StatCard value={pendingApprovals} label="Pending Approvals" labelHe="אישורים ממתינים" color="#fbbf24" />
+            <StatCard value={overviewStats.total}    label="Exhibitions 2026"    labelHe="תערוכות 2026"       color="#22d3ee" />
+            <StatCard value={fmt(totalBudget)}        label="Total Budget (USD)"  labelHe="תקציב כולל (דולר)" color="#60a5fa" />
+            <StatCard value={overviewStats.countries} label="Countries"           labelHe="מדינות"             color="#a78bfa" />
+            <StatCard value={activeSuppliers}         label="Suppliers"           labelHe="ספקים"              color="#34d399" />
+            <StatCard value={totalGuests.toLocaleString()} label="Est. Guests"   labelHe="אורחים משוערים"     color="#f97316" />
+            <StatCard value={pendingApprovals}        label="Pending Approval"    labelHe="ממתין לאישור"       color="#fbbf24" />
           </div>
         </div>
 
