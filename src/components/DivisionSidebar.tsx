@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { label: "תערוכות בארץ",       href: "/exhibitions/israel",    icon: "⊟" },
   { label: 'תערוכות בחו"ל',      href: "/exhibitions/abroad",    icon: "⊛" },
   { label: "Layouts",            href: "/tents-layout",          icon: "⊡" },
-  { label: "אבחון",              href: "/dashboard",             icon: "⊘" },
+  { label: "אבחון",              href: "/diagnostics",          icon: "⊘" },
   { label: "מלאי",               href: "/inventory",             icon: "⊠" },
 ];
 
