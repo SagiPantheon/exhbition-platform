@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ModelViewer from "../viewer/ModelViewer";
+import QRCodePanel from "../QRCodePanel";
 
 type Specs = {
   length: string;
@@ -100,6 +101,7 @@ export default function AirAssetDetailClient({
                 >
                   Back to Main
                 </Link>
+                <QRCodePanel nameEn={asset.title.en} nameHe={asset.title.he} />
               </div>
             </div>
 

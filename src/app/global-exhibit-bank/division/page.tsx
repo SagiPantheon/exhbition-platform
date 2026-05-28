@@ -5,6 +5,7 @@ import { useMemo, useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { exhibitDivisions } from "../../../data/globalExhibitBank"
 import { masterExhibits } from "../../../data/masterExhibits"
+import QRCodePanel from "../../../components/QRCodePanel"
 
 const OVERRIDE_KEY = "division-overrides"
 const EDITABLE_DIVISIONS = ["mtach", "elta", "kataz", "teufa"]
@@ -585,8 +586,8 @@ export default function DivisionPage() {
                   {exhibit.nameEn}
                 </div>
 
-                {/* Open System link */}
-                <div style={{ marginTop: "auto", paddingTop: "16px" }}>
+                {/* Open System link + QR */}
+                <div style={{ marginTop: "auto", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
                   <Link
                     href={`/${masterDivision}/${exhibit.slug}`}
                     style={{
@@ -604,6 +605,11 @@ export default function DivisionPage() {
                   >
                     Open System
                   </Link>
+                  <QRCodePanel
+                    nameEn={exhibit.nameEn}
+                    nameHe={exhibit.nameHe}
+                    path={`/${masterDivision}/${exhibit.slug}`}
+                  />
                 </div>
               </div>
             ))}

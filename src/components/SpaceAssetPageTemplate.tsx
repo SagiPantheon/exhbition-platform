@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { SpaceAsset } from "../data/masterExhibits";
 import ModelViewer from "./viewer/ModelViewer";
+import QRCodePanel from "./QRCodePanel";
 
 type Props = {
   asset: SpaceAsset;
@@ -61,6 +62,12 @@ export default function SpaceAssetPageTemplate({ asset, locale }: Props) {
           >
             {t.exhibitions}
           </Link>
+          <div className="ml-auto">
+            <QRCodePanel
+              nameEn={asset.title.en}
+              nameHe={asset.title.he}
+            />
+          </div>
         </div>
 
         <section className="grid gap-4 xl:grid-cols-[0.95fr_0.95fr_1.2fr]">
