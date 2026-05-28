@@ -5,20 +5,17 @@ type BoothType = 'with-booth' | 'without-booth' | 'digital-only'
 type ExhibitStatus = 'approved' | 'pending' | 'planned'
 type LayoutStatus = 'not-started' | 'in-progress' | 'ready'
 
-type CatalogAsset = {
-  id: string
-  titleHe: string
-  titleEn: string
-  category: 'space' | 'air' | 'land' | 'water'
-  href: string
-}
-
 type ExhibitionAssetRef = {
   id: string
   assetId: string
   quantity: number
   status: ExhibitStatus
   notes: string
+}
+
+type InventoryReservation = {
+  inventoryId: string
+  quantity: number
 }
 
 export type IsraelExhibition = {
@@ -30,6 +27,9 @@ export type IsraelExhibition = {
   endDate: string
   theme: string
   supplier: string
+  screenSupplier?: string
+  exhibitionOwner?: string
+  approvingManager?: string
   brochure: string
   boothType: BoothType
   notes: string
@@ -57,7 +57,6 @@ export const initialIsraelExhibitions: IsraelExhibition[] = [
     tentTemplate: 'tent-25x10',
     layoutStatus: 'in-progress',
     planningItemsCount: 4,
-    inventoryItemIds: [],
     inventoryItemIds: [],
     exhibits: [
       { id: 'ref-1', assetId: 'space-beresheet', quantity: 1, status: 'approved', notes: '' },
