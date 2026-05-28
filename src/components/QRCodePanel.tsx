@@ -52,55 +52,7 @@ export default function QRCodePanel({ nameEn, nameHe, path }: Props) {
   if (!url) return null
 
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
-
-      {/* Panel — opens UPWARD from button, aligned left */}
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "calc(100% + 10px)",
-            left: 0,
-            zIndex: 9999,
-            width: 236,
-            borderRadius: 20,
-            border: "1px solid rgba(0,200,255,0.25)",
-            background: "linear-gradient(180deg, #0b1527 0%, #070e1c 100%)",
-            boxShadow: "0 -8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,200,255,0.08)",
-            padding: 18,
-          }}
-        >
-          <p style={{ margin: "0 0 12px", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(0,200,255,0.6)" }}>
-            Scan to view 3D
-          </p>
-
-          <div
-            ref={qrRef}
-            style={{ background: "#fff", borderRadius: 12, padding: 10, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <QRCode value={url} size={172} bgColor="#ffffff" fgColor="#04111e" level="M" />
-          </div>
-
-          <p style={{ margin: "10px 0 2px", fontSize: 13, fontWeight: 700, color: "#e2e8f0", textAlign: "center" }}>
-            {nameEn}
-          </p>
-          <p style={{ margin: "0 0 10px", fontSize: 12, color: "rgba(148,163,184,0.8)", textAlign: "center" }}>
-            {nameHe}
-          </p>
-
-          <p style={{ margin: "0 0 12px", fontSize: 9, color: "rgba(100,160,220,0.5)", textAlign: "center", wordBreak: "break-all" }}>
-            {url}
-          </p>
-
-          <button
-            onClick={handleDownload}
-            style={{ width: "100%", padding: "9px", borderRadius: 12, border: "none", background: "linear-gradient(180deg, #22d3ee 0%, #0ea5e9 100%)", color: "#04111e", fontSize: 12, fontWeight: 900, cursor: "pointer", letterSpacing: "0.08em" }}
-          >
-            ↓ Download PNG
-          </button>
-        </div>
-      )}
-
+    <div>
       {/* Toggle button */}
       <button
         onClick={() => setOpen((v) => !v)}
@@ -130,6 +82,59 @@ export default function QRCodePanel({ nameEn, nameHe, path }: Props) {
         QR Code
         <span style={{ opacity: 0.5, fontSize: 10 }}>{open ? "▲" : "▼"}</span>
       </button>
+
+      {/* Inline panel — expands below button, stays inside the card */}
+      {open && (
+        <div
+          style={{
+            marginTop: 12,
+            borderRadius: 18,
+            border: "1px solid rgba(0,200,255,0.2)",
+            background: "rgba(7,14,28,0.9)",
+            padding: 16,
+          }}
+        >
+          <p style={{ margin: "0 0 12px", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(0,200,255,0.6)" }}>
+            Scan to view 3D
+          </p>
+
+          <div
+            ref={qrRef}
+            style={{ background: "#fff", borderRadius: 12, padding: 10, display: "inline-flex" }}
+          >
+            <QRCode value={url} size={160} bgColor="#ffffff" fgColor="#04111e" level="M" />
+          </div>
+
+          <p style={{ margin: "10px 0 2px", fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>
+            {nameEn}
+          </p>
+          <p style={{ margin: "0 0 10px", fontSize: 12, color: "rgba(148,163,184,0.8)" }}>
+            {nameHe}
+          </p>
+
+          <p style={{ margin: "0 0 12px", fontSize: 9, color: "rgba(100,160,220,0.5)", wordBreak: "break-all" }}>
+            {url}
+          </p>
+
+          <button
+            onClick={handleDownload}
+            style={{
+              width: "100%",
+              padding: "9px",
+              borderRadius: 12,
+              border: "none",
+              background: "linear-gradient(180deg, #22d3ee 0%, #0ea5e9 100%)",
+              color: "#04111e",
+              fontSize: 12,
+              fontWeight: 900,
+              cursor: "pointer",
+              letterSpacing: "0.08em",
+            }}
+          >
+            ↓ Download PNG
+          </button>
+        </div>
+      )}
     </div>
   )
 }
