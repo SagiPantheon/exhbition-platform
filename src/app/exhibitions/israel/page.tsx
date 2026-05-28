@@ -30,6 +30,8 @@ type ExhibitionAssetRef = {
   notes: string
 }
 
+type ApprovalStatus = 'approved' | 'pending' | 'not-approved'
+
 type IsraelExhibition = {
   id: string
   nameHe: string
@@ -42,6 +44,10 @@ type IsraelExhibition = {
   screenSupplier?: string
   exhibitionOwner?: string
   approvingManager?: string
+  contactPerson?: string        // איש קשר / מארגן
+  estimatedBudgetILS?: number  // תקציב משוער ₪
+  estimatedGuests?: number     // מספר משתתפים משוער
+  approvalStatus?: ApprovalStatus // סטטוס אישור
   inventoryItemIds?: string[]
   brochure: string
   boothType: BoothType
@@ -52,10 +58,10 @@ type IsraelExhibition = {
   planningItemsCount: number
 }
 
-const STORAGE_KEY = 'israel-exhibitions-board-v5-v2'
-const SELECTED_ID_KEY = 'israel-exhibitions-board-selected-id-v1'
-const DRAFT_KEY = 'israel-exhibitions-board-draft-v1'
-const IS_EDITING_KEY = 'israel-exhibitions-board-is-editing-v1'
+const STORAGE_KEY = 'israel-exhibitions-board-v7'
+const SELECTED_ID_KEY = 'israel-exhibitions-board-selected-id-v7'
+const DRAFT_KEY = 'israel-exhibitions-board-draft-v7'
+const IS_EDITING_KEY = 'israel-exhibitions-board-is-editing-v7'
 
 const assetCatalog: CatalogAsset[] = [
   // Space
@@ -124,6 +130,12 @@ function normalizeExhibition(item: Partial<IsraelExhibition>): IsraelExhibition 
     screenSupplier: item.screenSupplier || '',
     exhibitionOwner: item.exhibitionOwner || '',
     approvingManager: item.approvingManager || '',
+    contactPerson: item.contactPerson || '',
+    estimatedBudgetILS: typeof item.estimatedBudgetILS === 'number' ? item.estimatedBudgetILS : undefined,
+    estimatedGuests: typeof item.estimatedGuests === 'number' ? item.estimatedGuests : undefined,
+    approvalStatus: (['approved','pending','not-approved'] as ApprovalStatus[]).includes(item.approvalStatus as ApprovalStatus)
+      ? item.approvalStatus as ApprovalStatus
+      : 'pending',
     brochure: item.brochure || '',
     boothType:
       item.boothType === 'without-booth' || item.boothType === 'digital-only'
@@ -526,8 +538,13 @@ function removeAssetRef(id: string) {
                         <div className="text-base font-semibold text-white">{item.nameHe}</div>
                         <div className="text-xs text-slate-400">{item.nameEn || '—'}</div>
                       </div>
-                      <span className="shrink-0 rounded-full border border-cyan-300/20 bg-cyan-400/8 px-2 py-1 text-[11px] text-cyan-300">
-                        {boothLabel(item.boothType)}
+                      <span className={[
+                        "shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold border",
+                        item.approvalStatus === 'approved'     ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" :
+                        item.approvalStatus === 'not-approved' ? "border-red-400/30 bg-red-400/10 text-red-300" :
+                                                                 "border-amber-400/30 bg-amber-400/10 text-amber-300",
+                      ].join(' ')}>
+                        {item.approvalStatus === 'approved' ? '✅ מאושר' : item.approvalStatus === 'not-approved' ? '🔴 לא מאושר' : '🟡 ממתין'}
                       </span>
                     </div>
                     <div className="space-y-1 text-xs text-slate-400">
@@ -633,6 +650,25 @@ function removeAssetRef(id: string) {
                     <Field label="מנהל / גורם מאשר">
                       <input value={draft.approvingManager} onChange={(e) => updateDraft('approvingManager', e.target.value)} disabled={!isEditing} className={inputClass(isEditing)} placeholder="מנהל / גורם מאשר" />
                     </Field>
+
+                    {/* ── 4 שדות למילוי ידני ── */}
+                    <Field label="איש קשר / מארגן">
+                      <input value={draft.contactPerson ?? ''} onChange={(e) => updateDraft('contactPerson', e.target.value)} disabled={!isEditing} className={inputClass(isEditing)} placeholder="שם + טלפון / מייל" />
+                    </Field>
+                    <Field label="תקציב משוער (₪)">
+                      <input type="number" min={0} value={draft.estimatedBudgetILS ?? ''} onChange={(e) => updateDraft('estimatedBudgetILS', e.target.value ? Number(e.target.value) : undefined)} disabled={!isEditing} className={inputClass(isEditing)} placeholder="0" />
+                    </Field>
+                    <Field label="מספר משתתפים משוער">
+                      <input type="number" min={0} value={draft.estimatedGuests ?? ''} onChange={(e) => updateDraft('estimatedGuests', e.target.value ? Number(e.target.value) : undefined)} disabled={!isEditing} className={inputClass(isEditing)} placeholder="0" />
+                    </Field>
+                    <Field label="סטטוס אישור">
+                      <select value={draft.approvalStatus ?? 'pending'} onChange={(e) => updateDraft('approvalStatus', e.target.value as ApprovalStatus)} disabled={!isEditing} className={inputClass(isEditing)}>
+                        <option value="approved">✅ מאושר</option>
+                        <option value="pending">🟡 ממתין לאישור</option>
+                        <option value="not-approved">🔴 לא מאושר</option>
+                      </select>
+                    </Field>
+
                     <Field label="קיים ביתן / ללא ביתן">
                       <select value={draft.boothType} onChange={(e) => updateDraft('boothType', e.target.value as BoothType)} disabled={!isEditing} className={inputClass(isEditing)}>
                         <option value="external-supplier-build">מוקם ע״י ספק חיצוני</option>
