@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLang } from "../context/LanguageContext";
 
 export default function FloatingShellNav() {
   const pathname = usePathname();
+  const { lang, toggle } = useLang();
   const isHebrew = pathname === "/he" || pathname?.startsWith("/he/");
   const isHome = pathname === "/" || pathname === "/he";
 
@@ -49,6 +51,26 @@ export default function FloatingShellNav() {
         }}
       >
         ← {labels.back}
+      </button>
+
+      <button
+        type="button"
+        onClick={toggle}
+        style={{
+          border: "1px solid rgba(148,163,184,0.22)",
+          background: "rgba(8,15,28,0.76)",
+          color: "#f8fafc",
+          padding: "8px 12px",
+          borderRadius: "999px",
+          fontSize: "12px",
+          fontWeight: 800,
+          cursor: "pointer",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.18)",
+          backdropFilter: "blur(8px)",
+          letterSpacing: "0.06em",
+        }}
+      >
+        {lang === "he" ? "EN" : "HE"}
       </button>
 
       {pathname !== tentsHref ? (

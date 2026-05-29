@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import FloatingShellNav from "../components/FloatingShellNav";
 import LiveShellStatus from "../components/LiveShellStatus";
+import { LanguageProvider } from "../context/LanguageContext";
 
 export const metadata: Metadata = {
   title: "Exhibition Platform",
@@ -15,9 +16,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body><LiveShellStatus />
-        <FloatingShellNav />
-        {children}</body>
+      <body>
+        <LanguageProvider>
+          <LiveShellStatus />
+          <FloatingShellNav />
+          {children}
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

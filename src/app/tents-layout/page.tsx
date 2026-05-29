@@ -500,6 +500,7 @@ function SidebarItemCard({ item, image, onAdd }: { item: string; image?: string;
 }
 
 const TENT_MODEL_PATH = "/models/inventory/tent-20-30-iai-01.glb";
+const HANGAR_MODEL_PATH = "/scenes/hangar.glb";
 
 function TentModel3D({ tentScale = 12 }: { tentScale?: number }) {
   const gltf = useGLTF(TENT_MODEL_PATH);
@@ -527,6 +528,24 @@ function TentModel3D({ tentScale = 12 }: { tentScale?: number }) {
   );
 }
 
+
+function HangarModel3D() {
+  const gltf = useGLTF(HANGAR_MODEL_PATH);
+  const cloned = useMemo(() => {
+    const scene = gltf.scene.clone(true);
+    scene.traverse((child: any) => {
+      if (child.isMesh && child.material) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat: any) => {
+          mat.emissive = new THREE.Color("#001a44");
+          mat.emissiveIntensity = 0.4;
+        });
+      }
+    });
+    return scene;
+  }, [gltf.scene]);
+  return <primitive object={cloned} position={[0, -1.45, 0]} rotation={[0, 0, 0]} scale={12} />;
+}
 
 function OpenAreaOutline() {
   const geo = useMemo(() => {
@@ -1111,8 +1130,10 @@ function TentStage3D({
         }
       >
         <>
-          {tentType !== "open" && <TentModel3D tentScale={tentType === "30x20" ? 15 : 12} />}
-          {tentType === "open" && <OpenAreaOutline />}
+          {tentType === "25x15" && <TentModel3D tentScale={12} />}
+          {tentType === "30x20" && <TentModel3D tentScale={15} />}
+          {tentType === "open"   && <OpenAreaOutline />}
+          {tentType === "hangar" && <HangarModel3D />}
           {items.map((item) =>
             PEDESTAL_DIMS[item.type] ? (
               <PedestalItem
@@ -1252,6 +1273,7 @@ function TentStage3D({
 }
 
 useGLTF.preload(TENT_MODEL_PATH);
+useGLTF.preload(HANGAR_MODEL_PATH);
 // Inventory models
 useGLTF.preload("/models/inventory/lightbox-vertical-iai.glb");
 useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
@@ -1269,7 +1291,7 @@ export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [dramaticLight, setDramaticLight] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
-  const [tentType, setTentType] = useState<"25x15" | "30x20" | "open">("25x15");
+  const [tentType, setTentType] = useState<"25x15" | "30x20" | "open" | "hangar">("25x15");
 
   useEffect(() => {
     const saved = localStorage.getItem(`tentScene_${tentType}`)
@@ -1333,7 +1355,7 @@ export default function TentsLayoutPage() {
     // Support both new format { tentType, sceneItems } and old format (plain array)
     if (data && typeof data === "object" && !Array.isArray(data) && data.sceneItems) {
       setSceneItems(data.sceneItems);
-      if (data.tentType) setTentType(data.tentType as "25x15" | "30x20" | "open");
+      if (data.tentType) setTentType(data.tentType as "25x15" | "30x20" | "open" | "hangar");
     } else {
       setSceneItems(data);
     }
@@ -1403,9 +1425,10 @@ export default function TentsLayoutPage() {
 
   const statusItems = useMemo(() => {
     const cfg = {
-      "25x15": { name: "אוהל 25x15", length: "25m", width: "15m", area: "375m²" },
-      "30x20": { name: "אוהל 30x20", length: "30m", width: "20m", area: "600m²" },
-      "open":  { name: "שטח פתוח",   length: "25m", width: "15m", area: "375m²" },
+      "25x15":  { name: "אוהל 25x15", length: "25m", width: "15m",  area: "375m²"  },
+      "30x20":  { name: "אוהל 30x20", length: "30m", width: "20m",  area: "600m²"  },
+      "open":   { name: "שטח פתוח",   length: "25m", width: "15m",  area: "375m²"  },
+      "hangar": { name: "אנגר",        length: "40m", width: "25m",  area: "1000m²" },
     }[tentType];
     return [
       [cfg.name,   "תבנית פעילה"],
@@ -1644,8 +1667,9 @@ export default function TentsLayoutPage() {
 
   function buildExportData() {
     const tentLabel =
-      tentType === "30x20" ? "אוהל 30×20" :
-      tentType === "open"  ? "שטח פתוח"   : "אוהל 25×15";
+      tentType === "30x20"  ? "אוהל 30×20" :
+      tentType === "open"   ? "שטח פתוח"   :
+      tentType === "hangar" ? "אנגר"        : "אוהל 25×15";
     const dims = tentType === "30x20" ? "30m × 20m" : "25m × 15m";
     const title = exhibitionName.trim() || "תכנית תצוגה";
     const numberedItems = sceneItems.length
@@ -1893,7 +1917,7 @@ export default function TentsLayoutPage() {
               <span style={{ color: "rgba(180,220,255,0.76)" }}>תכנון פריסה</span>
               <span style={{ color: "rgba(125,211,252,0.7)" }}>•</span>
               <strong style={{ fontSize: "18px" }}>
-                {tentType === "open" ? "שטח פתוח" : tentType === "30x20" ? "אוהל 30×20" : "אוהל 25×15"}
+                {tentType === "open" ? "שטח פתוח" : tentType === "30x20" ? "אוהל 30×20" : tentType === "hangar" ? "אנגר" : "אוהל 25×15"}
               </strong>
               <span style={{ color: "rgba(180,220,255,0.7)" }}>מעטפת תפעולית ראשית</span>
             </div>
@@ -2017,9 +2041,10 @@ export default function TentsLayoutPage() {
               סוג מבנה
             </span>
             {([
-              { id: "25x15", label: "אוהל 25×15" },
-              { id: "30x20", label: "אוהל 30×20" },
-              { id: "open",  label: "שטח פתוח"  },
+              { id: "25x15",  label: "אוהל 25×15" },
+              { id: "30x20",  label: "אוהל 30×20" },
+              { id: "open",   label: "שטח פתוח"   },
+              { id: "hangar", label: "אנגר"        },
             ] as const).map(({ id, label }) => (
               <button
                 key={id}
