@@ -87,6 +87,8 @@ function StatCard({
 export default function AbroadExhibitionsPage() {
   const [activeIso, setActiveIso] = useState<string | null>(null);
 
+  const activeCountry = abroadFlagCards.find((c) => c.isoCode === activeIso) ?? null;
+
   return (
     <div className="flex min-h-screen" style={{ background: "radial-gradient(circle at top, rgba(14,165,233,0.16), rgba(2,6,23,1) 40%), linear-gradient(180deg, #08111f 0%, #030712 100%)", color: "#e5eefb" }}>
       <DivisionSidebar activeHref="/exhibitions/abroad" />
@@ -246,7 +248,7 @@ export default function AbroadExhibitionsPage() {
               <article
                 key={item.slug}
                 id={`country-${item.isoCode}`}
-                onClick={() => setActiveIso(item.isoCode)}
+                onClick={() => setActiveIso(isActive ? null : item.isoCode)}
                 style={{
                   borderRadius: "28px",
                   border: isActive
@@ -333,16 +335,155 @@ export default function AbroadExhibitionsPage() {
                     paddingTop: "10px",
                     borderTop: "1px solid rgba(148,163,184,0.12)",
                     fontSize: "13px",
-                    color: "rgba(148,163,184,0.84)",
+                    fontWeight: 700,
+                    color: isActive ? "#7dd3fc" : "rgba(148,163,184,0.84)",
                   }}
                 >
-                  Future country hub
+                  {isActive ? "Showing details ↓ / לסגירה לחץ שוב" : "Open details ↓ / פרטים"}
                 </div>
               </article>
               );
             })}
           </div>
         </section>
+
+        {activeCountry && (
+          <section
+            style={{
+              marginTop: "28px",
+              borderRadius: "28px",
+              border: "1px solid rgba(59,130,246,0.5)",
+              background:
+                "linear-gradient(180deg, rgba(11,110,253,0.10) 0%, rgba(8,13,26,0.98) 100%)",
+              boxShadow: "0 0 36px rgba(11,110,253,0.18), 0 22px 60px rgba(0,0,0,0.28)",
+              padding: "28px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "16px",
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
+                <div style={{ fontSize: "56px", lineHeight: 1 }}>{activeCountry.flag}</div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "30px", fontWeight: 900, lineHeight: 1.1 }}>
+                    {activeCountry.country}
+                  </h2>
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontSize: "16px",
+                      color: "rgba(148,163,184,0.92)",
+                    }}
+                  >
+                    {activeCountry.countryHe}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveIso(null)}
+                style={{
+                  borderRadius: "999px",
+                  border: "1px solid rgba(148,163,184,0.28)",
+                  background: "rgba(8,15,28,0.78)",
+                  color: "rgba(226,232,240,0.9)",
+                  padding: "10px 16px",
+                  fontSize: "13px",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Close ✕ / סגור
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: "inline-flex",
+                marginTop: "18px",
+                padding: "8px 14px",
+                borderRadius: "999px",
+                background: "rgba(14,165,233,0.12)",
+                border: "1px solid rgba(56,189,248,0.22)",
+                color: "#7dd3fc",
+                fontSize: "12px",
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              {activeCountry.statusEn} · {activeCountry.statusHe}
+            </div>
+
+            <p
+              style={{
+                margin: "16px 0 0",
+                maxWidth: "820px",
+                fontSize: "16px",
+                lineHeight: 1.8,
+                color: "rgba(226,232,240,0.9)",
+              }}
+            >
+              {activeCountry.noteEn}
+            </p>
+            <p
+              style={{
+                margin: "8px 0 0",
+                maxWidth: "820px",
+                fontSize: "15px",
+                lineHeight: 1.8,
+                color: "rgba(148,163,184,0.92)",
+                direction: "rtl",
+                textAlign: "right",
+              }}
+            >
+              {activeCountry.noteHe}
+            </p>
+
+            <div
+              style={{
+                marginTop: "24px",
+                borderRadius: "20px",
+                border: "1px dashed rgba(148,163,184,0.28)",
+                background: "rgba(8,13,26,0.6)",
+                padding: "26px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 800,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#60a5fa",
+                  marginBottom: "8px",
+                }}
+              >
+                Exhibitions &amp; Exhibits · תערוכות ומוצגים
+              </div>
+              <div
+                style={{
+                  fontSize: "15px",
+                  lineHeight: 1.7,
+                  color: "rgba(226,232,240,0.78)",
+                }}
+              >
+                No exhibitions linked to this country yet — in planning.
+                <br />
+                עדיין לא משויכות תערוכות למדינה זו — בתכנון.
+              </div>
+            </div>
+          </section>
+        )}
+
       </div>
       </main>
     </div>
