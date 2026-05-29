@@ -83,20 +83,30 @@ function StatCard({ value, label, labelHe }: { value:string|number; label:string
   )
 }
 
-function TimelineDot({ ex, onClick, selected }: { ex:ExhibitionRecord; onClick:()=>void; selected:boolean }) {
+function TimelineDot({ ex, onClick, selected, index }: { ex:ExhibitionRecord; onClick:()=>void; selected:boolean; index:number }) {
   const pct = ((monthOf(ex.startDate) + 0.5) / 12) * 100
+  const above = index % 2 === 0
+  const label = ex.nameEn.length > 15 ? ex.nameEn.slice(0, 15) + "…" : ex.nameEn
   return (
-    <div onClick={onClick} style={{ position:"absolute", left:`${pct}%`, transform:"translateX(-50%)", cursor:"pointer", zIndex:selected?10:5 }}>
+    <div onClick={onClick} style={{ position:"absolute", top:26, left:`${pct}%`, transform:"translateX(-50%)", cursor:"pointer", zIndex:selected?10:5 }}>
+      {above && (
+        <div style={{ position:"absolute", bottom:18, left:"50%", transform:"translateX(-50%)",
+          whiteSpace:"nowrap", fontSize:9, fontWeight:700, textAlign:"center",
+          color: selected ? "#22d3ee" : "rgba(255,255,255,0.7)" }}>
+          {label}
+        </div>
+      )}
       <div style={{ width:12, height:12, borderRadius:"50%",
         background: selected ? "#22d3ee" : STATUS_CFG[ex.status].color,
         border: selected ? "2px solid white" : "2px solid rgba(0,0,0,0.4)",
         boxShadow: selected ? "0 0 12px #22d3ee" : "none", transition:"all 0.2s" }} />
-      <div style={{ position:"absolute", top:18, left:"50%", transform:"translateX(-50%)",
-        whiteSpace:"nowrap", fontSize:10, fontWeight:700,
-        color: selected ? "#22d3ee" : "rgba(255,255,255,0.7)", textAlign:"center", lineHeight:1.4 }}>
-        <div>{ex.nameEn.split(" ").slice(0,2).join(" ")}</div>
-        <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)" }}>{ex.location.split(",")[0]}</div>
-      </div>
+      {!above && (
+        <div style={{ position:"absolute", top:18, left:"50%", transform:"translateX(-50%)",
+          whiteSpace:"nowrap", fontSize:9, fontWeight:700, textAlign:"center",
+          color: selected ? "#22d3ee" : "rgba(255,255,255,0.7)" }}>
+          {label}
+        </div>
+      )}
     </div>
   )
 }
@@ -110,6 +120,7 @@ export default function DiagnosticsPage() {
   const [activeTab, setActiveTab]       = useState(0)
   const [selected, setSelected]         = useState<ExhibitionRecord>(exhibitionsOverview[0])
   const [regionFilter, setRegionFilter] = useState<"all"|"israel"|"abroad">("all")
+  const [modalEx, setModalEx]           = useState<ExhibitionRecord | null>(null)
 
   const displayed = useMemo(() =>
     regionFilter === "all" ? exhibitionsOverview
@@ -173,6 +184,7 @@ export default function DiagnosticsPage() {
         </nav>
       </header>
 
+
       <div style={{ flex:1, padding:"20px 24px", display:"flex", flexDirection:"column", gap:16, overflow:"auto" }}
         dir={he ? "rtl" : "ltr"}>
 
@@ -213,11 +225,11 @@ export default function DiagnosticsPage() {
               <span key={m} style={{ fontSize:9, color:"rgba(255,255,255,0.3)", fontWeight:600, letterSpacing:"0.05em" }}>{m}</span>
             ))}
           </div>
-          <div style={{ position:"relative", height:56 }}>
-            <div style={{ position:"absolute", top:6, left:0, right:0, height:2,
+          <div style={{ position:"relative", height:80 }}>
+            <div style={{ position:"absolute", top:32, left:0, right:0, height:2,
               background:"linear-gradient(90deg, transparent, rgba(0,200,255,0.3) 10%, rgba(0,200,255,0.3) 90%, transparent)" }} />
-            {exhibitionsOverview.filter(e => e.startDate).map(ex => (
-              <TimelineDot key={ex.id} ex={ex} selected={selected.id===ex.id} onClick={() => setSelected(ex)} />
+            {exhibitionsOverview.filter(e => e.startDate).map((ex, i) => (
+              <TimelineDot key={ex.id} ex={ex} index={i} selected={selected.id===ex.id} onClick={() => setSelected(ex)} />
             ))}
           </div>
         </div>
@@ -251,7 +263,7 @@ export default function DiagnosticsPage() {
             ))}
           </div>
           {displayed.map(ex => (
-            <div key={ex.id} onClick={() => setSelected(ex)}
+            <div key={ex.id} onClick={() => ex.id === "iacas-2026" ? setModalEx(ex) : setSelected(ex)}
               style={{ display:"grid", gridTemplateColumns:"1.6fr 1fr 0.9fr 0.7fr 0.8fr 0.8fr 1fr 1fr",
                 padding:"10px 16px", gap:6, alignItems:"center", cursor:"pointer",
                 background: selected.id===ex.id ? "rgba(0,200,255,0.07)" : "transparent",
@@ -482,6 +494,37 @@ export default function DiagnosticsPage() {
           Unclassified · IAI Exhibition Command Center · {overviewStats.total} Exhibitions · {overviewStats.countries} Countries
         </div>
       </div>
+
+      {/* ══════════════════════ MODAL ══════════════════════ */}
+      {modalEx && (
+        <div onClick={() => setModalEx(null)} style={{ position:"fixed", inset:0, zIndex:9000,
+          background:"rgba(0,0,0,0.85)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div onClick={e => e.stopPropagation()} style={{ position:"relative", width:"min(780px,92vw)",
+            borderRadius:20, overflow:"hidden", border:"1px solid rgba(0,200,255,0.2)",
+            boxShadow:"0 32px 80px rgba(0,0,0,0.7)" }}>
+            <img src="/images/exhibitions/iai-stand-showcase.png" alt={modalEx.nameEn}
+              style={{ width:"100%", height:340, objectFit:"cover", objectPosition:"center", display:"block" }} />
+            <div style={{ position:"absolute", top:0, left:0, right:0, height:340,
+              background:"linear-gradient(to top, rgba(2,6,18,0.97) 0%, rgba(2,6,18,0.3) 60%, transparent 100%)" }} />
+            <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"28px 32px" }}>
+              <p style={{ margin:"0 0 6px", fontSize:11, letterSpacing:"0.22em", textTransform:"uppercase",
+                color:"rgba(0,200,255,0.7)", fontWeight:700 }}>
+                {new Date(modalEx.startDate).toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})}
+                {" · "}{modalEx.location}
+              </p>
+              <p style={{ margin:0, fontSize:26, fontWeight:800, color:"#f1f5f9", lineHeight:1.2 }}>
+                {he ? modalEx.nameHe : modalEx.nameEn}
+              </p>
+            </div>
+            <button onClick={() => setModalEx(null)} style={{ position:"absolute", top:16, right:16,
+              width:36, height:36, borderRadius:"50%", border:"1px solid rgba(255,255,255,0.25)",
+              background:"rgba(2,6,18,0.7)", color:"#f1f5f9", fontSize:18, cursor:"pointer",
+              display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(6px)" }}>
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
