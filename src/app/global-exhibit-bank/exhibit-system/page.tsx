@@ -599,7 +599,7 @@ export default function ExhibitSystemPage() {
             </div>
 
             <Link
-              href="#"
+              href="/tents-layout"
               style={{
                 display: "inline-block",
                 padding: "12px 16px",

@@ -444,7 +444,7 @@ export default function SubDivisionPage() {
                 }}
               >
                 <Link
-                  href="#"
+                  href="/global-exhibit-bank/exhibit-system"
                   style={{
                     padding: "12px 16px",
                     borderRadius: "14px",
