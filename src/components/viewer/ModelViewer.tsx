@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 
 type ModelViewerProps = {
@@ -11,6 +12,30 @@ type ModelViewerProps = {
   cameraTarget?: string;
   fieldOfView?: string;
 };
+
+declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements {
+      "model-viewer": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & {
+          src?: string;
+          alt?: string;
+          poster?: string;
+          "camera-orbit"?: string;
+          "camera-target"?: string;
+          "field-of-view"?: string;
+          "camera-controls"?: boolean | string;
+          "auto-rotate"?: boolean | string;
+          "shadow-intensity"?: string;
+          exposure?: string;
+          loading?: string;
+          reveal?: string;
+        },
+        HTMLElement
+      >;
+    }
+  }
+}
 
 export default function ModelViewer({
   src,

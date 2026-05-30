@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { exhibitDivisions } from "../../../data/globalExhibitBank"
 import { masterExhibits } from "../../../data/masterExhibits"
@@ -47,7 +47,7 @@ const TEUFA_TABS: { label: string; value: string }[] = [
   { label: "בדק והסבות", value: "bdek" },
 ]
 
-export default function DivisionPage() {
+function DivisionPageInner() {
   const searchParams = useSearchParams()
   const rawDivisionId = searchParams.get("divisionId") ?? ""
   const divisionId = decodeURIComponent(rawDivisionId).trim().toLowerCase()
@@ -780,5 +780,14 @@ export default function DivisionPage() {
         </div>
       )}
     </main>
+  )
+}
+
+
+export default function DivisionPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#070b17" }} />}>
+      <DivisionPageInner />
+    </Suspense>
   )
 }

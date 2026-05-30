@@ -34,6 +34,9 @@
   "exclude": [
     "node_modules",
     "docs",
-    "**/_disabled"
+    "**/_disabled",
+    "_backups",
+    "**/*.BACKUP.ts",
+    "**/*.BACKUP.tsx"
   ]
 }

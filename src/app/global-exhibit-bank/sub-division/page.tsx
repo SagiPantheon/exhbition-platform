@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo } from "react"
+import { useMemo, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { exhibitDivisions } from "../../../data/globalExhibitBank"
 
@@ -26,7 +26,7 @@ function buildPreviewSystems(subDivisionName: string) {
   return map[subDivisionName] ?? ["System Layer A", "System Layer B", "System Layer C"]
 }
 
-export default function SubDivisionPage() {
+function SubDivisionPageInner() {
   const searchParams = useSearchParams()
   const rawDivisionId = searchParams.get("divisionId") ?? ""
   const rawSubDivision = searchParams.get("subDivision") ?? ""
@@ -533,5 +533,14 @@ export default function SubDivisionPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+
+export default function SubDivisionPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#070b17" }} />}>
+      <SubDivisionPageInner />
+    </Suspense>
   )
 }

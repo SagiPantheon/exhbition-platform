@@ -1,12 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo } from "react"
+import { useMemo, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { exhibitDivisions } from "../../../data/globalExhibitBank"
 import { getExhibitSystemTemplateRecord } from "../../../data/exhibitSystemTemplate"
 
-export default function ExhibitSystemPage() {
+function ExhibitSystemPageInner() {
   const searchParams = useSearchParams()
 
   const rawDivisionId = searchParams.get("divisionId") ?? ""
@@ -697,5 +697,14 @@ export default function ExhibitSystemPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+
+export default function ExhibitSystemPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#070b17" }} />}>
+      <ExhibitSystemPageInner />
+    </Suspense>
   )
 }
