@@ -116,7 +116,7 @@ export default function AirAssetDetailClient({
 
         <section className="grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
           <div className="rounded-[32px] border border-cyan-300/20 bg-[#0b1227] p-6 shadow-[0_0_40px_rgba(24,119,242,0.10)]">
-            <div className="overflow-hidden rounded-[24px] border border-cyan-300/20 bg-black/20 p-4">
+            <div className="overflow-hidden rounded-[24px] border border-cyan-300/20 bg-[url('/covers/iai-cover.png')] bg-cover bg-left-bottom p-4">
               {viewerSrc ? (
                 <ModelViewer src={viewerSrc} alt={`${asset.title.en} showcase`} />
               ) : (
