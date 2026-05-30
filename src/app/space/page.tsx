@@ -6,7 +6,7 @@ import { masterExhibits, toSpaceAsset, type SpaceAsset } from "../../data/master
 import { uiText } from "../../data/uiText";
 import ClassificationBadge from "../../components/common/ClassificationBadge";
 import DivisionSidebar from "../../components/DivisionSidebar";
-import SpaceAssetCard from "../../components/cards/SpaceAssetCard";
+import AirAssetCard from "../../components/cards/AirAssetCard";
 import { useSectionAssets } from "../../hooks/useSectionAssets";
 
 type SubdivisionTab = "all" | "halal" | "hagana" | "tilim" | "tamam" | "malam";
@@ -180,7 +180,7 @@ export default function SpacePage() {
                 className="flex flex-col rounded-[28px] border border-white/8 bg-white/[0.02] p-3 shadow-[0_10px_35px_rgba(0,0,0,0.22)]"
               >
                 <div className="flex-1">
-                <SpaceAssetCard
+                <AirAssetCard
                   asset={asset}
                   openLabel={uiText.actions.openAssetPage.en}
                   featuredLabel="Featured Asset"
