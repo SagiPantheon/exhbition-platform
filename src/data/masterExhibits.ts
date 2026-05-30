@@ -496,16 +496,6 @@ export const masterExhibits: MasterExhibit[] = [
 
   // ── AIR — כט"צ ─────────────────────────────────────────────────────────────
   {
-    slug: "heron", division: "kataz", nameEn: "Heron", nameHe: "הרון",
-    model3d: "/models/air/heron-showcase-3d.glb", image: "/images/air/heron-showcase.png", hasModel: true,
-    code: "AR-005",
-    subtitle: { en: "Long-endurance UAV mock-up for premium exhibition presentation.", he: "דגם כטב״ם להרצאת תצוגה פרימיום בתערוכה." },
-    description: { en: "Prepared for premium exhibition display, ISR storytelling, and future presentation planning in the unmanned systems category.", he: "מוכן לתצוגת פרימיום בתערוכה, להצגת יכולות מודיעין, סיור ואיסוף, ולתכנון עתידי בקטגוריית המערכות הבלתי מאוישות." },
-    status: { en: "Approved", he: "מאושר" }, config: { en: "UAV display", he: "תצוגת כטב״ם" }, scale: "1:1",
-    specs: { length: "TBD", width: "TBD", height: "TBD", weight: "TBD", standDiameter: "N/A", standWeight: "N/A" },
-    readiness: { environment: { en: "Indoor / outdoor", he: "פנים / חוץ" }, displayMethod: { en: "Static UAV display", he: "תצוגת כטב״ם סטטית" }, support: { en: "Integrated support base", he: "בסיס תמיכה משולב" }, presentationLevel: { en: "Premium", he: "פרימיום" }, visualLanguage: { en: "Unmanned systems showcase", he: "שפת תצוגה של מערכות בלתי מאוישות" } },
-  },
-  {
     slug: "thunder-vtol", division: "kataz", nameEn: "Thunder VTOL", nameHe: "ת׳אנדר VTOL",
     model3d: "/models/air/thunderb-showcase-3d.glb", image: "/images/air/Thunderb-showcase.png", hasModel: true,
     code: "AR-AUTO-005",
@@ -575,7 +565,7 @@ export const masterExhibits: MasterExhibit[] = [
     description: { en: "Indoor exhibition mock-up of the 3D Capture armored tactical vehicle, prepared for multi-platform systems display and operational showcase.", he: "דגם תצוגה פנימי של רכב טקטי 3D Capture משוריין, מוכן להצגת מערכות רב-פלטפורמה." } },
   { slug: "panda",     division: "elta",  subdivision: "robotika", nameEn: "PANDA",     nameHe: "PANDA",     model3d: "/models/land/panda-showcase-3d.glb",     image: "/images/land/panda-showcase.png",     hasModel: true },
   { slug: "robattle",  division: "elta",  subdivision: "robotika", nameEn: "RoBattle",  nameHe: "רובטל",     model3d: "/models/land/robattle-showcase-3d.glb",  image: "/images/land/robattle-showcase.png",  hasModel: true },
-  { slug: "trailer",   division: "elta",  subdivision: "soi",      nameEn: "Trailer",   nameHe: "נגרר",      model3d: "/models/land/trailer-showcase-3d.glb",   image: "",                                    hasModel: true },
+  { slug: "trailer",   division: "elta",  subdivision: "soi",      nameEn: "Trailer",   nameHe: "נגרר",      model3d: "/models/land/trailer-showcase-3d.glb",   image: "/images/land/trailer-showcase.PNG",                                    hasModel: true },
 
   // ── NAVAL (1) ──────────────────────────────────────────────────────────────
   { slug: "katana",    division: "mtach", subdivision: "malam",    nameEn: "Katana",    nameHe: "קתנה",  model3d: "/models/naval/katana-showcase.glb",      image: "/images/naval/katana.png",       hasModel: true,

@@ -123,7 +123,6 @@ export default function AssetDetailClient({
                 >
                   Back to Main
                 </Link>
-                <QRCodePanel nameEn={asset.title.en} nameHe={asset.title.he} />
               </div>
             </div>
 
@@ -187,6 +186,10 @@ export default function AssetDetailClient({
                 <p className="text-sm leading-7 text-slate-300">{asset.description.en}</p>
               </div>
             )}
+
+            <div className="mt-6 border-t border-white/10 pt-6">
+              <QRCodePanel nameEn={asset.title.en} nameHe={asset.title.he} />
+            </div>
           </div>
         </section>
       </div>
