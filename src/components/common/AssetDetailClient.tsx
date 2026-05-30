@@ -123,6 +123,18 @@ export default function AssetDetailClient({
                 >
                   Back to Main
                 </Link>
+                <Link
+                  href="/exhibitions"
+                  className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/20"
+                >
+                  Add to Exhibition
+                </Link>
+                <Link
+                  href="/exhibitions"
+                  className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  View Exhibitions
+                </Link>
               </div>
             </div>
 
