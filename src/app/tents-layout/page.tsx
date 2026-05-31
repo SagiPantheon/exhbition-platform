@@ -1319,6 +1319,7 @@ export default function TentsLayoutPage() {
   const [snapGlowId, setSnapGlowId] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(false);
   const [pedestalLabelInput, setPedestalLabelInput] = useState("");
+  const [showLabelPanel, setShowLabelPanel] = useState(false);
   const [showExhibitList, setShowExhibitList] = useState(false);
   const [saveScenePanelOpen, setSaveScenePanelOpen] = useState(false);
   const [saveSceneName, setSaveSceneName] = useState("");
@@ -2352,18 +2353,24 @@ export default function TentsLayoutPage() {
             </div>
           )}
 
-          {/* Pedestal label panel — shown above canvas when a pedestal is selected */}
-          {selectedItem && PEDESTAL_DIMS[selectedItem.type] && (
+          {/* Label panel — floating overlay so it never disturbs the grid layout */}
+          {selectedItem && showLabelPanel && (
             <div
               style={{
+                position: "fixed",
+                top: "90px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 9000,
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
                 padding: "10px 16px",
-                marginBottom: "8px",
                 borderRadius: "14px",
-                border: "1px solid rgba(0,229,255,0.30)",
-                background: "rgba(0,15,35,0.88)",
+                border: "1px solid rgba(0,229,255,0.40)",
+                background: "rgba(0,15,35,0.96)",
+                boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+                backdropFilter: "blur(8px)",
                 direction: "rtl",
               }}
             >
@@ -2422,6 +2429,13 @@ export default function TentsLayoutPage() {
                   נוכחי: <span style={{ color: "#00e5ff", fontWeight: 700 }}>{selectedItem.label}</span>
                 </span>
               )}
+              <button
+                type="button"
+                onClick={() => setShowLabelPanel(false)}
+                style={{ padding: "7px 12px", borderRadius: "10px", border: "1px solid rgba(148,163,184,0.18)", background: "none", color: "#64748b", fontSize: "13px", cursor: "pointer" }}
+              >
+                X
+              </button>
             </div>
           )}
 
@@ -2575,6 +2589,58 @@ export default function TentsLayoutPage() {
                     </div>
                   );
                 })()}
+
+                {/* Scale bigger / smaller */}
+                {(() => {
+                  const scaleBtnStyle = {
+                    padding: "8px 11px",
+                    borderRadius: "11px",
+                    border: "1px solid rgba(148,163,184,0.18)",
+                    background: selectedItemId ? "rgba(255,255,255,0.03)" : "transparent",
+                    color: selectedItemId ? "#f8fbff" : "rgba(248,251,255,0.3)",
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    cursor: selectedItemId ? "pointer" : "not-allowed",
+                    opacity: selectedItemId ? 1 : 0.45,
+                    transition: "all 150ms ease",
+                  };
+                  const bump = (delta) => setSceneItems((prev) => prev.map((item) =>
+                    item.id === selectedItemId
+                      ? { ...item, scale: Math.max(0.1, Math.min(5, item.scale + delta)) }
+                      : item
+                  ));
+                  return (
+                    <div style={{ display: "flex", gap: "4px" }}>
+                      <button type="button" onClick={() => bump(0.1)}  title="הגדל" style={scaleBtnStyle}>+</button>
+                      <button type="button" onClick={() => bump(-0.1)} title="הקטן" style={scaleBtnStyle}>-</button>
+                    </div>
+                  );
+                })()}
+
+                {/* Label / secret-exhibit sign toggle */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!selectedItemId) return;
+                    setPedestalLabelInput(selectedItem?.label ?? "");
+                    setShowLabelPanel((v) => !v);
+                  }}
+                  title="שלט / תווית"
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "11px",
+                    border: showLabelPanel ? "1px solid rgba(0,229,255,0.55)" : "1px solid rgba(148,163,184,0.18)",
+                    background: showLabelPanel ? "rgba(0,229,255,0.16)" : (selectedItemId ? "rgba(255,255,255,0.03)" : "transparent"),
+                    color: showLabelPanel ? "#00e5ff" : (selectedItemId ? "#f8fbff" : "rgba(248,251,255,0.3)"),
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    cursor: selectedItemId ? "pointer" : "not-allowed",
+                    opacity: selectedItemId ? 1 : 0.45,
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  shelet
+                </button>
 
                 {/* Sign height + delete — visible when a sign is selected */}
                 {tentType === "open" && selectedSignId && (() => {
