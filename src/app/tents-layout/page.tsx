@@ -1294,26 +1294,32 @@ export default function TentsLayoutPage() {
   const [tentType, setTentType] = useState<"25x15" | "30x20" | "open" | "hangar">("25x15");
 
   useEffect(() => {
-    const saved = localStorage.getItem(`tentScene_${tentType}`)
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        setSceneItems(parsed.items ?? parsed)
-        setExhibitionName(parsed.name ?? "")
-        setSigns(parsed.signs ?? [])
-        setBrackets(parsed.brackets ?? [])
-      } catch {
-        setSceneItems([])
-        setExhibitionName("")
-        setSigns([])
-        setBrackets([])
-      }
-    } else {
+    let cancelled = false
+    const applyScene = (parsed) => {
+      if (cancelled) return
+      const obj = Array.isArray(parsed) ? { items: parsed } : parsed
+      setSceneItems(obj.items ?? [])
+      setExhibitionName(obj.name ?? "")
+      setSigns(obj.signs ?? [])
+      setBrackets(obj.brackets ?? [])
+    }
+    const clearScene = () => {
+      if (cancelled) return
       setSceneItems([])
       setExhibitionName("")
       setSigns([])
       setBrackets([])
     }
+    const saved = localStorage.getItem(`tentScene_${tentType}`)
+    if (saved) {
+      try { applyScene(JSON.parse(saved)) } catch { clearScene() }
+    } else {
+      fetch(`/scenes/preset-tentScene_${tentType}.json`)
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((data) => applyScene(data))
+        .catch(() => clearScene())
+    }
+    return () => { cancelled = true }
   }, [tentType])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [snapGlowId, setSnapGlowId] = useState<string | null>(null);
