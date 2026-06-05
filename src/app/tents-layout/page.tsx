@@ -1435,7 +1435,7 @@ export default function TentsLayoutPage() {
       "25x15":  { name: "אוהל 25x15", length: "25m", width: "15m",  area: "375m²"  },
       "30x20":  { name: "אוהל 30x20", length: "30m", width: "20m",  area: "600m²"  },
       "open":   { name: "שטח פתוח",   length: "25m", width: "15m",  area: "375m²"  },
-      "hangar": { name: "אנגר",        length: "40m", width: "25m",  area: "1000m²" },
+      "hangar": { name: "האנגר",        length: "40m", width: "25m",  area: "1000m²" },
     }[tentType];
     return [
       [cfg.name,   "תבנית פעילה"],
@@ -1676,11 +1676,14 @@ export default function TentsLayoutPage() {
     const tentLabel =
       tentType === "30x20"  ? "אוהל 30×20" :
       tentType === "open"   ? "שטח פתוח"   :
-      tentType === "hangar" ? "אנגר"        : "אוהל 25×15";
+      tentType === "hangar" ? "האנגר"        : "אוהל 25×15";
     const dims = tentType === "30x20" ? "30m × 20m" : "25m × 15m";
     const title = exhibitionName.trim() || "תכנית תצוגה";
-    const numberedItems = sceneItems.length
-      ? sceneItems
+    const exhibitsOnly = sceneItems.filter((si) =>
+      EXHIBIT_ITEMS.some((e) => e.slug === si.type)
+    );
+    const numberedItems = exhibitsOnly.length
+      ? exhibitsOnly
           .map((si, i) => `${i + 1}. ${EXHIBIT_ITEMS.find((e) => e.slug === si.type)?.displayName ?? si.type}`)
           .join("\n")
       : "אין פריטים";
@@ -1924,7 +1927,7 @@ export default function TentsLayoutPage() {
               <span style={{ color: "rgba(180,220,255,0.76)" }}>תכנון פריסה</span>
               <span style={{ color: "rgba(125,211,252,0.7)" }}>•</span>
               <strong style={{ fontSize: "18px" }}>
-                {tentType === "open" ? "שטח פתוח" : tentType === "30x20" ? "אוהל 30×20" : tentType === "hangar" ? "אנגר" : "אוהל 25×15"}
+                {tentType === "open" ? "שטח פתוח" : tentType === "30x20" ? "אוהל 30×20" : tentType === "hangar" ? "האנגר" : "אוהל 25×15"}
               </strong>
               <span style={{ color: "rgba(180,220,255,0.7)" }}>מעטפת תפעולית ראשית</span>
             </div>
@@ -2051,7 +2054,7 @@ export default function TentsLayoutPage() {
               { id: "25x15",  label: "אוהל 25×15" },
               { id: "30x20",  label: "אוהל 30×20" },
               { id: "open",   label: "שטח פתוח"   },
-              { id: "hangar", label: "אנגר"        },
+              { id: "hangar", label: "האנגר"        },
             ] as const).map(({ id, label }) => (
               <button
                 key={id}
