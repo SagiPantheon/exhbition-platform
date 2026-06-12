@@ -283,7 +283,7 @@ export const masterExhibits: MasterExhibit[] = [
   },
   {
     slug: "arrow-4", division: "mtach", subdivision: "malam", nameEn: "Arrow 4", nameHe: "חץ 4",
-    model3d: "", image: "/images/air/arrow-4-showcase.png", hasModel: false,
+    model3d: "/models/air/arrow-4-showcase-3d.glb", image: "/images/air/arrow-4-showcase.png", hasModel: true,
     code: "AR-AUTO-004",
     subtitle: { en: "Next-generation interceptor missile for premium exhibition presentation.", he: "טיל יירוט דור הבא לתצוגת פרימיום בתערוכה." },
     description: { en: "Prepared for premium missile exhibition display and operational air-defense presentation.", he: "מוכן לתצוגת טיל פרימיום ולהצגה מבצעית בתחום ההגנה." },
