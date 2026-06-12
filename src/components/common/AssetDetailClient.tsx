@@ -40,10 +40,10 @@ export type AssetDetailData = {
 type DivisionKey = "air" | "space" | "land" | "naval";
 
 const DIVISION_META: Record<DivisionKey, { detailLabel: string; backHref: string; backLabel: string }> = {
-  air:   { detailLabel: "Air Asset Detail",   backHref: "/air",   backLabel: "← Back to תעופה" },
-  space: { detailLabel: "Space Asset Detail", backHref: "/space", backLabel: "← Back to מטח" },
-  land:  { detailLabel: "Land Asset Detail",  backHref: "/land",  backLabel: "← Back to כטצ" },
-  naval: { detailLabel: "Naval Asset Detail", backHref: "/naval", backLabel: "← Back to אלתא" },
+  air:   { detailLabel: "Air Asset Detail",   backHref: "/air",   backLabel: "← חזרה לתעופה" },
+  space: { detailLabel: "Space Asset Detail", backHref: "/space", backLabel: "← חזרה למטח" },
+  land:  { detailLabel: "Land Asset Detail",  backHref: "/land",  backLabel: "← חזרה לכטצ" },
+  naval: { detailLabel: "Naval Asset Detail", backHref: "/naval", backLabel: "← חזרה לאלתא" },
 };
 
 const SPEC_FIELDS: { key: keyof Specs; label: string }[] = [
