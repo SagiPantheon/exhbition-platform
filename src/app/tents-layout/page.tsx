@@ -1349,6 +1349,22 @@ export default function TentsLayoutPage() {
     }
   }
 
+  function handleFreezePreset() {
+    const data = { items: sceneItems, name: exhibitionName, signs, brackets };
+    const fileName = `preset-tentScene_${tentType}.json`;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setSceneSaveToast(`הוקפא: ${data.items.length} פריטים ✓`);
+    setTimeout(() => setSceneSaveToast(""), 3500);
+  }
+
   async function handleOpenLoadPanel() {
     const res = await fetch("/api/scenes");
     const json = await res.json();
@@ -1968,6 +1984,24 @@ export default function TentsLayoutPage() {
                 }}
               >
                 💾 שמור תצוגה
+              </button>
+              <button
+                type="button"
+                onClick={handleFreezePreset}
+                title="הורד את הסצנה הנוכחית כקובץ preset לשמירה בפרויקט (כל המכשירים)"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(167,139,250,0.50)",
+                  background: "rgba(167,139,250,0.12)",
+                  color: "#a78bfa",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                🔒 הקפא לפריסט
               </button>
               <button
                 type="button"
