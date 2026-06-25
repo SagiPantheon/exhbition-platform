@@ -1645,6 +1645,17 @@ export default function TentsLayoutPage() {
   }
 
   const captureRef = useRef<(() => string) | null>(null);
+  const [capturedShots, setCapturedShots] = useState<string[]>([]);
+
+  function handleAddShot() {
+    if (capturedShots.length >= 4) return;
+    const shot = captureRef.current?.();
+    if (!shot) return;
+    setCapturedShots((prev) => [...prev, shot]);
+  }
+  function handleRemoveShot(idx: number) {
+    setCapturedShots((prev) => prev.filter((_, i) => i !== idx));
+  }
 
   function saveScene() {
     localStorage.setItem(`tentScene_${tentType}`, JSON.stringify({ items: sceneItems, name: exhibitionName, signs, brackets }));
@@ -1867,6 +1878,27 @@ export default function TentsLayoutPage() {
 
                 <button
                   type="button"
+                  onClick={handleAddShot}
+                  disabled={capturedShots.length >= 4}
+                  title="צלם את הזווית הנוכחית (עד 4 תצלומים)"
+                  style={{
+                    padding: "7px 12px",
+                    borderRadius: "999px",
+                    border: "1px solid rgba(201,162,75,0.50)",
+                    background: capturedShots.length >= 4 ? "rgba(201,162,75,0.05)" : "rgba(201,162,75,0.16)",
+                    color: "#d6b35e",
+                    fontWeight: 800,
+                    fontSize: "12px",
+                    cursor: capturedShots.length >= 4 ? "not-allowed" : "pointer",
+                    opacity: capturedShots.length >= 4 ? 0.5 : 1,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  📸 צלם ({capturedShots.length}/4)
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => window.history.back()}
                   style={{
                     padding: "7px 10px",
@@ -2062,8 +2094,87 @@ export default function TentsLayoutPage() {
               >
                 📧 מייל
               </button>
+              <button
+                type="button"
+                onClick={handleAddShot}
+                disabled={capturedShots.length >= 4}
+                title="צלם את הזווית הנוכחית של הסצנה (עד 4 תצלומים)"
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(201,162,75,0.45)",
+                  background: capturedShots.length >= 4 ? "rgba(201,162,75,0.04)" : "rgba(201,162,75,0.12)",
+                  color: "#d6b35e",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: capturedShots.length >= 4 ? "not-allowed" : "pointer",
+                  opacity: capturedShots.length >= 4 ? 0.5 : 1,
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                📸 הוסף תצלום ({capturedShots.length}/4)
+              </button>
               <TopPill label="ייצוא תוכנית" active />
             </div>
+            {capturedShots.length > 0 ? (
+              <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap" }}>
+                {capturedShots.map((src, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      position: "relative",
+                      width: "96px",
+                      height: "64px",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      border: "1px solid rgba(201,162,75,0.45)",
+                    }}
+                  >
+                    <img src={src} alt={`view ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveShot(i)}
+                      title="הסר תצלום"
+                      style={{
+                        position: "absolute",
+                        top: "2px",
+                        insetInlineEnd: "2px",
+                        width: "18px",
+                        height: "18px",
+                        borderRadius: "50%",
+                        border: "none",
+                        background: "rgba(0,0,0,0.6)",
+                        color: "#fff",
+                        fontSize: "12px",
+                        lineHeight: "1",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      ×
+                    </button>
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "2px",
+                        insetInlineStart: "4px",
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        color: "#fff",
+                        textShadow: "0 1px 2px rgba(0,0,0,0.85)",
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </section>
         ) : null}
 
