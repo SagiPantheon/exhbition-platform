@@ -1878,27 +1878,6 @@ export default function TentsLayoutPage() {
 
                 <button
                   type="button"
-                  onClick={handleAddShot}
-                  disabled={capturedShots.length >= 4}
-                  title="צלם את הזווית הנוכחית (עד 4 תצלומים)"
-                  style={{
-                    padding: "7px 12px",
-                    borderRadius: "999px",
-                    border: "1px solid rgba(201,162,75,0.50)",
-                    background: capturedShots.length >= 4 ? "rgba(201,162,75,0.05)" : "rgba(201,162,75,0.16)",
-                    color: "#d6b35e",
-                    fontWeight: 800,
-                    fontSize: "12px",
-                    cursor: capturedShots.length >= 4 ? "not-allowed" : "pointer",
-                    opacity: capturedShots.length >= 4 ? 0.5 : 1,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  📸 צלם ({capturedShots.length}/4)
-                </button>
-
-                <button
-                  type="button"
                   onClick={() => window.history.back()}
                   style={{
                     padding: "7px 10px",
@@ -3677,53 +3656,149 @@ export default function TentsLayoutPage() {
             transform: "translateX(-50%)",
             zIndex: 1000,
             display: "flex",
-            gap: "12px",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "10px",
           }}
         >
-          <button
-            type="button"
-            onClick={handleWhatsApp}
-            style={{
-              padding: "12px 22px",
-              borderRadius: "14px",
-              border: "1px solid rgba(37,211,102,0.45)",
-              background: "rgba(10,30,15,0.92)",
-              color: "#4ade80",
-              fontSize: "15px",
-              fontWeight: 700,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              backdropFilter: "blur(10px)",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            📱 שלח ב-WhatsApp
-          </button>
-          <button
-            type="button"
-            onClick={handleEmail}
-            style={{
-              padding: "12px 22px",
-              borderRadius: "14px",
-              border: "1px solid rgba(96,165,250,0.45)",
-              background: "rgba(8,16,40,0.92)",
-              color: "#60a5fa",
-              fontSize: "15px",
-              fontWeight: 700,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              backdropFilter: "blur(10px)",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            ✉️ שלח במייל
-          </button>
+          {capturedShots.length > 0 ? (
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                padding: "8px 10px",
+                borderRadius: "14px",
+                background: "rgba(6,12,26,0.85)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+              }}
+            >
+              {capturedShots.map((src, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: "relative",
+                    width: "84px",
+                    height: "56px",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    border: "1px solid rgba(201,162,75,0.5)",
+                  }}
+                >
+                  <img src={src} alt={`view ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveShot(i)}
+                    title="הסר תצלום"
+                    style={{
+                      position: "absolute",
+                      top: "2px",
+                      insetInlineEnd: "2px",
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      border: "none",
+                      background: "rgba(0,0,0,0.65)",
+                      color: "#fff",
+                      fontSize: "12px",
+                      lineHeight: "1",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    ×
+                  </button>
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: "2px",
+                      insetInlineStart: "4px",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      color: "#fff",
+                      textShadow: "0 1px 2px rgba(0,0,0,0.85)",
+                    }}
+                  >
+                    {i + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          <div style={{ display: "flex", gap: "12px" }}>
+            <button
+              type="button"
+              onClick={handleAddShot}
+              disabled={capturedShots.length >= 4}
+              style={{
+                padding: "12px 22px",
+                borderRadius: "14px",
+                border: "1px solid rgba(201,162,75,0.5)",
+                background: "rgba(30,24,8,0.92)",
+                color: "#d6b35e",
+                fontSize: "15px",
+                fontWeight: 700,
+                cursor: capturedShots.length >= 4 ? "not-allowed" : "pointer",
+                opacity: capturedShots.length >= 4 ? 0.5 : 1,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              📸 צלם ({capturedShots.length}/4)
+            </button>
+            <button
+              type="button"
+              onClick={handleWhatsApp}
+              style={{
+                padding: "12px 22px",
+                borderRadius: "14px",
+                border: "1px solid rgba(37,211,102,0.45)",
+                background: "rgba(10,30,15,0.92)",
+                color: "#4ade80",
+                fontSize: "15px",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              📱 שלח ב-WhatsApp
+            </button>
+            <button
+              type="button"
+              onClick={handleEmail}
+              style={{
+                padding: "12px 22px",
+                borderRadius: "14px",
+                border: "1px solid rgba(96,165,250,0.45)",
+                background: "rgba(8,16,40,0.92)",
+                color: "#60a5fa",
+                fontSize: "15px",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              ✉️ שלח במייל
+            </button>
+          </div>
         </div>
       )}
 
