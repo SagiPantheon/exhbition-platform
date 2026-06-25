@@ -27,17 +27,18 @@ const EMAILJS_SERVICE_ID  = "service_sp9ss0u";
 const EMAILJS_TEMPLATE_ID = "template_4et8z95";
 const EMAILJS_PUBLIC_KEY  = "u4ZFljZ4yJe2cuKZV";
 
-async function uploadToImgbb(base64: string): Promise<string> {
-  const apiKey = "1b07032c9c2cb8e803460234f5245932";
-  const base64Data = base64.replace(/^data:image\/\w+;base64,/, "");
+async function uploadToCloudinary(base64: string): Promise<string> {
+  const cloudName = "druodcqpj";
+  const uploadPreset = "exhibition_unsigned";
   const formData = new FormData();
-  formData.append("image", base64Data);
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+  formData.append("file", base64);
+  formData.append("upload_preset", uploadPreset);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
     method: "POST",
     body: formData,
   });
   const data = await res.json();
-  return data.data.url;
+  return data.secure_url;
 }
 
 async function sendExhibitionEmail(params: {
@@ -47,7 +48,7 @@ async function sendExhibitionEmail(params: {
   date: string;
   canvasDataUrl: string;
 }) {
-  const imageUrl = await uploadToImgbb(params.canvasDataUrl);
+  const imageUrl = await uploadToCloudinary(params.canvasDataUrl);
   return emailjs.send(
     EMAILJS_SERVICE_ID,
     EMAILJS_TEMPLATE_ID,
