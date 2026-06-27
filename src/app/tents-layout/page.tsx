@@ -41,6 +41,57 @@ async function uploadToCloudinary(base64: string): Promise<string> {
   return data.secure_url;
 }
 
+function escHtml(s: string): string {
+  return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function buildEmailHtml(p: {
+  exhibitionName: string;
+  tentInfo: string;
+  itemsList: string;
+  date: string;
+  divisions: string;
+  total: string;
+  delegation: string;
+  requester: string;
+  notes: string;
+  imageUrls: string[];
+}): string {
+  const cellK = "background:#f0f5fb;padding:9px 14px;font-size:13px;color:#5b6b82;font-weight:bold;width:38%;text-align:right;border-top:1px solid #e2e8f0;";
+  const cellV = "padding:9px 14px;font-size:14px;color:#1a2b45;text-align:right;border-top:1px solid #e2e8f0;";
+  const row = (k: string, v: string) => `<tr><td style="${cellK}">${k}</td><td style="${cellV}">${escHtml(v)}</td></tr>`;
+  let rows = "";
+  rows += row("תאריך", p.date);
+  rows += row("מבנה", p.tentInfo);
+  rows += row("חטיבות", p.divisions);
+  rows += row("סה\"כ פריטים", p.total);
+  if (p.delegation.trim()) rows += row("משלחת / מקור", p.delegation);
+  if (p.requester.trim()) rows += row("מזמין שיווק", p.requester);
+
+  const imgs = p.imageUrls.filter(Boolean)
+    .map((u) => `<img src="${u}" width="544" style="width:100%;max-width:544px;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:10px;display:block;" />`)
+    .join("");
+
+  const listHtml = escHtml(p.itemsList).split("\n")
+    .map((line) => `<div style="padding:2px 0;">${line}</div>`).join("");
+
+  const notesBlock = p.notes.trim()
+    ? `<tr><td style="padding:8px 28px 4px;"><div style="font-size:13px;color:#5b6b82;font-weight:bold;text-align:right;margin-bottom:8px;">הערות / תיקונים</div><div style="font-size:14px;color:#1a2b45;line-height:1.7;text-align:right;background:#fff8ec;border-radius:10px;padding:12px 16px;border:1px solid #f5e2bf;">${escHtml(p.notes).replace(/\n/g, "<br/>")}</div></td></tr>`
+    : "";
+
+  return `<div dir="rtl" style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:24px 0;"><tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+<tr><td style="background:#0a2a5e;padding:20px 28px;"><table role="presentation" width="100%"><tr><td align="right" style="color:#ffffff;font-size:22px;font-weight:bold;">תכנית תצוגה</td><td align="left" style="color:#7fb3ff;font-size:14px;font-weight:bold;letter-spacing:1px;">IAI</td></tr></table></td></tr>
+<tr><td style="padding:22px 28px 4px;"><div style="font-size:20px;font-weight:bold;color:#0a2a5e;text-align:right;">${escHtml(p.exhibitionName)}</div></td></tr>
+<tr><td style="padding:12px 28px 4px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;border-collapse:collapse;">${rows}</table></td></tr>
+<tr><td style="padding:18px 28px 0;"><div style="font-size:13px;color:#5b6b82;font-weight:bold;text-align:right;margin-bottom:10px;">תצלומים</div>${imgs}</td></tr>
+<tr><td style="padding:8px 28px;"><div style="font-size:13px;color:#5b6b82;font-weight:bold;text-align:right;margin-bottom:8px;">רשימת מוצגים</div><div style="font-size:14px;color:#1a2b45;line-height:1.7;text-align:right;background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #eef2f7;">${listHtml}</div></td></tr>
+${notesBlock}
+<tr><td style="padding:16px 28px 24px;"><div style="border-top:1px solid #eef2f7;padding-top:14px;font-size:12px;color:#9aa7b8;text-align:right;">Israel Aerospace Industries &middot; תכנית תצוגה &middot; ${escHtml(p.date)}</div></td></tr>
+</table></td></tr></table></div>`;
+}
+
 async function sendExhibitionEmail(params: {
   exhibitionName: string;
   tentInfo: string;
@@ -53,26 +104,14 @@ async function sendExhibitionEmail(params: {
   notes: string;
   imageUrls: string[];
 }) {
-  const [img1 = "", img2 = "", img3 = "", img4 = ""] = params.imageUrls;
+  const emailHtml = buildEmailHtml(params);
   return emailjs.send(
     EMAILJS_SERVICE_ID,
     EMAILJS_TEMPLATE_ID,
     {
       to_email:        "amiel.sagi@gmail.com",
       exhibition_name: params.exhibitionName || "תכנית תצוגה",
-      tent_info:       params.tentInfo,
-      items_list:      params.itemsList,
-      date:            params.date,
-      divisions:       params.divisions,
-      total:           params.total,
-      delegation:      params.delegation,
-      requester:       params.requester,
-      notes:           params.notes,
-      canvas_image:    img1,
-      image_1:         img1,
-      image_2:         img2,
-      image_3:         img3,
-      image_4:         img4,
+      email_html:      emailHtml,
     },
     EMAILJS_PUBLIC_KEY,
   );
