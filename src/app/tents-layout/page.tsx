@@ -46,9 +46,14 @@ async function sendExhibitionEmail(params: {
   tentInfo: string;
   itemsList: string;
   date: string;
-  canvasDataUrl: string;
+  divisions: string;
+  total: string;
+  delegation: string;
+  requester: string;
+  notes: string;
+  imageUrls: string[];
 }) {
-  const imageUrl = await uploadToCloudinary(params.canvasDataUrl);
+  const [img1 = "", img2 = "", img3 = "", img4 = ""] = params.imageUrls;
   return emailjs.send(
     EMAILJS_SERVICE_ID,
     EMAILJS_TEMPLATE_ID,
@@ -58,11 +63,27 @@ async function sendExhibitionEmail(params: {
       tent_info:       params.tentInfo,
       items_list:      params.itemsList,
       date:            params.date,
-      canvas_image:    imageUrl,
+      divisions:       params.divisions,
+      total:           params.total,
+      delegation:      params.delegation,
+      requester:       params.requester,
+      notes:           params.notes,
+      canvas_image:    img1,
+      image_1:         img1,
+      image_2:         img2,
+      image_3:         img3,
+      image_4:         img4,
     },
     EMAILJS_PUBLIC_KEY,
   );
 }
+
+const DIVISION_HE: Record<string, string> = {
+  mtach: "מט\"ח",
+  teufa: "תעופה",
+  elta:  "אלתא",
+  kataz: "כט\"צ",
+};
 
 const DIVISION_TO_SECTION: Record<string, string> = {
   teufa: "air",
@@ -76,6 +97,7 @@ const EXHIBIT_ITEMS = masterExhibits
   .map((e) => ({
     slug: e.slug,
     section: DIVISION_TO_SECTION[e.division] ?? e.division,
+    division: e.division,
     displayName: e.nameHe,
     image: e.image,
     model3d: e.model3d,
@@ -1715,8 +1737,15 @@ export default function TentsLayoutPage() {
           .map((si, i) => `${i + 1}. ${EXHIBIT_ITEMS.find((e) => e.slug === si.type)?.displayName ?? si.type}`)
           .join("\n")
       : "אין פריטים";
+    const total = exhibitsOnly.length;
+    const divSet = new Set<string>();
+    exhibitsOnly.forEach((si) => {
+      const e = EXHIBIT_ITEMS.find((x) => x.slug === si.type);
+      if (e?.division) divSet.add(e.division);
+    });
+    const divisions = [...divSet].map((d) => DIVISION_HE[d] ?? d).join(", ") || "—";
     const date = new Date().toLocaleDateString("he-IL");
-    return { tentLabel, dims, title, numberedItems, date };
+    return { tentLabel, dims, title, numberedItems, total, divisions, date };
   }
 
   function handleWhatsApp() {
@@ -1727,29 +1756,40 @@ export default function TentsLayoutPage() {
     window.open(`https://wa.me/972523010303?text=${msg}`, "_blank");
   }
 
-  async function handleEmail() {
-    const { tentLabel, dims, title, numberedItems, date } = buildExportData();
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [delegationSource, setDelegationSource] = useState("");
+  const [marketingRequester, setMarketingRequester] = useState("");
+  const [notesText, setNotesText] = useState("");
+  const [emailSending, setEmailSending] = useState(false);
 
-    console.log("sendExhibitionEmail called");
+  async function handleSendEmail() {
+    setEmailSending(true);
     try {
+      const { tentLabel, dims, title, numberedItems, total, divisions, date } = buildExportData();
+      const shots = capturedShots.length > 0
+        ? capturedShots
+        : [captureRef.current?.() ?? ""].filter(Boolean);
+      const imageUrls = await Promise.all(shots.map((s) => uploadToCloudinary(s)));
       await sendExhibitionEmail({
         exhibitionName: title,
         tentInfo:       `${tentLabel} | ${dims}`,
         itemsList:      numberedItems,
         date,
-        canvasDataUrl:  captureRef.current?.() ?? "",
+        divisions,
+        total:          String(total),
+        delegation:     delegationSource,
+        requester:      marketingRequester,
+        notes:          notesText,
+        imageUrls,
       });
+      setEmailModalOpen(false);
+      setSceneSaveToast("המייל נשלח ✓");
+      setTimeout(() => setSceneSaveToast(""), 3000);
     } catch (err) {
       console.error(err);
-      alert("שגיאה: " + JSON.stringify(err));
-    }
-
-    const dataUrl = captureRef.current?.();
-    if (dataUrl) {
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = "תכנית-תצוגה.jpg";
-      a.click();
+      alert("שגיאה בשליחת המייל: " + JSON.stringify(err));
+    } finally {
+      setEmailSending(false);
     }
   }
 
@@ -2055,7 +2095,7 @@ export default function TentsLayoutPage() {
               </button>
               <button
                 type="button"
-                onClick={handleEmail}
+                onClick={() => setEmailModalOpen(true)}
                 style={{
                   padding: "8px 14px",
                   borderRadius: "12px",
@@ -3779,7 +3819,7 @@ export default function TentsLayoutPage() {
             </button>
             <button
               type="button"
-              onClick={handleEmail}
+              onClick={() => setEmailModalOpen(true)}
               style={{
                 padding: "12px 22px",
                 borderRadius: "14px",
@@ -3802,6 +3842,104 @@ export default function TentsLayoutPage() {
           </div>
         </div>
       )}
+
+      {/* EMAIL PREVIEW MODAL */}
+      {emailModalOpen && (() => {
+        const ex = buildExportData();
+        const fieldLabel = { fontSize: "12px", fontWeight: 700, color: "rgba(180,220,255,0.8)" } as const;
+        return (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 2000,
+              background: "rgba(2,6,16,0.78)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "20px",
+            }}
+            onClick={() => { if (!emailSending) setEmailModalOpen(false); }}
+          >
+            <div
+              dir="rtl"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "min(560px, 100%)",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                borderRadius: "20px",
+                border: "1px solid rgba(56,189,248,0.30)",
+                background: "linear-gradient(180deg, rgba(9,16,32,0.98) 0%, rgba(6,11,24,0.99) 100%)",
+                boxShadow: "0 24px 70px rgba(0,0,0,0.7)",
+                color: "#eaf4ff",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid rgba(56,189,248,0.18)", background: "linear-gradient(180deg, rgba(8,145,178,0.18), rgba(59,130,246,0.10))" }}>
+                <div style={{ fontSize: "16px", fontWeight: 800 }}>תצוגה מקדימה — שליחת מייל</div>
+                <button type="button" onClick={() => { if (!emailSending) setEmailModalOpen(false); }} style={{ border: "none", background: "transparent", color: "#9fc6ff", fontSize: "22px", cursor: "pointer", lineHeight: 1 }}>×</button>
+              </div>
+
+              <div style={{ padding: "18px 20px" }}>
+                <div style={{ fontSize: "18px", fontWeight: 800, marginBottom: "10px" }}>{ex.title}</div>
+
+                <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(125,211,252,0.18)", marginBottom: "16px" }}>
+                  {([
+                    ["תאריך", ex.date],
+                    ["מבנה", `${ex.tentLabel} | ${ex.dims}`],
+                    ["חטיבות", ex.divisions],
+                    ["סה\"כ פריטים", String(ex.total)],
+                  ] as const).map(([k, v], i) => (
+                    <div key={i} style={{ display: "flex", borderTop: i ? "1px solid rgba(125,211,252,0.12)" : "none" }}>
+                      <div style={{ width: "40%", padding: "8px 12px", background: "rgba(8,16,34,0.7)", fontSize: "12px", color: "rgba(180,220,255,0.75)", fontWeight: 700 }}>{k}</div>
+                      <div style={{ flex: 1, padding: "8px 12px", fontSize: "13px", fontWeight: 600 }}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ fontSize: "12px", color: "rgba(180,220,255,0.7)", fontWeight: 700, marginBottom: "6px" }}>תצלומים ({capturedShots.length})</div>
+                {capturedShots.length > 0 ? (
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+                    {capturedShots.map((src, i) => (
+                      <img key={i} src={src} alt="" style={{ width: "110px", height: "72px", objectFit: "cover", borderRadius: "8px", border: "1px solid rgba(201,162,75,0.5)" }} />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: "12px", color: "rgba(255,200,120,0.85)", marginBottom: "16px" }}>אין תצלומים — יצורף צילום אחד של הסצנה. לאיכות טובה, צלם עם 📸 לפני השליחה.</div>
+                )}
+
+                <div style={{ fontSize: "12px", color: "rgba(180,220,255,0.7)", fontWeight: 700, marginBottom: "6px" }}>רשימת מוצגים</div>
+                <div style={{ fontSize: "13px", lineHeight: 1.7, marginBottom: "16px", maxHeight: "160px", overflowY: "auto", padding: "8px 12px", borderRadius: "10px", background: "rgba(8,16,34,0.5)", whiteSpace: "pre-line" }}>{ex.numberedItems}</div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <label style={fieldLabel}>
+                    משלחת / מקור
+                    <input value={delegationSource} onChange={(e) => setDelegationSource(e.target.value)} placeholder="מאיפה הגיעה המשלחת" style={{ width: "100%", marginTop: "4px", padding: "9px 11px", borderRadius: "10px", border: "1px solid rgba(125,211,252,0.25)", background: "rgba(6,12,26,0.8)", color: "#eaf4ff", fontSize: "14px", fontWeight: 600, outline: "none", fontFamily: "inherit" }} />
+                  </label>
+                  <label style={fieldLabel}>
+                    מזמין שיווק
+                    <input value={marketingRequester} onChange={(e) => setMarketingRequester(e.target.value)} placeholder="איש הקשר מהשיווק" style={{ width: "100%", marginTop: "4px", padding: "9px 11px", borderRadius: "10px", border: "1px solid rgba(125,211,252,0.25)", background: "rgba(6,12,26,0.8)", color: "#eaf4ff", fontSize: "14px", fontWeight: 600, outline: "none", fontFamily: "inherit" }} />
+                  </label>
+                  <label style={fieldLabel}>
+                    הערות / תיקונים
+                    <textarea value={notesText} onChange={(e) => setNotesText(e.target.value)} rows={3} placeholder="הערות, תיקונים, בקשות..." style={{ width: "100%", marginTop: "4px", padding: "9px 11px", borderRadius: "10px", border: "1px solid rgba(125,211,252,0.25)", background: "rgba(6,12,26,0.8)", color: "#eaf4ff", fontSize: "14px", fontWeight: 600, outline: "none", fontFamily: "inherit", resize: "vertical" }} />
+                  </label>
+                </div>
+
+                <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
+                  <button type="button" disabled={emailSending} onClick={handleSendEmail} style={{ flex: 1, padding: "12px", borderRadius: "12px", border: "1px solid rgba(96,165,250,0.5)", background: emailSending ? "rgba(96,165,250,0.15)" : "rgba(96,165,250,0.22)", color: "#cfe3ff", fontSize: "15px", fontWeight: 800, cursor: emailSending ? "wait" : "pointer" }}>
+                    {emailSending ? "שולח..." : "✉️ שלח מייל"}
+                  </button>
+                  <button type="button" disabled={emailSending} onClick={() => setEmailModalOpen(false)} style={{ padding: "12px 18px", borderRadius: "12px", border: "1px solid rgba(148,163,184,0.3)", background: "rgba(255,255,255,0.04)", color: "#dbe7f5", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}>
+                    ביטול
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Exhibit list overlay (focus mode) */}
       {focusMode && showExhibitList && (
