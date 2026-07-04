@@ -57,6 +57,7 @@ type IsraelExhibition = {
   tentTemplate: '' | 'tent-25x10' | 'tent-30x20'
   layoutStatus: LayoutStatus
   planningItemsCount: number
+  isCompleted?: boolean
 }
 
 const STORAGE_KEY = 'israel-exhibitions-board-v7'
@@ -167,6 +168,7 @@ function normalizeExhibition(item: Partial<IsraelExhibition>): IsraelExhibition 
           notes: ex.notes || '',
         }))
       : [],
+    isCompleted: item.isCompleted === true,
   }
 }
 
@@ -395,6 +397,16 @@ export default function IsraelExhibitionsPage() {
     setIsEditing(false)
   }
 
+  function toggleCompleted() {
+    if (!draft) return
+    const nextValue = !draft.isCompleted
+    const updatedDraft = { ...draft, isCompleted: nextValue }
+    setDraft(updatedDraft)
+    setExhibitions((prev) =>
+      prev.map((item) => (item.id === draft.id ? { ...item, isCompleted: nextValue } : item))
+    )
+  }
+
   function updateDraft<K extends keyof IsraelExhibition>(key: K, value: IsraelExhibition[K]) {
     setDraft((prev) => {
       if (!prev) return prev
@@ -540,14 +552,21 @@ function removeAssetRef(id: string) {
                         <div className="text-base font-semibold text-white">{item.nameHe}</div>
                         <div className="text-xs text-slate-400">{item.nameEn || '—'}</div>
                       </div>
-                      <span className={[
-                        "shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold border",
-                        item.approvalStatus === 'approved'     ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" :
-                        item.approvalStatus === 'not-approved' ? "border-red-400/30 bg-red-400/10 text-red-300" :
-                                                                 "border-amber-400/30 bg-amber-400/10 text-amber-300",
-                      ].join(' ')}>
-                        {item.approvalStatus === 'approved' ? '✅ מאושר' : item.approvalStatus === 'not-approved' ? '🔴 לא מאושר' : '🟡 ממתין'}
-                      </span>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        <span className={[
+                          "rounded-full px-2 py-1 text-[11px] font-semibold border",
+                          item.approvalStatus === 'approved'     ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" :
+                          item.approvalStatus === 'not-approved' ? "border-red-400/30 bg-red-400/10 text-red-300" :
+                                                                   "border-amber-400/30 bg-amber-400/10 text-amber-300",
+                        ].join(' ')}>
+                          {item.approvalStatus === 'approved' ? '✅ מאושר' : item.approvalStatus === 'not-approved' ? '🔴 לא מאושר' : '🟡 ממתין'}
+                        </span>
+                        {item.isCompleted && (
+                          <span className="rounded-full border border-emerald-400/40 bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
+                            ✔ בוצע
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-1 text-xs text-slate-400">
                       <div>מיקום: <span className="text-slate-300">{item.location || '—'}</span></div>
@@ -613,6 +632,17 @@ function removeAssetRef(id: string) {
                       className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/20"
                     >
                       דוח סיום
+                    </button>
+                    <button
+                      onClick={toggleCompleted}
+                      className={[
+                        "rounded-xl border px-4 py-2 text-sm font-semibold transition",
+                        draft.isCompleted
+                          ? "border-emerald-400/60 bg-emerald-400/20 text-emerald-100 hover:bg-emerald-400/25"
+                          : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10",
+                      ].join(' ')}
+                    >
+                      {draft.isCompleted ? '✅ בוצע' : 'סמן כבוצע'}
                     </button>
                   </div>
                 </div>
