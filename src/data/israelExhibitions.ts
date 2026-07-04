@@ -39,7 +39,7 @@ export type IsraelExhibition = {
   boothType: BoothType
   notes: string
   exhibits: ExhibitionAssetRef[]
-  tentTemplate: '' | 'tent-25x10' | 'tent-30x20'
+  tentTemplate: '' | '25x15' | '30x20' | 'open' | 'hangar'
   layoutStatus: LayoutStatus
   planningItemsCount: number
   inventoryItemIds: string[]

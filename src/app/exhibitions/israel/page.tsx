@@ -15,12 +15,29 @@ type BoothType = 'with-booth' | 'without-booth' | 'digital-only'
 type ExhibitStatus = 'approved' | 'pending' | 'planned'
 type LayoutStatus = 'not-started' | 'in-progress' | 'ready'
 
+type DivisionKey = 'matah' | 'elta' | 'kataz' | 'teufa'
+
 type CatalogAsset = {
   id: string
   titleHe: string
   titleEn: string
-  category: 'space' | 'air' | 'land' | 'naval'
+  category: DivisionKey
   href: string
+}
+
+const DIVISION_MAP: Record<string, DivisionKey> = {
+  mtach: 'matah', tilim: 'matah', halal: 'matah', malam: 'matah', hagana: 'matah',
+  elta: 'elta', mkam: 'elta', tamam: 'elta', soi: 'elta', robotika: 'elta',
+  kataz: 'kataz',
+  teufa: 'teufa',
+}
+
+const DIVISION_LABELS: Record<DivisionKey, string> = {
+  matah: 'מטח', elta: 'אלתא', kataz: 'כטצ', teufa: 'תעופה',
+}
+
+const DIVISION_HREF_PREFIX: Record<DivisionKey, string> = {
+  matah: '/air', elta: '/air', kataz: '/air', teufa: '/air',
 }
 
 type ExhibitionAssetRef = {
@@ -54,7 +71,7 @@ type IsraelExhibition = {
   boothType: BoothType
   notes: string
   exhibits: ExhibitionAssetRef[]
-  tentTemplate: '' | 'tent-25x10' | 'tent-30x20'
+  tentTemplate: '' | '25x15' | '30x20' | 'open' | 'hangar'
   layoutStatus: LayoutStatus
   planningItemsCount: number
   isCompleted?: boolean
@@ -65,53 +82,19 @@ const SELECTED_ID_KEY = 'israel-exhibitions-board-selected-id-v7'
 const DRAFT_KEY = 'israel-exhibitions-board-draft-v7'
 const IS_EDITING_KEY = 'israel-exhibitions-board-is-editing-v7'
 
-const assetCatalog: CatalogAsset[] = [
-  // Space
-  { id: 'space-tecsar',     titleHe: 'טקסאר',      titleEn: 'Tecsar',      category: 'space', href: '/space/tecsar'     },
-  { id: 'space-beresheet',  titleHe: 'בראשית',     titleEn: 'Beresheet',   category: 'space', href: '/space/beresheet'  },
-  { id: 'space-shavit',     titleHe: 'שביט',       titleEn: 'Shavit',      category: 'space', href: '/space/shavit'     },
-  { id: 'space-optsat-500', titleHe: 'OPTSAT 500', titleEn: 'OPTSAT 500',  category: 'space', href: '/space/optsat-500' },
-  { id: 'space-optsar-550', titleHe: 'OPTSAR 550', titleEn: 'OPTSAR 550',  category: 'space', href: '/space/optsar-550' },
-  { id: 'space-optsat-3000',titleHe: 'OPTSAT 3000',titleEn: 'OPTSAT 3000', category: 'space', href: '/space/optsat-3000'},
-  { id: 'space-mcs',        titleHe: 'MCS',        titleEn: 'MCS',         category: 'space', href: '/space/mcs'        },
-
-  // Air — manual assets
-  { id: 'air-lora',            titleHe: 'לורה',          titleEn: 'LORA',            category: 'air', href: '/air/lora'            },
-  { id: 'air-arrow-2',         titleHe: 'חץ 2',          titleEn: 'Arrow-2',         category: 'air', href: '/air/arrow-2'         },
-  { id: 'air-arrow-3-missile', titleHe: 'חץ 3',          titleEn: 'Arrow-3',         category: 'air', href: '/air/arrow-3-missile' },
-  { id: 'air-heron',           titleHe: 'הרון',          titleEn: 'Heron',           category: 'air', href: '/air/heron'           },
-  { id: 'air-wanderb',         titleHe: 'וונדר בי',      titleEn: 'WanderB',         category: 'air', href: '/air/wanderb'         },
-
-  // Air — auto assets
-  { id: 'air-mmr',           titleHe: 'מכ״ם MMR',    titleEn: 'MMR',           category: 'air', href: '/air/mmr'           },
-  { id: 'air-arrow-4',       titleHe: 'חץ 4',         titleEn: 'Arrow 4',       category: 'air', href: '/air/arrow-4'       },
-  { id: 'air-thunder-vtol',  titleHe: 'ת׳אנדר VTOL',  titleEn: 'Thunder VTOL',  category: 'air', href: '/air/thunder-vtol'  },
-  { id: 'air-harop',         titleHe: 'הרופ',          titleEn: 'HAROP',         category: 'air', href: '/air/harop'         },
-  { id: 'air-mini-harpy',    titleHe: 'מיני הרפי',     titleEn: 'Mini Harpy',    category: 'air', href: '/air/mini-harpy'    },
-  { id: 'air-lahat',         titleHe: 'להט',           titleEn: 'LAHAT',         category: 'air', href: '/air/lahat'         },
-  { id: 'air-lahat-alfa',    titleHe: 'להט אלפא',      titleEn: 'LAHAT ALFA',    category: 'air', href: '/air/lahat-alfa'    },
-  { id: 'air-barak-launcher',titleHe: 'משגר ברק',      titleEn: 'Barak Launcher',category: 'air', href: '/air/barak-launcher'},
-  { id: 'air-elm-2058',      titleHe: 'מכ״ם ELM-2058', titleEn: 'ELM-2058',      category: 'air', href: '/air/elm-2058'      },
-  { id: 'air-wasp',          titleHe: 'צרעה',          titleEn: 'WASP',          category: 'air', href: '/air/wasp'          },
-  { id: 'air-rotem',         titleHe: 'רותם',          titleEn: 'ROTEM',         category: 'air', href: '/air/rotem'         },
-  { id: 'air-apus25',        titleHe: 'אפוס 25',       titleEn: 'APUS 25',       category: 'air', href: '/air/apus25'        },
-  { id: 'air-apus60',        titleHe: 'אפוס 60',       titleEn: 'APUS 60',       category: 'air', href: '/air/apus60'        },
-  { id: 'air-pointblank',    titleHe: 'פוינטבלנק',     titleEn: 'POINTBLANK',    category: 'air', href: '/air/pointblank'    },
-  { id: 'air-microwami',     titleHe: 'מיקרוואמי',     titleEn: 'MICROWAMI',     category: 'air', href: '/air/microwami'     },
-  { id: 'air-megapop',       titleHe: 'מגה-פופ',       titleEn: 'MEGAPOP',       category: 'air', href: '/air/megapop'       },
-  { id: 'air-pop1000',       titleHe: 'פופ 1000',      titleEn: 'POP 1000',      category: 'air', href: '/air/pop1000'       },
-  { id: 'air-minipop',       titleHe: 'מיני-פופ',      titleEn: 'MINIPOP',       category: 'air', href: '/air/minipop'       },
-  { id: 'air-arrow-launcher',titleHe: 'משגר חץ',       titleEn: 'Arrow Launcher',category: 'air', href: '/air/arrow-launcher'},
-
-  // Land
-  { id: 'land-zmag',      titleHe: 'זמג',       titleEn: 'ZMAG',      category: 'land', href: '/land/zmag'      },
-  { id: 'land-3dcapture', titleHe: '3DCAPTURE',  titleEn: '3DCAPTURE', category: 'land', href: '/land/3dcapture' },
-  { id: 'land-panda',     titleHe: 'פנדה',       titleEn: 'PANDA',     category: 'land', href: '/land/panda'     },
-  { id: 'land-robattle',  titleHe: 'רובאטל',     titleEn: 'ROBATTLE',  category: 'land', href: '/land/robattle'  },
-
-  // Naval
-  { id: 'naval-katana', titleHe: 'קטנה', titleEn: 'KATANA', category: 'naval', href: '/naval/katana' },
-]
+// Auto-built from masterExhibits (excludes inventory). Always in sync.
+const assetCatalog: CatalogAsset[] = masterExhibits
+  .filter((e) => e.division !== "inventory" && DIVISION_MAP[e.division])
+  .map((e) => {
+    const category = DIVISION_MAP[e.division]
+    return {
+      id: e.slug,
+      titleHe: e.nameHe,
+      titleEn: e.nameEn,
+      category,
+      href: `${DIVISION_HREF_PREFIX[category]}/${e.slug}`,
+    }
+  })
 
 const initialExhibitions: IsraelExhibition[] = initialIsraelExhibitions
 
@@ -145,8 +128,8 @@ function normalizeExhibition(item: Partial<IsraelExhibition>): IsraelExhibition 
         : 'with-booth',
     notes: item.notes || '',
     tentTemplate:
-      item.tentTemplate === 'tent-25x10' || item.tentTemplate === 'tent-30x20'
-        ? item.tentTemplate
+      (['25x15','30x20','open','hangar'] as const).includes(item.tentTemplate as never)
+        ? (item.tentTemplate as IsraelExhibition['tentTemplate'])
         : '',
     layoutStatus:
       item.layoutStatus === 'in-progress' || item.layoutStatus === 'ready'
@@ -218,14 +201,16 @@ function layoutStatusLabel(value: LayoutStatus) {
 }
 
 function tentTemplateLabel(value: IsraelExhibition['tentTemplate']) {
-  if (value === 'tent-25x10') return '25x10'
-  if (value === 'tent-30x20') return '30x20'
+  if (value === '25x15') return 'אוהל 25x15'
+  if (value === '30x20') return 'אוהל 30x20'
+  if (value === 'open') return 'שטח פתוח'
+  if (value === 'hangar') return 'האנגר'
   return 'לא נבחר'
 }
 
 function planningHref(value: IsraelExhibition['tentTemplate']) {
   if (!value) return null
-  return `/tents-layout/${value}`
+  return `/tents-layout`
 }
 
 const inventoryMap = new Map(inventoryItems.map((item) => [item.id, item]))
@@ -237,6 +222,7 @@ export default function IsraelExhibitionsPage() {
   const [draft, setDraft] = useState<IsraelExhibition | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [newAssetId, setNewAssetId] = useState(assetCatalog[0]?.id || '')
+  const [newAssetDivision, setNewAssetDivision] = useState<DivisionKey>('matah')
   const [newInventoryId, setNewInventoryId] = useState("")
 
   useEffect(() => {
@@ -728,7 +714,7 @@ function removeAssetRef(id: string) {
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-300">תכנון והקמה</p>
-                      <p className="mt-1 text-sm text-slate-400">חיבור לתבנית אוהל, לוח תכנון ופריטי מלאי</p>
+                      <p className="mt-1 text-sm text-slate-400">חיבור לתבנית אוהל ולוח תכנון</p>
                     </div>
                     {draft.tentTemplate ? (
                       <Link href={planningHref(draft.tentTemplate) || '/tents-layout'} className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/20">
@@ -742,8 +728,10 @@ function removeAssetRef(id: string) {
                     <Field label="תבנית אוהל">
                       <select value={draft.tentTemplate} onChange={(e) => updateDraft('tentTemplate', e.target.value as IsraelExhibition['tentTemplate'])} disabled={!isEditing} className={inputClass(isEditing)}>
                         <option value="">לא נבחר</option>
-                        <option value="tent-25x10">אוהל 25x10</option>
-                        <option value="tent-30x20">אוהל 30x20</option>
+                        <option value="25x15">אוהל 25x15</option>
+                        <option value="30x20">אוהל 30x20</option>
+                        <option value="open">שטח פתוח</option>
+                        <option value="hangar">האנגר</option>
                       </select>
                     </Field>
                     <Field label="סטטוס תכנון">
@@ -761,46 +749,6 @@ function removeAssetRef(id: string) {
                         {draft.tentTemplate ? planningHref(draft.tentTemplate) : '—'}
                       </div>
                     </Field>
-                    <Field label="פריטי מלאי">
-                      <div className="rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-4">
-                        <div className="mb-3 text-sm font-semibold text-white/85">
-                          פריטי מלאי מקושרים
-                          <span className="mr-2 text-xs font-normal text-slate-500">סה״כ: {draft.inventoryItemIds?.length ?? 0}</span>
-                        </div>
-                        <div className="mb-3 flex flex-col gap-2 sm:flex-row">
-                          <select value={newInventoryId} onChange={(e) => setNewInventoryId(e.target.value)} disabled={!isEditing} className={`min-w-0 flex-1 ${inputClass(isEditing)}`}>
-                            <option value="">בחר פריט מלאי</option>
-                            {inventoryItems.map((item) => (
-                              <option key={item.id} value={item.id}>{item.name.he ?? item.name.en}</option>
-                            ))}
-                          </select>
-                          <button type="button" onClick={addInventoryItem} disabled={!isEditing || !newInventoryId} className="shrink-0 rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40">
-                            הוסף
-                          </button>
-                        </div>
-                        {draft.inventoryItemIds && draft.inventoryItemIds.length > 0 ? (
-                          <div className="grid gap-2 md:grid-cols-2">
-                            {draft.inventoryItemIds.map((inventoryId) => {
-                              const linkedItem = inventoryMap.get(inventoryId)
-                              return (
-                                <div key={inventoryId} className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm">
-                                  <span className="min-w-0 flex-1 truncate font-medium text-white/90">
-                                    {linkedItem ? (linkedItem.name.he ?? linkedItem.name.en) : inventoryId}
-                                  </span>
-                                  <button type="button" onClick={() => removeInventoryItem(inventoryId)} disabled={!isEditing} className="shrink-0 rounded-lg border border-red-300/30 bg-red-400/10 px-2 py-1 text-xs text-red-200 transition hover:bg-red-400/15 disabled:opacity-40">
-                                    הסר
-                                  </button>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        ) : (
-                          <div className="rounded-xl border border-dashed border-white/10 px-4 py-4 text-sm text-slate-500">
-                            עדיין לא קושרו פריטי מלאי
-                          </div>
-                        )}
-                      </div>
-                    </Field>
                   </div>
                 </div>
 
@@ -811,11 +759,31 @@ function removeAssetRef(id: string) {
 
                   {isEditing && (
                     <div className="mb-5 rounded-[18px] border border-cyan-400/20 bg-cyan-400/5 p-4">
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        {(['matah', 'kataz', 'elta', 'teufa'] as DivisionKey[]).map((div) => (
+                          <button
+                            key={div}
+                            onClick={() => {
+                              setNewAssetDivision(div)
+                              const first = assetCatalog.find((a) => a.category === div)
+                              if (first) setNewAssetId(first.id)
+                            }}
+                            className={[
+                              'rounded-xl border px-4 py-2 text-sm font-semibold transition',
+                              newAssetDivision === div
+                                ? 'border-cyan-400/60 bg-cyan-400/20 text-cyan-100'
+                                : 'border-white/15 bg-white/5 text-white/70 hover:bg-white/10',
+                            ].join(' ')}
+                          >
+                            {DIVISION_LABELS[div]}
+                          </button>
+                        ))}
+                      </div>
                       <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_160px]">
                         <Field label="בחר מוצג מהקטלוג">
                           <select value={newAssetId} onChange={(e) => setNewAssetId(e.target.value)} className={inputClass(true)}>
-                            {assetCatalog.map((asset) => (
-                              <option key={asset.id} value={asset.id}>{asset.titleHe} — {asset.category}</option>
+                            {assetCatalog.filter((asset) => asset.category === newAssetDivision).map((asset) => (
+                              <option key={asset.id} value={asset.id}>{asset.titleHe} — {asset.titleEn}</option>
                             ))}
                           </select>
                         </Field>
@@ -842,7 +810,7 @@ function removeAssetRef(id: string) {
                               <div>
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
                                   <span className="rounded-full border border-cyan-300/20 bg-cyan-400/8 px-3 py-0.5 text-xs text-cyan-300">מוצג {index + 1}</span>
-                                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-0.5 text-xs text-slate-400">{asset?.category || '—'}</span>
+                                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-0.5 text-xs text-slate-400">{asset ? DIVISION_LABELS[asset.category] : '—'}</span>
                                   <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-0.5 text-xs text-slate-400">{statusLabel(item.status)}</span>
                                 </div>
                                 <div className="text-base font-semibold text-white">{asset?.titleHe || 'מוצג לא נמצא בקטלוג'}</div>
