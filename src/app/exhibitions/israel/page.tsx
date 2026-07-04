@@ -9,6 +9,7 @@ import Link from 'next/link'
 import DivisionSidebar from '../../../components/DivisionSidebar'
 import { useEffect, useMemo, useState } from 'react'
 import { initialIsraelExhibitions } from '../../../data/israelExhibitions'
+import ExecutionReportModal from '../../../components/exhibitions/ExecutionReportModal'
 
 type BoothType = 'with-booth' | 'without-booth' | 'digital-only'
 type ExhibitStatus = 'approved' | 'pending' | 'planned'
@@ -230,6 +231,7 @@ const inventoryMap = new Map(inventoryItems.map((item) => [item.id, item]))
 export default function IsraelExhibitionsPage() {
   const [exhibitions, setExhibitions] = useState<IsraelExhibition[]>([])
   const [selectedId, setSelectedId] = useState('')
+  const [showReportModal, setShowReportModal] = useState(false)
   const [draft, setDraft] = useState<IsraelExhibition | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [newAssetId, setNewAssetId] = useState(assetCatalog[0]?.id || '')
@@ -606,6 +608,12 @@ function removeAssetRef(id: string) {
                         </button>
                       </>
                     )}
+                    <button
+                      onClick={() => setShowReportModal(true)}
+                      className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/20"
+                    >
+                      דוח סיום
+                    </button>
                   </div>
                 </div>
 
@@ -858,6 +866,17 @@ function removeAssetRef(id: string) {
         </div>
       </div>
       </main>
+
+      {showReportModal && draft && (
+        <ExecutionReportModal
+          exhibitionId={draft.id}
+          nameHe={draft.nameHe || 'ללא שם'}
+          location={draft.location || ''}
+          startDateLabel={formatDateHe(draft.startDate)}
+          exhibitsCount={countTotalUnits(draft.exhibits)}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </div>
   )
 }
