@@ -1,52 +1,71 @@
 # PROJECT PROTOCOL — IAI Exhibition Platform
+> ЧИТАЙ ЭТОТ ФАЙЛ ПЕРВЫМ, ПЕРЕД ЛЮБОЙ РАБОТОЙ. Он описывает проект и железные правила работы.
 
-## Project
-Built by **Sagi Amiel**. Exhibition management system for Israel Aerospace Industries.
+## 1. О проекте
+Внутренний инструмент Israel Aerospace Industries (IAI) для управления выставками: каталог ~49 макетов-экспонатов по 4 дивизиям, инвентарь, 3D-конфигуратор палаток, центр выставок, дневник завершения выставки.
+Автор: Sagi Amiel (не программист — копирует готовые проверенные команды в обычный терминал Mac).
 
-## Stack
-- Next.js 16, TypeScript, Tailwind CSS
-- GitHub: https://github.com/SagiPantheon/exhbition-platform
+## 2. Как общаться с Sagi
+- Язык общения: русский. Обращение: "брат", тёплый тон.
+- Sagi копирует готовые команды — давай их проверенными, по одному шагу.
+- Обсуждаем и документируем ДО кода.
 
-## Design System
-- Background: `#01020e`
-- Accent / neon: `#00c8ff` (cyan)
-- Branding palette: IAI blue family (`#0080ff`, `#22d3ee`, `#3b82f6`, `#00aaff`)
-- Font: Heebo (Hebrew UI), Assistant fallback
-- Style: dark military-tech, neon glow, glassmorphism cards
+## 3. Стек и репозиторий
+- Next.js 16.1.6, TypeScript, Tailwind CSS
+- GitHub: https://github.com/SagiPantheon/exhbition-platform, ветка space-safe-edit-flow
+- Локальная папка: ~/Desktop/exhbition-platform2 (Mac, iMac-Sagi)
+- Деплой: Vercel, адрес exhbition-platform.vercel.app (аккаунт sagipantheon)
 
-## Divisions
-| ID | Hebrew | Notes |
-|----|--------|-------|
-| `missiles-space-defense` | חטיבת מט"ח | Missiles · Space · Defense (MALM) |
-| `elta` | חטיבת אלתא | Radar · Comms · Robotics |
-| `aviation` | חטיבת תעופה | MRO · Bedek |
-| `uav` | חטיבת כט"צ | UAV / Drones |
+## 4. ЖЕЛЕЗНЫЕ ПРАВИЛА (нарушение = поломка)
+1. Установка ТОЛЬКО: npm install --legacy-peer-deps (конфликт 3D peer-deps).
+2. НИКОГДА: npm audit fix --force (ломает 3D).
+3. Правки через Python-heredoc (python3 << 'PYEOF'). Иврит кодировать через \uXXXX. НЕ использовать r''' с ивритом.
+4. next-env.d.ts НИКОГДА не коммитить (git restore --staged next-env.d.ts).
+5. Бэкап перед каждой правкой в _backups/.
+6. Всегда npm run build перед push (должно быть 149/149 страниц, растёт при добавлении экспонатов).
+7. UI: иврит + английский. Код: английский. Общение: русский.
 
-## Key Files
-- `src/app/page.tsx` — main hub page (clean rewrite, do not bloat)
-- `src/app/global-exhibit-bank/page.tsx` — exhibit bank hub
-- `src/data/exhibits.ts` — exhibits data source (next to build)
-- `public/images/` — all cover and exhibit images
-- `public/covers/iai-white.png` — IAI logo white
+## 5. Рабочий цикл
+git pull -> [правка + бэкап] -> npm run build -> git add -A -> git restore --staged next-env.d.ts -> git commit -> git push
+Если git pull ругается "bad object ... space-safe-edit-flow 2": rm ".git/refs/remotes/origin/space-safe-edit-flow 2"
 
-## Working Rules
-1. All code changes via the agreed workflow (Python scripts or direct edits).
-2. Run `npm run dev` after every change to verify.
-3. `git commit` at the end of every session.
-4. UI text: Hebrew and English only.
-5. Code (variables, functions, comments): English only.
-6. Session language: **Russian**.
+## 6. Дивизии (4 бизнес-дивизии)
+Данные в src/data/masterExhibits.ts содержат сырые коды division, маппятся на 4 дивизии (DIVISION_MAP в src/app/exhibitions/israel/page.tsx):
+- matah (מטח): mtach, tilim, halal, malam, hagana
+- elta (אלתא): elta, mkam, tamam, soi, robotika
+- kataz (כטצ): kataz
+- teufa (תעופה): teufa
+Инвентарь: division "inventory" — исключается из каталога экспонатов.
 
-## Build Roadmap
-| # | Status | Block |
-|---|--------|-------|
-| 1 | ✅ Done | Hero section, Global Exhibit Bank hub, 4 division cards, animated globe, IAI dot pattern |
-| 2 | ✅ Done | Space / Air / Land / Naval section pages — all working, unified in same design system (Tailwind, SpaceAssetCard-style cards, edit bars, ClassificationBadge). All 4 sections connected to main page via navigation strip. |
-| 3 | 🔲 Next | Tent configurator with drag-and-drop layout |
-| 4 | 🔲 | Exhibitions center — Israel and abroad views |
-| 5 | 🔲 | Polish pass — animations, transitions, print/export |
+## 7. Ключевые файлы
+- src/data/masterExhibits.ts — ИСТОЧНИК ПРАВДЫ по экспонатам и инвентарю
+- src/app/tents-layout/page.tsx — 3D-конфигуратор палаток (монолит ~3700 строк). Типы: 25x15 / 30x20 / open / hangar
+- src/app/exhibitions/israel/page.tsx — центр выставок (каталог авто, фильтр по дивизиям, дневник, кнопка בוצע)
+- src/components/common/AssetDetailClient.tsx — единый эталон детальных страниц
+- src/components/exhibitions/ExecutionReportModal.tsx — дневник завершения выставки
+- src/data/executionReport.ts — данные дневника (localStorage)
+- public/models/air/ — 3D-модели (.glb), public/images/air/ — фото (.png)
+- public/scenes/preset-tentScene_*.json — замороженные сцены палаток
 
-## Branding Notes
-- IAI dot pattern: scattered blue dots (varying size 2–10px, opacity 0.2–0.7) over hero images — see hero in `src/app/page.tsx` for reference implementation.
-- Neon lines / SVG connectors used in the division grid to show relationships.
-- All division cover images follow naming: `/images/divisions/<id>-cover.png`.
+## 8. Соглашения об именах
+- Модель: /models/air/{slug}-showcase-3d.glb
+- Фото: /images/air/{slug}-showcase.png (БЕЗ -3d)
+- Детальная страница любого экспоната: /air/{slug}
+
+## 9. 3D-модели: сжатие (обязательно для новых, часто 50-75МБ)
+npx @gltf-transform/cli optimize [in].glb /tmp/[name]-test.glb --compress draco
+(npx, НЕ -g из-за EACCES на Mac). Проверять на gltf-viewer.donmccurdy.com, потом cp поверх оригинала.
+
+## 10. Данные и хранение
+- Палатки, дневник, статусы выставок — в localStorage браузера (НЕ синхронизируется, НЕ уходит в git).
+- Чтобы данные были везде — заморозить в файл (как preset-tentScene_*.json).
+- Vercel serverless — файлы писать НЕЛЬЗЯ.
+
+## 11. Vercel / безопасность
+- Deployment Protection: оборонный инструмент, публично только после уточнения у IT/безопасности IAI.
+- Install Command на Vercel: npm install --legacy-peer-deps.
+
+## 12. Открытые задачи (TODO)
+- Прикрепление файлов к выставкам (нужно внешнее хранилище).
+- Сжатие новых 3D-моделей по мере добавления.
+- /he/ двуязычный mirror — поддерживать, НЕ удалять.
