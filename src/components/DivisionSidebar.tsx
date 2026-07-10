@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { label: "Layouts",            href: "/tents-layout",          icon: "⊡" },
   { label: "אבחון",              href: "/diagnostics",          icon: "⊘" },
   { label: "מלאי",               href: "/inventory",             icon: "⊠" },
+  { label: "בית לקוחות", href: "https://iai-hosting.vercel.app", icon: "⌂", external: true },
 ];
 
 type Props = {
@@ -27,16 +28,34 @@ export default function DivisionSidebar({ activeHref, totalAssets }: Props) {
       <nav className="flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
           const isActive = item.href === activeHref;
+          const classes = [
+            "flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition",
+            isActive
+              ? "border border-cyan-300/25 bg-cyan-400/10 text-cyan-100"
+              : "text-slate-400 hover:bg-white/[0.04] hover:text-white",
+          ].join(" ");
+
+          if ("external" in item && item.external) {
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classes}
+              >
+                <span className="text-[16px] leading-none opacity-70">{item.icon}</span>
+                {item.label}
+                <span className="ml-auto text-[11px] text-slate-500">↗</span>
+              </a>
+            );
+          }
+
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={[
-                "flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-medium transition",
-                isActive
-                  ? "border border-cyan-300/25 bg-cyan-400/10 text-cyan-100"
-                  : "text-slate-400 hover:bg-white/[0.04] hover:text-white",
-              ].join(" ")}
+              className={classes}
             >
               <span className="text-[16px] leading-none opacity-70">{item.icon}</span>
               {item.label}
