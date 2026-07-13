@@ -1510,20 +1510,28 @@ export default function TentsLayoutPage() {
 
   const statusItems = useMemo(() => {
     const cfg = {
-      "25x15":  { name: "אוהל 25x15", length: "25m", width: "15m",  area: "375m²"  },
-      "30x20":  { name: "אוהל 30x20", length: "30m", width: "20m",  area: "600m²"  },
-      "open":   { name: "שטח פתוח",   length: "25m", width: "15m",  area: "375m²"  },
-      "hangar": { name: "האנגר",        length: "40m", width: "25m",  area: "1000m²" },
+      "25x15":  { name: "אוהל 25x15", length: "25m", width: "15m",  area: "375m²",  m2: 375  },
+      "30x20":  { name: "אוהל 30x20", length: "30m", width: "20m",  area: "600m²",  m2: 600  },
+      "open":   { name: "שטח פתוח",   length: "25m", width: "15m",  area: "375m²",  m2: 375  },
+      "hangar": { name: "האנגר",        length: "40m", width: "25m",  area: "1000m²", m2: 1000 },
     }[tentType];
+    const exhibitSlugs = new Set(EXHIBIT_ITEMS.map((e) => e.slug));
+    const usedArea = sceneItems.reduce((sum, it) => {
+      const s = it.scale ?? 1;
+      const ped = PEDESTAL_DIMS[it.type];
+      const base = ped ? ped[0] * ped[2] : exhibitSlugs.has(it.type) ? 18 : 2.5;
+      return sum + base * s * s;
+    }, 0);
+    const usagePct = Math.min(100, Math.round((usedArea / cfg.m2) * 100));
     return [
       [cfg.name,   "תבנית פעילה"],
       [cfg.length, "אורך"],
       [cfg.width,  "רוחב"],
       [cfg.area,   "שטח"],
       ["0",        "רכיבים"],
-      ["96%",      "מוכנות"],
+      [`${usagePct}%`, "ניצולת שטח"],
     ];
-  }, [tentType]);
+  }, [tentType, sceneItems]);
 
   const selectedItem = sceneItems.find((i) => i.id === selectedItemId) ?? null;
   const selectedDisplayName = selectedItem
