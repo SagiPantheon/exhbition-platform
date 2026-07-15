@@ -124,18 +124,11 @@ const DIVISION_HE: Record<string, string> = {
   kataz: "כט\"צ",
 };
 
-const DIVISION_TO_SECTION: Record<string, string> = {
-  teufa: "air",
-  mtach: "air",
-  elta:  "air",
-  kataz: "air",
-};
-
 const EXHIBIT_ITEMS = masterExhibits
-  .filter((e) => e.division !== "inventory")
+  .filter((e) => e.division !== "inventory" && DIVISION_HE[e.division])
   .map((e) => ({
     slug: e.slug,
-    section: DIVISION_TO_SECTION[e.division] ?? e.division,
+    section: e.division,
     division: e.division,
     displayName: e.nameHe,
     image: e.image,
@@ -312,12 +305,17 @@ function NeonSign({
 function TopPill({
   label,
   active = false,
+  onClick,
 }: {
   label: string;
   active?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
       style={{
         padding: "8px 12px",
         borderRadius: "12px",
@@ -331,10 +329,11 @@ function TopPill({
         fontSize: "13px",
         fontWeight: 700,
         whiteSpace: "nowrap",
+        cursor: onClick ? "pointer" : "default",
       }}
     >
       {label}
-    </div>
+    </button>
   );
 }
 
@@ -1349,6 +1348,91 @@ useGLTF.preload("/models/inventory/container-3d.glb");
 useGLTF.preload("/models/inventory/small-table.glb");
 useGLTF.preload("/models/inventory/armchair-01.glb");
 
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+}
+
+function buildExportPlanHtml(params: {
+  title: string;
+  date: string;
+  tentName: string;
+  tentLength: string;
+  tentWidth: string;
+  tentArea: string;
+  areaUsagePct: string;
+  divisions: string;
+  screenshot: string;
+  exhibitRows: { name: string; qty: number }[];
+  inventoryRows: { name: string; qty: number }[];
+}): string {
+  const { title, date, tentName, tentLength, tentWidth, tentArea, areaUsagePct, divisions, screenshot, exhibitRows, inventoryRows } = params;
+
+  const tableRows = (rows: { name: string; qty: number }[]) =>
+    rows.length
+      ? rows.map((r) => `<tr><td>${escapeHtml(r.name)}</td><td>${r.qty}</td></tr>`).join("")
+      : `<tr><td colspan="2" class="empty">אין פריטים</td></tr>`;
+
+  return `<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>${escapeHtml(title)} — תוכנית תצוגה</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #1a1a1a; margin: 0; padding: 32px 40px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: #555; font-size: 13px; margin-bottom: 24px; }
+  .info-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .info-cell { border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; }
+  .info-cell .label { font-size: 11px; color: #777; margin-bottom: 4px; }
+  .info-cell .value { font-size: 16px; font-weight: 700; }
+  .screenshot { width: 100%; max-height: 480px; object-fit: contain; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 24px; background: #f6f6f6; }
+  h2 { font-size: 15px; margin: 20px 0 8px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: right; font-size: 13px; }
+  th { background: #f2f2f2; }
+  td.empty { text-align: center; color: #999; }
+  .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .print-bar { margin-top: 28px; }
+  .print-bar button { padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 8px; border: 1px solid #2563eb; background: #2563eb; color: #fff; cursor: pointer; }
+  @media print {
+    .no-print { display: none; }
+    body { padding: 0; }
+  }
+</style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <div class="subtitle">${escapeHtml(date)}${divisions && divisions !== "—" ? " · " + escapeHtml(divisions) : ""}</div>
+
+  <div class="info-grid">
+    <div class="info-cell"><div class="label">תבנית</div><div class="value">${escapeHtml(tentName)}</div></div>
+    <div class="info-cell"><div class="label">אורך</div><div class="value">${escapeHtml(tentLength)}</div></div>
+    <div class="info-cell"><div class="label">רוחב</div><div class="value">${escapeHtml(tentWidth)}</div></div>
+    <div class="info-cell"><div class="label">שטח</div><div class="value">${escapeHtml(tentArea)}</div></div>
+    <div class="info-cell"><div class="label">ניצולת שטח</div><div class="value">${escapeHtml(areaUsagePct)}</div></div>
+  </div>
+
+  ${screenshot ? `<img class="screenshot" src="${screenshot}" alt="תצוגה מלמעלה" />` : ""}
+
+  <div class="tables">
+    <div>
+      <h2>תצוגות (${exhibitRows.reduce((s, r) => s + r.qty, 0)})</h2>
+      <table><thead><tr><th>שם</th><th>כמות</th></tr></thead><tbody>${tableRows(exhibitRows)}</tbody></table>
+    </div>
+    <div>
+      <h2>ריהוט ומלאי (${inventoryRows.reduce((s, r) => s + r.qty, 0)})</h2>
+      <table><thead><tr><th>שם</th><th>כמות</th></tr></thead><tbody>${tableRows(inventoryRows)}</tbody></table>
+    </div>
+  </div>
+
+  <div class="print-bar no-print">
+    <button type="button" onclick="window.print()">🖨️ הדפס / PDF</button>
+  </div>
+</body>
+</html>`;
+}
+
 export default function TentsLayoutPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [dramaticLight, setDramaticLight] = useState(false);
@@ -1459,12 +1543,14 @@ export default function TentsLayoutPage() {
   }, [selectedItemId]);
   const [activeTool, setActiveTool] = useState("Select");
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
-  const [activeSection, setActiveSection] = useState<"all" | "space" | "air" | "land" | "naval" | "inventory">("all");
+  const [activeSection, setActiveSection] = useState<"all" | "mtach" | "teufa" | "elta" | "kataz">("all");
   const [activeInventoryFilter, setActiveInventoryFilter] = useState<"הכל" | "ריהוט" | "מדיה" | "VIP" | "שירות">("הכל");
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
   const [toastVisible, setToastVisible] = useState(false);
   const [exhibitSearch, setExhibitSearch] = useState("");
   const [inventorySearch, setInventorySearch] = useState("");
+  const exhibitSearchInputRef = useRef<HTMLInputElement | null>(null);
+  const inventorySearchInputRef = useRef<HTMLInputElement | null>(null);
   const [exhibitionName, setExhibitionName] = useState("");
   const [signs, setSigns] = useState<SignItem[]>([]);
   const [showSigns, setShowSigns] = useState(true);
@@ -1795,6 +1881,52 @@ export default function TentsLayoutPage() {
     return { tentLabel, dims, title, numberedItems, total, divisions, date };
   }
 
+  function handleExportPlan() {
+    const win = window.open("", "_blank");
+    if (!win) {
+      alert("הדפדפן חסם את פתיחת החלון. אפשר חלונות קופצים ונסה שוב.");
+      return;
+    }
+    win.document.write("<!doctype html><title>טוען…</title><body style='font-family:sans-serif;padding:40px;color:#333'>טוען תוכנית…</body>");
+    win.document.close();
+
+    const prevCameraMode = cameraMode;
+    if (prevCameraMode !== "overview") setCameraMode("overview");
+
+    const finish = () => {
+      const screenshot = captureRef.current?.() ?? "";
+      if (prevCameraMode !== "overview") setCameraMode(prevCameraMode);
+
+      const { title, date, divisions } = buildExportData();
+      const tentName = statusItems[0][0];
+      const tentLength = statusItems[1][0];
+      const tentWidth = statusItems[2][0];
+      const tentArea = statusItems[3][0];
+      const areaUsagePct = statusItems[5][0];
+
+      const counts = new Map<string, number>();
+      sceneItems.forEach((si) => counts.set(si.type, (counts.get(si.type) ?? 0) + 1));
+      const exhibitRows: { name: string; qty: number }[] = [];
+      const inventoryRows: { name: string; qty: number }[] = [];
+      counts.forEach((qty, type) => {
+        const exhibit = EXHIBIT_ITEMS.find((e) => e.slug === type);
+        if (exhibit) exhibitRows.push({ name: exhibit.displayName, qty });
+        else inventoryRows.push({ name: type, qty });
+      });
+
+      const html = buildExportPlanHtml({
+        title, date, tentName, tentLength, tentWidth, tentArea, areaUsagePct, divisions,
+        screenshot, exhibitRows, inventoryRows,
+      });
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+    };
+
+    if (prevCameraMode === "overview") finish();
+    else setTimeout(finish, 900);
+  }
+
   function handleWhatsApp() {
     const { tentLabel, dims, title, numberedItems, date } = buildExportData();
     const msg = encodeURIComponent(
@@ -1858,7 +1990,7 @@ export default function TentsLayoutPage() {
       <div
         style={{
           maxWidth: focusMode ? "100vw" : "1880px",
-          margin: "14px auto 0",
+          margin: "60px auto 0",
           padding: focusMode ? "6px" : "12px",
           display: "grid",
           gap: focusMode ? "8px" : "12px",
@@ -2048,7 +2180,7 @@ export default function TentsLayoutPage() {
             </div>
 
             <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-              <TopPill label="תצוגה מקדימה" />
+              <TopPill label="תצוגה מקדימה" onClick={() => setEmailModalOpen(true)} />
               <button
                 type="button"
                 onClick={saveScene}
@@ -2184,7 +2316,7 @@ export default function TentsLayoutPage() {
               >
                 📸 הוסף תצלום ({capturedShots.length}/4)
               </button>
-              <TopPill label="ייצוא תוכנית" active />
+              <TopPill label="ייצוא תוכנית" active onClick={handleExportPlan} />
             </div>
             {capturedShots.length > 0 ? (
               <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap" }}>
@@ -2415,7 +2547,10 @@ export default function TentsLayoutPage() {
                   )}
                 </div>
 
-                <div
+                <button
+                  type="button"
+                  onClick={() => exhibitSearchInputRef.current?.focus()}
+                  aria-label="חפש תצוגה"
                   style={{
                     width: "34px",
                     height: "34px",
@@ -2428,10 +2563,12 @@ export default function TentsLayoutPage() {
                     color: "rgba(180,220,255,0.78)",
                     fontSize: "15px",
                     fontWeight: 800,
+                    cursor: "pointer",
+                    padding: 0,
                   }}
                 >
                   ⌕
-                </div>
+                </button>
               </div>
 
               <div
@@ -2446,15 +2583,12 @@ export default function TentsLayoutPage() {
                   flexWrap: "wrap",
                 }}
               >
-                {(["הכל", "חלל", "אוויר", "יבשה", "ים", "ריהוט אוהל"] as const).map((tag) => {
-                  const sectionMap: Record<string, "all" | "space" | "air" | "land" | "naval" | "inventory"> = {
-                    "הכל": "all", "חלל": "space", "אוויר": "air", "יבשה": "land", "ים": "naval", "ריהוט אוהל": "inventory",
-                  };
-                  const sec = sectionMap[tag];
+                {(["all", "mtach", "teufa", "elta", "kataz"] as const).map((sec) => {
+                  const label = sec === "all" ? "הכל" : DIVISION_HE[sec];
                   const isActive = activeSection === sec;
                   return (
                     <button
-                      key={tag}
+                      key={sec}
                       type="button"
                       onClick={() => setActiveSection(sec)}
                       style={{
@@ -2472,13 +2606,14 @@ export default function TentsLayoutPage() {
                         cursor: "pointer",
                       }}
                     >
-                      {tag}
+                      {label}
                     </button>
                   );
                 })}
               </div>
 
               <input
+                ref={exhibitSearchInputRef}
                 type="text"
                 value={exhibitSearch}
                 onChange={(e) => setExhibitSearch(e.target.value)}
@@ -3423,7 +3558,10 @@ export default function TentsLayoutPage() {
                   )}
                 </div>
 
-                <div
+                <button
+                  type="button"
+                  onClick={() => inventorySearchInputRef.current?.focus()}
+                  aria-label="חפש פריט"
                   style={{
                     width: "34px",
                     height: "34px",
@@ -3436,10 +3574,12 @@ export default function TentsLayoutPage() {
                     color: "rgba(180,220,255,0.78)",
                     fontSize: "15px",
                     fontWeight: 800,
+                    cursor: "pointer",
+                    padding: 0,
                   }}
                 >
                   ⌕
-                </div>
+                </button>
               </div>
 
               <div
@@ -3483,6 +3623,7 @@ export default function TentsLayoutPage() {
               </div>
 
               <input
+                ref={inventorySearchInputRef}
                 type="text"
                 value={inventorySearch}
                 onChange={(e) => setInventorySearch(e.target.value)}
