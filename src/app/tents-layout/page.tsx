@@ -152,6 +152,54 @@ const previewMap: Record<string, string> = Object.fromEntries(
     .map((e) => [e.nameHe, e.image])
 );
 
+// masterExhibits has no built-in category field for inventory items, so the
+// ריהוט/מדיה/VIP/שירות filter tags are kept here, keyed by the stable slug
+// (not the display name). Items missing from this map still show under "הכל".
+const INVENTORY_CATEGORIES: Record<string, ("ריהוט" | "מדיה" | "VIP" | "שירות")[]> = {
+  "inv-table":         ["ריהוט"],
+  "inv-small-table":   ["ריהוט"],
+  "inv-stand":         ["ריהוט"],
+  "inv-stage-blue":    ["ריהוט"],
+  "inv-stage-small":   ["ריהוט"],
+  "inv-folding-chair": ["ריהוט"],
+  "inv-armchair":      ["ריהוט", "VIP"],
+  "inv-podium":        ["ריהוט", "VIP"],
+  "inv-pedestal-s":    ["ריהוט"],
+  "inv-pedestal-m":    ["ריהוט"],
+  "inv-pedestal-l":    ["ריהוט"],
+  "inv-screen":        ["מדיה"],
+  "inv-projector":     ["מדיה", "שירות"],
+  "inv-loudspeaker":   ["מדיה"],
+  "inv-logo-white":    ["מדיה"],
+  "inv-logo-blue":     ["מדיה"],
+  "inv-digital-sign":  ["מדיה"],
+  "inv-magnetic-sign": ["מדיה"],
+  "inv-wood-sign":     ["מדיה"],
+  "inv-lightbox2":     ["מדיה"],
+  "lightbox-3m":       ["מדיה"],
+  "inv-lightbox-v":    ["מדיה"],
+  "caravan-iai":       ["מדיה"],
+  "inv-queue-poles":     ["שירות"],
+  "inv-phone-storage":   ["שירות"],
+  "inv-flag-china":      ["שירות"],
+  "inv-flags-pair":      ["שירות"],
+  "inv-camo":            ["שירות"],
+  "inv-arch":            ["שירות"],
+  "inv-inflatable-tent": ["שירות"],
+  "inv-white-tent":      ["שירות"],
+  "inv-tent-main":       ["שירות"],
+  "inv-container":       ["שירות"],
+};
+
+const INVENTORY_ITEMS = masterExhibits
+  .filter((e) => e.division === "inventory")
+  .map((e) => ({
+    slug: e.slug,
+    nameHe: e.nameHe,
+    image: e.image,
+    categories: INVENTORY_CATEGORIES[e.slug] ?? [],
+  }));
+
 type SceneItem = {
   id: string;
   type: string;
@@ -1575,27 +1623,12 @@ export default function TentsLayoutPage() {
     return q ? bySection.filter((e) => e.displayName.toLowerCase().includes(q)) : bySection;
   }, [activeSection, exhibitSearch]);
 
-  const INVENTORY_ALL = [
-    "שולחן", "שולחן קטן", "במה לבנה", "דשבורד דיגיטלי",
-    "במה כחולה", "במה קטנה", "כיסא מתקפל", "כורסא", "פודיום",
-    "בסיס תצוגה קטן", "בסיס תצוגה בינוני", "בסיס תצוגה גדול",
-    "מסך", "רמקול", "לוגו לבן", "לוגו כחול גדול", "שילוט דיגיטלי", "שילוט מגנטי", "שילוט עץ", "לייטבוקס 2", "לייטבוקס 3 מטר", "לייטבוקס אנכי",
-    "קרוואן תצוגה",
-    "דגל IAI", "דגל תעשייה אווירית", "רשת הסוואה", "שער מתנפח", "עמודי תור", "מתקן טלפונים",
-    "אוהל מתנפח", "אוהל לבן", "אוהל ראשי",
-    "קונטיינר תצוגה",
-  ] as const;
-  const INVENTORY_FILTER_MAP: Record<string, string[]> = {
-    "הכל":   [...INVENTORY_ALL],
-    "ריהוט": ["שולחן", "שולחן קטן", "כיסא מתקפל", "כורסא", "במה כחולה", "במה קטנה", "במה לבנה", "פודיום", "בסיס תצוגה קטן", "בסיס תצוגה בינוני", "בסיס תצוגה גדול"],
-    "מדיה":  ["מסך", "דשבורד דיגיטלי", "רמקול", "לוגו לבן", "לוגו כחול גדול", "שילוט דיגיטלי", "שילוט מגנטי", "שילוט עץ", "לייטבוקס 2", "לייטבוקס 3 מטר", "לייטבוקס אנכי", "קרוואן תצוגה"],
-    "VIP":   ["כורסא", "פודיום"],
-    "שירות": ["דשבורד דיגיטלי", "עמודי תור", "מתקן טלפונים", "דגל IAI", "דגל תעשייה אווירית", "רשת הסוואה", "שער מתנפח", "אוהל מתנפח", "אוהל לבן", "אוהל ראשי", "קונטיינר תצוגה"],
-  };
   const filteredInventory = useMemo(() => {
-    const byFilter = INVENTORY_FILTER_MAP[activeInventoryFilter] ?? INVENTORY_ALL;
+    const byFilter = activeInventoryFilter === "הכל"
+      ? INVENTORY_ITEMS
+      : INVENTORY_ITEMS.filter((i) => i.categories.includes(activeInventoryFilter));
     const q = inventorySearch.trim().toLowerCase();
-    return q ? byFilter.filter((item) => item.toLowerCase().includes(q)) : byFilter;
+    return q ? byFilter.filter((i) => i.nameHe.toLowerCase().includes(q)) : byFilter;
   }, [activeInventoryFilter, inventorySearch]);
 
   const statusItems = useMemo(() => {
@@ -3665,8 +3698,8 @@ export default function TentsLayoutPage() {
                   maxHeight: "calc(100vh - 420px)",
                 }}
               >
-                {filteredInventory.map((item) => (
-                  <SidebarItemCard key={item} item={item} onAdd={() => addItem(item)} />
+                {filteredInventory.map((inv) => (
+                  <SidebarItemCard key={inv.slug} item={inv.nameHe} image={inv.image} onAdd={() => addItem(inv.nameHe)} />
                 ))}
               </div>
             </aside>
