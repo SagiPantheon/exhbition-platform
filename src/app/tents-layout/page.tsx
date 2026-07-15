@@ -1485,7 +1485,7 @@ export default function TentsLayoutPage() {
     const res = await fetch("/api/scenes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, tentType, sceneItems }),
+      body: JSON.stringify({ name, tentType, sceneItems, signs, brackets }),
     });
     if (res.ok) {
       setSaveScenePanelOpen(false);
@@ -1525,8 +1525,12 @@ export default function TentsLayoutPage() {
     if (data && typeof data === "object" && !Array.isArray(data) && data.sceneItems) {
       setSceneItems(data.sceneItems);
       if (data.tentType) setTentType(data.tentType as "25x15" | "30x20" | "open" | "hangar");
+      setSigns(Array.isArray(data.signs) ? data.signs : []);
+      setBrackets(Array.isArray(data.brackets) ? data.brackets : []);
     } else {
       setSceneItems(data);
+      setSigns([]);
+      setBrackets([]);
     }
     setSelectedItemId(null);
     setLoadScenePanelOpen(false);

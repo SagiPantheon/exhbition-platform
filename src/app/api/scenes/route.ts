@@ -20,7 +20,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   await ensureDir();
   const body = await req.json();
-  const { name, tentType, sceneItems } = body as { name: string; tentType: string; sceneItems: unknown };
+  const { name, tentType, sceneItems, signs, brackets } = body as {
+    name: string;
+    tentType: string;
+    sceneItems: unknown;
+    signs?: unknown;
+    brackets?: unknown;
+  };
 
   if (!name || typeof name !== "string" || !name.trim()) {
     return NextResponse.json({ error: "Missing name" }, { status: 400 });
@@ -28,7 +34,11 @@ export async function POST(req: NextRequest) {
 
   const safeName = name.trim().replace(/[/\\?%*:|"<>]/g, "-");
   const filePath = path.join(SCENES_DIR, `${safeName}.json`);
-  await fs.writeFile(filePath, JSON.stringify({ tentType, sceneItems }, null, 2), "utf-8");
+  await fs.writeFile(
+    filePath,
+    JSON.stringify({ tentType, sceneItems, signs: signs ?? [], brackets: brackets ?? [] }, null, 2),
+    "utf-8"
+  );
 
   return NextResponse.json({ ok: true, name: safeName });
 }
