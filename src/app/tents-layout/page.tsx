@@ -233,12 +233,14 @@ function BracketSign({
   onSelect,
   draggingId,
   activeTool,
+  assembly = ASSEMBLY_IDLE,
 }: {
   bracket: BracketItem;
   isSelected: boolean;
   onSelect: () => void;
   draggingId: { current: string | null };
   activeTool: string;
+  assembly?: AssemblyInfo;
 }) {
   const hw = bracket.width / 2;
   const h = 1.2;
@@ -253,13 +255,15 @@ function BracketSign({
     const mat = new THREE.LineBasicMaterial({ color: bracket.color });
     return new THREE.Line(geo, mat);
   }, [hw, bracket.color]);
+  const groupRef = useRef<THREE.Group>(null);
+  useAssemblyAnim(groupRef, bracket.id, bracket.position, 1, assembly);
 
   return (
-    <group position={bracket.position} rotation={[0, bracket.rotationY ?? 0, 0]}>
+    <group ref={groupRef} position={bracket.position} rotation={[0, bracket.rotationY ?? 0, 0]}>
       {/* Hit mesh */}
       <mesh
-        onClick={(e) => { e.stopPropagation(); onSelect(); }}
-        onPointerDown={(e) => { e.stopPropagation(); if (activeTool === "Move") { onSelect(); draggingId.current = bracket.id; } }}
+        onClick={(e) => { e.stopPropagation(); if (assembly.phase !== "assembled") return; onSelect(); }}
+        onPointerDown={(e) => { e.stopPropagation(); if (assembly.phase !== "assembled") return; if (activeTool === "Move") { onSelect(); draggingId.current = bracket.id; } }}
       >
         <planeGeometry args={[bracket.width + 0.5, 1.5]} />
         <meshStandardMaterial transparent opacity={isSelected ? 0.12 : 0} color={bracket.color} />
@@ -299,21 +303,27 @@ function NeonSign({
   onSelect,
   draggingId,
   activeTool,
+  assembly = ASSEMBLY_IDLE,
 }: {
   sign: SignItem;
   isSelected: boolean;
   onSelect: () => void;
   draggingId: { current: string | null };
   activeTool: string;
+  assembly?: AssemblyInfo;
 }) {
+  const groupRef = useRef<THREE.Group>(null);
+  useAssemblyAnim(groupRef, sign.id, sign.position, 1, assembly);
+
   return (
     <group
+      ref={groupRef}
       position={sign.position}
       rotation={[0, sign.rotationY ?? 0, 0]}
     >
       <mesh
-        onClick={(e) => { e.stopPropagation(); onSelect(); }}
-        onPointerDown={(e) => { e.stopPropagation(); if (activeTool === "Move") { onSelect(); draggingId.current = sign.id; } }}
+        onClick={(e) => { e.stopPropagation(); if (assembly.phase !== "assembled") return; onSelect(); }}
+        onPointerDown={(e) => { e.stopPropagation(); if (assembly.phase !== "assembled") return; if (activeTool === "Move") { onSelect(); draggingId.current = sign.id; } }}
       >
         <planeGeometry args={[6, 1.2]} />
         <meshStandardMaterial
@@ -798,6 +808,7 @@ function PedestalItem({
   onSelect,
   activeTool,
   draggingId,
+  assembly = ASSEMBLY_IDLE,
 }: {
   item: SceneItem;
   isSelected: boolean;
@@ -805,17 +816,22 @@ function PedestalItem({
   onSelect: () => void;
   activeTool: string;
   draggingId: { current: string | null };
+  assembly?: AssemblyInfo;
 }) {
   const [w, h, d] = PEDESTAL_DIMS[item.type] ?? [0.6, 0.8, 0.6];
   const isGlowing = snapGlowId === item.id;
+  const groupRef = useRef<THREE.Group>(null);
+  useAssemblyAnim(groupRef, item.id, item.position, item.scale, assembly);
   return (
     <>
       <group
+        ref={groupRef}
         position={item.position}
         rotation={[0, item.rotationY, 0]}
         scale={item.scale}
-        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        onClick={(e) => { e.stopPropagation(); if (assembly.phase !== "assembled") return; onSelect(); }}
         onPointerDown={(e) => {
+          if (assembly.phase !== "assembled") return;
           if (activeTool === "Move" || activeTool === "Rotate") {
             e.stopPropagation();
             onSelect();
@@ -856,25 +872,31 @@ function DynamicItem({
   onSelect,
   activeTool,
   draggingId,
+  assembly = ASSEMBLY_IDLE,
 }: {
   item: SceneItem;
   isSelected: boolean;
   onSelect: () => void;
   activeTool: string;
   draggingId: { current: string | null };
+  assembly?: AssemblyInfo;
 }) {
   const modelPath = itemModelMap[item.type] || FALLBACK_MODEL;
   const gltf = useGLTF(modelPath);
   const cloned = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  const groupRef = useRef<THREE.Group>(null);
+  useAssemblyAnim(groupRef, item.id, item.position, item.scale, assembly);
 
   return (
     <>
       <group
+        ref={groupRef}
         position={item.position}
         rotation={[0, item.rotationY, 0]}
         scale={item.scale}
-        onClick={(e) => { e.stopPropagation(); onSelect(); }}
+        onClick={(e) => { e.stopPropagation(); if (assembly.phase !== "assembled") return; onSelect(); }}
         onPointerDown={(e) => {
+          if (assembly.phase !== "assembled") return;
           if (activeTool === "Move" || activeTool === "Rotate") {
             e.stopPropagation();
             onSelect();
@@ -905,6 +927,86 @@ const CAM_PRESETS = {
 } as const;
 
 type CameraMode = keyof typeof CAM_PRESETS;
+
+// ─── Assembly effect (✨ הרכבה) ─────────────────────────────────────────────
+// Purely visual: animates a per-object position/scale offset on the THREE
+// group ref. The underlying scene state (item.position/scale) is never
+// touched, so save/load/export are unaffected.
+type AssemblyPhase = "assembled" | "disassembling" | "disassembled" | "assembling";
+type AssemblyInfo = { phase: AssemblyPhase; startedAt: number; index: number };
+const ASSEMBLY_IDLE: AssemblyInfo = { phase: "assembled", startedAt: 0, index: 0 };
+const ASSEMBLY_FLIGHT_DISTANCE = 20; // world units — clears every tent size
+const ASSEMBLY_DURATION_MS = 1200;
+const ASSEMBLY_STAGGER_MS = 50;
+
+function hashStringToInt(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0;
+  return h >>> 0;
+}
+function assemblyDirection(id: string): [number, number, number] {
+  const h = hashStringToInt(id);
+  const angle = ((h % 1000) / 1000) * Math.PI * 2;
+  const jitter = (Math.floor(h / 1000) % 1000) / 1000;
+  return [Math.cos(angle), 0.25 + jitter * 0.4, Math.sin(angle)];
+}
+function easeInCubic(t: number): number { return t * t * t; }
+function easeOutCubic(t: number): number { return 1 - Math.pow(1 - t, 3); }
+// Overshoots slightly past 1 then settles back to exactly 1 — used only for
+// scale, giving a light "landing" pop with zero risk of position overshoot.
+function easeOutBack(t: number): number {
+  const c1 = 1.2;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+function useAssemblyAnim(
+  groupRef: React.RefObject<THREE.Group>,
+  id: string,
+  restPosition: [number, number, number],
+  restScale: number,
+  assembly: AssemblyInfo
+) {
+  const { invalidate } = useThree();
+  const dir = useMemo(() => assemblyDirection(id), [id]);
+  const delay = assembly.index * ASSEMBLY_STAGGER_MS;
+
+  useFrame(() => {
+    const g = groupRef.current;
+    if (!g || assembly.phase === "assembled") return;
+
+    if (assembly.phase === "disassembled") {
+      g.position.set(
+        restPosition[0] + dir[0] * ASSEMBLY_FLIGHT_DISTANCE,
+        restPosition[1] + dir[1] * ASSEMBLY_FLIGHT_DISTANCE,
+        restPosition[2] + dir[2] * ASSEMBLY_FLIGHT_DISTANCE
+      );
+      g.scale.setScalar(0.001);
+      return;
+    }
+
+    const elapsed = performance.now() - assembly.startedAt - delay;
+    const localT = Math.max(0, Math.min(1, elapsed / ASSEMBLY_DURATION_MS));
+
+    let positionProgress: number; // 0 = resting spot, 1 = fully away
+    let scaleFactor: number;
+    if (assembly.phase === "disassembling") {
+      positionProgress = easeInCubic(localT);
+      scaleFactor = 1 - positionProgress;
+    } else {
+      positionProgress = 1 - easeOutCubic(localT);
+      scaleFactor = easeOutBack(localT); // dips in from 0, tiny overshoot pop, settles at exactly 1
+    }
+
+    g.position.set(
+      restPosition[0] + dir[0] * ASSEMBLY_FLIGHT_DISTANCE * positionProgress,
+      restPosition[1] + dir[1] * ASSEMBLY_FLIGHT_DISTANCE * positionProgress,
+      restPosition[2] + dir[2] * ASSEMBLY_FLIGHT_DISTANCE * positionProgress
+    );
+    g.scale.setScalar(Math.max(0.001, restScale * scaleFactor));
+    invalidate();
+  });
+}
 
 function CameraRig({ mode, draggingId }: { mode: CameraMode; draggingId: { current: string | null } }) {
   const { camera, invalidate } = useThree();
@@ -1154,6 +1256,8 @@ function TentStage3D({
   onSelectBracket,
   onMoveBracket,
   onRotateItem,
+  assemblyPhase = "assembled",
+  assemblyStartedAt = 0,
 }: {
   items: SceneItem[];
   selectedId: string | null;
@@ -1177,10 +1281,25 @@ function TentStage3D({
   onSelectBracket: (id: string | null) => void;
   onMoveBracket: (id: string, x: number, z: number) => void;
   onRotateItem: (id: string, delta: number) => void;
+  assemblyPhase?: AssemblyPhase;
+  assemblyStartedAt?: number;
 }) {
   const draggingId = useRef<string | null>(null);
   const signIds = useMemo(() => signs.map((s) => s.id), [signs]);
   const bracketIds = useMemo(() => brackets.map((b) => b.id), [brackets]);
+  const assemblyOrder = useMemo(() => {
+    const map: Record<string, number> = {};
+    let i = 0;
+    items.forEach((it) => { map[it.id] = i++; });
+    signs.forEach((s) => { map[s.id] = i++; });
+    brackets.forEach((b) => { map[b.id] = i++; });
+    return map;
+  }, [items, signs, brackets]);
+  const assemblyFor = (id: string): AssemblyInfo => ({
+    phase: assemblyPhase,
+    startedAt: assemblyStartedAt,
+    index: assemblyOrder[id] ?? 0,
+  });
 
   return (
     <Canvas
@@ -1254,6 +1373,7 @@ function TentStage3D({
                 onSelect={() => onSelect(item.id)}
                 activeTool={activeTool}
                 draggingId={draggingId}
+                assembly={assemblyFor(item.id)}
               />
             ) : (
               <DynamicItem
@@ -1263,6 +1383,7 @@ function TentStage3D({
                 onSelect={() => onSelect(item.id)}
                 activeTool={activeTool}
                 draggingId={draggingId}
+                assembly={assemblyFor(item.id)}
               />
             )
           )}
@@ -1274,6 +1395,7 @@ function TentStage3D({
               onSelect={() => onSelectSign(sign.id)}
               draggingId={draggingId}
               activeTool={activeTool}
+              assembly={assemblyFor(sign.id)}
             />
           ))}
           {tentType === "open" && showSigns && brackets.map((b) => (
@@ -1284,6 +1406,7 @@ function TentStage3D({
               onSelect={() => onSelectBracket(b.id)}
               draggingId={draggingId}
               activeTool={activeTool}
+              assembly={assemblyFor(b.id)}
             />
           ))}
         </>
@@ -1599,6 +1722,10 @@ export default function TentsLayoutPage() {
   }, [selectedItemId]);
   const [activeTool, setActiveTool] = useState("Select");
   const [cameraMode, setCameraMode] = useState<CameraMode>("overview");
+  const [assemblyPhase, setAssemblyPhase] = useState<AssemblyPhase>("assembled");
+  const assemblyStartedAtRef = useRef(0);
+  const assemblyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (assemblyTimeoutRef.current) clearTimeout(assemblyTimeoutRef.current); }, []);
   const [activeSection, setActiveSection] = useState<"all" | "mtach" | "teufa" | "elta" | "kataz">("all");
   const [activeInventoryFilter, setActiveInventoryFilter] = useState<"הכל" | "ריהוט" | "מדיה" | "VIP" | "שירות">("הכל");
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
@@ -1858,6 +1985,22 @@ export default function TentsLayoutPage() {
     localStorage.setItem(`tentScene_${tentType}`, JSON.stringify({ items: sceneItems, name: exhibitionName, signs, brackets }));
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2000);
+  }
+
+  function toggleAssembly() {
+    if (assemblyPhase === "disassembling" || assemblyPhase === "assembling") return;
+    const totalObjects = sceneItems.length + signs.length + brackets.length;
+    if (totalObjects === 0) return;
+    const totalDuration = (totalObjects - 1) * ASSEMBLY_STAGGER_MS + ASSEMBLY_DURATION_MS;
+    if (assemblyTimeoutRef.current) clearTimeout(assemblyTimeoutRef.current);
+    assemblyStartedAtRef.current = performance.now();
+    if (assemblyPhase === "assembled") {
+      setAssemblyPhase("disassembling");
+      assemblyTimeoutRef.current = setTimeout(() => setAssemblyPhase("disassembled"), totalDuration + 60);
+    } else {
+      setAssemblyPhase("assembling");
+      assemblyTimeoutRef.current = setTimeout(() => setAssemblyPhase("assembled"), totalDuration + 60);
+    }
   }
 
   function addSign() {
@@ -3180,6 +3323,39 @@ export default function TentsLayoutPage() {
                   {dramaticLight ? "💡 תאורה דרמטית" : "🔆 אור רגיל"}
                 </button>
 
+                {/* Separator */}
+                <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+
+                {/* Assembly effect — presentation "explode/assemble" animation */}
+                <button
+                  type="button"
+                  onClick={toggleAssembly}
+                  disabled={assemblyPhase === "disassembling" || assemblyPhase === "assembling"}
+                  title="אפקט הרכבה/פירוק להצגה"
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "11px",
+                    border: assemblyPhase !== "assembled"
+                      ? "1px solid rgba(167,139,250,0.55)"
+                      : "1px solid rgba(148,163,184,0.18)",
+                    background: assemblyPhase !== "assembled"
+                      ? "rgba(167,139,250,0.14)"
+                      : "rgba(255,255,255,0.03)",
+                    color: assemblyPhase !== "assembled" ? "#c4b5fd" : "#f8fbff",
+                    fontSize: "13px",
+                    fontWeight: assemblyPhase !== "assembled" ? 800 : 700,
+                    cursor: (assemblyPhase === "disassembling" || assemblyPhase === "assembling") ? "wait" : "pointer",
+                    opacity: (assemblyPhase === "disassembling" || assemblyPhase === "assembling") ? 0.7 : 1,
+                    whiteSpace: "nowrap",
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  {assemblyPhase === "disassembling" ? "✨ מפרק…"
+                    : assemblyPhase === "assembling" ? "✨ מרכיב…"
+                    : assemblyPhase === "disassembled" ? "✨ הרכבה"
+                    : "✨ פירוק"}
+                </button>
+
                 {tentType === "open" && (
                   <>
                     <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
@@ -3531,6 +3707,8 @@ export default function TentsLayoutPage() {
                   onSelectBracket={handleSelectBracket}
                   onMoveBracket={moveBracket}
                   onRotateItem={rotateItemByDelta}
+                  assemblyPhase={assemblyPhase}
+                  assemblyStartedAt={assemblyStartedAtRef.current}
                 />
               </div>
 
