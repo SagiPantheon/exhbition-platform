@@ -6,6 +6,7 @@ import * as THREE from "three";
 import emailjs from "@emailjs/browser";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { masterExhibits } from "../../data/masterExhibits";
 
 // ─── EmailJS setup ────────────────────────────────────────────────────────────
@@ -1482,6 +1483,9 @@ function buildExportPlanHtml(params: {
 }
 
 export default function TentsLayoutPage() {
+  const pathname = usePathname();
+  const isHebrew = pathname === "/he" || pathname?.startsWith("/he/");
+  const homeHref = isHebrew ? "/he" : "/";
   const [focusMode, setFocusMode] = useState(false);
   const [dramaticLight, setDramaticLight] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
@@ -2152,7 +2156,7 @@ export default function TentsLayoutPage() {
                 </button>
 
                 <a
-                  href="/"
+                  href={homeHref}
                   style={{
                     padding: "7px 10px",
                     borderRadius: "999px",
@@ -2887,6 +2891,13 @@ export default function TentsLayoutPage() {
                     Zoom: "זום — תצוגת אוהל",
                     View: "חזור למבט כללי",
                   };
+                  const toolLabels: Record<string, string> = {
+                    Select: "בחירה",
+                    Move: "הזזה",
+                    Rotate: "סיבוב",
+                    Zoom: "זום",
+                    View: "תצוגה",
+                  };
                   function handleToolClick() {
                     setActiveTool(tool);
                     if (tool === "Rotate" && selectedItemId) rotateItem(selectedItemId);
@@ -2916,7 +2927,7 @@ export default function TentsLayoutPage() {
                         transition: "all 150ms ease",
                       }}
                     >
-                      {tool}
+                      {toolLabels[tool]}
                     </button>
                   );
                 })}
@@ -3032,7 +3043,7 @@ export default function TentsLayoutPage() {
                     transition: "all 150ms ease",
                   }}
                 >
-                  shelet
+                  שלט
                 </button>
 
                 {/* Sign height + delete — visible when a sign is selected */}
