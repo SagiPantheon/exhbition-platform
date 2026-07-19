@@ -925,7 +925,7 @@ const CAM_PRESETS = {
   overview: { pos: new THREE.Vector3(10, 8, 10), look: new THREE.Vector3(0, -1, 0), fov: 40 },
   // Eye-level walkthrough: target raised from the floor to roughly exhibit height,
   // wide-angle fov so the interior doesn't feel cramped.
-  tent:     { pos: new THREE.Vector3(0, 0, 5),   look: new THREE.Vector3(0, 0, -1),  fov: 65 },
+  tent:     { pos: new THREE.Vector3(0, 1.5, 7), look: new THREE.Vector3(0, 0, -1),  fov: 70 },
 } as const;
 
 type CameraMode = keyof typeof CAM_PRESETS;
