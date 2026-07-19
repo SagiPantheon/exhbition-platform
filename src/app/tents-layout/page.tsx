@@ -922,11 +922,21 @@ function DynamicItem({
 }
 
 const CAM_PRESETS = {
-  overview: { pos: new THREE.Vector3(10, 8, 10), look: new THREE.Vector3(0, -1, 0) },
-  tent:     { pos: new THREE.Vector3(0, 0, 5),   look: new THREE.Vector3(0, -0.3, -1) },
+  overview: { pos: new THREE.Vector3(10, 8, 10), look: new THREE.Vector3(0, -1, 0), fov: 40 },
+  // Eye-level walkthrough: target raised from the floor to roughly exhibit height,
+  // wide-angle fov so the interior doesn't feel cramped.
+  tent:     { pos: new THREE.Vector3(0, 0, 5),   look: new THREE.Vector3(0, 0, -1),  fov: 65 },
 } as const;
 
 type CameraMode = keyof typeof CAM_PRESETS;
+
+// Orbit limits are per-mode — overview keeps its original free-roam behaviour,
+// tent gets a tighter, walkthrough-friendly range so you can't zoom through a
+// wall or dip the camera below the floor / above the roof.
+const ORBIT_LIMITS = {
+  overview: { minDistance: 0.5, maxDistance: 25, minPolarAngle: 0,    maxPolarAngle: Math.PI },
+  tent:     { minDistance: 1.5, maxDistance: 9,   minPolarAngle: 0.9, maxPolarAngle: 1.95 },
+} as const;
 
 // ─── Assembly effect (✨ הרכבה) ─────────────────────────────────────────────
 // Purely visual: animates a per-object position/scale offset on the THREE
@@ -1019,27 +1029,40 @@ function CameraRig({ mode, draggingId }: { mode: CameraMode; draggingId: { curre
     if (!controlsRef.current) return;
     controlsRef.current.enabled = draggingId.current === null;
     if (!animating.current) return;
-    const { pos, look } = CAM_PRESETS[mode];
+    const { pos, look, fov } = CAM_PRESETS[mode];
+    const perspCam = "fov" in camera ? (camera as THREE.PerspectiveCamera) : null;
     camera.position.lerp(pos, 0.12);
     controlsRef.current.target.lerp(look, 0.12);
     controlsRef.current.update();
+    if (perspCam) {
+      perspCam.fov = THREE.MathUtils.lerp(perspCam.fov, fov, 0.12);
+      perspCam.updateProjectionMatrix();
+    }
     invalidate();
     if (camera.position.distanceTo(pos) < 0.08) {
       camera.position.copy(pos);
       controlsRef.current.target.copy(look);
       controlsRef.current.update();
+      if (perspCam) {
+        perspCam.fov = fov;
+        perspCam.updateProjectionMatrix();
+      }
       animating.current = false;
     }
   });
+
+  const limits = ORBIT_LIMITS[mode];
 
   return (
     <OrbitControls
       ref={controlsRef}
       enablePan={true}
       enableZoom={true}
-      minDistance={0.5}
-      maxDistance={25}
-      target={[0, -1, 0]}
+      minDistance={limits.minDistance}
+      maxDistance={limits.maxDistance}
+      minPolarAngle={limits.minPolarAngle}
+      maxPolarAngle={limits.maxPolarAngle}
+      target={CAM_PRESETS[mode].look.toArray()}
       onChange={() => invalidate()}
     />
   );
@@ -1616,8 +1639,10 @@ export default function TentsLayoutPage() {
 
   useEffect(() => {
     let cancelled = false
+    let loaded = false
     const applyScene = (parsed) => {
       if (cancelled) return
+      loaded = true
       const obj = Array.isArray(parsed) ? { items: parsed } : parsed
       setSceneItems(obj.items ?? [])
       setExhibitionName(obj.name ?? "")
@@ -1626,21 +1651,54 @@ export default function TentsLayoutPage() {
     }
     const clearScene = () => {
       if (cancelled) return
+      loaded = true
       setSceneItems([])
       setExhibitionName("")
       setSigns([])
       setBrackets([])
     }
-    const saved = localStorage.getItem(`tentScene_${tentType}`)
-    if (saved) {
-      try { applyScene(JSON.parse(saved)) } catch { clearScene() }
-    } else {
-      fetch(`/scenes/preset-tentScene_${tentType}.json`)
-        .then((r) => (r.ok ? r.json() : Promise.reject()))
-        .then((data) => applyScene(data))
-        .catch(() => clearScene())
+
+    // Switching tent type swaps out every scene object — any in-flight
+    // assembly animation belonged to the previous type's objects, so reset it
+    // rather than let newly loaded items inherit a stale mid-flight phase.
+    if (assemblyTimeoutRef.current) clearTimeout(assemblyTimeoutRef.current)
+    setAssemblyPhase("assembled")
+
+    // Per-type auto-draft (silent safety net) always wins if present — it's
+    // the most recent state for this type, newer than any manual save/preset.
+    const draftKey = `tentScene_draft_${tentType}`
+    const draft = localStorage.getItem(draftKey)
+    if (draft) {
+      try { applyScene(JSON.parse(draft)) } catch { localStorage.removeItem(draftKey) }
     }
-    return () => { cancelled = true }
+
+    if (!loaded) {
+      // Unchanged fallback chain: manual "שמירה" quick-save, then server preset.
+      const saved = localStorage.getItem(`tentScene_${tentType}`)
+      if (saved) {
+        try { applyScene(JSON.parse(saved)) } catch { clearScene() }
+      } else {
+        fetch(`/scenes/preset-tentScene_${tentType}.json`)
+          .then((r) => (r.ok ? r.json() : Promise.reject()))
+          .then((data) => applyScene(data))
+          .catch(() => clearScene())
+      }
+    }
+
+    return () => {
+      cancelled = true
+      if (!loaded) return // this type's scene never actually finished loading — nothing to snapshot
+      const outgoingType = tentType
+      const snapshot = {
+        items: sceneItemsRef.current,
+        name: exhibitionNameRef.current,
+        signs: signsRef.current,
+        brackets: bracketsRef.current,
+      }
+      try {
+        localStorage.setItem(`tentScene_draft_${outgoingType}`, JSON.stringify(snapshot))
+      } catch {}
+    }
   }, [tentType])
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [snapGlowId, setSnapGlowId] = useState<string | null>(null);
@@ -1742,6 +1800,16 @@ export default function TentsLayoutPage() {
   const [signText, setSignText] = useState("");
   const [signColor, setSignColor] = useState("#00d4ff");
   const [brackets, setBrackets] = useState<BracketItem[]>([]);
+  // Kept in sync with the latest state on every render so the tentType-switch
+  // effect's cleanup (below) can snapshot a per-type draft without a stale closure.
+  const sceneItemsRef = useRef(sceneItems);
+  sceneItemsRef.current = sceneItems;
+  const signsRef = useRef(signs);
+  signsRef.current = signs;
+  const bracketsRef = useRef(brackets);
+  bracketsRef.current = brackets;
+  const exhibitionNameRef = useRef(exhibitionName);
+  exhibitionNameRef.current = exhibitionName;
   const [selectedBracketId, setSelectedBracketId] = useState<string | null>(null);
   const [bracketPopupOpen, setBracketPopupOpen] = useState(false);
   const [bracketText, setBracketText] = useState("");
