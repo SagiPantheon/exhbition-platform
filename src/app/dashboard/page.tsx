@@ -66,7 +66,11 @@ const DIVISION_STYLES = [
 // ─── Carousel data ─────────────────────────────────────────────────────────────
 
 function buildCarouselItems() {
-  const air = masterExhibits
+  // Single pass over masterExhibits — the same non-inventory set that backs every
+  // other count on this page (header, sidebar, CoreStat). landAssets is a separate
+  // dataset not folded into masterExhibits, so it's intentionally left out here to
+  // keep this badge in lockstep with the rest of the page.
+  const items = masterExhibits
     .filter((a) => a.division !== "inventory" && a.image)
     .map((a) => ({
       slug:     a.slug,
@@ -77,29 +81,8 @@ function buildCarouselItems() {
       href:     `/air/${a.slug}`,
     }))
 
-  const space = masterExhibits
-    .filter((a) => a.division === "mtach" && a.subdivision === "halal" && a.image)
-    .map((a) => ({
-      slug:     a.slug,
-      titleEn:  a.nameEn,
-      titleHe:  a.nameHe,
-      image:    a.image,
-      category: "Space",
-      href:     `/space/${a.slug}`,
-    }))
-
-  const land = landAssets
-    .filter((a: any) => a.image)
-    .map((a: any) => ({
-      slug:     a.slug,
-      titleEn:  a.name ?? a.slug,
-      titleHe:  "",
-      image:    a.image as string,
-      category: "Land",
-      href:     `/land/${a.slug}`,
-    }))
-
-  return [...air, ...space, ...land]
+  // Dedup by slug as a safety net against future duplicate entries.
+  return Array.from(new Map(items.map((item) => [item.slug, item])).values())
 }
 
 const carouselItems = buildCarouselItems()
