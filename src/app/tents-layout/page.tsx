@@ -1890,6 +1890,16 @@ export default function TentsLayoutPage() {
   const [bracketWidth, setBracketWidth] = useState(4);
   const [bracketColor, setBracketColor] = useState("#00d4ff");
 
+  // Selection ids point at objects in the CURRENT platform's scene. Switching
+  // tentType swaps in a different scene entirely, so a stale id would keep
+  // reading as "something selected" (e.g. by the canvas onWheel guard below)
+  // even though nothing in the new scene matches it.
+  useEffect(() => {
+    setSelectedItemId(null);
+    setSelectedSignId(null);
+    setSelectedBracketId(null);
+  }, [tentType]);
+
   const filteredExhibits = useMemo(() => {
     const bySection = activeSection === "all" ? EXHIBIT_ITEMS : EXHIBIT_ITEMS.filter((e) => e.section === activeSection);
     const q = exhibitSearch.trim().toLowerCase();
@@ -3869,7 +3879,11 @@ export default function TentsLayoutPage() {
                   pointerEvents: "auto",
                 }}
                 onWheel={(e) => {
-                  if (!selectedItemId) return;
+                  // Defense in depth: a selectedItemId that no longer matches any
+                  // item in the current scene (stale from a previous platform, or
+                  // any other future path that swaps sceneItems without clearing
+                  // selection) should behave exactly like "nothing selected".
+                  if (!selectedItemId || !sceneItems.some((item) => item.id === selectedItemId)) return;
                   const delta = e.deltaY > 0 ? -0.05 : 0.05;
                   setSceneItems((prev) => prev.map((item) =>
                     item.id === selectedItemId
