@@ -1628,14 +1628,54 @@ function buildExportPlanHtml(params: {
 </html>`;
 }
 
+// Presentation mode wrapper — fully hides a UI panel (no ghosting over the
+// 3D scene), without unmounting or touching its contents.
+function PresentFade({
+  active,
+  zIndex,
+  style,
+  children,
+}: {
+  active: boolean;
+  zIndex?: number;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        opacity: active ? 0 : 1,
+        visibility: active ? "hidden" : "visible",
+        pointerEvents: active ? "none" : undefined,
+        position: active ? "relative" : undefined,
+        zIndex: active ? zIndex ?? 5 : undefined,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function TentsLayoutPage() {
   const pathname = usePathname();
   const isHebrew = pathname === "/he" || pathname?.startsWith("/he/");
   const homeHref = isHebrew ? "/he" : "/";
   const [focusMode, setFocusMode] = useState(false);
+  const [presentMode, setPresentMode] = useState(false);
   const [dramaticLight, setDramaticLight] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
   const [tentType, setTentType] = useState<"25x15" | "30x20" | "open" | "hangar">("25x15");
+
+  // Presentation mode ("מצב הצגה") — pure UI overlay, exits on Esc
+  useEffect(() => {
+    if (!presentMode) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setPresentMode(false);
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [presentMode]);
 
   useEffect(() => {
     let cancelled = false
@@ -2250,6 +2290,7 @@ export default function TentsLayoutPage() {
         }}
       >
         {/* TOP BAR */}
+        <PresentFade active={presentMode}>
         <section
           style={{
             height: focusMode ? "42px" : "56px",
@@ -2405,9 +2446,11 @@ export default function TentsLayoutPage() {
             )}
           </div>
         </section>
+        </PresentFade>
 
         {/* CONTEXT */}
         {!focusMode ? (
+          <PresentFade active={presentMode}>
           <section
             style={{
               borderRadius: "18px",
@@ -2627,10 +2670,12 @@ export default function TentsLayoutPage() {
               </div>
             ) : null}
           </section>
+          </PresentFade>
         ) : null}
 
         {/* TENT SELECTOR */}
         {!focusMode ? (
+          <PresentFade active={presentMode}>
           <section
             style={{
               borderRadius: "18px",
@@ -2694,10 +2739,12 @@ export default function TentsLayoutPage() {
               onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,211,252,0.18)")}
             />
           </section>
+          </PresentFade>
         ) : null}
 
         {/* STEPS */}
         {!focusMode ? (
+          <PresentFade active={presentMode}>
           <section
             style={{
               borderRadius: "18px",
@@ -2740,6 +2787,7 @@ export default function TentsLayoutPage() {
               </button>
             ))}
           </section>
+          </PresentFade>
         ) : null}
 
         {/* WORKSPACE */}
@@ -2753,6 +2801,7 @@ export default function TentsLayoutPage() {
           }}
         >
           {!focusMode ? (
+            <PresentFade active={presentMode} style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
             <aside
               style={{
                 display: "flex",
@@ -2913,6 +2962,7 @@ export default function TentsLayoutPage() {
                 ))}
               </div>
             </aside>
+            </PresentFade>
           ) : null}
 
           {/* Save scene panel */}
@@ -3049,15 +3099,18 @@ export default function TentsLayoutPage() {
 
           <section
             style={{
-              position: "relative",
-              borderRadius: focusMode ? "26px" : "30px",
-              border: "1px solid rgba(125,211,252,0.14)",
+              position: presentMode ? "fixed" : "relative",
+              inset: presentMode ? 0 : undefined,
+              zIndex: presentMode ? 1 : undefined,
+              borderRadius: presentMode ? 0 : focusMode ? "26px" : "30px",
+              border: presentMode ? "none" : "1px solid rgba(125,211,252,0.14)",
               background:
                 "linear-gradient(180deg, rgba(6,12,24,0.98) 0%, rgba(4,9,20,1) 100%)",
-              padding: focusMode ? "14px" : "18px",
+              padding: presentMode ? 0 : focusMode ? "14px" : "18px",
               overflow: "hidden",
-              minHeight: focusMode ? "calc(100vh - 220px)" : "660px",
-              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+              minHeight: presentMode ? "100dvh" : focusMode ? "calc(100vh - 220px)" : "660px",
+              boxShadow: presentMode ? "none" : "inset 0 0 0 1px rgba(255,255,255,0.02)",
+              transition: "border-radius 0.4s ease, padding 0.4s ease",
             }}
           >
             <div
@@ -3070,6 +3123,7 @@ export default function TentsLayoutPage() {
               }}
             />
 
+            <PresentFade active={presentMode} zIndex={2}>
             <div
               style={{
                 position: "relative",
@@ -3424,6 +3478,34 @@ export default function TentsLayoutPage() {
                     : "✨ פירוק"}
                 </button>
 
+                {/* Separator */}
+                <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
+
+                {/* Presentation mode toggle — fullscreen 3D, UI panels dim to near-invisible */}
+                <button
+                  type="button"
+                  onClick={() => setPresentMode((v) => !v)}
+                  title="מצב הצגה למסך מלא — Esc ליציאה"
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "11px",
+                    border: presentMode
+                      ? "1px solid rgba(56,189,248,0.60)"
+                      : "1px solid rgba(148,163,184,0.18)",
+                    background: presentMode
+                      ? "rgba(56,189,248,0.16)"
+                      : "rgba(255,255,255,0.03)",
+                    color: presentMode ? "#7dd3fc" : "#f8fbff",
+                    fontSize: "13px",
+                    fontWeight: presentMode ? 800 : 700,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "all 150ms ease",
+                  }}
+                >
+                  🎬 מצב הצגה
+                </button>
+
                 {tentType === "open" && (
                   <>
                     <div style={{ width: "1px", height: "22px", background: "rgba(148,163,184,0.18)", margin: "0 4px" }} />
@@ -3662,15 +3744,17 @@ export default function TentsLayoutPage() {
                 )}
               </div>
             </div>
+            </PresentFade>
 
             <div
               style={{
                 position: "relative",
                 zIndex: 1,
-                height: focusMode ? "calc(100vh - 300px)" : "calc(100vh - 280px)",
+                height: presentMode ? "100dvh" : focusMode ? "calc(100vh - 300px)" : "calc(100vh - 280px)",
                 minHeight: "600px",
-                borderRadius: "26px",
+                borderRadius: presentMode ? 0 : "26px",
                 overflow: "hidden",
+                transition: "border-radius 0.4s ease",
                 background:
                   "linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px), radial-gradient(circle at 50% 40%, rgba(29,78,216,0.34), rgba(2,6,23,0.96) 70%)",
                 backgroundSize: "28px 28px, 28px 28px, cover",
@@ -3806,6 +3890,7 @@ export default function TentsLayoutPage() {
           </section>
 
           {!focusMode ? (
+            <PresentFade active={presentMode} style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
             <aside
               style={{
                 display: "flex",
@@ -3960,6 +4045,7 @@ export default function TentsLayoutPage() {
                 ))}
               </div>
             </aside>
+            </PresentFade>
           ) : null}
         </section>
         {/* ITEM CONTROL PANEL */}
@@ -4103,16 +4189,23 @@ export default function TentsLayoutPage() {
           </div>
         )}
 
-        {/* BOTTOM STATUS */}
+        {/* BOTTOM STATUS — stays fully visible in presentation mode, pinned above the fullscreen canvas */}
         <section
           style={{
+            position: presentMode ? "fixed" : "static",
+            insetInlineStart: presentMode ? "16px" : undefined,
+            insetInlineEnd: presentMode ? "16px" : undefined,
+            bottom: presentMode ? "16px" : undefined,
+            maxWidth: presentMode ? "1880px" : undefined,
+            margin: presentMode ? "0 auto" : undefined,
+            zIndex: presentMode ? 5 : undefined,
             marginTop: focusMode ? "10px" : "14px",
             borderRadius: "20px",
             border: "1px solid rgba(125,211,252,0.16)",
             background:
               "linear-gradient(180deg, rgba(8,14,28,0.94) 0%, rgba(5,10,20,0.99) 100%)",
             padding: focusMode ? "9px 11px" : "15px 18px",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03), 0 12px 32px rgba(0,0,0,0.4)",
             display: "grid",
             gridTemplateColumns: focusMode
               ? "repeat(6, minmax(0, 1fr))"
@@ -4539,6 +4632,74 @@ export default function TentsLayoutPage() {
         >
           נשמר בהצלחה ✓
         </div>
+      )}
+
+      {/* Presentation mode — persistent assembly toggle + exit control (never fade, always reachable) */}
+      {presentMode && (
+        <>
+          <button
+            type="button"
+            onClick={toggleAssembly}
+            disabled={assemblyPhase === "disassembling" || assemblyPhase === "assembling"}
+            title="אפקט הרכבה/פירוק להצגה"
+            style={{
+              position: "fixed",
+              bottom: "104px",
+              insetInlineEnd: "24px",
+              zIndex: 60,
+              padding: "10px 18px",
+              borderRadius: "14px",
+              border: assemblyPhase !== "assembled"
+                ? "1px solid rgba(167,139,250,0.65)"
+                : "1px solid rgba(148,163,184,0.30)",
+              background: assemblyPhase !== "assembled"
+                ? "rgba(88,64,180,0.55)"
+                : "rgba(10,14,28,0.85)",
+              color: assemblyPhase !== "assembled" ? "#e9e2ff" : "#f8fbff",
+              fontSize: "14px",
+              fontWeight: 800,
+              cursor: (assemblyPhase === "disassembling" || assemblyPhase === "assembling") ? "wait" : "pointer",
+              opacity: (assemblyPhase === "disassembling" || assemblyPhase === "assembling") ? 0.7 : 1,
+              whiteSpace: "nowrap",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 10px 28px rgba(0,0,0,0.4)",
+              transition: "all 150ms ease",
+            }}
+          >
+            {assemblyPhase === "disassembling" ? "✨ מפרק…"
+              : assemblyPhase === "assembling" ? "✨ מרכיב…"
+              : assemblyPhase === "disassembled" ? "✨ הרכבה"
+              : "✨ פירוק"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPresentMode(false)}
+            title="יציאה ממצב הצגה (Esc)"
+            style={{
+              position: "fixed",
+              top: "18px",
+              insetInlineEnd: "18px",
+              zIndex: 60,
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              border: "1px solid rgba(148,163,184,0.30)",
+              background: "rgba(10,14,28,0.80)",
+              color: "#f8fbff",
+              fontSize: "18px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 10px 28px rgba(0,0,0,0.4)",
+              transition: "all 150ms ease",
+            }}
+          >
+            ×
+          </button>
+        </>
       )}
     </main>
   );
