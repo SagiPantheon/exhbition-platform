@@ -87,6 +87,10 @@ function buildCarouselItems() {
 
 const carouselItems = buildCarouselItems()
 
+// Largest division's exhibit count — used to scale the per-division count bars
+// on the dashboard cards relative to each other.
+const maxDivisionExhibitCount = Math.max(...exhibitDivisions.map((d) => d.exhibitCount))
+
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -111,13 +115,13 @@ export default function DashboardPage() {
               <p className="text-[11px] uppercase tracking-[0.35em] text-cyan-300">Exhibition Platform</p>
               <h1 className="mt-2 text-4xl font-extrabold md:text-5xl">Global Exhibit Bank</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                מאגר ידע המרכז את כלל מערכות התצוגה של IAI — 4 חטיבות, {exhibitBankSummary.totalExhibits} מוצגים, מוכנות תצוגה ממוצעת {exhibitBankSummary.averageReadiness}%
+                מאגר ידע המרכז את כלל מערכות התצוגה של IAI — 4 חטיבות, {exhibitBankSummary.totalExhibits} מוצגים, מוכנות תלת-ממד {exhibitBankSummary.averageReadiness}%
               </p>
             </div>
             <div className="grid min-w-[260px] gap-3 sm:grid-cols-2">
               <StatPill label="חטיבות" value={`${exhibitBankSummary.totalDivisions}`} />
               <StatPill label="מוצגים" value={`${exhibitBankSummary.totalExhibits}`} />
-              <StatPill label="מוכנות ממוצעת" value={`${exhibitBankSummary.averageReadiness}%`} />
+              <StatPill label="מוכנות תלת-ממד" value={`${exhibitBankSummary.averageReadiness}%`} />
               <StatPill label="מערכות טעינה" value={`${totalAssets}`} />
             </div>
           </div>
@@ -176,14 +180,14 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Readiness bar */}
+                  {/* Exhibit count bar — sized relative to the largest division, so the bars actually differ */}
                   <div className="mt-4">
                     <div className="mb-1.5 flex items-center justify-between text-xs">
-                      <span className="text-slate-500">מוכנות תצוגה</span>
-                      <span className={`font-bold ${s.badge}`}>{div.readiness}%</span>
+                      <span className="text-slate-500">מוצגים בחטיבה</span>
+                      <span className={`font-bold ${s.badge}`}>{div.exhibitCount}</span>
                     </div>
                     <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full rounded-full" style={{ width: `${div.readiness}%`, background: "#00D4FF", boxShadow: "0 0 8px rgba(0,200,255,0.8)" }} />
+                      <div className="h-full rounded-full" style={{ width: `${(div.exhibitCount / maxDivisionExhibitCount) * 100}%`, background: "#00D4FF", boxShadow: "0 0 8px rgba(0,200,255,0.8)" }} />
                     </div>
                   </div>
 
@@ -232,26 +236,19 @@ export default function DashboardPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <CoreStat label="סה״כ מוצגים" value={exhibitBankSummary.totalExhibits} sub="across all divisions" color="text-cyan-300" />
             <CoreStat label="חטיבות פעילות" value={exhibitBankSummary.totalDivisions} sub="fully catalogued" color="text-blue-300" />
-            <CoreStat label="מוכנות ממוצעת" value={`${exhibitBankSummary.averageReadiness}%`} sub="display readiness" color="text-emerald-300" />
+            <CoreStat label="מוכנות תלת-ממד" value={`${exhibitBankSummary.averageReadiness}%`} sub="3D model coverage" color="text-emerald-300" />
             <CoreStat label="מערכות טעינה" value={totalAssets} sub="assets in database" color="text-violet-300" />
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-5">
-              <p className="mb-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">Division Readiness</p>
-              <div className="space-y-3">
-                {exhibitDivisions.map((div, i) => {
-                  const s = DIVISION_STYLES[i % DIVISION_STYLES.length]
-                  return (
-                    <div key={div.id} className="flex items-center gap-3">
-                      <span className="w-20 shrink-0 text-xs text-slate-400">{div.titleHe}</span>
-                      <div className="flex-1 overflow-hidden rounded-full bg-white/8 h-2">
-                        <div className={`h-full rounded-full ${s.bar}`} style={{ width: `${div.readiness}%` }} />
-                      </div>
-                      <span className={`w-10 shrink-0 text-right text-xs font-bold ${s.badge}`}>{div.readiness}%</span>
-                    </div>
-                  )
-                })}
+              <p className="mb-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">3D Model Coverage</p>
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="text-slate-300">{exhibitBankSummary.withModel} מתוך {exhibitBankSummary.totalExhibits} מוצגים בקטלוג עם דגם תלת-ממד</span>
+                <span className="font-bold text-emerald-300">{exhibitBankSummary.averageReadiness}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-white/8">
+                <div className="h-full rounded-full bg-emerald-400" style={{ width: `${exhibitBankSummary.averageReadiness}%` }} />
               </div>
             </div>
 

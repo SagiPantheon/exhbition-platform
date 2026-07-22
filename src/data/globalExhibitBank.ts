@@ -3,7 +3,11 @@ import { masterExhibits } from "./masterExhibits"
 function divisionStats(division: string) {
   const exhibits = masterExhibits.filter((e) => e.division === division)
   const subs = new Set(exhibits.map((e) => e.subdivision).filter((s): s is string => !!s))
-  return { exhibitCount: exhibits.length, subDivisionCount: subs.size }
+  const withModel = exhibits.filter((e) => e.hasModel).length
+  // Same formula as exhibitBankSummary.averageReadiness below, scoped to one division:
+  // share of exhibits with a 3D model attached — not a business "show-readiness" score.
+  const readiness = exhibits.length > 0 ? Math.round((withModel / exhibits.length) * 100) : 0
+  return { exhibitCount: exhibits.length, subDivisionCount: subs.size, readiness }
 }
 
 const mtach  = divisionStats("mtach")
@@ -32,7 +36,7 @@ export const exhibitDivisions: ExhibitDivision[] = [
     subDivisions: ["מלמ", "טילים", "חלל", "הגנה", "תמ״מ"],
     exhibitCount: mtach.exhibitCount,
     subDivisionCount: mtach.subDivisionCount,
-    readiness: 82,
+    readiness: mtach.readiness,
     descriptionHe: "מעטפת מערכות אסטרטגיות תחת חטיבה אחת",
     ctaHe: "פתח חטיבה",
     previewSystems: ["Arrow", "OPTSAT", "OptSar", "Defense Layer"],
@@ -44,7 +48,7 @@ export const exhibitDivisions: ExhibitDivision[] = [
     subDivisions: [],
     exhibitCount: teufa.exhibitCount,
     subDivisionCount: teufa.subDivisionCount,
-    readiness: 79,
+    readiness: teufa.readiness,
     descriptionHe: "יכולות תעופה, תחזוקה ותמיכה מבצעית",
     ctaHe: "פתח חטיבה",
     previewSystems: ["Boeing 777", "Boeing 767", "KC-135"],
@@ -56,7 +60,7 @@ export const exhibitDivisions: ExhibitDivision[] = [
     subDivisions: ['מכ"ם', "SOI", "רובוטיקה", "תקשורת"],
     exhibitCount: elta.exhibitCount,
     subDivisionCount: elta.subDivisionCount,
-    readiness: 88,
+    readiness: elta.readiness,
     descriptionHe: "טכנולוגיות מתקדמות במערכת אחת",
     ctaHe: "פתח חטיבה",
     previewSystems: ["MMR Radar", "Communications Suite", "Robotics Systems", "Sensor Network"],
@@ -68,7 +72,7 @@ export const exhibitDivisions: ExhibitDivision[] = [
     subDivisions: [],
     exhibitCount: kataz.exhibitCount,
     subDivisionCount: kataz.subDivisionCount,
-    readiness: 84,
+    readiness: kataz.readiness,
     descriptionHe: "מערכות ייעודיות בקו חטיבתי ממוקד",
     ctaHe: "פתח חטיבה",
     previewSystems: ["Heron", "Eitan", "HAROP", "Thunder VTOL"],
@@ -81,5 +85,6 @@ const _withModel = _exhibits.filter((e) => e.hasModel).length
 export const exhibitBankSummary = {
   totalDivisions: 4,
   totalExhibits: _exhibits.length,
+  withModel: _withModel,
   averageReadiness: _exhibits.length > 0 ? Math.round((_withModel / _exhibits.length) * 100) : 0,
 }
