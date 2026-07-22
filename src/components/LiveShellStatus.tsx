@@ -34,6 +34,7 @@ export default function LiveShellStatus() {
 
   return (
     <div
+      className="live-shell-status"
       style={{
         position: "fixed",
         top: "12px",

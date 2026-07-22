@@ -1138,3 +1138,13 @@ div:has(> .gec-single-globe-wrap) {
 }
 /* ===== /geb-central-core-boost-v1 ===== */
 
+/* ===== presentation-mode-nav-hide-v1 ===== */
+/* Hides the global shell nav (FloatingShellNav + LiveShellStatus from layout.tsx)
+   while a page's presentation mode is active. Toggled via document.body's
+   data-present attribute — the components themselves are untouched. */
+body[data-present="true"] .floating-shell-nav,
+body[data-present="true"] .live-shell-status {
+  display: none !important;
+}
+/* ===== /presentation-mode-nav-hide-v1 ===== */
+

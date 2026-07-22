@@ -1677,6 +1677,40 @@ export default function TentsLayoutPage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [presentMode]);
 
+  // Real fullscreen (Fullscreen API), kept in sync with presentMode
+  useEffect(() => {
+    if (presentMode) {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch((err) => {
+          console.warn("[presentMode] requestFullscreen failed", err);
+        });
+      }
+    } else {
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    }
+  }, [presentMode]);
+
+  // If the user leaves fullscreen through the browser itself (Esc caught by
+  // the browser, F11, chrome UI) rather than our own toggle/Esc handler above,
+  // fall presentMode back in step so the two states never drift apart.
+  useEffect(() => {
+    function handleFullscreenChange() {
+      if (!document.fullscreenElement) setPresentMode(false);
+    }
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  // Hide the global shell nav (FloatingShellNav / LiveShellStatus, rendered
+  // from layout.tsx outside this page) while presenting, via a body attribute
+  // + global CSS rule — those components and their own logic are untouched.
+  useEffect(() => {
+    document.body.toggleAttribute("data-present", presentMode);
+    return () => document.body.removeAttribute("data-present");
+  }, [presentMode]);
+
   useEffect(() => {
     let cancelled = false
     let loaded = false
@@ -3748,11 +3782,19 @@ export default function TentsLayoutPage() {
 
             <div
               style={{
-                position: "relative",
+                // Presentation mode: absolutely positioned with an equal ~20px gap on
+                // all four sides, independent of the hidden toolbar's own flow space
+                // above it. The bottom-status panel is fully hidden in this mode, so
+                // nothing else needs to be reserved below.
+                position: presentMode ? "absolute" : "relative",
+                top: presentMode ? "20px" : undefined,
+                insetInlineStart: presentMode ? "20px" : undefined,
+                insetInlineEnd: presentMode ? "20px" : undefined,
+                bottom: presentMode ? "20px" : undefined,
                 zIndex: 1,
-                height: presentMode ? "100dvh" : focusMode ? "calc(100vh - 300px)" : "calc(100vh - 280px)",
-                minHeight: "600px",
-                borderRadius: presentMode ? 0 : "26px",
+                height: presentMode ? undefined : focusMode ? "calc(100vh - 300px)" : "calc(100vh - 280px)",
+                minHeight: presentMode ? undefined : "600px",
+                borderRadius: "26px",
                 overflow: "hidden",
                 transition: "border-radius 0.4s ease",
                 background:
@@ -4189,16 +4231,10 @@ export default function TentsLayoutPage() {
           </div>
         )}
 
-        {/* BOTTOM STATUS — stays fully visible in presentation mode, pinned above the fullscreen canvas */}
+        {/* BOTTOM STATUS — hidden entirely in presentation mode, same as the other panels */}
+        <PresentFade active={presentMode}>
         <section
           style={{
-            position: presentMode ? "fixed" : "static",
-            insetInlineStart: presentMode ? "16px" : undefined,
-            insetInlineEnd: presentMode ? "16px" : undefined,
-            bottom: presentMode ? "16px" : undefined,
-            maxWidth: presentMode ? "1880px" : undefined,
-            margin: presentMode ? "0 auto" : undefined,
-            zIndex: presentMode ? 5 : undefined,
             marginTop: focusMode ? "10px" : "14px",
             borderRadius: "20px",
             border: "1px solid rgba(125,211,252,0.16)",
@@ -4260,6 +4296,7 @@ export default function TentsLayoutPage() {
             </div>
           ))}
         </section>
+        </PresentFade>
       </div>
 
       {/* FOCUS MODE — bottom action bar */}
@@ -4644,7 +4681,7 @@ export default function TentsLayoutPage() {
             title="אפקט הרכבה/פירוק להצגה"
             style={{
               position: "fixed",
-              bottom: "104px",
+              bottom: "24px",
               insetInlineEnd: "24px",
               zIndex: 60,
               padding: "10px 18px",

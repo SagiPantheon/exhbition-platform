@@ -24,6 +24,7 @@ export default function FloatingShellNav() {
 
   return (
     <div
+      className="floating-shell-nav"
       style={{
         position: "fixed",
         top: "12px",
