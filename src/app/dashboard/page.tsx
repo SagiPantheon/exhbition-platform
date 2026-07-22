@@ -96,14 +96,13 @@ const maxDivisionExhibitCount = Math.max(...exhibitDivisions.map((d) => d.exhibi
 export default function DashboardPage() {
   const spaceAssetCount = masterExhibits.filter((e) => e.division === "mtach").length
   const airAssetCount = masterExhibits.filter((e) => e.division === "teufa").length
-  const totalAssets = masterExhibits.filter((e) => e.division !== "inventory").length
   const [hoveredDivId, setHoveredDivId] = useState<string | null>(null)
 
   return (
     <div className="flex min-h-screen bg-[#070b17] text-white">
 
       {/* ── Sidebar ── */}
-      <DivisionSidebar activeHref="/dashboard" totalAssets={totalAssets} />
+      <DivisionSidebar activeHref="/dashboard" totalAssets={exhibitBankSummary.totalExhibits} />
 
       {/* ── Main ── */}
       <main className="flex-1 overflow-auto px-8 py-8">
@@ -122,7 +121,7 @@ export default function DashboardPage() {
               <StatPill label="חטיבות" value={`${exhibitBankSummary.totalDivisions}`} />
               <StatPill label="מוצגים" value={`${exhibitBankSummary.totalExhibits}`} />
               <StatPill label="מוכנות תלת-ממד" value={`${exhibitBankSummary.averageReadiness}%`} />
-              <StatPill label="מערכות טעינה" value={`${totalAssets}`} />
+              <StatPill label="מערכות טעינה" value={`${exhibitBankSummary.totalExhibits}`} />
             </div>
           </div>
         </section>
@@ -237,7 +236,7 @@ export default function DashboardPage() {
             <CoreStat label="סה״כ מוצגים" value={exhibitBankSummary.totalExhibits} sub="across all divisions" color="text-cyan-300" />
             <CoreStat label="חטיבות פעילות" value={exhibitBankSummary.totalDivisions} sub="fully catalogued" color="text-blue-300" />
             <CoreStat label="מוכנות תלת-ממד" value={`${exhibitBankSummary.averageReadiness}%`} sub="3D model coverage" color="text-emerald-300" />
-            <CoreStat label="מערכות טעינה" value={totalAssets} sub="assets in database" color="text-violet-300" />
+            <CoreStat label="מערכות טעינה" value={exhibitBankSummary.totalExhibits} sub="assets in database" color="text-violet-300" />
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
