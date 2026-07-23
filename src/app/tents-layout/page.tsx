@@ -948,6 +948,9 @@ const ASSEMBLY_IDLE: AssemblyInfo = { phase: "assembled", startedAt: 0, index: 0
 const ASSEMBLY_FLIGHT_DISTANCE = 20; // world units — clears every tent size
 const ASSEMBLY_DURATION_MS = 1200;
 const ASSEMBLY_STAGGER_MS = 50;
+const ITEM_SCALE_MIN = 0.25;
+const ITEM_SCALE_MAX = 3;
+const ITEM_SCALE_WHEEL_STEP = 0.06; // ~6% per wheel notch
 
 function hashStringToInt(s: string): number {
   let h = 0;
@@ -1945,31 +1948,6 @@ export default function TentsLayoutPage() {
     : null;
 
   function addItem(type: string) {
-    const CLEARANCE = 1.5;
-    const isFree = (x: number, z: number) =>
-      !sceneItems.some((item) => {
-        const dx = item.position[0] - x;
-        const dz = item.position[2] - z;
-        return Math.sqrt(dx * dx + dz * dz) < CLEARANCE;
-      });
-    let x = 0;
-    let z = 0;
-    if (!isFree(0, 0)) {
-      outer: for (let ring = 1; ring <= 20; ring++) {
-        const radius = ring * CLEARANCE;
-        const points = ring * 6;
-        for (let p = 0; p < points; p++) {
-          const angle = (p / points) * Math.PI * 2;
-          const px = Math.cos(angle) * radius;
-          const pz = Math.sin(angle) * radius;
-          if (isFree(px, pz)) {
-            x = px;
-            z = pz;
-            break outer;
-          }
-        }
-      }
-    }
     const newId = `${type}-${Date.now()}`;
     setSceneItems((prev) => {
       const existing = prev.find((item) => item.type === type);
@@ -1979,7 +1957,7 @@ export default function TentsLayoutPage() {
         {
           id: newId,
           type,
-          position: [x, -1.38, z],
+          position: [0, -1.38, 0],
           rotationY: 0,
           scale,
         },
@@ -3342,7 +3320,7 @@ export default function TentsLayoutPage() {
                   };
                   const bump = (delta) => setSceneItems((prev) => prev.map((item) =>
                     item.id === selectedItemId
-                      ? { ...item, scale: Math.max(0.1, Math.min(5, item.scale + delta)) }
+                      ? { ...item, scale: Math.max(ITEM_SCALE_MIN, Math.min(ITEM_SCALE_MAX, item.scale + delta)) }
                       : item
                   ));
                   return (
@@ -3907,10 +3885,10 @@ export default function TentsLayoutPage() {
                   // any other future path that swaps sceneItems without clearing
                   // selection) should behave exactly like "nothing selected".
                   if (!selectedItemId || !sceneItems.some((item) => item.id === selectedItemId)) return;
-                  const delta = e.deltaY > 0 ? -0.05 : 0.05;
+                  const factor = e.deltaY > 0 ? 1 - ITEM_SCALE_WHEEL_STEP : 1 + ITEM_SCALE_WHEEL_STEP;
                   setSceneItems((prev) => prev.map((item) =>
                     item.id === selectedItemId
-                      ? { ...item, scale: Math.max(0.1, Math.min(5, item.scale + delta)) }
+                      ? { ...item, scale: Math.max(ITEM_SCALE_MIN, Math.min(ITEM_SCALE_MAX, item.scale * factor)) }
                       : item
                   ));
                 }}
@@ -4198,8 +4176,8 @@ export default function TentsLayoutPage() {
             {/* Scale slider */}
             <SliderControl
               label="גודל"
-              min={0.3}
-              max={2.0}
+              min={ITEM_SCALE_MIN}
+              max={ITEM_SCALE_MAX}
               step={0.05}
               value={selectedItem.scale}
               onChange={(v) => updateItemScale(selectedItemId!, v)}
