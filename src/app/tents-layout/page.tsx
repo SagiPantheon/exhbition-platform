@@ -951,6 +951,8 @@ const ASSEMBLY_STAGGER_MS = 50;
 const ITEM_SCALE_MIN = 0.25;
 const ITEM_SCALE_MAX = 3;
 const ITEM_SCALE_WHEEL_STEP = 0.06; // ~6% per wheel notch
+const ITEM_ROTATE_STEP = Math.PI / 12; // 15° per click
+const ITEM_ROTATE_STEP_FAST = Math.PI / 2; // 90° with Shift held
 
 function hashStringToInt(s: string): number {
   let h = 0;
@@ -2107,7 +2109,7 @@ export default function TentsLayoutPage() {
     setSceneItems((prev) =>
       prev.map((item) =>
         item.id === id
-          ? { ...item, rotationY: item.rotationY + Math.PI / 4 }
+          ? { ...item, rotationY: item.rotationY + ITEM_ROTATE_STEP }
           : item
       )
     );
@@ -3197,7 +3199,7 @@ export default function TentsLayoutPage() {
                   const tooltips: Record<string, string> = {
                     Select: "בחר פריט בסצנה",
                     Move: "גרור פריט על הרצפה",
-                    Rotate: "סובב פריט נבחר 45°",
+                    Rotate: "סובב פריט נבחר 15°",
                     Zoom: "זום — תצוגת אוהל",
                     View: "חזור למבט כללי",
                   };
@@ -3242,20 +3244,21 @@ export default function TentsLayoutPage() {
                   );
                 })}
 
-                {/* Rotate 90° one-shot */}
+                {/* Rotate one-shot: 15° per click, Shift+click for a quick 90° */}
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
                     if (!selectedItemId) return;
+                    const delta = e.shiftKey ? ITEM_ROTATE_STEP_FAST : ITEM_ROTATE_STEP;
                     setSceneItems((prev) =>
                       prev.map((item) =>
                         item.id === selectedItemId
-                          ? { ...item, rotationY: item.rotationY + Math.PI / 2 }
+                          ? { ...item, rotationY: item.rotationY + delta }
                           : item
                       )
                     );
                   }}
-                  title="סובב 90°"
+                  title="סובב 15° (Shift+לחיצה = 90°)"
                   style={{
                     padding: "8px 12px",
                     borderRadius: "11px",
@@ -3269,7 +3272,7 @@ export default function TentsLayoutPage() {
                     transition: "all 150ms ease",
                   }}
                 >
-                  ↻ 90°
+                  ↻ 15°
                 </button>
 
                 {/* Height up/down */}
@@ -4200,7 +4203,7 @@ export default function TentsLayoutPage() {
                   whiteSpace: "nowrap",
                 }}
               >
-                ↺ סיבוב 90°
+                ↺ סיבוב 15°
               </button>
               <button
                 type="button"
