@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
 
 export default function FloatingShellNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { lang, toggle } = useLang();
   const isHebrew = pathname === "/he" || pathname?.startsWith("/he/");
   const isHome = pathname === "/" || pathname === "/he";
@@ -19,7 +20,11 @@ export default function FloatingShellNav() {
     : { back: "Back", home: "Home", section: "Tents" };
 
   const handleBack = () => {
-    if (typeof window !== "undefined") window.history.back();
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(homeHref);
+    }
   };
 
   return (

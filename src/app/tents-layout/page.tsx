@@ -1945,8 +1945,31 @@ export default function TentsLayoutPage() {
     : null;
 
   function addItem(type: string) {
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 5.5 + Math.random() * 4.5;
+    const CLEARANCE = 1.5;
+    const isFree = (x: number, z: number) =>
+      !sceneItems.some((item) => {
+        const dx = item.position[0] - x;
+        const dz = item.position[2] - z;
+        return Math.sqrt(dx * dx + dz * dz) < CLEARANCE;
+      });
+    let x = 0;
+    let z = 0;
+    if (!isFree(0, 0)) {
+      outer: for (let ring = 1; ring <= 20; ring++) {
+        const radius = ring * CLEARANCE;
+        const points = ring * 6;
+        for (let p = 0; p < points; p++) {
+          const angle = (p / points) * Math.PI * 2;
+          const px = Math.cos(angle) * radius;
+          const pz = Math.sin(angle) * radius;
+          if (isFree(px, pz)) {
+            x = px;
+            z = pz;
+            break outer;
+          }
+        }
+      }
+    }
     const newId = `${type}-${Date.now()}`;
     setSceneItems((prev) => {
       const existing = prev.find((item) => item.type === type);
@@ -1956,7 +1979,7 @@ export default function TentsLayoutPage() {
         {
           id: newId,
           type,
-          position: [Math.cos(angle) * radius, -1.38, Math.sin(angle) * radius],
+          position: [x, -1.38, z],
           rotationY: 0,
           scale,
         },
