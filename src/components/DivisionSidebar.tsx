@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 const NAV_ITEMS = [
-  { label: "Hub",                href: "/",                      icon: "⊕" },
-  { label: "Global Exhibit Bank",href: "/dashboard",             icon: "◈" },
+  { label: "מרכז",               href: "/",                      icon: "⊕" },
+  { label: "מאגר מוצגים גלובלי", href: "/dashboard",             icon: "◈" },
   { label: "תערוכות",            href: "/exhibitions",           icon: "⊞" },
   { label: "תערוכות בארץ",       href: "/exhibitions/israel",    icon: "⊟" },
   { label: 'תערוכות בחו"ל',      href: "/exhibitions/abroad",    icon: "⊛" },
-  { label: "Layouts",            href: "/tents-layout",          icon: "⊡" },
+  { label: "פריסות",             href: "/tents-layout",          icon: "⊡" },
   { label: "אבחון",              href: "/diagnostics",          icon: "⊘" },
   { label: "מלאי",               href: "/inventory",             icon: "⊠" },
   { label: "בית לקוחות", href: "https://iai-hosting.vercel.app", icon: "⌂", external: true },
@@ -72,9 +72,9 @@ export default function DivisionSidebar({ activeHref, totalAssets }: Props) {
       {totalAssets !== undefined && (
         <div className="mt-auto">
           <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Total Assets</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">סה״כ נכסים</p>
             <p className="mt-1 text-2xl font-extrabold text-white">{totalAssets}</p>
-            <p className="mt-0.5 text-xs text-slate-500">across all divisions</p>
+            <p className="mt-0.5 text-xs text-slate-500">בכל החטיבות</p>
           </div>
         </div>
       )}

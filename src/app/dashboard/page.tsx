@@ -77,7 +77,7 @@ function buildCarouselItems() {
       titleEn:  a.nameEn,
       titleHe:  a.nameHe,
       image:    a.image,
-      category: "Air",
+      category: "אוויר",
       href:     `/air/${a.slug}`,
     }))
 
@@ -133,7 +133,7 @@ export default function DashboardPage() {
             return (
               <div
                 key={div.id}
-                className={`group relative overflow-hidden rounded-[28px] border ${s.border} bg-[#0b1227] transition duration-300 hover:-translate-y-1`}
+                className={`group relative flex h-full flex-col overflow-hidden rounded-[28px] border ${s.border} bg-[#0b1227] transition duration-300 hover:-translate-y-1`}
                 style={{
                   ...(DIVISION_COVER_MAP[div.id] ? {
                     backgroundImage: `url(${DIVISION_COVER_MAP[div.id]})`,
@@ -152,9 +152,9 @@ export default function DashboardPage() {
                 <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(2,8,20,0.25) 0%, rgba(3,10,24,0.45) 50%, rgba(4,12,28,0.70) 100%)" }} />
                 <div className={`absolute inset-0 ${s.headerBg} pointer-events-none`} />
 
-                <div className="relative p-6">
+                <div className="relative flex h-full flex-col p-6">
                   {/* Title */}
-                  <p className={`text-[11px] uppercase tracking-[0.28em] ${s.badge}`}>Division</p>
+                  <p className={`text-[11px] uppercase tracking-[0.28em] ${s.badge}`}>חטיבה</p>
                   <h2 className="mt-1 text-2xl font-extrabold text-white">{div.titleHe}</h2>
                   <p className="mt-0.5 text-xs text-slate-500">{div.titleEn}</p>
 
@@ -202,14 +202,15 @@ export default function DashboardPage() {
                     ))}
                   </div>
 
-                  {/* CTA */}
-                  <Link
-                    href={DIVISION_HREF[div.id] ?? "/air"}
-                    style={{ display: "block", marginTop: "20px" }}
-                    className="w-full px-4 py-3 rounded-xl text-center font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white transition-colors"
-                  >
-                    {div.ctaHe}
-                  </Link>
+                  {/* CTA — pinned to card bottom so all 4 buttons line up regardless of tag count above */}
+                  <div className="mt-auto pt-5">
+                    <Link
+                      href={DIVISION_HREF[div.id] ?? "/air"}
+                      className="block w-full px-4 py-3 rounded-xl text-center font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                    >
+                      {div.ctaHe}
+                    </Link>
+                  </div>
                 </div>
               </div>
             )
@@ -220,7 +221,7 @@ export default function DashboardPage() {
         <section className="mb-8 rounded-[32px] border border-cyan-300/20 bg-[radial-gradient(ellipse_at_center,rgba(32,80,170,0.22),rgba(7,11,23,1)_65%)] p-8 shadow-[0_0_60px_rgba(24,119,242,0.10)]">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.35em] text-cyan-300">Core Summary</p>
+              <p className="text-[11px] uppercase tracking-[0.35em] text-cyan-300">סיכום מרכזי</p>
               <h2 className="mt-1 text-3xl font-extrabold">Global Exhibit Core</h2>
               <p className="mt-2 text-sm text-slate-400">מבט-על על מצב מאגר המוצגים הגלובלי של IAI</p>
             </div>
@@ -233,15 +234,15 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <CoreStat label="סה״כ מוצגים" value={exhibitBankSummary.totalExhibits} sub="across all divisions" color="text-cyan-300" />
-            <CoreStat label="חטיבות פעילות" value={exhibitBankSummary.totalDivisions} sub="fully catalogued" color="text-blue-300" />
-            <CoreStat label="מוכנות תלת-ממד" value={`${exhibitBankSummary.averageReadiness}%`} sub="3D model coverage" color="text-emerald-300" />
-            <CoreStat label="מערכות טעינה" value={exhibitBankSummary.totalExhibits} sub="assets in database" color="text-violet-300" />
+            <CoreStat label="סה״כ מוצגים" value={exhibitBankSummary.totalExhibits} sub="בכל החטיבות" color="text-cyan-300" />
+            <CoreStat label="חטיבות פעילות" value={exhibitBankSummary.totalDivisions} sub="קטלוג מלא" color="text-blue-300" />
+            <CoreStat label="מוכנות תלת-ממד" value={`${exhibitBankSummary.averageReadiness}%`} sub="כיסוי דגמי תלת-ממד" color="text-emerald-300" />
+            <CoreStat label="מערכות טעינה" value={exhibitBankSummary.totalExhibits} sub="נכסים במאגר הנתונים" color="text-violet-300" />
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-5">
-              <p className="mb-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">3D Model Coverage</p>
+              <p className="mb-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">כיסוי דגמי תלת-ממד</p>
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span className="text-slate-300">{exhibitBankSummary.withModel} מתוך {exhibitBankSummary.totalExhibits} מוצגים בקטלוג עם דגם תלת-ממד</span>
                 <span className="font-bold text-emerald-300">{exhibitBankSummary.averageReadiness}%</span>
@@ -252,15 +253,15 @@ export default function DashboardPage() {
             </div>
 
             <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-5">
-              <p className="mb-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">Quick Links</p>
+              <p className="mb-3 text-[11px] uppercase tracking-[0.25em] text-slate-500">קישורים מהירים</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: "Air Assets",   href: "/air",        count: airAssetCount },
-                  { label: "Space Assets", href: "/space",      count: spaceAssetCount },
-                  { label: "Land Assets",  href: "/land",       count: landAssets.length },
-                  { label: "Tents Layout", href: "/tents-layout", count: null },
-                  { label: "Israel Exh.",  href: "/exhibitions/israel", count: null },
-                  { label: "Inventory",    href: "/inventory",  count: null },
+                  { label: "נכסי אוויר",     href: "/air",        count: airAssetCount },
+                  { label: "נכסי חלל",       href: "/space",      count: spaceAssetCount },
+                  { label: "נכסי יבשה",      href: "/land",       count: landAssets.length },
+                  { label: "פריסת אוהלים",   href: "/tents-layout", count: null },
+                  { label: "תערוכות בארץ",   href: "/exhibitions/israel", count: null },
+                  { label: "מלאי",           href: "/inventory",  count: null },
                 ].map((link) => (
                   <Link
                     key={link.href}
@@ -284,7 +285,7 @@ export default function DashboardPage() {
         <section className="rounded-[28px] border border-cyan-300/15 bg-[#0b1227] p-6">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-300">Exhibit Catalog</p>
+              <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-300">קטלוג מוצגים</p>
               <h2 className="mt-1 text-xl font-bold text-white">כל המוצגים</h2>
             </div>
             <span className="rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">
