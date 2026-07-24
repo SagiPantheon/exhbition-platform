@@ -793,12 +793,12 @@ const itemModelMap: Record<string, string> = Object.fromEntries([
     .map((e): [string, string] => [e.nameHe, e.hasModel ? e.model3d : ""]),
 ]);
 
-const FALLBACK_MODEL = "/models/inventory/flags-iai-01.glb";
-
 const PEDESTAL_DIMS: Record<string, [number, number, number]> = {
   "בסיס תצוגה קטן":    [0.6, 0.8, 0.6],
   "בסיס תצוגה בינוני": [0.8, 1.0, 0.8],
   "בסיס תצוגה גדול":   [1.0, 1.2, 1.0],
+  // real-world 75×35×90cm — no GLB exists for this one, see masterExhibits.ts
+  "במה לבנה":          [0.75, 0.9, 0.35],
 };
 
 function PedestalItem({
@@ -881,8 +881,7 @@ function DynamicItem({
   draggingId: { current: string | null };
   assembly?: AssemblyInfo;
 }) {
-  const modelPath = itemModelMap[item.type] || FALLBACK_MODEL;
-  const gltf = useGLTF(modelPath);
+  const gltf = useGLTF(itemModelMap[item.type]);
   const cloned = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
   const groupRef = useRef<THREE.Group>(null);
   useAssemblyAnim(groupRef, item.id, item.position, item.scale, assembly);
@@ -908,6 +907,69 @@ function DynamicItem({
       </group>
 
       {/* Selection ring sits on the floor in world space — unaffected by item scale */}
+      {isSelected && (
+        <mesh
+          position={[item.position[0], -1.35, item.position[2]]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[0.9, 1.25, 48]} />
+          <meshBasicMaterial color="#00e5ff" transparent opacity={0.3} />
+        </mesh>
+      )}
+    </>
+  );
+}
+
+// Placed instead of DynamicItem when itemModelMap has no GLB for this type —
+// e.g. an orphaned item from an older frozen scene preset. Renders an obvious
+// wireframe box + label so a missing model is visible, never silently swapped
+// for an unrelated GLB (was flags-iai-01.glb via FALLBACK_MODEL — removed).
+function MissingModelItem({
+  item,
+  isSelected,
+  onSelect,
+  activeTool,
+  draggingId,
+  assembly = ASSEMBLY_IDLE,
+}: {
+  item: SceneItem;
+  isSelected: boolean;
+  onSelect: () => void;
+  activeTool: string;
+  draggingId: { current: string | null };
+  assembly?: AssemblyInfo;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  useAssemblyAnim(groupRef, item.id, item.position, item.scale, assembly);
+
+  return (
+    <>
+      <group
+        ref={groupRef}
+        position={item.position}
+        rotation={[0, item.rotationY, 0]}
+        scale={item.scale}
+        onClick={(e) => { e.stopPropagation(); if (assembly.phase !== "assembled") return; onSelect(); }}
+        onPointerDown={(e) => {
+          if (assembly.phase !== "assembled") return;
+          if (activeTool === "Move" || activeTool === "Rotate") {
+            e.stopPropagation();
+            onSelect();
+            draggingId.current = item.id;
+          }
+        }}
+      >
+        <mesh position={[0, 0.4, 0]}>
+          <boxGeometry args={[0.8, 0.8, 0.8]} />
+          <meshStandardMaterial color="#f59e0b" wireframe transparent opacity={0.85} />
+        </mesh>
+        <Html position={[0, 0.9, 0]} center style={{ pointerEvents: "none" }}>
+          <div style={{ background: "rgba(40,16,0,0.88)", color: "#fbbf24", padding: "3px 8px", borderRadius: "6px", fontSize: "10px", fontWeight: 800, whiteSpace: "nowrap", border: "1px solid rgba(251,191,36,0.5)" }}>
+            ⚠ אין מודל תלת-ממד: {item.label ?? item.type}
+          </div>
+        </Html>
+      </group>
+
       {isSelected && (
         <mesh
           position={[item.position[0], -1.35, item.position[2]]}
@@ -1403,8 +1465,18 @@ function TentStage3D({
                 draggingId={draggingId}
                 assembly={assemblyFor(item.id)}
               />
-            ) : (
+            ) : itemModelMap[item.type] ? (
               <DynamicItem
+                key={item.id}
+                item={item}
+                isSelected={item.id === selectedId}
+                onSelect={() => onSelect(item.id)}
+                activeTool={activeTool}
+                draggingId={draggingId}
+                assembly={assemblyFor(item.id)}
+              />
+            ) : (
+              <MissingModelItem
                 key={item.id}
                 item={item}
                 isSelected={item.id === selectedId}
@@ -1537,7 +1609,6 @@ useGLTF.preload(TENT_MODEL_PATH);
 useGLTF.preload(HANGAR_MODEL_PATH);
 // Inventory models
 useGLTF.preload("/models/inventory/lightbox-vertical-iai.glb");
-useGLTF.preload("/models/inventory/lightbox-horizontal-iai-01.glb");
 useGLTF.preload("/models/inventory/caravan-iai-3d.glb");
 useGLTF.preload("/models/inventory/lightbox-3m-iai.glb");
 useGLTF.preload("/models/air/mini-harpy-showcase-3d.glb");

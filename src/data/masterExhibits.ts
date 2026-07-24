@@ -639,8 +639,8 @@ export const masterExhibits: MasterExhibit[] = [
   // Legacy 6 — mapped to lightbox models
   { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
   { slug: "inv-armchair",   division: "inventory", nameEn: "Armchair",    nameHe: "כורסא",        model3d: "/models/inventory/armchair-01.glb",                image: "/inventory/chair.PNG", hasModel: true },
-  { slug: "inv-stand",      division: "inventory", nameEn: "White Stage", nameHe: "במה לבנה", model3d: "/models/inventory/lightbox-vertical-iai.glb",    image: "/inventory/stage-white-75-35.png", hasModel: true },
-  { slug: "inv-lightbox-v", division: "inventory", nameEn: "Lightbox Vertical", nameHe: "לייטבוקס אנכי", model3d: "/models/inventory/lightbox-horizontal-iai-01.glb", image: "/inventory/lightbox-vertical-01.png", hasModel: true },
+  { slug: "inv-stand",      division: "inventory", nameEn: "White Stage", nameHe: "במה לבנה", model3d: "",                                                 image: "/inventory/stage-white-75-35.png", hasModel: false }, // no GLB on disk — rendered as procedural box, see PEDESTAL_DIMS in tents-layout
+  { slug: "inv-lightbox-v", division: "inventory", nameEn: "Lightbox Vertical", nameHe: "לייטבוקס אנכי", model3d: "/models/inventory/lightbox-vertical-iai.glb", image: "/inventory/lightbox-vertical-01.png", hasModel: true },
   // New 19
   { slug: "inv-stage-blue",    division: "inventory", nameEn: "Blue Stage",      nameHe: "במה כחולה",     model3d: "/models/inventory/stage-blue-01.glb",              image: "/inventory/stage-130-130.PNG", hasModel: true },
   { slug: "inv-screen",        division: "inventory", nameEn: "Screen Stand",    nameHe: "מסך",           model3d: "/models/inventory/screen-stand-iai-01.glb",        image: "/inventory/screen-stand.PNG", hasModel: true },
@@ -664,7 +664,7 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-tent-main",    division: "inventory", nameEn: "Main Tent",       nameHe: "אוהל ראשי",      model3d: "/models/inventory/tent-20-30-iai-01.glb",           image: "/inventory/tent-20x30-iai-blue-01.png", hasModel: true },
   { slug: "caravan-iai",     division: "inventory", nameEn: "Display Caravan", nameHe: "קרוואן תצוגה",   model3d: "/models/inventory/caravan-iai-3d.glb",              image: "/inventory/caravan-iai-01.PNG", hasModel: true },
   { slug: "lightbox-3m",     division: "inventory", nameEn: "Lightbox 3m",     nameHe: "לייטבוקס 3 מטר", model3d: "/models/inventory/lightbox-3m-iai.glb",             image: "/inventory/lightbox-vertical-iai-01.jpeg", hasModel: true },
-  { slug: "inv-projector",   division: "inventory", nameEn: "Digital Dashboard", nameHe: "דשבורד דיגיטלי", model3d: "",                                               image: "/inventory/digital-screen.PNG", hasModel: false },
+  { slug: "inv-projector",   division: "inventory", nameEn: "Digital Dashboard", nameHe: "דשבורד דיגיטלי", model3d: "/models/inventory/digital-signage-01.glb",      image: "/inventory/digital-screen.PNG", hasModel: true },
   { slug: "inv-pedestal-s",  division: "inventory", nameEn: "Display Base S",  nameHe: "בסיס תצוגה קטן",  model3d: "",                                                  image: "/inventory/podium-square-70x70x90-01.png", hasModel: false },
   { slug: "inv-pedestal-m",  division: "inventory", nameEn: "Display Base M",  nameHe: "בסיס תצוגה בינוני",model3d: "",                                                 image: "/inventory/podium-square-100x100x90-01.png", hasModel: false },
   { slug: "inv-pedestal-l",  division: "inventory", nameEn: "Display Base L",  nameHe: "בסיס תצוגה גדול", model3d: "",                                                  image: "/inventory/podium-square-100x100x90-01.png", hasModel: false },
