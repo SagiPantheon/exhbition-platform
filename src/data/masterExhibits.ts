@@ -11,6 +11,9 @@ export type MasterExhibit = {
   model3d: string;
   image: string;
   hasModel: boolean;
+  // tents-layout: initial 3D scale when this item is first placed on a scene. Defaults to 1
+  // when omitted. Only meaningful for inventory items — see defaultScaleMap in tents-layout/page.tsx.
+  defaultScale?: number;
   code?: string;
   subtitle?: LocalizedText;
   description?: LocalizedText;
@@ -640,11 +643,11 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-table",      division: "inventory", nameEn: "Table",       nameHe: "שולחן",  model3d: "/models/inventory/blue-table-01.glb",              image: "/inventory/table-cover-iai-blue-01.png", hasModel: true },
   { slug: "inv-armchair",   division: "inventory", nameEn: "Armchair",    nameHe: "כורסא",        model3d: "/models/inventory/armchair-01.glb",                image: "/inventory/chair.PNG", hasModel: true },
   { slug: "inv-stand",      division: "inventory", nameEn: "White Stage", nameHe: "במה לבנה", model3d: "",                                                 image: "/inventory/stage-white-75-35.png", hasModel: false }, // no GLB on disk — rendered as procedural box, see PEDESTAL_DIMS in tents-layout
-  { slug: "inv-lightbox-v", division: "inventory", nameEn: "Lightbox Vertical", nameHe: "לייטבוקס אנכי", model3d: "/models/inventory/lightbox-vertical-iai.glb", image: "/inventory/lightbox-vertical-01.png", hasModel: true },
+  { slug: "inv-lightbox-v", division: "inventory", nameEn: "Lightbox Vertical", nameHe: "לייטבוקס אנכי", model3d: "/models/inventory/lightbox-vertical-iai.glb", image: "/inventory/lightbox-vertical-01.png", hasModel: true, defaultScale: 1.8 },
   // New 19
   { slug: "inv-stage-blue",    division: "inventory", nameEn: "Blue Stage",      nameHe: "במה כחולה",     model3d: "/models/inventory/stage-blue-01.glb",              image: "/inventory/stage-130-130.PNG", hasModel: true },
-  { slug: "inv-screen",        division: "inventory", nameEn: "Screen Stand",    nameHe: "מסך",           model3d: "/models/inventory/screen-stand-iai-01.glb",        image: "/inventory/screen-stand.PNG", hasModel: true },
-  { slug: "inv-logo-white",    division: "inventory", nameEn: "White Logo",      nameHe: "לוגו לבן",      model3d: "/models/inventory/logo-white-iai-01.glb",          image: "/inventory/small-logo.png", hasModel: true },
+  { slug: "inv-screen",        division: "inventory", nameEn: "Screen Stand",    nameHe: "מסך",           model3d: "/models/inventory/screen-stand-iai-01.glb",        image: "/inventory/screen-stand.PNG", hasModel: true, defaultScale: 1.8 },
+  { slug: "inv-logo-white",    division: "inventory", nameEn: "White Logo",      nameHe: "לוגו לבן",      model3d: "/models/inventory/logo-white-iai-01.glb",          image: "/inventory/small-logo.png", hasModel: true, defaultScale: 1.2 },
   { slug: "inv-loudspeaker",   division: "inventory", nameEn: "Speaker",         nameHe: "רמקול",         model3d: "/models/inventory/loudspeaker-iai.glb",            image: "/inventory/loudspeaker.PNG", hasModel: true },
   { slug: "inv-folding-chair", division: "inventory", nameEn: "Folding Chair",   nameHe: "כיסא מתקפל",    model3d: "/models/inventory/folding-chair-iai.glb",          image: "/inventory/chair-folding-white-01.png", hasModel: true },
   { slug: "inv-flag-china",    division: "inventory", nameEn: "IAI Flag",          nameHe: "דגל IAI",         model3d: "/models/inventory/flag-china-01.glb",           image: "/inventory/flag-iai-blue-01.png", hasModel: true },
@@ -654,17 +657,17 @@ export const masterExhibits: MasterExhibit[] = [
   { slug: "inv-phone-storage", division: "inventory", nameEn: "Phone Storage",   nameHe: "מתקן טלפונים",  model3d: "/models/inventory/phone-storage-01.glb",           image: "/inventory/desk-phone.PNG", hasModel: true },
   { slug: "inv-stage-small",   division: "inventory", nameEn: "Small Stage",     nameHe: "במה קטנה",      model3d: "/models/inventory/stage-blue-1m-01.glb",           image: "/inventory/stage-50-50.PNG", hasModel: true },
   { slug: "inv-inflatable-tent",division: "inventory",nameEn: "Inflatable Tent", nameHe: "אוהל מתנפח",    model3d: "/models/inventory/inflatable-tent-01.glb",         image: "/inventory/tent-dome-iai-blue-01.png", hasModel: true },
-  { slug: "inv-lightbox2",     division: "inventory", nameEn: "Lightbox 2",      nameHe: "לייטבוקס 2",    model3d: "/models/inventory/ligthbox-horizontal-iai-02.glb", image: "/inventory/lightbox-horizontal-01.jpeg", hasModel: true },
+  { slug: "inv-lightbox2",     division: "inventory", nameEn: "Lightbox 2",      nameHe: "לייטבוקס 2",    model3d: "/models/inventory/ligthbox-horizontal-iai-02.glb", image: "/inventory/lightbox-horizontal-01.jpeg", hasModel: true, defaultScale: 2.0 },
   { slug: "inv-podium",        division: "inventory", nameEn: "Podium",          nameHe: "פודיום",        model3d: "/models/inventory/acrylic-podium-iai.glb",         image: "/inventory/lectern-acrylic-01.png", hasModel: true },
-  { slug: "inv-digital-sign",  division: "inventory", nameEn: "Digital Signage", nameHe: "שילוט דיגיטלי", model3d: "/models/inventory/digital-signage-01.glb",         image: "/inventory/digital-screen.PNG", hasModel: true },
-  { slug: "inv-magnetic-sign", division: "inventory", nameEn: "Magnetic Signage",nameHe: "שילוט מגנטי",   model3d: "/models/inventory/magnetic-signage-01.glb",        image: "/inventory/magnetic-desk.PNG", hasModel: true },
-  { slug: "inv-logo-blue",     division: "inventory", nameEn: "Large Blue Logo", nameHe: "לוגו כחול גדול",model3d: "/models/inventory/logo-blue-large-01.glb",         image: "/inventory/logo-iai-large-2m-01.png", hasModel: true },
+  { slug: "inv-digital-sign",  division: "inventory", nameEn: "Digital Signage", nameHe: "שילוט דיגיטלי", model3d: "/models/inventory/digital-signage-01.glb",         image: "/inventory/digital-screen.PNG", hasModel: true, defaultScale: 1.8 },
+  { slug: "inv-magnetic-sign", division: "inventory", nameEn: "Magnetic Signage",nameHe: "שילוט מגנטי",   model3d: "/models/inventory/magnetic-signage-01.glb",        image: "/inventory/magnetic-desk.PNG", hasModel: true, defaultScale: 1.8 },
+  { slug: "inv-logo-blue",     division: "inventory", nameEn: "Large Blue Logo", nameHe: "לוגו כחול גדול",model3d: "/models/inventory/logo-blue-large-01.glb",         image: "/inventory/logo-iai-large-2m-01.png", hasModel: true, defaultScale: 1.7 },
   { slug: "inv-white-tent",    division: "inventory", nameEn: "White Tent",      nameHe: "אוהל לבן",      model3d: "/models/inventory/tent-white-01.glb",              image: "/inventory/tent-25x15-white-01.png", hasModel: true },
-  { slug: "inv-wood-sign",    division: "inventory", nameEn: "Wood Signage",    nameHe: "שילוט עץ",       model3d: "/models/inventory/wood-signage-iai.glb",            image: "/inventory/wood-desk.PNG", hasModel: true },
+  { slug: "inv-wood-sign",    division: "inventory", nameEn: "Wood Signage",    nameHe: "שילוט עץ",       model3d: "/models/inventory/wood-signage-iai.glb",            image: "/inventory/wood-desk.PNG", hasModel: true, defaultScale: 1.8 },
   { slug: "inv-tent-main",    division: "inventory", nameEn: "Main Tent",       nameHe: "אוהל ראשי",      model3d: "/models/inventory/tent-20-30-iai-01.glb",           image: "/inventory/tent-20x30-iai-blue-01.png", hasModel: true },
   { slug: "caravan-iai",     division: "inventory", nameEn: "Display Caravan", nameHe: "קרוואן תצוגה",   model3d: "/models/inventory/caravan-iai-3d.glb",              image: "/inventory/caravan-iai-01.PNG", hasModel: true },
-  { slug: "lightbox-3m",     division: "inventory", nameEn: "Lightbox 3m",     nameHe: "לייטבוקס 3 מטר", model3d: "/models/inventory/lightbox-3m-iai.glb",             image: "/inventory/lightbox-vertical-iai-01.jpeg", hasModel: true },
-  { slug: "inv-projector",   division: "inventory", nameEn: "Digital Dashboard", nameHe: "דשבורד דיגיטלי", model3d: "/models/inventory/digital-signage-01.glb",      image: "/inventory/digital-screen.PNG", hasModel: true },
+  { slug: "lightbox-3m",     division: "inventory", nameEn: "Lightbox 3m",     nameHe: "לייטבוקס 3 מטר", model3d: "/models/inventory/lightbox-3m-iai.glb",             image: "/inventory/lightbox-vertical-iai-01.jpeg", hasModel: true, defaultScale: 2.9 },
+  { slug: "inv-projector",   division: "inventory", nameEn: "Digital Dashboard", nameHe: "דשבורד דיגיטלי", model3d: "/models/inventory/digital-signage-01.glb",      image: "/inventory/digital-screen.PNG", hasModel: true, defaultScale: 1.8 },
   { slug: "inv-pedestal-s",  division: "inventory", nameEn: "Display Base S",  nameHe: "בסיס תצוגה קטן",  model3d: "",                                                  image: "/inventory/podium-square-70x70x90-01.png", hasModel: false },
   { slug: "inv-pedestal-m",  division: "inventory", nameEn: "Display Base M",  nameHe: "בסיס תצוגה בינוני",model3d: "",                                                 image: "/inventory/podium-square-100x100x90-01.png", hasModel: false },
   { slug: "inv-pedestal-l",  division: "inventory", nameEn: "Display Base L",  nameHe: "בסיס תצוגה גדול", model3d: "",                                                  image: "/inventory/podium-square-100x100x90-01.png", hasModel: false },

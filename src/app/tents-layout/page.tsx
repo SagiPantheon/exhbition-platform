@@ -201,6 +201,17 @@ const INVENTORY_ITEMS = masterExhibits
     categories: INVENTORY_CATEGORIES[e.slug] ?? [],
   }));
 
+// Per-type initial scale for inventory items, keyed by display name (nameHe) —
+// same key space addItem() uses for inventory. Falls back to 1 (true-to-model
+// size) when a row has no defaultScale set. Keeps same-type items (e.g. every
+// signage variant) landing at a consistent size instead of a single flat
+// constant applied regardless of how big the underlying GLB actually is.
+const defaultScaleMap: Record<string, number> = Object.fromEntries(
+  masterExhibits
+    .filter((e) => e.division === "inventory")
+    .map((e): [string, number] => [e.nameHe, e.defaultScale ?? 1])
+);
+
 type SceneItem = {
   id: string;
   type: string;
@@ -1742,6 +1753,10 @@ export default function TentsLayoutPage() {
   const [dramaticLight, setDramaticLight] = useState(false);
   const [sceneItems, setSceneItems] = useState<SceneItem[]>([]);
   const [tentType, setTentType] = useState<"25x15" | "30x20" | "open" | "hangar">("25x15");
+  // Remembers the last manually-set scale per item type for this scene session (not
+  // persisted). Read by addItem() so the next item of the same type starts at the size
+  // you last dialled in, instead of always resetting to the type's default.
+  const lastScaleByType = useRef<Record<string, number>>({});
 
   // Presentation mode ("מצב הצגה") — pure UI overlay, exits on Esc
   useEffect(() => {
@@ -2022,20 +2037,17 @@ export default function TentsLayoutPage() {
 
   function addItem(type: string) {
     const newId = `${type}-${Date.now()}`;
-    setSceneItems((prev) => {
-      const existing = prev.find((item) => item.type === type);
-      const scale = existing ? existing.scale : 0.8;
-      return [
-        ...prev,
-        {
-          id: newId,
-          type,
-          position: [0, -1.38, 0],
-          rotationY: 0,
-          scale,
-        },
-      ];
-    });
+    const scale = lastScaleByType.current[type] ?? defaultScaleMap[type] ?? 0.8;
+    setSceneItems((prev) => [
+      ...prev,
+      {
+        id: newId,
+        type,
+        position: [0, -1.38, 0],
+        rotationY: 0,
+        scale,
+      },
+    ]);
     setSelectedItemId(newId);
   }
 
@@ -2172,7 +2184,11 @@ export default function TentsLayoutPage() {
 
   function updateItemScale(id: string, scale: number) {
     setSceneItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, scale } : item))
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        lastScaleByType.current[item.type] = scale;
+        return { ...item, scale };
+      })
     );
   }
 
@@ -3392,11 +3408,12 @@ export default function TentsLayoutPage() {
                     opacity: selectedItemId ? 1 : 0.45,
                     transition: "all 150ms ease",
                   };
-                  const bump = (delta) => setSceneItems((prev) => prev.map((item) =>
-                    item.id === selectedItemId
-                      ? { ...item, scale: Math.max(ITEM_SCALE_MIN, Math.min(ITEM_SCALE_MAX, item.scale + delta)) }
-                      : item
-                  ));
+                  const bump = (delta) => setSceneItems((prev) => prev.map((item) => {
+                    if (item.id !== selectedItemId) return item;
+                    const scale = Math.max(ITEM_SCALE_MIN, Math.min(ITEM_SCALE_MAX, item.scale + delta));
+                    lastScaleByType.current[item.type] = scale;
+                    return { ...item, scale };
+                  }));
                   return (
                     <div style={{ display: "flex", gap: "4px" }}>
                       <button type="button" onClick={() => bump(0.1)}  title="הגדל" style={scaleBtnStyle}>+</button>
@@ -3960,11 +3977,12 @@ export default function TentsLayoutPage() {
                   // selection) should behave exactly like "nothing selected".
                   if (!selectedItemId || !sceneItems.some((item) => item.id === selectedItemId)) return;
                   const factor = e.deltaY > 0 ? 1 - ITEM_SCALE_WHEEL_STEP : 1 + ITEM_SCALE_WHEEL_STEP;
-                  setSceneItems((prev) => prev.map((item) =>
-                    item.id === selectedItemId
-                      ? { ...item, scale: Math.max(ITEM_SCALE_MIN, Math.min(ITEM_SCALE_MAX, item.scale * factor)) }
-                      : item
-                  ));
+                  setSceneItems((prev) => prev.map((item) => {
+                    if (item.id !== selectedItemId) return item;
+                    const scale = Math.max(ITEM_SCALE_MIN, Math.min(ITEM_SCALE_MAX, item.scale * factor));
+                    lastScaleByType.current[item.type] = scale;
+                    return { ...item, scale };
+                  }));
                 }}
               >
                 <TentStage3D
